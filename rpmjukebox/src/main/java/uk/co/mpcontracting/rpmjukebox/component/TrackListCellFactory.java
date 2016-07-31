@@ -10,10 +10,14 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
+import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
+@Slf4j
 public class TrackListCellFactory implements Callback<ListView<Track>, ListCell<Track>>, Constants {
 
 	private PlaylistManager playlistManager;
@@ -42,7 +46,9 @@ public class TrackListCellFactory implements Callback<ListView<Track>, ListCell<
 					} else {
 						// Single click
 						if (listCell != null && listCell.getItem() != null) {
-							//EventManager.getInstance().fireEvent(Event.UPDATE_VISIBLE_PLAYLIST, listCell.getItem().getPlaylistId());
+							log.info(listCell.getItem().toString());
+							
+							EventManager.getInstance().fireEvent(Event.TRACK_SELECTED, listCell.getItem().getTrackId());
 						}
 					}
 				}

@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlHelper;
@@ -31,10 +30,6 @@ public class TrackListCell extends ListCell<Track> {
 			setText(null);
 			setGraphic(null);
 		} else {
-			if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
-				imageView.setImage(new Image(track.getAlbumImage(), true));
-			}
-
 			label.setText(track.getArtistName() + " - " + track.getTrackName() + " - " + track.getAlbumName());
 
 			setText(null);

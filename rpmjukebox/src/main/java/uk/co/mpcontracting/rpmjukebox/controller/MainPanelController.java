@@ -249,7 +249,7 @@ public class MainPanelController extends EventAwareObject implements Initializab
 	
 				break;
 			}
-			case UPDATE_VISIBLE_PLAYLIST: {
+			case PLAYLIST_SELECTED: {
 				Integer playlistId = (Integer)payload[0];
 	
 				if (playlistId != null && !playlistId.equals(visiblePlaylistId)) {
@@ -258,6 +258,11 @@ public class MainPanelController extends EventAwareObject implements Initializab
 	
 					break;
 				}
+			}
+			case TRACK_SELECTED: {
+				//playPauseButton.setDisable(false);
+				
+				break;
 			}
 			default: {
 				// Nothing

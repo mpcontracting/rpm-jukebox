@@ -48,7 +48,7 @@ public class PlaylistListCellFactory implements Callback<ListView<Playlist>, Lis
 					} else {
 						// Single click
 						if (listCell != null && listCell.getItem() != null) {
-							EventManager.getInstance().fireEvent(Event.UPDATE_VISIBLE_PLAYLIST, listCell.getItem().getPlaylistId());
+							EventManager.getInstance().fireEvent(Event.PLAYLIST_SELECTED, listCell.getItem().getPlaylistId());
 						}
 					}
 				}

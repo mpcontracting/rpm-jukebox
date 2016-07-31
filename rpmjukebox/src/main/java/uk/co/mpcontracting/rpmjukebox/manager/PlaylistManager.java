@@ -161,7 +161,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		currentPlaylistId = playlistId;
 		currentPlaylistIndex = playlistIndex;
 
-		fireEvent(Event.UPDATE_VISIBLE_PLAYLIST, playlistId);
+		fireEvent(Event.PLAYLIST_SELECTED, playlistId);
 
 		playCurrentTrack();
 	}
