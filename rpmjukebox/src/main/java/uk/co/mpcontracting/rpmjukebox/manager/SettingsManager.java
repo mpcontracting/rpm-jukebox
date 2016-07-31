@@ -141,7 +141,7 @@ public class SettingsManager implements InitializingBean, Constants {
 			return;
 		}
 
-		/*DocumentFactory factory = DocumentFactory.getInstance();
+		DocumentFactory factory = DocumentFactory.getInstance();
 		SAXReader reader = new SAXReader(factory);
 
 		try {
@@ -152,7 +152,7 @@ public class SettingsManager implements InitializingBean, Constants {
 			Node equalizerNode = rpmJukeboxNode.selectSingleNode("equalizer");
 
 			for (Element bandElement : (List<Element>)equalizerNode.selectNodes("band")) {
-				setEqualizerGain(Integer.parseInt(bandElement.attributeValue("id")), Double.parseDouble(bandElement.attributeValue("value")));
+				mediaManager.setEqualizerGain(Integer.parseInt(bandElement.attributeValue("id")), Double.parseDouble(bandElement.attributeValue("value")));
 			}
 
 			// Playlists
@@ -162,7 +162,7 @@ public class SettingsManager implements InitializingBean, Constants {
 
 			for (Element playlistElement : (List<Element>)playlistsNode.selectNodes("playlist")) {
 				Playlist playlist = new Playlist(Integer.parseInt(playlistElement.attributeValue("id")),
-						playlistElement.attributeValue("name"));
+					playlistElement.attributeValue("name"));
 
 				for (Element trackElement : (List<Element>)playlistElement.selectNodes("track")) {
 					Track track = searchManager.getTrackById(Integer.parseInt(trackElement.attributeValue("id")));
@@ -178,6 +178,6 @@ public class SettingsManager implements InitializingBean, Constants {
 			playlistManager.setPlaylists(playlists);
 		} catch (Exception e) {
 			log.error("Unable to load settings file", e);
-		}*/
+		}
 	}
 }

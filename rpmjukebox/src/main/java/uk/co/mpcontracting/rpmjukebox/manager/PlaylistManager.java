@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
@@ -26,8 +25,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 	private Map<Integer, Playlist> playlistMap;
 	
-	private Integer currentPlaylistId;
-	private Integer currentPlaylistIndex;
+	private int currentPlaylistId;
+	private int currentPlaylistIndex;
 	private Track currentTrack;
 	private boolean repeat;
 	
@@ -40,6 +39,23 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		currentPlaylistId = SEARCH_PLAYLIST_ID;
 		currentPlaylistIndex = 0;
 		repeat = false;
+	}
+	
+	public void setPlaylists(List<Playlist> playlists) {
+		log.info("Setting playlists");
+
+		synchronized (playlistMap) {
+			playlistMap.clear();
+
+			for (Playlist playlist : playlists) {
+				playlistMap.put(playlist.getPlaylistId(), playlist);
+			}
+
+			// Ensure the search playlist always exists
+			if (playlistMap.get(SEARCH_PLAYLIST_ID) == null) {
+				playlistMap.put(SEARCH_PLAYLIST_ID, new Playlist(SEARCH_PLAYLIST_ID, "Search Results"));
+			}
+		}
 	}
 	
 	public List<Playlist> getPlaylists() {
@@ -55,9 +71,193 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 		return Collections.unmodifiableList(playlists);
 	}
+	
+	public void createPlaylist() {
+		log.info("Creating playlist");
+
+		int playlistId = 1;
+		
+		synchronized (playlistMap) {
+			// Find the first ID available
+			while (playlistMap.get(playlistId) != null) {
+				playlistId++;
+			}
+
+			playlistMap.put(playlistId, new Playlist(playlistId, "New Playlist"));
+
+			log.info("Created playlist - " + playlistId);
+		}
+
+		fireEvent(Event.PLAYLIST_CREATED, playlistId);
+	}
+	
+	public Playlist getPlaylist(int playlistId) {
+		log.info("Getting playlist - " + playlistId);
+
+		synchronized (playlistMap) {
+			return playlistMap.get(playlistId);
+		}
+	}
+	
+	public void deletePlaylist(int playlistId) {
+		log.info("Delete playlist - " + playlistId);
+		
+		if (playlistId == SEARCH_PLAYLIST_ID) {
+			return;
+		}
+
+		// Selected playlist is the position in the list and is
+		// re-calculated after every delete from the list
+		int selectedPlaylist = 0;
+		
+		synchronized (playlistMap) {
+			for (int nextPlaylistId : playlistMap.keySet()) {
+				if (nextPlaylistId == playlistId) {
+					break;
+				}
+				
+				selectedPlaylist++;
+			}
+			
+			playlistMap.remove(playlistId);
+			
+			if (selectedPlaylist > 0) {
+				selectedPlaylist--;
+			}
+		}
+
+		fireEvent(Event.PLAYLIST_DELETED, selectedPlaylist);
+	}
+	
+	public void setPlaylistTracks(int playlistId, List<Track> tracks) {
+		log.info("Setting playlist tracks - " + playlistId);
+
+		synchronized (playlistMap) {
+			playlistMap.get(playlistId).setTracks(tracks);
+		}
+
+		fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistId);
+	}
+	
+	public void addTrackToPlaylist(int playlistId, Track track) {
+		log.info("Adding track : Playlist - " + playlistId + ", Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
+
+		synchronized (playlistMap) {
+			playlistMap.get(playlistId).addTrack(track);
+		}
+
+		fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistId);
+	}
+	
+	public int getCurrentPlaylistId() {
+		log.info("Getting current playlist id");
+
+		return currentPlaylistId;
+	}
+	
+	public void playPlaylist(int playlistId, int playlistIndex) {
+		log.info("Playing playlist - " + playlistId + ", index - " + playlistIndex);
+
+		currentPlaylistId = playlistId;
+		currentPlaylistIndex = playlistIndex;
+
+		fireEvent(Event.UPDATE_VISIBLE_PLAYLIST, playlistId);
+
+		playCurrentTrack();
+	}
+	
+	public void playTrackAtIndex(int playlistIndex) {
+		log.info("Playing track at index - " + playlistIndex);
+
+		currentPlaylistIndex = playlistIndex;
+		
+		playCurrentTrack();
+	}
+	
+	public void playCurrentTrack() {
+		log.info("Playing current track");
+
+		synchronized (playlistMap) {
+			Playlist currentPlaylist = playlistMap.get(currentPlaylistId);
+
+			if (!playlistMap.get(currentPlaylistId).getTrackMap().isEmpty()) {
+				currentTrack = currentPlaylist.getTrackMap().get(currentPlaylistIndex);
+
+				mediaManager.playTrack(currentTrack);
+			}
+		}
+	}
+	
+	public void pauseCurrentTrack() {
+		log.info("Pausing current track");
+
+		mediaManager.pausePlayback();
+	}
+
+	public void resumeCurrentTrack() {
+		log.info("Resuming current track");
+
+		mediaManager.resumePlayback();
+	}
+
+	public boolean playNextTrack() {
+		log.info("Playing next track");
+
+		Playlist currentPlaylist = null;
+
+		synchronized (playlistMap) {
+			currentPlaylist = playlistMap.get(currentPlaylistId);
+		}
+
+		if (currentPlaylist != null) {
+			if (currentPlaylistIndex < (currentPlaylist.getTrackMap().size() - 1)) {
+				currentPlaylistIndex++;
+
+				playCurrentTrack();
+
+				return true;
+			}
+
+			if (repeat) {
+				currentPlaylistIndex = 0;
+
+				playCurrentTrack();
+
+				return true;
+			}
+		}
+
+		currentPlaylistIndex = 0;
+		mediaManager.stopPlayback();
+
+		return false;
+	}
+
+	public void setRepeat(boolean repeat) {
+		log.info("Setting repeat - " + repeat);
+
+		synchronized (playlistMap) {
+			this.repeat = repeat;
+		}
+	}
 
 	@Override
 	public void eventReceived(Event event, Object... payload) {
-		
+		switch (event) {
+			case END_OF_MEDIA: {
+				log.info("End of track reached, looking for next track in playlist");
+
+				if (!playNextTrack()) {
+					log.info("End of playlist reached, stopping");
+
+					currentPlaylistIndex = 0;
+				}
+
+				break;
+			}
+			default: {
+				// Nothing
+			}
+		}
 	}
 }
