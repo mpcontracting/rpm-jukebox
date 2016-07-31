@@ -29,6 +29,7 @@ import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.component.EqualizerDialogue;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
+import uk.co.mpcontracting.rpmjukebox.component.TrackListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
@@ -91,6 +92,8 @@ public class MainPanelController extends EventAwareObject implements Initializab
 	private ObservableList<Playlist> observablePlaylists;
 	private ObservableList<Track> observableTracks;
 	
+	private int visiblePlaylistId;
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		searchTextField.textProperty().addListener(new ChangeListener<String>() {
@@ -123,9 +126,17 @@ public class MainPanelController extends EventAwareObject implements Initializab
 		equalizerDialogue = new EqualizerDialogue(FxmlContext.getBean(RpmJukebox.class).getStage());
 		
 		// Playlist list view
-		playlistPanelListView.setCellFactory(new PlaylistListCellFactory(playlistManager));
 		observablePlaylists = FXCollections.observableArrayList();
+		playlistPanelListView.setCellFactory(new PlaylistListCellFactory(playlistManager));
 		playlistPanelListView.setItems(observablePlaylists);
+		
+		// Main panel list view
+		observableTracks = FXCollections.observableArrayList();
+		mainPanelListView.setCellFactory(new TrackListCellFactory(playlistManager));
+		mainPanelListView.setItems(observableTracks);
+		
+		// State variables
+		visiblePlaylistId = playlistManager.getCurrentPlaylistId();
 	}
 	
 	private void searchTextUpdated(String searchText) {
@@ -144,10 +155,16 @@ public class MainPanelController extends EventAwareObject implements Initializab
 		observablePlaylists.setAll(playlistManager.getPlaylists());
 	}
 	
+	private void updateVisiblePlaylist(Integer playlistId) {
+		log.info("Updating visible playlist - " + playlistId);
+
+		observableTracks.setAll(playlistManager.getPlaylist(playlistId).getTracks());
+	}
+	
 	@FXML
 	protected void handleEqButtonAction(ActionEvent event) {
 		Stage stage = FxmlContext.getBean(RpmJukebox.class).getStage();
-		stage.getScene().getRoot().setEffect(new BoxBlur(3.5, 3.5, 1));
+		stage.getScene().getRoot().setEffect(new BoxBlur());
 
 		equalizerDialogue.show();
 	}
@@ -222,6 +239,25 @@ public class MainPanelController extends EventAwareObject implements Initializab
 				}
 				
 				break;
+			}
+			case PLAYLIST_CONTENT_UPDATED: {
+				Integer playlistId = (Integer)payload[0];
+	
+				if (playlistId != null && playlistId.equals(visiblePlaylistId)) {
+					updateVisiblePlaylist(playlistId);
+				}
+	
+				break;
+			}
+			case UPDATE_VISIBLE_PLAYLIST: {
+				Integer playlistId = (Integer)payload[0];
+	
+				if (playlistId != null && !playlistId.equals(visiblePlaylistId)) {
+					visiblePlaylistId = playlistId;
+					updateVisiblePlaylist(visiblePlaylistId);
+	
+					break;
+				}
 			}
 			default: {
 				// Nothing

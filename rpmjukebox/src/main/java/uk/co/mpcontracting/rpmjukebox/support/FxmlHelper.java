@@ -28,6 +28,18 @@ public abstract class FxmlHelper {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public static Object loadFxml(String fxmlFilename, Object controller) {
+		try {
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(FxmlContext.class.getResource("/fxml/" + fxmlFilename));
+			loader.setController(controller);
+			
+			return loader.load(FxmlContext.class.getResourceAsStream("/fxml/" + fxmlFilename));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public static <T> T lookup(Node parent, String id, Class<T> clazz) {
 		return clazz.cast(parent.lookup("#" + id));

@@ -32,6 +32,16 @@
     -fx-border-style: solid;
 }
 
+.trackListBorder {
+	-fx-padding: 5;
+}
+
+.trackListImage {
+	-fx-border-color: #c3c3c3;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
 /* Styles By Id */
 
 #searchPanel {
@@ -85,16 +95,6 @@
 
 #mainPanel .list-cell:selected {
 	-fx-background-color: #555555;
-}
-
-#mainPanel .trackListBorder {
-	-fx-padding: 5;
-}
-
-#mainPanel .trackListImage {
-	-fx-border-color: #c3c3c3;
-    -fx-border-style: solid;
-    -fx-border-width: 1;
 }
 
 #playingPanel {
