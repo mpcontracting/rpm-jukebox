@@ -1,8 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import java.net.URL;
 import java.util.Collections;
-import java.util.ResourceBundle;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -12,7 +10,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -46,7 +43,7 @@ import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 
 @Slf4j
 @Component
-public class MainPanelController extends EventAwareObject implements Initializable, Constants {
+public class MainPanelController extends EventAwareObject implements Constants {
 
 	@FXML
 	private TextField searchTextField;
@@ -96,8 +93,8 @@ public class MainPanelController extends EventAwareObject implements Initializab
 	
 	private int visiblePlaylistId;
 	
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
+	@FXML
+	public void initialize() {
 		searchTextField.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {

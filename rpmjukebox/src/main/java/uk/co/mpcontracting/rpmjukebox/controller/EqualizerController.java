@@ -1,13 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
@@ -19,7 +15,7 @@ import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 @Component
-public class EqualizerController extends EventAwareObject implements Initializable {
+public class EqualizerController extends EventAwareObject {
 	
 	@FXML
 	private HBox sliderHbox;
@@ -30,8 +26,8 @@ public class EqualizerController extends EventAwareObject implements Initializab
 	@FXML
 	private Button reset;
 
-	@Override
-	public void initialize(URL url, ResourceBundle resourceBundle) {
+	@FXML
+	public void initialize() {
 		for (Node node : sliderHbox.getChildren()) {
 			final Slider slider = (Slider)node;
 
