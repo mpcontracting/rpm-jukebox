@@ -97,6 +97,7 @@
       <HBox id="buttonHbox">
          <children>
             <Button id="ok" fx:id="ok" mnemonicParsing="false" text="OK" />
+            <Button id="reset" fx:id="reset" mnemonicParsing="false" text="Reset" />
          </children>
       </HBox>
    </bottom>

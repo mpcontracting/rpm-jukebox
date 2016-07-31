@@ -13,6 +13,7 @@ import lombok.ToString;
 public class Track {
 	@Getter private int artistId;
     @Getter private String artistName;
+    @Getter private String artistImage;
     @Getter private int albumId;
     @Getter private String albumName;
     @Getter private String albumImage;

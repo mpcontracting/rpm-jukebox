@@ -42,7 +42,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	@Resource(location = "classpath:/rpm-jukebox.properties")
 	private Properties properties;
 	
-	@Getter private File configDirectory;
+	private File configDirectory;
 	@Getter private URL dataFile;
 	
 	@Override
@@ -60,7 +60,11 @@ public class SettingsManager implements InitializingBean, Constants {
 		}
 
 		// Get the data file location
-		dataFile = getClass().getResource(properties.getProperty(PROP_DATAFILE_URL));
+		dataFile = new URL(properties.getProperty(PROP_DATAFILE_URL));
+	}
+	
+	public File getFileFromConfigDirectory(String relativePath) {
+		return new File(configDirectory, relativePath);
 	}
 	
 	public void saveSettings() {
@@ -110,7 +114,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		root.add(rpmJukeboxElement);
 
 		// Write the file
-		File settingsFile = new File(configDirectory, SETTINGS_FILE);
+		File settingsFile = getFileFromConfigDirectory(SETTINGS_FILE);
 		XMLWriter writer = null;
 
 		try {
@@ -134,7 +138,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	public void loadSettings() {
 		log.info("Loading settings");
 
-		File settingsFile = new File(configDirectory, SETTINGS_FILE);
+		File settingsFile = getFileFromConfigDirectory(SETTINGS_FILE);
 
 		if (!settingsFile.exists()) {
 			saveSettings();

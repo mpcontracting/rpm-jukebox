@@ -47,8 +47,7 @@ public class RpmJukebox extends Application {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				//context.initialize(SearchManager.class);
-
+				searchManager.initialise();
 				settingsManager.loadSettings();
 
 				EventManager.getInstance().fireEvent(Event.APPLICATION_INITIALISED);
