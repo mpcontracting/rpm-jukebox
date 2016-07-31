@@ -65,3 +65,22 @@
     -fx-border-width: 1 0 0 0;
     -fx-spacing: 5;
 }
+
+#equalizer {
+	-fx-alignment: center;
+	-fx-background-color: #474747;
+	-fx-border-color: #555555;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
+#equalizer #sliderHbox {
+	-fx-padding: 5 5 5 5;
+	-fx-spacing: 5;
+}
+
+#equalizer #buttonHbox {
+	-fx-alignment: center;
+	-fx-padding: 5 5 5 5;
+	-fx-spacing: 5;
+}
