@@ -25,11 +25,7 @@
             <ListView id="playlistPanelListView" fx:id="playlistPanelListView" />
          </center>
       </BorderPane>
-      <BorderPane id="mainPanel" styleClass="borderPanel" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2">
-         <center>
-            <ListView id="mainPanelListView" fx:id="mainPanelListView" />
-         </center>
-      </BorderPane>
+      <BorderPane id="mainPanel" fx:id="mainPanel" styleClass="borderPanel" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2" />
       <VBox id="playingPanel" minHeight="250.0" minWidth="250.0" prefHeight="250.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="2" />
       <HBox id="controlPanel" minHeight="40.0" minWidth="250.0" prefHeight="40.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="3">
          <children>

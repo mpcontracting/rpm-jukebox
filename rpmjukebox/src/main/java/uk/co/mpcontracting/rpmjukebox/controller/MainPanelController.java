@@ -13,12 +13,14 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import lombok.Getter;
@@ -29,7 +31,6 @@ import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.component.EqualizerDialogue;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
-import uk.co.mpcontracting.rpmjukebox.component.TrackListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
@@ -40,6 +41,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.FxmlHelper;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 
 @Slf4j
@@ -53,7 +55,7 @@ public class MainPanelController extends EventAwareObject implements Initializab
 	private ListView<Playlist> playlistPanelListView;
 	
 	@FXML
-	private ListView<Track> mainPanelListView;
+	private BorderPane mainPanel;
 	
 	@FXML
 	private Button backButton;
@@ -130,10 +132,8 @@ public class MainPanelController extends EventAwareObject implements Initializab
 		playlistPanelListView.setCellFactory(new PlaylistListCellFactory(playlistManager));
 		playlistPanelListView.setItems(observablePlaylists);
 		
-		// Main panel list view
-		observableTracks = FXCollections.observableArrayList();
-		mainPanelListView.setCellFactory(new TrackListCellFactory(playlistManager));
-		mainPanelListView.setItems(observableTracks);
+		// Track table
+		mainPanel.setCenter((Node)FxmlHelper.loadFxml("tracktable.fxml"));
 		
 		// State variables
 		visiblePlaylistId = playlistManager.getCurrentPlaylistId();

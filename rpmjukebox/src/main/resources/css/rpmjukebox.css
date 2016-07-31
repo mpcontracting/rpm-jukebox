@@ -32,16 +32,6 @@
     -fx-border-style: solid;
 }
 
-.trackListBorder {
-	-fx-padding: 5;
-}
-
-.trackListImage {
-	-fx-border-color: #c3c3c3;
-    -fx-border-style: solid;
-    -fx-border-width: 1;
-}
-
 /* Styles By Id */
 
 #searchPanel {
@@ -70,31 +60,6 @@
 
 #mainPanel {
     -fx-border-width: 0 0 0 1;
-}
-
-#mainPanel .list-cell {
-	-fx-background-color: transparent;
-	-fx-text-fill: #c3c3c3;
-	-fx-border-color: #555555;
-    -fx-border-style: solid;
-    -fx-border-width: 0 0 1 0;
-}
-
-/*#mainPanel .list-cell:odd {
-	-fx-background-color: #474747;
-}
-
-#mainPanel .list-cell:even {
-	-fx-background-color: #555555;
-}*/
-
-#mainPanel .list-cell:empty {
-    -fx-background-color: transparent;
-    -fx-border-width: 0 0 0 0;
-}
-
-#mainPanel .list-cell:selected {
-	-fx-background-color: #555555;
 }
 
 #playingPanel {
