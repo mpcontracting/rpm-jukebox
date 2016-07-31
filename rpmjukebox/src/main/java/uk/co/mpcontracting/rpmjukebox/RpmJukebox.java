@@ -7,17 +7,32 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.ioc.annotation.Autowired;
+import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
+import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
+import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 @Slf4j
+@Component
 public class RpmJukebox extends Application {
 
+	@Autowired
+	private SettingsManager settingsManager;
+	
+	@Autowired
+	private SearchManager searchManager;
+	
+	@Autowired
+	private MediaManager mediaManager;
+	
 	private boolean isInitialised;
 	
 	public RpmJukebox() {
-		FxmlContext.initialize(Arrays.asList("uk.co.mpcontracting.rpmjukebox"));
+		FxmlContext.initialize(Arrays.asList("uk.co.mpcontracting.rpmjukebox"), this);
 	}
 	
 	@Override
@@ -34,7 +49,7 @@ public class RpmJukebox extends Application {
 			public void run() {
 				//context.initialize(SearchManager.class);
 
-				//((SettingsManager)context.getBean(SettingsManager.class)).loadSettings();
+				settingsManager.loadSettings();
 
 				EventManager.getInstance().fireEvent(Event.APPLICATION_INITIALISED);
 				isInitialised = true;
@@ -46,10 +61,10 @@ public class RpmJukebox extends Application {
 	public void stop() throws Exception {
 		log.info("Stopping application");
 
-		//((MediaManager)context.getBean(MediaManager.class)).cleanUpResources();
+		mediaManager.cleanUpResources();
 
 		if (isInitialised) {
-			//((SettingsManager)context.getBean(SettingsManager.class)).saveSettings();
+			settingsManager.saveSettings();
 		}
 
 		super.stop();

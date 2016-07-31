@@ -44,9 +44,6 @@
 			<version>1.16.10</version>
 			<scope>provided</scope>
 		</dependency>
-		<!--<dependency> <groupId>com.oracle</groupId> <artifactId>javafx-runtime</artifactId> 
-			<version>2.2.25</version> <scope>system</scope> <systemPath>${javafx.system.path}/jfxrt.jar</systemPath> 
-			</dependency> -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -56,6 +53,16 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
 			<version>1.7.21</version>
+		</dependency>
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.6</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.co.mpcontracting</groupId>
@@ -75,9 +82,6 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<!--<plugin> <groupId>com.zenjava</groupId> <artifactId>javafx-maven-plugin</artifactId> 
-				<version>8.5.0</version> <configuration> <mainClass>uk.co.mpcontracting.rpmjukebox.RpmJukebox</mainClass> 
-				</configuration> </plugin> -->
 		</plugins>
 	</build>
 </project>
