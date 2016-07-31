@@ -27,7 +27,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	private Media currentMedia;
 	private Duration currentDuration;
 	@Getter private Equalizer equalizer;
-	private double volume;
+	@Getter private double volume;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -122,7 +122,6 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 				currentDuration = currentPlayer.getMedia().getDuration();
 
 				fireEvent(Event.TIME_UPDATED, currentDuration, currentPlayer.getCurrentTime());
-				fireEvent(Event.VOLUME_UPDATED, currentPlayer.getVolume());
 			}
 		});
 
