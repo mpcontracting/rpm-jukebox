@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.MainPanelController">
    <children>
       <BorderPane id="searchPanel" minHeight="40.0" prefHeight="40.0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
          <right>

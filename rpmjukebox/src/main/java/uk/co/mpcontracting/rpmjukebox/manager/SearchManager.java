@@ -10,6 +10,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -32,6 +33,7 @@ import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +68,7 @@ public class SearchManager implements Constants {
     private Directory trackDirectory;
     private IndexWriter trackWriter;
     private SearcherManager trackManager;
-	
+
     public void initialise() {
     	log.info("Initialising SearchManager");
     	
@@ -163,11 +165,11 @@ public class SearchManager implements Constants {
         }
 
         // Sorts
-        document.add(new StringField(TrackSort.DEFAULTSORT.name(), stripWhitespace(track.getArtistName(), false) + padInteger(track.getAlbumId()) + 
-        	padInteger(track.getNumber()) + padInteger(track.getYear()), Field.Store.NO));
-        document.add(new StringField(TrackSort.ARTISTSORT.name(), padInteger(track.getYear()) + stripWhitespace(track.getArtistName(), false), Field.Store.NO));
-        document.add(new StringField(TrackSort.ALBUMSORT.name(), padInteger(track.getYear()) + stripWhitespace(track.getAlbumName(), false), Field.Store.NO));
-        document.add(new StringField(TrackSort.TRACKSORT.name(), padInteger(track.getYear()) + stripWhitespace(track.getTrackName(), false), Field.Store.NO));
+        document.add(new SortedDocValuesField(TrackSort.DEFAULTSORT.name(), new BytesRef(stripWhitespace(track.getArtistName(), false) + padInteger(track.getAlbumId()) + 
+        	padInteger(track.getNumber()) + padInteger(track.getYear()))));
+        document.add(new SortedDocValuesField(TrackSort.ARTISTSORT.name(), new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getArtistName(), false))));
+        document.add(new SortedDocValuesField(TrackSort.ALBUMSORT.name(), new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getAlbumName(), false))));
+        document.add(new SortedDocValuesField(TrackSort.TRACKSORT.name(), new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getTrackName(), false))));
         
         try {
             trackWriter.addDocument(document);

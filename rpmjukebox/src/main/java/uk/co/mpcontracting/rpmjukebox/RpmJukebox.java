@@ -39,7 +39,7 @@ public class RpmJukebox extends Application {
 	public void start(Stage stage) throws Exception {
 		log.info("Starting application");
 
-		stage.setScene(new Scene((Parent)FxmlContext.loadFxml("rpmjukebox.fxml")));
+		stage.setScene(new Scene((Parent)FxmlContext.loadFxml("mainpanel.fxml")));
 		stage.setTitle("RPM Jukebox");
 		stage.show();
 		
