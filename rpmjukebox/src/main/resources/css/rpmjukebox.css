@@ -1,0 +1,13 @@
+.root {
+	-fx-alignment: center;
+	-fx-background-color: #474747;
+}
+
+/* Styles By Id */
+
+#searchPanel {
+	-fx-background-image: url("../images/header.png");
+	-fx-background-repeat: no-repeat;
+	-fx-alignment: center;
+    -fx-border-width: 0 0 1 0;
+}
