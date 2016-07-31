@@ -41,6 +41,66 @@
     -fx-border-width: 0 0 1 0;
 }
 
+#playlistPanel {
+    -fx-border-width: 0 0 1 0;
+}
+
+#playlistPanel .list-cell {
+	-fx-background-color: transparent;
+	-fx-text-fill: #c3c3c3;
+}
+
+#playlistPanel .list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+#playlistPanel .list-cell:selected {
+	-fx-background-color: #555555;
+}
+
+#mainPanel {
+    -fx-border-width: 0 0 0 1;
+}
+
+#mainPanel .list-cell {
+	-fx-background-color: transparent;
+	-fx-text-fill: #c3c3c3;
+	-fx-border-color: #555555;
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 1 0;
+}
+
+/*#mainPanel .list-cell:odd {
+	-fx-background-color: #474747;
+}
+
+#mainPanel .list-cell:even {
+	-fx-background-color: #555555;
+}*/
+
+#mainPanel .list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-width: 0 0 0 0;
+}
+
+#mainPanel .list-cell:selected {
+	-fx-background-color: #555555;
+}
+
+#mainPanel .trackListBorder {
+	-fx-padding: 5;
+}
+
+#mainPanel .trackListImage {
+	-fx-border-color: #c3c3c3;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
+#playingPanel {
+    -fx-border-width: 0 0 0 1;
+}
+
 #controlPanel {
 	-fx-alignment: center;
     -fx-border-width: 1 0 0 0;
@@ -55,10 +115,21 @@
 
 #timeSlider .slider .track {
     -fx-background-color:null;
+}
+
+/*#timeSlider .progress-bar .bar {
+    -fx-background-color:
+        -fx-shadow-highlight-color,
+        derive(-fx-color,-22%),
+        linear-gradient(to bottom, derive(-fx-color,-15.5%), derive(-fx-color,34%) 30%, derive(-fx-color,68%));
     -fx-background-insets: 1 0 -1 0, 0, 1;
     -fx-background-radius: 2.5, 2.5, 1.5;
     -fx-padding: 0.208333em;
 }
+
+#timeSlider .progress-bar:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}*/
 
 #optionsPanel {
 	-fx-alignment: center;

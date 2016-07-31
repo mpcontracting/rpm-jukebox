@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
@@ -29,6 +30,7 @@ public class RpmJukebox extends Application {
 	@Autowired
 	private MediaManager mediaManager;
 	
+	@Getter private Stage stage;
 	private boolean isInitialised;
 	
 	public RpmJukebox() {
@@ -39,6 +41,8 @@ public class RpmJukebox extends Application {
 	public void start(Stage stage) throws Exception {
 		log.info("Starting application");
 
+		this.stage = stage;
+		
 		stage.setScene(new Scene((Parent)FxmlContext.loadFxml("mainpanel.fxml")));
 		stage.setTitle("RPM Jukebox");
 		stage.show();

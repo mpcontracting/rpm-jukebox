@@ -8,24 +8,37 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.BoxBlur;
+import javafx.stage.Stage;
 import javafx.util.Duration;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.component.EqualizerDialogue;
+import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
+import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 
 @Slf4j
@@ -34,6 +47,12 @@ public class MainPanelController extends EventAwareObject implements Initializab
 
 	@FXML
 	private TextField searchTextField;
+	
+	@FXML
+	private ListView<Playlist> playlistPanelListView;
+	
+	@FXML
+	private ListView<Track> mainPanelListView;
 	
 	@FXML
 	private Button backButton;
@@ -67,6 +86,10 @@ public class MainPanelController extends EventAwareObject implements Initializab
 	
 	@Autowired
 	private MediaManager mediaManager;
+
+	@Getter private EqualizerDialogue equalizerDialogue;
+	private ObservableList<Playlist> observablePlaylists;
+	private ObservableList<Track> observableTracks;
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -95,6 +118,14 @@ public class MainPanelController extends EventAwareObject implements Initializab
 
 		playTimeLabel.setText(StringHelper.formatElapsedTime(Duration.ZERO, Duration.ZERO));
 		volumeSlider.setValue(mediaManager.getVolume() * 100);
+		
+		// Equalizer dialogue
+		equalizerDialogue = new EqualizerDialogue(FxmlContext.getBean(RpmJukebox.class).getStage());
+		
+		// Playlist list view
+		playlistPanelListView.setCellFactory(new PlaylistListCellFactory(playlistManager));
+		observablePlaylists = FXCollections.observableArrayList();
+		playlistPanelListView.setItems(observablePlaylists);
 	}
 	
 	private void searchTextUpdated(String searchText) {
@@ -107,10 +138,34 @@ public class MainPanelController extends EventAwareObject implements Initializab
 		}
 	}
 	
+	private void updateObservablePlaylists() {
+		log.info("Updating observable playlists");
+
+		observablePlaylists.setAll(playlistManager.getPlaylists());
+	}
+	
+	@FXML
+	protected void handleEqButtonAction(ActionEvent event) {
+		Stage stage = FxmlContext.getBean(RpmJukebox.class).getStage();
+		stage.getScene().getRoot().setEffect(new BoxBlur(3.5, 3.5, 1));
+
+		equalizerDialogue.show();
+	}
+	
 	@Override
 	public void eventReceived(Event event, Object... payload) {
 		switch (event) {
 			case APPLICATION_INITIALISED: {
+				// Update the observable lists
+				updateObservablePlaylists();
+				
+				// Select the first playlist
+				if (observablePlaylists.size() > 0) {
+					playlistPanelListView.getSelectionModel().select(0);
+					playlistPanelListView.getFocusModel().focus(0);
+				}
+				
+				// Enable GUI components
 				searchTextField.setDisable(false);
 				//backButton.setDisable(false);
 				//playPauseButton.setDisable(false);
@@ -150,6 +205,22 @@ public class MainPanelController extends EventAwareObject implements Initializab
 			case END_OF_MEDIA: {
 				playTimeLabel.setText(StringHelper.formatElapsedTime(Duration.ZERO, Duration.ZERO));
 
+				break;
+			}
+			case PLAYLIST_CREATED:
+			case PLAYLIST_DELETED: {
+				updateObservablePlaylists();
+
+				if (payload != null && payload.length > 0) {
+					Integer selectedPlaylist = (Integer)payload[0];
+					
+					// Select the correct playlist
+					if (observablePlaylists.size() > selectedPlaylist) {
+						playlistPanelListView.getSelectionModel().select(selectedPlaylist);
+						playlistPanelListView.getFocusModel().focus(selectedPlaylist);
+					}
+				}
+				
 				break;
 			}
 			default: {

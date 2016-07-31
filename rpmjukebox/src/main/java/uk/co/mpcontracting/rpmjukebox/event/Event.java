@@ -2,7 +2,6 @@ package uk.co.mpcontracting.rpmjukebox.event;
 
 public enum Event {
 	APPLICATION_INITIALISED,
-    EQ_BUTTON_CLICKED,
     TIME_UPDATED, 
     EQUALIZER_UPDATED,
     BUFFER_UPDATED,
