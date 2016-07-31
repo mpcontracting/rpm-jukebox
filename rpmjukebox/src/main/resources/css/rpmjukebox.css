@@ -3,6 +3,35 @@
 	-fx-background-color: #474747;
 }
 
+/* Standard Component Styles */
+
+.label {
+	-fx-text-fill: #c3c3c3;
+}
+
+.list-view {
+	-fx-background-color: transparent;
+	-fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.list-view .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-padding:-7;
+}
+
+.context-menu .menu-item .label {
+	-fx-text-fill: black;
+}
+
+/* Custom Style Classes */
+
+.borderPanel {
+	-fx-background-color: transparent;
+	-fx-border-color: #555555;
+    -fx-border-style: solid;
+}
+
 /* Styles By Id */
 
 #searchPanel {
@@ -10,4 +39,29 @@
 	-fx-background-repeat: no-repeat;
 	-fx-alignment: center;
     -fx-border-width: 0 0 1 0;
+}
+
+#controlPanel {
+	-fx-alignment: center;
+    -fx-border-width: 1 0 0 0;
+    -fx-spacing: 5;
+}
+
+#progressPanel {
+	-fx-alignment: center;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 5 5 5 5;
+}
+
+#timeSlider .slider .track {
+    -fx-background-color:null;
+    -fx-background-insets: 1 0 -1 0, 0, 1;
+    -fx-background-radius: 2.5, 2.5, 1.5;
+    -fx-padding: 0.208333em;
+}
+
+#optionsPanel {
+	-fx-alignment: center;
+    -fx-border-width: 1 0 0 0;
+    -fx-spacing: 5;
 }

@@ -1,28 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" stylesheets="@../css/rpmjukebox.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.65">
-  <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-  </columnConstraints>
-  <rowConstraints>
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-  </rowConstraints>
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <BorderPane id="searchPanel" minHeight="40.0" prefHeight="40.0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
          <right>
             <TextField id="searchTextField" fx:id="searchTextField" disable="true" />
          </right>
       </BorderPane>
+      <BorderPane id="playlistPanel" minWidth="250.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+         <center>
+            <ListView id="playlistPanelListView" fx:id="playlistPanelListView" />
+         </center>
+      </BorderPane>
+      <BorderPane id="mainPanel" styleClass="borderPanel" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2">
+         <center>
+            <ListView id="mainPanelListView" fx:id="mainPanelListView" />
+         </center>
+      </BorderPane>
+      <VBox id="playingPanel" minHeight="250.0" minWidth="250.0" prefHeight="250.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="2" />
+      <HBox id="controlPanel" minHeight="40.0" minWidth="250.0" prefHeight="40.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="3">
+         <children>
+            <Button id="backButton" fx:id="backButton" disable="true" mnemonicParsing="false" text="&lt;&lt;" />
+            <Button id="playPauseButton" fx:id="playPauseButton" disable="true" mnemonicParsing="false" text="&gt;" />
+            <Button id="forwardButton" fx:id="forwardButton" disable="true" mnemonicParsing="false" text="&gt;&gt;" />
+         </children></HBox>
+      <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="borderPanel" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
+         <children>
+            <Label text="Time :" />
+            <SliderProgressBar id="timeSlider" fx:id="timeSlider" disable="true" minWidth="50.0" HBox.hgrow="ALWAYS" />
+            <Label fx:id="playTimeLabel" minWidth="50.0" prefWidth="100.0" />
+            <Label text="Vol :" />
+            <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="50.0" prefWidth="70.0" />
+         </children></HBox>
+      <HBox id="optionsPanel" minHeight="40.0" prefHeight="40.0" prefWidth="100.0" styleClass="borderPanel" GridPane.columnIndex="2" GridPane.rowIndex="3">
+         <children>
+            <Button id="repeatButton" fx:id="repeatButton" disable="true" mnemonicParsing="false" text="O" />
+            <Button id="eqButton" fx:id="eqButton" disable="true" mnemonicParsing="false" text="EQ" />
+         </children></HBox>
    </children>
+   <columnConstraints>
+      <ColumnConstraints />
+      <ColumnConstraints />
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
 </GridPane>
