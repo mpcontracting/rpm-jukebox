@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -21,9 +22,13 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -172,7 +177,46 @@ public class SearchManager implements Constants {
     }
     
     public List<Track> search(TrackSearch trackSearch) {
-    	return null;
+    	long startTime = System.currentTimeMillis();
+        
+        if (trackManager == null) {
+            throw new RuntimeException("Cannot search before track index is initialised");
+        }
+        
+        if (trackSearch.getKeywords() == null || trackSearch.getKeywords().trim().length() < 1) {
+            return Collections.emptyList();
+        }
+
+        IndexSearcher trackSearcher = null;
+        
+        try {
+        	trackSearcher = trackManager.acquire();
+            TopFieldDocs results = trackSearcher.search(buildKeywordsQuery(stripWhitespace(trackSearch.getKeywords(), true), trackSearch.getTrackFilter().getFilter()), 
+            	MAX_SEARCH_HITS, new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
+            ScoreDoc[] scoreDocs = results.scoreDocs;
+            List<Track> tracks = new ArrayList<Track>();
+            
+            for (ScoreDoc scoreDoc : scoreDocs) {
+            	tracks.add(getTrackByDocId(trackSearcher, scoreDoc.doc));
+            }
+
+            return tracks;
+        } catch (Exception e) {
+            log.error("Unable to run track search", e);
+            
+            return Collections.emptyList();
+        } finally {
+        	try {
+	        	trackManager.release(trackSearcher);
+        	} catch (Exception e) {
+        		log.warn("Unable to release track searcher");
+        	}
+	        
+        	trackSearcher = null;
+            long queryTime = (System.currentTimeMillis() - startTime);
+            
+            log.info("Query time - " + queryTime + " milliseconds");
+        }
     }
     
     public Artist getArtistById(int artistId) {
@@ -184,7 +228,6 @@ public class SearchManager implements Constants {
     	
     	try {
     		artistSearcher = artistManager.acquire();
-    		//TopDocs results = artistSearcher.search(NumericRangeQuery.newIntRange(ArtistField.ARTISTID.name(), 1, artistId, artistId, true, true), 1);
     		TopDocs results = artistSearcher.search(new TermQuery(new Term(ArtistField.ARTISTID.name(), Integer.toString(artistId))), 1);
 
     		if (results.totalHits < 1) {
@@ -216,7 +259,6 @@ public class SearchManager implements Constants {
     	
     	try {
     		trackSearcher = trackManager.acquire();
-    		//TopDocs results = trackSearcher.search(NumericRangeQuery.newIntRange(TrackField.TRACKID.name(), 1, trackId, trackId, true, true), 1);
     		TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.TRACKID.name(), Integer.toString(trackId))), 1);
 
     		if (results.totalHits < 1) {
@@ -269,7 +311,7 @@ public class SearchManager implements Constants {
     	);
     }
     
-    private Query buildKeywordsQuery(String keywords) {
+    private Query buildKeywordsQuery(String keywords, Query trackFilter) {
         // Split into whole words with the last word having
         // a wildcard '*' on the end
     	Builder builder = new BooleanQuery.Builder();
@@ -282,6 +324,10 @@ public class SearchManager implements Constants {
             } else {
                 builder.add(new WildcardQuery(new Term(TrackField.KEYWORDS.name(), (token + "*"))), BooleanClause.Occur.MUST);
             }
+        }
+        
+        if (trackFilter != null) {
+        	builder.add(trackFilter, BooleanClause.Occur.MUST);
         }
 
         return builder.build();
