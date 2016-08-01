@@ -2,10 +2,16 @@
 
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import uk.co.mpcontracting.rpmjukebox.component.PercentageTableColumn?>
 
-<TableView xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.65" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.TrackTableController">
+<TableView fx:id="trackTable" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.TrackTableController">
   <columns>
-    <TableColumn prefWidth="75.0" text="C1" />
-    <TableColumn prefWidth="75.0" text="C2" />
+    <PercentageTableColumn fx:id="isPreferredColumn" percentageWidth="0.14" />
+    <PercentageTableColumn fx:id="trackNumberColumn" percentageWidth="0.14" />
+      <PercentageTableColumn fx:id="trackNameColumn" percentageWidth="0.14" text="Track" />
+      <PercentageTableColumn fx:id="artistNameColumn" percentageWidth="0.14" text="Artist" />
+      <PercentageTableColumn fx:id="albumYearColumn" percentageWidth="0.14" text="Year" />
+      <PercentageTableColumn fx:id="albumNameColumn" percentageWidth="0.14" text="Album" />
+      <PercentageTableColumn fx:id="genresColumn" percentageWidth="0.14" text="Genres" />
   </columns>
 </TableView>
