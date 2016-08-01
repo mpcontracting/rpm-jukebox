@@ -122,7 +122,7 @@ public class PlaylistListCellFactory implements Callback<ListView<Playlist>, Lis
 			@Override
 			public void handle(DragEvent event) {
 				if (event.getGestureSource() != listCell && listCell.getItem() != null && listCell.getItem().getPlaylistId() != SEARCH_PLAYLIST_ID && 
-						event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT)) {
+					event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT)) {
 					listCell.setStyle("-fx-background-color: brown");
 				}
 		
