@@ -10,6 +10,6 @@ public interface Constants {
 	public static final String UNSPECIFIED_GENRE 			= "Unspecified";
 	public static final double DEFAULT_VOLUME				= 0.8;
 	public static final int SEARCH_PLAYLIST_ID              = -1;
-	public static final int MAX_SEARCH_HITS 				= 50;
+	public static final int MAX_SEARCH_HITS 				= 200;
     public static final DataFormat DND_TRACK_DATA_FORMAT    = new DataFormat("dyn.dnd.track.data.format");
 }
