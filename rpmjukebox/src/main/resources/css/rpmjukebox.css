@@ -5,6 +5,11 @@
 
 /* Standard Component Styles */
 
+.button {
+	-fx-background-repeat: no-repeat;
+	-fx-background-color: transparent;
+}
+
 .label {
 	-fx-text-fill: #c3c3c3;
 }
@@ -41,6 +46,10 @@
     -fx-border-width: 0 0 1 0;
 }
 
+#searchPanel #searchLabel {
+	-fx-background-image: url('../images/search.png');
+}
+
 #playlistPanel {
     -fx-border-width: 0 0 1 0;
 }
@@ -72,34 +81,44 @@
     -fx-spacing: 5;
 }
 
+#controlPanel #previousButton {
+	-fx-background-image: url('../images/previous.png');
+}
+
+#controlPanel #playPauseButton {
+	-fx-background-image: url('../images/play.png');
+}
+
+#controlPanel #nextButton {
+	-fx-background-image: url('../images/next.png');
+}
+
 #progressPanel {
 	-fx-alignment: center;
     -fx-border-width: 1 0 0 0;
     -fx-padding: 5 5 5 5;
 }
 
+#progressPanel #volumeLabel {
+	-fx-background-image: url('../images/volume.png');
+}
+
 #timeSlider .slider .track {
     -fx-background-color:null;
 }
-
-/*#timeSlider .progress-bar .bar {
-    -fx-background-color:
-        -fx-shadow-highlight-color,
-        derive(-fx-color,-22%),
-        linear-gradient(to bottom, derive(-fx-color,-15.5%), derive(-fx-color,34%) 30%, derive(-fx-color,68%));
-    -fx-background-insets: 1 0 -1 0, 0, 1;
-    -fx-background-radius: 2.5, 2.5, 1.5;
-    -fx-padding: 0.208333em;
-}
-
-#timeSlider .progress-bar:disabled {
-    -fx-opacity: -fx-disabled-opacity;
-}*/
 
 #optionsPanel {
 	-fx-alignment: center;
     -fx-border-width: 1 0 0 0;
     -fx-spacing: 5;
+}
+
+#optionsPanel #eqButton {
+	-fx-background-image: url('../images/eq.png');
+}
+
+#optionsPanel #repeatButton {
+	-fx-background-image: url('../images/repeat.png');
 }
 
 #equalizer {

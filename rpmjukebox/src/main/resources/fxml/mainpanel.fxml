@@ -17,7 +17,12 @@
    <children>
       <BorderPane id="searchPanel" minHeight="40.0" prefHeight="40.0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
          <right>
-            <TextField id="searchTextField" fx:id="searchTextField" disable="true" />
+            <HBox BorderPane.alignment="CENTER">
+               <children>
+                  <Label id="searchLabel" prefHeight="26.0" prefWidth="26.0" />
+                  <TextField id="searchTextField" fx:id="searchTextField" />
+               </children>
+            </HBox>
          </right>
       </BorderPane>
       <BorderPane id="playlistPanel" minWidth="250.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
@@ -29,22 +34,21 @@
       <VBox id="playingPanel" minHeight="250.0" minWidth="250.0" prefHeight="250.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="2" />
       <HBox id="controlPanel" minHeight="40.0" minWidth="250.0" prefHeight="40.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="3">
          <children>
-            <Button id="backButton" fx:id="backButton" disable="true" mnemonicParsing="false" text="&lt;&lt;" />
-            <Button id="playPauseButton" fx:id="playPauseButton" disable="true" mnemonicParsing="false" text="&gt;" />
-            <Button id="forwardButton" fx:id="forwardButton" disable="true" mnemonicParsing="false" text="&gt;&gt;" />
+            <Button id="previousButton" fx:id="previousButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
+            <Button id="playPauseButton" fx:id="playPauseButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
+            <Button id="nextButton" fx:id="nextButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
          </children></HBox>
       <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="borderPanel" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
          <children>
-            <Label text="Time :" />
             <SliderProgressBar id="timeSlider" fx:id="timeSlider" disable="true" minWidth="50.0" HBox.hgrow="ALWAYS" />
             <Label fx:id="playTimeLabel" minWidth="50.0" prefWidth="100.0" />
-            <Label text="Vol :" />
+            <Label id="volumeLabel" prefHeight="26.0" prefWidth="26.0" />
             <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="50.0" prefWidth="70.0" />
          </children></HBox>
       <HBox id="optionsPanel" minHeight="40.0" prefHeight="40.0" prefWidth="100.0" styleClass="borderPanel" GridPane.columnIndex="2" GridPane.rowIndex="3">
          <children>
-            <Button id="repeatButton" fx:id="repeatButton" disable="true" mnemonicParsing="false" text="O" />
-            <Button id="eqButton" fx:id="eqButton" disable="true" mnemonicParsing="false" onAction="#handleEqButtonAction" text="EQ" />
+            <Button id="repeatButton" fx:id="repeatButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
+            <Button id="eqButton" fx:id="eqButton" disable="true" mnemonicParsing="false" onAction="#handleEqButtonAction" prefHeight="26.0" prefWidth="26.0" />
          </children></HBox>
    </children>
    <columnConstraints>

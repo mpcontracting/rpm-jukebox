@@ -55,13 +55,13 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private BorderPane mainPanel;
 	
 	@FXML
-	private Button backButton;
+	private Button previousButton;
 	
 	@FXML
 	private Button playPauseButton;
 	
 	@FXML
-	private Button forwardButton;
+	private Button nextButton;
 	
 	@FXML
 	private SliderProgressBar timeSlider;
@@ -155,7 +155,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private void updateVisiblePlaylist(Integer playlistId) {
 		log.info("Updating visible playlist - " + playlistId);
 
-		observableTracks.setAll(playlistManager.getPlaylist(playlistId).getTracks());
+		//observableTracks.setAll(playlistManager.getPlaylist(playlistId).getTracks());
 	}
 	
 	@FXML
