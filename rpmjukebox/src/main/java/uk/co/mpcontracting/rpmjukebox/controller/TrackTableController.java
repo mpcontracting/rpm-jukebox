@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import lombok.extern.slf4j.Slf4j;
@@ -38,5 +39,7 @@ public class TrackTableController {
 	@FXML
 	public void initialize() {
 		log.info("Initialising TrackTableController");
+		
+		trackTable.setPlaceholder(new Label(""));
 	}
 }

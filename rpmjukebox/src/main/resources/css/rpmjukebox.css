@@ -29,12 +29,41 @@
 	-fx-text-fill: black;
 }
 
-/* Custom Style Classes */
-
 .borderPanel {
 	-fx-background-color: transparent;
 	-fx-border-color: #555555;
     -fx-border-style: solid;
+}
+
+.table-view {
+	-fx-background-color: transparent;
+	-fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.table-view:focused {
+    -fx-background-color: transparent;
+}
+
+.table-view .filler {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header {
+	-fx-background-color: transparent;
+    -fx-border-color: #555555;
+    -fx-border-style: solid;
+    -fx-border-width: 1 1 1 0;
+    -fx-size: 25;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #474747;
+}
+
+.table-view .column-header-background .label{
+    -fx-background-color: transparent;
+    -fx-text-fill: #c3c3c3;
 }
 
 /* Styles By Id */
