@@ -5,6 +5,12 @@
 
 /* Standard Component Styles */
 
+.borderPanel {
+	-fx-background-color: transparent;
+	-fx-border-color: #555555;
+    -fx-border-style: solid;
+}
+
 .button {
 	-fx-background-repeat: no-repeat;
 	-fx-background-color: transparent;
@@ -14,31 +20,55 @@
 	-fx-text-fill: #c3c3c3;
 }
 
+.context-menu .menu-item .label {
+	-fx-text-fill: black;
+}
+
 .list-view {
 	-fx-background-color: transparent;
 	-fx-background-insets: 0;
     -fx-padding: 0;
 }
 
-.list-view .scroll-bar:horizontal {
-    -fx-opacity: 0;
-    -fx-padding:-7;
+.list-view *.scroll-bar:horizontal *.increment-button,
+.list-view *.scroll-bar:horizontal *.decrement-button {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
 }
 
-.context-menu .menu-item .label {
-	-fx-text-fill: black;
-}
-
-.borderPanel {
-	-fx-background-color: transparent;
-	-fx-border-color: #555555;
-    -fx-border-style: solid;
+.list-view *.scroll-bar:horizontal *.increment-arrow, 
+.list-view *.scroll-bar:horizontal *.decrement-arrow {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-shape: null;
 }
 
 .table-view {
 	-fx-background-color: transparent;
 	-fx-background-insets: 0;
     -fx-padding: 0;
+    -fx-size: 25;
+}
+
+.table-view *.scroll-bar:horizontal *.increment-button,
+.table-view *.scroll-bar:horizontal *.decrement-button {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.table-view *.scroll-bar:horizontal *.increment-arrow, 
+.table-view *.scroll-bar:horizontal *.decrement-arrow {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-shape: null;
 }
 
 .table-view:focused {

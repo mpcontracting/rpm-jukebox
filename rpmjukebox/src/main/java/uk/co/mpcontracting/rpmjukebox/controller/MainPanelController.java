@@ -34,11 +34,9 @@ import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlHelper;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 
 @Slf4j
@@ -89,10 +87,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 	@Getter private EqualizerDialogue equalizerDialogue;
 	private ObservableList<Playlist> observablePlaylists;
-	private ObservableList<Track> observableTracks;
-	
-	private int visiblePlaylistId;
-	
+
 	@FXML
 	public void initialize() {
 		searchTextField.textProperty().addListener(new ChangeListener<String>() {
@@ -111,7 +106,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		});
 
 		volumeSlider.valueProperty().addListener(new InvalidationListener() {
-			public void invalidated(Observable ov) {
+			public void invalidated(Observable observable) {
 				if (volumeSlider.isValueChanging()) {
 					mediaManager.setVolumePercent(volumeSlider.getValue());
 				}
@@ -130,10 +125,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		playlistPanelListView.setItems(observablePlaylists);
 		
 		// Track table
-		mainPanel.setCenter((Node)FxmlHelper.loadFxml("tracktable.fxml"));
-		
-		// State variables
-		visiblePlaylistId = playlistManager.getCurrentPlaylistId();
+		mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
 	}
 	
 	private void searchTextUpdated(String searchText) {
@@ -151,13 +143,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 		observablePlaylists.setAll(playlistManager.getPlaylists());
 	}
-	
-	private void updateVisiblePlaylist(Integer playlistId) {
-		log.info("Updating visible playlist - " + playlistId);
 
-		//observableTracks.setAll(playlistManager.getPlaylist(playlistId).getTracks());
-	}
-	
 	@FXML
 	protected void handleEqButtonAction(ActionEvent event) {
 		Stage stage = FxmlContext.getBean(RpmJukebox.class).getStage();
@@ -236,25 +222,6 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				}
 				
 				break;
-			}
-			case PLAYLIST_CONTENT_UPDATED: {
-				Integer playlistId = (Integer)payload[0];
-	
-				if (playlistId != null && playlistId.equals(visiblePlaylistId)) {
-					updateVisiblePlaylist(playlistId);
-				}
-	
-				break;
-			}
-			case PLAYLIST_SELECTED: {
-				Integer playlistId = (Integer)payload[0];
-	
-				if (playlistId != null && !playlistId.equals(visiblePlaylistId)) {
-					visiblePlaylistId = playlistId;
-					updateVisiblePlaylist(visiblePlaylistId);
-	
-					break;
-				}
 			}
 			case TRACK_SELECTED: {
 				//playPauseButton.setDisable(false);
