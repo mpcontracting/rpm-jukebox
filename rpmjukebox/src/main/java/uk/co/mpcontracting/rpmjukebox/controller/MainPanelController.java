@@ -17,6 +17,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -34,6 +36,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
@@ -51,6 +54,18 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	private BorderPane mainPanel;
+	
+	@FXML
+	private ImageView playingImageView;
+	
+	@FXML
+	private Label playingTrackLabel;
+	
+	@FXML
+	private Label playingArtistLabel;
+	
+	@FXML
+	private Label playingAlbumLabel;
 	
 	@FXML
 	private Button previousButton;
@@ -199,6 +214,25 @@ public class MainPanelController extends EventAwareObject implements Constants {
 					timeSlider.setProgressValue(bufferProgressTime.divide(mediaDuration.toMillis()).toMillis() * 100.0);
 				}
 
+				break;
+			}
+			case MEDIA_PLAYING: {
+				if (payload != null && payload.length > 0) {
+					Track track = (Track)payload[0];
+					
+					playingTrackLabel.setText(track.getTrackName());
+					playingAlbumLabel.setText(track.getAlbumName());
+					playingArtistLabel.setText(track.getArtistName());
+					
+					if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
+						playingImageView.setImage(new Image(track.getAlbumImage(), true));
+					} else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
+						playingImageView.setImage(new Image(track.getArtistImage(), true));
+					} else {
+						playingImageView.setImage(null);
+					}
+				}
+				
 				break;
 			}
 			case MEDIA_STOPPED:
