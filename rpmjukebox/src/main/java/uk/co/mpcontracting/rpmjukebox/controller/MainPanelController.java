@@ -229,7 +229,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 					} else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
 						playingImageView.setImage(new Image(track.getArtistImage(), true));
 					} else {
-						playingImageView.setImage(null);
+						playingImageView.setImage(new Image("/images/no-artwork.png"));
 					}
 				}
 				

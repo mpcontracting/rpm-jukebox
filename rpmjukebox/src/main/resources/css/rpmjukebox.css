@@ -18,10 +18,12 @@
 .button {
 	-fx-background-repeat: no-repeat;
 	-fx-background-color: transparent;
+	-fx-min-height: 10;
 }
 
 .label {
 	-fx-text-fill: -jb-text-color;
+	-fx-min-height: 10;
 }
 
 .context-menu .menu-item .label {
@@ -202,6 +204,14 @@
     -fx-border-width: 0 0 0 1;
 }
 
+#playingPanel .image-view {
+	-fx-image: url('../images/no-artwork.png');
+}
+
+#playingLabelPanel {
+	-fx-border-width: 1 0 0 0;
+}
+
 #controlPanel {
 	-fx-alignment: center;
     -fx-border-width: 1 0 0 0;
@@ -224,10 +234,17 @@
 	-fx-alignment: center;
     -fx-border-width: 1 0 0 0;
     -fx-padding: 5 5 5 5;
+    -fx-spacing: 5;
+}
+
+#progressPanel #volumeHBox {
+	-fx-alignment: center;
+	-fx-spacing: 3;
 }
 
 #progressPanel #volumeLabel {
 	-fx-background-image: url('../images/volume.png');
+	-fx-padding: 0 5 0 0;
 }
 
 #timeSlider .slider .track {
