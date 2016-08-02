@@ -19,7 +19,6 @@
          <right>
             <HBox BorderPane.alignment="CENTER">
                <children>
-                  <Label id="searchLabel" prefHeight="26.0" prefWidth="26.0" />
                   <TextField id="searchTextField" fx:id="searchTextField" />
                </children>
             </HBox>
@@ -29,6 +28,26 @@
          <center>
             <ListView id="playlistPanelListView" fx:id="playlistPanelListView" />
          </center>
+         <bottom>
+            <BorderPane id="playlistControlPanel" styleClass="borderPanel" BorderPane.alignment="CENTER">
+               <left>
+                  <HBox id="plusMinusHBox" minHeight="40.0" prefHeight="40.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button id="addPlaylistButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
+                        <Button id="deletePlaylistButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
+                     </children>
+                  </HBox>
+               </left>
+               <right>
+                  <HBox id="saveSettingsHBox" minHeight="40.0" prefHeight="40.0" BorderPane.alignment="CENTER_RIGHT">
+                     <children>
+                        <Button id="savePlaylistButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
+                        <Button id="settingsButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
+                     </children>
+                  </HBox>
+               </right>
+            </BorderPane>
+         </bottom>
       </BorderPane>
       <BorderPane id="mainPanel" fx:id="mainPanel" styleClass="borderPanel" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2" />
       <BorderPane id="playingPanel" minHeight="310.0" minWidth="250.0" prefHeight="310.0" prefWidth="250.0" GridPane.rowIndex="2">
@@ -59,7 +78,7 @@
          <children>
             <SliderProgressBar id="timeSlider" fx:id="timeSlider" disable="true" minWidth="50.0" HBox.hgrow="ALWAYS" />
             <Label fx:id="playTimeLabel" minWidth="50.0" prefWidth="100.0" />
-            <Label id="volumeLabel" prefHeight="26.0" prefWidth="26.0" />
+            <Label id="volumeLabel" prefHeight="17.0" prefWidth="17.0" />
             <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="50.0" prefWidth="70.0" />
          </children></HBox>
       <HBox id="optionsPanel" minHeight="40.0" prefHeight="40.0" prefWidth="100.0" styleClass="borderPanel" GridPane.columnIndex="2" GridPane.rowIndex="3">

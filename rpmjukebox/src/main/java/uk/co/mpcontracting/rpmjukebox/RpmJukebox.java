@@ -5,10 +5,6 @@ import java.util.Arrays;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +16,6 @@ import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlHelper;
 
 @Slf4j
 @Component
@@ -48,10 +43,14 @@ public class RpmJukebox extends Application {
 
 		this.stage = stage;
 
-		stage.setScene(new Scene((Parent)FxmlContext.loadFxml("mainpanel.fxml")));
+		Parent parent = (Parent)FxmlContext.loadFxml("mainpanel.fxml");
+
+		stage.setScene(new Scene(parent));
 		stage.setTitle("RPM Jukebox");
 		stage.show();
 
+		parent.requestFocus();
+		
 		// Initialise data in a new thread for GUI responsiveness
 		new Thread(new Runnable() {
 			@Override

@@ -182,10 +182,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				// Enable GUI components
 				searchTextField.setDisable(false);
-				//backButton.setDisable(false);
-				//playPauseButton.setDisable(false);
-				//forwardButton.setDisable(false);
-				//timeSlider.setDisable(false);
+				previousButton.setDisable(false);
+				playPauseButton.setDisable(false);
+				nextButton.setDisable(false);
+				timeSlider.setDisable(false);
 				volumeSlider.setDisable(false);
 				repeatButton.setDisable(false);
 				eqButton.setDisable(false);
