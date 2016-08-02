@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import java.util.Collections;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
@@ -86,10 +87,16 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private Slider volumeSlider;
 	
 	@FXML
+	private Button shuffleButton;
+	
+	@FXML
 	private Button repeatButton;
 	
 	@FXML
 	private Button eqButton;
+	
+	@FXML
+	private Button randomButton;
 	
 	@Autowired
 	private SearchManager searchManager;
@@ -161,10 +168,30 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 	@FXML
 	protected void handleEqButtonAction(ActionEvent event) {
-		Stage stage = FxmlContext.getBean(RpmJukebox.class).getStage();
-		stage.getScene().getRoot().setEffect(new BoxBlur());
+		log.info("EQ button pressed");
+		
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				Stage stage = FxmlContext.getBean(RpmJukebox.class).getStage();
+				stage.getScene().getRoot().setEffect(new BoxBlur());
 
-		equalizerDialogue.show();
+				equalizerDialogue.show();
+			}
+		});
+	}
+	
+	@FXML
+	protected void handleRandomButtonAction(ActionEvent event) {
+		log.info("Random button pressed");
+		
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				playlistManager.setPlaylistTracks(SEARCH_PLAYLIST_ID, searchManager.getRandomPlaylist(RANDOM_PLAYLIST_SIZE));
+				playlistManager.playPlaylist(SEARCH_PLAYLIST_ID, 0);
+			}
+		});
 	}
 	
 	@Override
@@ -187,8 +214,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				nextButton.setDisable(false);
 				timeSlider.setDisable(false);
 				volumeSlider.setDisable(false);
+				shuffleButton.setDisable(false);
 				repeatButton.setDisable(false);
 				eqButton.setDisable(false);
+				randomButton.setDisable(false);
 				
 				break;
 			}

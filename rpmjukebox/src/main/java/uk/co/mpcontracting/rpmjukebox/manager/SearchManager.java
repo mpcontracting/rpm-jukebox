@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,9 +15,11 @@ import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -33,6 +36,7 @@ import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 
 import lombok.Getter;
@@ -68,6 +72,8 @@ public class SearchManager implements Constants {
     private Directory trackDirectory;
     private IndexWriter trackWriter;
     private SearcherManager trackManager;
+    
+    private SecureRandom random;
 
     public void initialise() {
     	log.info("Initialising SearchManager");
@@ -88,6 +94,8 @@ public class SearchManager implements Constants {
     		trackWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             trackWriter = new IndexWriter(trackDirectory, trackWriterConfig);
             trackManager = new SearcherManager(trackWriter, null);
+            
+            random = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
             
             // Initialise the filters and sorts
             genreList = new ArrayList<String>();
@@ -179,6 +187,8 @@ public class SearchManager implements Constants {
     }
     
     public List<Track> search(TrackSearch trackSearch) {
+    	log.info("Performing search");
+    	
     	long startTime = System.currentTimeMillis();
         
         if (trackManager == null) {
@@ -217,8 +227,73 @@ public class SearchManager implements Constants {
         	trackSearcher = null;
             long queryTime = (System.currentTimeMillis() - startTime);
             
-            log.info("Query time - " + queryTime + " milliseconds");
+            log.info("Search query time - " + queryTime + " milliseconds");
         }
+    }
+    
+    public List<Track> getRandomPlaylist(int playlistSize) {
+    	log.info("Getting random playlist size - " + playlistSize);
+    	
+    	long startTime = System.currentTimeMillis();
+        
+        if (trackManager == null) {
+            throw new RuntimeException("Cannot search before track index is initialised");
+        }
+        
+        IndexSearcher trackSearcher = null;
+
+        try {
+        	trackSearcher = trackManager.acquire();
+        	
+        	IndexReader indexReader = trackSearcher.getIndexReader();
+        	List<Track> playlist = new ArrayList<Track>();
+        	
+        	while (playlist.size() < playlistSize) {
+        		Integer nextDocId = getRandomDocId(indexReader);
+
+        		if (nextDocId == null) {
+        			continue;
+        		}
+
+    			Track track = getTrackByDocId(trackSearcher, nextDocId);
+    			
+    			if (!playlist.contains(track)) {
+    				playlist.add(track);
+    			}
+        	}
+        	
+        	return playlist;
+        } catch (Exception e) {
+        	log.error("Unable to get random playlist", e);
+            
+            return Collections.emptyList();
+        } finally {
+        	try {
+	        	trackManager.release(trackSearcher);
+        	} catch (Exception e) {
+        		log.warn("Unable to release track searcher");
+        	}
+	        
+        	trackSearcher = null;
+            long queryTime = (System.currentTimeMillis() - startTime);
+            
+            log.info("Random playlist query time - " + queryTime + " milliseconds");
+        }
+    }
+    
+    private Integer getRandomDocId(IndexReader indexReader) {
+    	int docId = (int)(random.nextDouble() * indexReader.maxDoc());
+
+    	for (LeafReaderContext context : indexReader.leaves()) {
+    		Bits liveDocs = context.reader().getLiveDocs();
+
+    		// Live docs is null if there are no deleted documents
+    		if (liveDocs == null || liveDocs.get(docId)) {
+    			return docId;
+    		}
+    	}
+    	
+    	return null;
     }
     
     public Artist getArtistById(int artistId) {
