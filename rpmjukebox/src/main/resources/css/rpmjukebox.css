@@ -9,7 +9,7 @@
 
 /* Standard Component Styles */
 
-.borderPanel {
+.border-panel {
 	-fx-background-color: transparent;
 	-fx-border-color: -jb-border-color;
     -fx-border-style: solid;
@@ -24,6 +24,14 @@
 .label {
 	-fx-text-fill: -jb-text-color;
 	-fx-min-height: 10;
+}
+
+.text-field {
+	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+}
+
+.text-field:focused {
+	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
 }
 
 .context-menu .menu-item .label {
@@ -81,6 +89,20 @@
     -fx-padding: 0;
 }
 
+.list-cell {
+	-fx-background-color: transparent;
+	-fx-text-fill: -jb-text-color;
+}
+
+.list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+.list-cell:selected {
+	-fx-background-color: -jb-border-color;
+}
+
+
 .table-view {
 	-fx-background-color: transparent;
 	-fx-background-insets: 0;
@@ -137,44 +159,26 @@
 }
 
 #searchPanel .text-field {
-	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
 	-fx-background-image: url("../images/search.png");
 	-fx-background-repeat: no-repeat;
     -fx-background-position: left center;
-}
-
-#searchPanel .text-field:focused {
-	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
 }
 
 #playlistPanel {
     -fx-border-width: 0 0 1 0;
 }
 
-#playlistPanel .list-cell {
-	-fx-background-color: transparent;
-	-fx-text-fill: -jb-text-color;
-}
-
-#playlistPanel .list-cell:empty {
-    -fx-background-color: transparent;
-}
-
-#playlistPanel .list-cell:selected {
-	-fx-background-color: -jb-border-color;
-}
-
 #playlistControlPanel {
     -fx-border-width: 1 0 0 0;
 }
 
-#plusMinusHBox {
+#playlistControlPanel #plusMinusHBox {
 	-fx-alignment: center;
     -fx-spacing: 5;
     -fx-padding: 0 0 0 5;
 }
 
-#saveSettingsHBox {
+#playlistControlPanel #saveSettingsHBox {
 	-fx-alignment: center;
     -fx-spacing: 5;
     -fx-padding: 0 5 0 0;
@@ -208,7 +212,7 @@
 	-fx-image: url('../images/no-artwork.png');
 }
 
-#playingLabelPanel {
+#playingPanel #playingLabelPanel {
 	-fx-border-width: 1 0 0 0;
 }
 

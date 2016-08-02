@@ -24,12 +24,12 @@
             </HBox>
          </right>
       </BorderPane>
-      <BorderPane id="playlistPanel" minWidth="250.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+      <BorderPane id="playlistPanel" minWidth="250.0" prefWidth="250.0" styleClass="border-panel" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
          <center>
             <ListView id="playlistPanelListView" fx:id="playlistPanelListView" />
          </center>
          <bottom>
-            <BorderPane id="playlistControlPanel" styleClass="borderPanel">
+            <BorderPane id="playlistControlPanel" styleClass="border-panel">
                <left>
                   <HBox id="plusMinusHBox" minHeight="34.0" prefHeight="34.0">
                      <children>
@@ -49,13 +49,13 @@
             </BorderPane>
          </bottom>
       </BorderPane>
-      <BorderPane id="mainPanel" fx:id="mainPanel" styleClass="borderPanel" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2" />
+      <BorderPane id="mainPanel" fx:id="mainPanel" styleClass="border-panel" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2" />
       <BorderPane id="playingPanel" minHeight="310.0" minWidth="250.0" prefHeight="310.0" prefWidth="250.0" GridPane.rowIndex="2">
          <center>
             <ImageView fx:id="playingImageView" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
          </center>
          <bottom>
-            <BorderPane id="playingLabelPanel" styleClass="borderPanel">
+            <BorderPane id="playingLabelPanel" styleClass="border-panel">
                <top>
                   <Label fx:id="playingTrackLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
                </top>
@@ -68,13 +68,13 @@
             </BorderPane>
          </bottom>
       </BorderPane>
-      <HBox id="controlPanel" minHeight="40.0" minWidth="250.0" prefHeight="40.0" prefWidth="250.0" styleClass="borderPanel" GridPane.rowIndex="3">
+      <HBox id="controlPanel" minHeight="40.0" minWidth="250.0" prefHeight="40.0" prefWidth="250.0" styleClass="border-panel" GridPane.rowIndex="3">
          <children>
             <Button id="previousButton" fx:id="previousButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
             <Button id="playPauseButton" fx:id="playPauseButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
             <Button id="nextButton" fx:id="nextButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
          </children></HBox>
-      <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="borderPanel" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
+      <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="border-panel" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
          <children>
             <SliderProgressBar id="timeSlider" fx:id="timeSlider" disable="true" minWidth="50.0" HBox.hgrow="ALWAYS" />
             <Label fx:id="playTimeLabel" minWidth="100.0" prefWidth="100.0" />
@@ -85,7 +85,7 @@
                </children>
             </HBox>
          </children></HBox>
-      <HBox id="optionsPanel" minHeight="40.0" prefHeight="40.0" prefWidth="100.0" styleClass="borderPanel" GridPane.columnIndex="2" GridPane.rowIndex="3">
+      <HBox id="optionsPanel" minHeight="40.0" prefHeight="40.0" prefWidth="100.0" styleClass="border-panel" GridPane.columnIndex="2" GridPane.rowIndex="3">
          <children>
             <Button id="repeatButton" fx:id="repeatButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
             <Button id="eqButton" fx:id="eqButton" disable="true" mnemonicParsing="false" onAction="#handleEqButtonAction" prefHeight="26.0" prefWidth="26.0" />
