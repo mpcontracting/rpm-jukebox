@@ -201,11 +201,10 @@
 	-fx-background-image: url("../images/header.png");
 	-fx-background-repeat: no-repeat;
 	-fx-alignment: center;
-    -fx-border-width: 0 0 1 0;
 }
 
 #searchPanel #searchTextHBox {
-	-fx-alignment: center;
+	-fx-alignment: center-right;
 	-fx-padding: 0 5 0 0;
 }
 
@@ -309,8 +308,13 @@
 
 #optionsPanel {
 	-fx-alignment: center;
+	-fx-padding: 0 5 0 5;
     -fx-border-width: 1 0 0 0;
     -fx-spacing: 5;
+}
+
+#optionsPanel #shuffleButton {
+	-fx-background-image: url('../images/shuffle.png');
 }
 
 #optionsPanel #eqButton {
@@ -319,6 +323,10 @@
 
 #optionsPanel #repeatButton {
 	-fx-background-image: url('../images/repeat.png');
+}
+
+#optionsPanel #randomButton {
+	-fx-background-image: url('../images/random.png');
 }
 
 #equalizer {
