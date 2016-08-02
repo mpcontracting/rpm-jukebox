@@ -4,7 +4,7 @@
 	
 	-jb-background-color: #474747;
 	-jb-border-color: #555555;
-	-jb-text-color: #c3c3c3;
+	-jb-foreground-color: #c3c3c3;
 }
 
 /* Standard Component Styles */
@@ -22,12 +22,17 @@
 }
 
 .label {
-	-fx-text-fill: -jb-text-color;
+	-fx-text-fill: -jb-foreground-color;
 	-fx-min-height: 10;
 }
 
 .text-field {
 	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+	-fx-background-insets: 0, 1, 1;
+    -fx-background-radius: 0, 0, 0;
+	-fx-text-fill: -jb-foreground-color;
+	-fx-highlight-fill: -jb-foreground-color;
+    -fx-highlight-text-fill: -jb-background-color;
 }
 
 .text-field:focused {
@@ -50,7 +55,7 @@
 }
 
 .scroll-bar:vertical .thumb {
-    -fx-background-color: -jb-text-color;
+    -fx-background-color: -jb-foreground-color;
     -fx-background-insets: 4, 0, 0;
     -fx-background-radius: 2em;
 }
@@ -91,7 +96,7 @@
 
 .list-cell {
 	-fx-background-color: transparent;
-	-fx-text-fill: -jb-text-color;
+	-fx-text-fill: -jb-foreground-color;
 }
 
 .list-cell:empty {
@@ -101,7 +106,6 @@
 .list-cell:selected {
 	-fx-background-color: -jb-border-color;
 }
-
 
 .table-view {
 	-fx-background-color: transparent;
@@ -132,7 +136,7 @@
 
 .table-view .column-header-background .label {
     -fx-background-color: transparent;
-    -fx-text-fill: -jb-text-color;
+    -fx-text-fill: -jb-foreground-color;
 }
 
 .table-view .table-row-cell {
@@ -146,7 +150,35 @@
 .table-view .table-cell {
 	-fx-border-color: -jb-border-color;
     -fx-border-width: 0 1 0 0;
-    -fx-text-fill: -jb-text-color;
+    -fx-text-fill: -jb-foreground-color;
+}
+
+.slider .thumb {
+    -fx-background-color: -jb-foreground-color;
+    -fx-border-color: -jb-border-color;
+    -fx-border-width: 1;
+    -fx-border-radius: 1.0em;
+}
+
+.slider:focused .thumb {
+    -fx-background-color: -jb-foreground-color;
+    -fx-border-color: -jb-border-color;
+    -fx-border-width: 1;
+    -fx-border-radius: 1.0em;
+}
+
+.slider .track {
+    -fx-background-color: -jb-foreground-color;
+    -fx-background-insets: 0 12 0 12;
+    -fx-background-radius: 1em;
+    -fx-padding: 4;
+}
+
+.slider:vertical .track {
+    -fx-background-color: -jb-foreground-color;
+    -fx-background-insets: 12 0 12 0;
+    -fx-background-radius: 1em;
+    -fx-padding: 4;
 }
 
 /* Styles By Id */
@@ -158,10 +190,16 @@
     -fx-border-width: 0 0 1 0;
 }
 
+#searchPanel #searchTextHBox {
+	-fx-alignment: center;
+	-fx-padding: 0 5 0 0;
+}
+
 #searchPanel .text-field {
 	-fx-background-image: url("../images/search.png");
 	-fx-background-repeat: no-repeat;
-    -fx-background-position: left center;
+    -fx-background-position: 5 center;
+    -fx-padding: 5 5 5 25;
 }
 
 #playlistPanel {

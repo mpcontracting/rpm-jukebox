@@ -17,9 +17,9 @@
    <children>
       <BorderPane id="searchPanel" minHeight="40.0" prefHeight="40.0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
          <right>
-            <HBox BorderPane.alignment="CENTER">
+            <HBox id="searchTextHBox">
                <children>
-                  <TextField id="searchTextField" fx:id="searchTextField" />
+                  <TextField id="searchTextField" fx:id="searchTextField" disable="true" />
                </children>
             </HBox>
          </right>
@@ -76,12 +76,12 @@
          </children></HBox>
       <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="border-panel" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
          <children>
-            <SliderProgressBar id="timeSlider" fx:id="timeSlider" disable="true" minWidth="50.0" HBox.hgrow="ALWAYS" />
+            <SliderProgressBar id="timeSlider" fx:id="timeSlider" minWidth="50.0" HBox.hgrow="ALWAYS" />
             <Label fx:id="playTimeLabel" minWidth="100.0" prefWidth="100.0" />
             <HBox id="volumeHBox">
                <children>
                   <Label id="volumeLabel" prefHeight="17.0" prefWidth="17.0" />
-                  <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="50.0" prefWidth="70.0" />
+                  <Slider fx:id="volumeSlider" maxWidth="70.0" minWidth="50.0" prefWidth="70.0" />
                </children>
             </HBox>
          </children></HBox>
