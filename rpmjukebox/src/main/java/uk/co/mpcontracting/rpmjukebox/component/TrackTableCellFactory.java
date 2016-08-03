@@ -3,12 +3,17 @@ package uk.co.mpcontracting.rpmjukebox.component;
 import javafx.event.EventHandler;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
-public class TrackTableCellFactory<S, T> implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>> {
+public class TrackTableCellFactory<S, T> implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>>, Constants {
 
 	private PlaylistManager playlistManager;
 
@@ -41,26 +46,26 @@ public class TrackTableCellFactory<S, T> implements Callback<TableColumn<TrackTa
 		///////////////////
 		// Drag And Drop //
 		///////////////////
-
-		/*listCell.setOnDragDetected(new EventHandler<MouseEvent>() {
+		
+		tableCell.setOnDragDetected(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				Dragboard dragboard = listCell.startDragAndDrop(TransferMode.COPY);
+				Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY);
 				ClipboardContent clipboardContent = new ClipboardContent();
-				clipboardContent.put(DND_TRACK_DATA_FORMAT, tableCell.getTableRow().getItem());
+				clipboardContent.put(DND_TRACK_DATA_FORMAT, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 				dragboard.setContent(clipboardContent);
 
 				event.consume();
 			}
 		});
-
-		listCell.setOnDragDone(new EventHandler<DragEvent>() {
+		
+		tableCell.setOnDragDone(new EventHandler<DragEvent>() {
 			@Override
 			public void handle(DragEvent event) {
 				event.consume();
 			}
-		});*/
-		
+		});
+
 		return tableCell;
 	}
 }

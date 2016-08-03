@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -10,7 +11,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString(includeFieldNames = true)
 @EqualsAndHashCode(of = {"artistId", "albumId", "trackId"})
-public class Track {
+public class Track implements Serializable {
+	private static final long serialVersionUID = 55518786963702600L;
+	
 	@Getter private int artistId;
     @Getter private String artistName;
     @Getter private String artistImage;
