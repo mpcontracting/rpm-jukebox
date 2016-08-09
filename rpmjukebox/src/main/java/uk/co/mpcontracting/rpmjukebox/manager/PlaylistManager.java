@@ -36,11 +36,12 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		
 		playlistMap = new LinkedHashMap<Integer, Playlist>();
 		playlistMap.put(SEARCH_PLAYLIST_ID, new Playlist(SEARCH_PLAYLIST_ID, "Search Results"));
+		playlistMap.put(FAVOURITES_PLAYLIST_ID, new Playlist(FAVOURITES_PLAYLIST_ID, "Favourites"));
 		currentPlaylistId = SEARCH_PLAYLIST_ID;
 		currentPlaylistIndex = 0;
 		repeat = false;
 	}
-	
+
 	public void setPlaylists(List<Playlist> playlists) {
 		log.info("Setting playlists");
 

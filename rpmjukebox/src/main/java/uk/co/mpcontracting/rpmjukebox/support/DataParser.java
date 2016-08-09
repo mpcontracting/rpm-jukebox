@@ -96,7 +96,7 @@ public abstract class DataParser implements Constants {
 	
 	private static ParserModelArtist parseArtist(String[] rowData) {
 		ParserModelArtist artist = new ParserModelArtist(
-			Integer.parseInt(getRowData(rowData, 1)),
+			getRowData(rowData, 1),
 			getRowData(rowData, 2), 
 			getRowData(rowData, 3), 
 			getRowData(rowData, 4),
@@ -106,7 +106,9 @@ public abstract class DataParser implements Constants {
 
 		if (genres != null) {
 			for (String genre : genres.split(",")) {
-				artist.addGenre(cleanGenre(genre));
+				if (genre.trim().length() > 0) {
+					artist.addGenre(cleanGenre(genre.trim()));
+				}
 			}
 		} else {
 			artist.addGenre(UNSPECIFIED_GENRE);
@@ -117,7 +119,7 @@ public abstract class DataParser implements Constants {
 
 	private static ParserModelAlbum parseAlbum(String[] rowData) {
 		return new ParserModelAlbum(
-			Integer.parseInt(getRowData(rowData, 1)),
+			getRowData(rowData, 1),
 			getRowData(rowData, 2),
 			getRowData(rowData, 3),
 			Integer.parseInt(getRowData(rowData, 4)));
@@ -125,7 +127,7 @@ public abstract class DataParser implements Constants {
 
 	private static ParserModelTrack parseTrack(String[] rowData) {
 		return new ParserModelTrack(
-			Integer.parseInt(getRowData(rowData, 1)),
+			getRowData(rowData, 1),
 			getRowData(rowData, 2), 
 			getRowData(rowData, 3),
 			Boolean.valueOf(getRowData(rowData, 4)));
@@ -144,8 +146,7 @@ public abstract class DataParser implements Constants {
 			return UNSPECIFIED_GENRE;
 		}
 
-		if (genre.equalsIgnoreCase("Unknown") || genre.equalsIgnoreCase("None")
-				|| genre.equalsIgnoreCase("Other")) {
+		if (genre.equalsIgnoreCase("Unknown") || genre.equalsIgnoreCase("None") || genre.equalsIgnoreCase("Other")) {
 			return UNSPECIFIED_GENRE;
 		}
 
@@ -180,7 +181,7 @@ public abstract class DataParser implements Constants {
 	@ToString(includeFieldNames = true)
 	@EqualsAndHashCode(of = { "trackId" })
 	private static class ParserModelTrack {
-		@Getter private int trackId;
+		@Getter private String trackId;
 		@Getter private String trackName;
 		@Getter private String location;
 		@Getter private boolean isPreferred;
@@ -190,7 +191,7 @@ public abstract class DataParser implements Constants {
 	@ToString(includeFieldNames = true)
 	@EqualsAndHashCode(of = { "albumId" })
 	private static class ParserModelAlbum {
-		@Getter private int albumId;
+		@Getter private String albumId;
 		@Getter private String albumName;
 		@Getter private String albumImage;
 		@Getter private int year;
@@ -199,14 +200,14 @@ public abstract class DataParser implements Constants {
 	@ToString(includeFieldNames = true)
 	@EqualsAndHashCode(of = { "artistId" })
 	private static class ParserModelArtist {
-		@Getter private int artistId;
+		@Getter private String artistId;
 		@Getter private String artistName;
 		@Getter private String artistImage;
 		@Getter private String biography;
 		@Getter private String members;
 		@Getter private List<String> genres;
 
-		private ParserModelArtist(int artistId, String artistName, String artistImage, String biography, String members) {
+		private ParserModelArtist(String artistId, String artistName, String artistImage, String biography, String members) {
 			this.artistId = artistId;
 			this.artistName = artistName;
 			this.artistImage = artistImage;

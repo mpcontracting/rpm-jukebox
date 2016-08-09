@@ -101,7 +101,7 @@ public class SettingsManager implements InitializingBean, Constants {
 				Track track = playlist.getTrackMap().get(playlistIndex);
 				Element trackElement = factory.createElement("track");
 				trackElement.add(factory.createAttribute(trackElement, "index", playlistIndex.toString()));
-				trackElement.add(factory.createAttribute(trackElement, "id", Integer.toString(track.getTrackId())));
+				trackElement.add(factory.createAttribute(trackElement, "id", track.getTrackId()));
 
 				playlistElement.add(trackElement);
 			}

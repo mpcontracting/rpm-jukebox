@@ -9,7 +9,7 @@ import lombok.ToString;
 @ToString(includeFieldNames = true)
 @EqualsAndHashCode(of = "artistId")
 public class Artist {
-	@Getter private int artistId;
+	@Getter private String artistId;
     @Getter private String artistName;
     @Getter private String artistImage;
     @Getter private String biography;

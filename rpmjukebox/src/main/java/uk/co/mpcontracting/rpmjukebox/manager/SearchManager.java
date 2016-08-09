@@ -133,7 +133,7 @@ public class SearchManager implements Constants {
     public void addArtist(Artist artist) {
     	Document document = new Document();
     	
-    	document.add(new StringField(ArtistField.ARTISTID.name(), Integer.toString(artist.getArtistId()), Field.Store.YES));
+    	document.add(new StringField(ArtistField.ARTISTID.name(), artist.getArtistId(), Field.Store.YES));
         document.add(new StringField(ArtistField.ARTISTNAME.name(), artist.getArtistName(), Field.Store.YES));
         document.add(new StringField(ArtistField.ARTISTIMAGE.name(), nullIsBlank(artist.getArtistImage()), Field.Store.YES));
         document.add(new StringField(ArtistField.BIOGRAPHY.name(), nullIsBlank(artist.getBiography()), Field.Store.YES));
@@ -155,14 +155,14 @@ public class SearchManager implements Constants {
     		stripNonAlphaNumerics(track.getTrackName()), Field.Store.YES));
         
         // Result data
-        document.add(new StringField(TrackField.ARTISTID.name(), Integer.toString(track.getArtistId()), Field.Store.YES));
+        document.add(new StringField(TrackField.ARTISTID.name(), track.getArtistId(), Field.Store.YES));
         document.add(new StringField(TrackField.ARTISTNAME.name(), track.getArtistName(), Field.Store.YES));
         document.add(new StringField(TrackField.ARTISTIMAGE.name(), nullIsBlank(track.getArtistImage()), Field.Store.YES));
         document.add(new StoredField(TrackField.ALBUMID.name(), track.getAlbumId()));
         document.add(new StringField(TrackField.ALBUMNAME.name(), track.getAlbumName(), Field.Store.YES));
         document.add(new StringField(TrackField.ALBUMIMAGE.name(), nullIsBlank(track.getAlbumImage()), Field.Store.YES));
         document.add(new StoredField(TrackField.YEAR.name(), track.getYear()));
-        document.add(new StringField(TrackField.TRACKID.name(), Integer.toString(track.getTrackId()), Field.Store.YES));
+        document.add(new StringField(TrackField.TRACKID.name(), track.getTrackId(), Field.Store.YES));
         document.add(new StringField(TrackField.TRACKNAME.name(), track.getTrackName(), Field.Store.YES));
         document.add(new StoredField(TrackField.NUMBER.name(), track.getNumber()));
         document.add(new StringField(TrackField.LOCATION.name(), track.getLocation(), Field.Store.YES));
@@ -173,8 +173,8 @@ public class SearchManager implements Constants {
         }
 
         // Sorts
-        document.add(new SortedDocValuesField(TrackSort.DEFAULTSORT.name(), new BytesRef(stripWhitespace(track.getArtistName(), false) + padInteger(track.getAlbumId()) + 
-        	padInteger(track.getNumber()) + padInteger(track.getYear()))));
+        document.add(new SortedDocValuesField(TrackSort.DEFAULTSORT.name(), new BytesRef(stripWhitespace(track.getArtistName(), false) + 
+        	padInteger(track.getYear()) + padInteger(track.getNumber()))));
         document.add(new SortedDocValuesField(TrackSort.ARTISTSORT.name(), new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getArtistName(), false))));
         document.add(new SortedDocValuesField(TrackSort.ALBUMSORT.name(), new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getAlbumName(), false))));
         document.add(new SortedDocValuesField(TrackSort.TRACKSORT.name(), new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getTrackName(), false))));
@@ -361,7 +361,7 @@ public class SearchManager implements Constants {
     private Artist getArtistByDocId(IndexSearcher artistSearcher, int docId) throws Exception {
     	Document document = artistSearcher.doc(docId);
     	return new Artist(
-			Integer.parseInt(document.get(ArtistField.ARTISTID.name())),
+			document.get(ArtistField.ARTISTID.name()),
 			document.get(ArtistField.ARTISTNAME.name()),
 			document.get(ArtistField.ARTISTIMAGE.name()),
 			document.get(ArtistField.BIOGRAPHY.name()),
@@ -372,14 +372,14 @@ public class SearchManager implements Constants {
     private Track getTrackByDocId(IndexSearcher trackSearcher, int docId) throws Exception {
     	Document document = trackSearcher.doc(docId);
     	return new Track(
-			Integer.parseInt(document.get(TrackField.ARTISTID.name())),
+			document.get(TrackField.ARTISTID.name()),
 			document.get(TrackField.ARTISTNAME.name()),
 			document.get(TrackField.ARTISTIMAGE.name()),
-			Integer.parseInt(document.get(TrackField.ALBUMID.name())),
+			document.get(TrackField.ALBUMID.name()),
 			document.get(TrackField.ALBUMNAME.name()),
 			document.get(TrackField.ALBUMIMAGE.name()),
 			Integer.parseInt(document.get(TrackField.YEAR.name())),
-			Integer.parseInt(document.get(TrackField.TRACKID.name())),
+			document.get(TrackField.TRACKID.name()),
 			document.get(TrackField.TRACKNAME.name()),
 			Integer.parseInt(document.get(TrackField.NUMBER.name())),
 			document.get(TrackField.LOCATION.name()),
@@ -436,8 +436,7 @@ public class SearchManager implements Constants {
 			
 			if (nextChar == ' ' && (builder.length() == 0 || builder.charAt(builder.length() - 1) != ' ')) {
 				builder.append(nextChar);
-			}
-			else if (Character.isAlphabetic(nextChar) || Character.isDigit(nextChar)) {
+			} else if (Character.isAlphabetic(nextChar) || Character.isDigit(nextChar)) {
 				builder.append(nextChar);
 			}
 		}
