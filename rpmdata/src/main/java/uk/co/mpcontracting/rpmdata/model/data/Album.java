@@ -9,8 +9,8 @@ public class Album extends AbstractData {
 	private String preferredTrackName;
 	private List<Track> tracks;
 	
-	public Album(int id, String name, String image, int year, String preferredTrackName) {
-		super(ALBUM_IDENTIFIER, id, name);
+	public Album(String name, String image, int year, String preferredTrackName) {
+		super(ALBUM_IDENTIFIER, name);
 		
 		this.image = image;
 		this.year = year;
@@ -18,7 +18,7 @@ public class Album extends AbstractData {
 		
 		tracks = new ArrayList<Track>();
 	}
-	
+
 	public void addTrack(Track track) {
 		if (preferredTrackName != null && preferredTrackName.equalsIgnoreCase(trim(track.getName()))) {
 			track.setPreferred();

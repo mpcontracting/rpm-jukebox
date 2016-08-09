@@ -34,8 +34,8 @@ public class BandPage extends AbstractPage {
 				String bandImage = "http://jukebox.rpmchallenge.com" + bandElement.select("img").first().attr("src");
 				Iterator<Element> elements = bandElement.select("p").iterator();
 				
-				dataProcessor.processBandInfo(bandName, (!bandImage.contains("banddef.png") ? bandImage : ""), format(elements.next()).html(), format(elements.next()).html(), 
-					elements.next().ownText(), elements.next().ownText());
+				dataProcessor.processBandInfo(bandName, (!bandImage.contains("banddef.png") ? bandImage : ""), 
+					format(elements.next()).html(), format(elements.next()).html(), elements.next().ownText(), elements.next().ownText());
 				
 				// Create albums
 				String albumName = null;
@@ -75,7 +75,8 @@ public class BandPage extends AbstractPage {
 							}
 						}
 						
-						dataProcessor.processAlbumInfo(albumName, (albumImage != null && !albumImage.contains("albumdef.png") ? albumImage : ""), albumYear, preferredTrackName);
+						dataProcessor.processAlbumInfo(albumName, (albumImage != null && !albumImage.contains("albumdef.png") ? albumImage : ""), 
+							albumYear, preferredTrackName);
 					}
 				}
 				
@@ -94,11 +95,16 @@ public class BandPage extends AbstractPage {
 						
 						if (playlist != null) {
 							for (Element track : playlist.select("track")) {
-								dataProcessor.processTrackInfo(track.select("album").text(), track.select("title").text(), track.select("location").text());
+								String location = track.select("location").text();
+								
+								dataProcessor.processTrackInfo(track.select("album").text(), track.select("title").text(), location);
 							}
 						}
 					}
 				}
+				
+				// Write the band
+				dataProcessor.writeBand();
 			}
 		} catch (Exception e) {
 			if (e instanceof HttpStatusException) {

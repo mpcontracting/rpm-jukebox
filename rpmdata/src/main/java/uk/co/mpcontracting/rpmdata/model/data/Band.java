@@ -10,8 +10,8 @@ public class Band extends AbstractData {
 	private String genres;
 	private List<Album> albums;
 	
-	public Band(int id, String name, String image, String biography, String members, String genres) {
-		super(BAND_IDENTIFIER, id, name);
+	public Band(String name, String image, String biography, String members, String genres) {
+		super(BAND_IDENTIFIER, name);
 		
 		this.image = trim(image);
 		this.biography = trim(biography);
@@ -20,7 +20,7 @@ public class Band extends AbstractData {
 		
 		albums = new ArrayList<Album>();
 	}
-	
+
 	public void addAlbum(Album album) {
 		albums.add(album);
 	}
