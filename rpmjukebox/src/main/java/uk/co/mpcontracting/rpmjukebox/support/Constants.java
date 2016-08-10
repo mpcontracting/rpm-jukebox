@@ -15,8 +15,18 @@ public interface Constants {
 	public static final int RANDOM_PLAYLIST_SIZE			= 50;
     public static final DataFormat DND_TRACK_DATA_FORMAT    = new DataFormat("dyn.dnd.track.data.format");
     
-    public static final String LOVE_BUTTON_ON_STYLE			= "loveButtonOn";
-    public static final String LOVE_BUTTON_OFF_STYLE		= "loveButtonOff";
+    // Styles
+    public static final String STYLE_LOVE_BUTTON_ON			= "loveButtonOn";
+    public static final String STYLE_LOVE_BUTTON_OFF		= "loveButtonOff";
+    
+    // Images
+    public static final String IMAGE_NO_ARTWORK				= "/images/no-artwork.png";
+    public static final String IMAGE_SHUFFLE_OFF			= "/images/shuffle-off.png";
+    public static final String IMAGE_SHUFFLE_ON				= "/images/shuffle-on.png";
+    public static final String IMAGE_REPEAT_OFF				= "/images/repeat-off.png";
+    public static final String IMAGE_REPEAT_ON				= "/images/repeat-on.png";
+    public static final String IMAGE_PLAY					= "/images/play.png";
+    public static final String IMAGE_PAUSE					= "/images/pause.png";
     
     // Reserved playlists
     public static final int SEARCH_PLAYLIST_ID              = -1;

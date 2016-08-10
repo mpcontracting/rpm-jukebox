@@ -4,6 +4,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Synchronized;
@@ -94,6 +95,22 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 
 			currentPlayer.getAudioEqualizer().getBands().get(band).setGain(value);
 		}
+	}
+	
+	public boolean isPlaying() {
+		if (currentPlayer != null) {
+			return currentPlayer.getStatus() == Status.PLAYING;
+		}
+		
+		return false;
+	}
+	
+	public boolean isPaused() {
+		if (currentPlayer != null) {
+			return currentPlayer.getStatus() == Status.PAUSED;
+		}
+		
+		return false;
 	}
 
 	public void cleanUpResources() {

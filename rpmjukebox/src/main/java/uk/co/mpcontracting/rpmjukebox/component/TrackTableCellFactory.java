@@ -10,6 +10,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
+import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
@@ -38,6 +40,9 @@ public class TrackTableCellFactory<S, T> implements Callback<TableColumn<TrackTa
 						if (tableCell != null && tableCell.getItem() != null) {
 							playlistManager.playTrack(((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 						}
+					} else {
+						// Single click
+						EventManager.getInstance().fireEvent(Event.TRACK_SELECTED, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 					}
 				}
 			}

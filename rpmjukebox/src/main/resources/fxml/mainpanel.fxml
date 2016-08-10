@@ -70,9 +70,9 @@
       </BorderPane>
       <HBox id="controlPanel" minHeight="40.0" minWidth="250.0" prefHeight="40.0" prefWidth="250.0" styleClass="border-panel" GridPane.rowIndex="3">
          <children>
-            <Button id="previousButton" fx:id="previousButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
-            <Button id="playPauseButton" fx:id="playPauseButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
-            <Button id="nextButton" fx:id="nextButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="26.0" />
+            <Button id="previousButton" fx:id="previousButton" disable="true" mnemonicParsing="false" onAction="#handlePreviousButtonAction" prefHeight="26.0" prefWidth="26.0" />
+            <Button id="playPauseButton" fx:id="playPauseButton" disable="true" mnemonicParsing="false" onAction="#handlePlayPauseButtonAction" prefHeight="26.0" prefWidth="26.0" />
+            <Button id="nextButton" fx:id="nextButton" disable="true" mnemonicParsing="false" onAction="#handleNextButtonAction" prefHeight="26.0" prefWidth="26.0" />
          </children></HBox>
       <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="border-panel" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
          <children>

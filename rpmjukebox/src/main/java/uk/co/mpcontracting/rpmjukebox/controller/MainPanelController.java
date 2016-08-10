@@ -166,13 +166,36 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	}
 	
 	@FXML
+	protected void handlePreviousButtonAction(ActionEvent event) {
+		log.info("Previous button pressed");
+	}
+	
+	@FXML
+	protected void handlePlayPauseButtonAction(ActionEvent event) {
+		log.info("Play/pause button pressed");
+
+		if (mediaManager.isPlaying()) {
+			playlistManager.pauseCurrentTrack();
+		} else if (mediaManager.isPaused()) {
+			playlistManager.resumeCurrentTrack();
+		} else {
+			playlistManager.playCurrentTrack();
+		}
+	}
+	
+	@FXML
+	protected void handleNextButtonAction(ActionEvent event) {
+		log.info("Next button pressed");
+	}
+	
+	@FXML
 	protected void handleShuffleButtonAction(ActionEvent event) {
 		log.info("Shuffle button pressed");
 		
 		if (playlistManager.isShuffle()) {
-			shuffleButton.setStyle("-fx-background-image: url('/images/shuffle-off.png')");
+			shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
 		} else {
-			shuffleButton.setStyle("-fx-background-image: url('/images/shuffle-on.png')");
+			shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')");
 		}
 		
 		playlistManager.setSuffle(!playlistManager.isShuffle());
@@ -183,9 +206,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		log.info("Repeat button pressed");
 		
 		if (playlistManager.isRepeat()) {
-			repeatButton.setStyle("-fx-background-image: url('/images/repeat-off.png')");
+			repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
 		} else {
-			repeatButton.setStyle("-fx-background-image: url('/images/repeat-on.png')");
+			repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_ON + "')");
 		}
 		
 		playlistManager.setRepeat(!playlistManager.isRepeat());
@@ -224,12 +247,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				// Enable GUI components
 				searchTextField.setDisable(false);
-				previousButton.setDisable(false);
-				playPauseButton.setDisable(false);
-				nextButton.setDisable(false);
 				timeSlider.setDisable(false);
 				volumeSlider.setDisable(false);
-				shuffleButton.setDisable(false);
+				//shuffleButton.setDisable(false);
 				repeatButton.setDisable(false);
 				eqButton.setDisable(false);
 				randomButton.setDisable(false);
@@ -260,8 +280,21 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 				break;
 			}
+			case MEDIA_PLAYING: {
+				playPauseButton.setStyle("-fx-background-image: url('" + IMAGE_PAUSE + "')");
+				playPauseButton.setDisable(false);
+				
+				break;
+			}
+			case MEDIA_PAUSED: {
+				playPauseButton.setStyle("-fx-background-image: url('" + IMAGE_PLAY + "')");
+				playPauseButton.setDisable(false);
+				
+				break;
+			}
 			case MEDIA_STOPPED:
 			case END_OF_MEDIA: {
+				playPauseButton.setStyle("-fx-background-image: url('" + IMAGE_PLAY + "')");
 				playTimeLabel.setText(StringHelper.formatElapsedTime(Duration.ZERO, Duration.ZERO));
 				timeSlider.setSliderValue(0);
 				timeSlider.setProgressValue(0);
@@ -284,6 +317,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				break;
 			}
+			case TRACK_SELECTED: {
+				playPauseButton.setDisable(false);
+
+				break;
+			}
 			case TRACK_QUEUED_FOR_PLAYING: {
 				if (payload != null && payload.length > 0) {
 					Track track = (Track)payload[0];
@@ -297,8 +335,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 					} else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
 						playingImageView.setImage(new Image(track.getArtistImage(), true));
 					} else {
-						playingImageView.setImage(new Image("/images/no-artwork.png"));
+						playingImageView.setImage(new Image(IMAGE_NO_ARTWORK));
 					}
+					
+					playPauseButton.setDisable(true);
 				}
 				
 				break;

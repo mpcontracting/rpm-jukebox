@@ -284,6 +284,19 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	@Override
 	public void eventReceived(Event event, Object... payload) {
 		switch (event) {
+			case TRACK_SELECTED: {
+				if (payload != null && payload.length > 0) {
+					Track track = (Track)payload[0];
+					
+					// If we're not playing a track, the selected track is queued up next
+					if (!mediaManager.isPlaying()) {
+						currentPlaylistId = track.getPlaylistId();
+						currentPlaylistIndex = track.getPlaylistIndex();
+					}
+				}
+
+				break;
+			}
 			case END_OF_MEDIA: {
 				log.info("End of track reached, looking for next track in playlist");
 
