@@ -251,7 +251,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		}
 		
 		if (repeat) {
-			currentPlaylistIndex = currentPlaylist.getTracks().size();
+			currentPlaylistIndex = currentPlaylist.getTracks().size() - 1;
 			
 			playCurrentTrack();
 			
