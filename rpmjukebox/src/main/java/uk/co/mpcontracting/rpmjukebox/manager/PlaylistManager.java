@@ -298,7 +298,6 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			}
 		}
 
-		currentPlaylistIndex = 0;
 		mediaManager.stopPlayback();
 
 		return false;
