@@ -125,7 +125,7 @@ public class TrackTableController extends EventAwareObject {
 					Track track = (Track)payload[0];
 					
 					// Set the track as selected in the table view
-					if (track.getPlaylistId() == playlistManager.getCurrentPlaylistId()) {
+					if (track.getPlaylistId() == visiblePlaylistId && track.getPlaylistId() == playlistManager.getCurrentPlaylistId()) {
 						trackTableView.getSelectionModel().select(track.getPlaylistIndex());
 						trackTableView.getFocusModel().focus(track.getPlaylistIndex());
 					}
