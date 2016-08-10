@@ -343,6 +343,26 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				break;
 			}
+			case PLAYLIST_SELECTED: {
+				if (payload != null && payload.length > 0) {
+					Integer playlistId = (Integer)payload[0];
+		
+					if (playlistId != null) {
+						for (int i = 0; i < observablePlaylists.size(); i++) {
+							Playlist playlist = observablePlaylists.get(i);
+							
+							if (playlist.getPlaylistId() == playlistId) {
+								playlistPanelListView.getSelectionModel().select(i);
+								playlistPanelListView.getFocusModel().focus(i);
+								
+								break;
+							}
+						}
+					}
+				}
+				
+				break;
+			}
 			case TRACK_SELECTED: {
 				playPauseButton.setDisable(false);
 
