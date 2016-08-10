@@ -14,13 +14,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
-public class PlaylistListCellFactory implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
+public class PlaylistListCellFactory extends EventAwareObject implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
 
 	private PlaylistManager playlistManager;
 
@@ -48,7 +48,7 @@ public class PlaylistListCellFactory implements Callback<ListView<Playlist>, Lis
 					} else {
 						// Single click
 						if (listCell != null && listCell.getItem() != null) {
-							EventManager.getInstance().fireEvent(Event.PLAYLIST_SELECTED, listCell.getItem().getPlaylistId());
+							fireEvent(Event.PLAYLIST_SELECTED, listCell.getItem().getPlaylistId());
 						}
 					}
 				}

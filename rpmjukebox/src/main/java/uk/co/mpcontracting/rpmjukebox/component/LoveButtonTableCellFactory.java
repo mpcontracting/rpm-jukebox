@@ -7,12 +7,12 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
-public class LoveButtonTableCellFactory<S, T> implements Callback<TableColumn<TrackTableModel, String>, TableCell<TrackTableModel, String>>, Constants {
+public class LoveButtonTableCellFactory<S, T> extends EventAwareObject implements Callback<TableColumn<TrackTableModel, String>, TableCell<TrackTableModel, String>>, Constants {
 
 	private PlaylistManager playlistManager;
 
@@ -43,7 +43,7 @@ public class LoveButtonTableCellFactory<S, T> implements Callback<TableColumn<Tr
 								playlistManager.addTrackToPlaylist(FAVOURITES_PLAYLIST_ID, track);
 							}
 							
-							EventManager.getInstance().fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistManager.getCurrentPlaylistId());
+							fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistManager.getCurrentPlaylistId());
 						}
 					}
 				}

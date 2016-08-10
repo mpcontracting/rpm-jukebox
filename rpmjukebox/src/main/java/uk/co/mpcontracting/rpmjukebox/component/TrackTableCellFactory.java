@@ -11,11 +11,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
-public class TrackTableCellFactory<S, T> implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>>, Constants {
+public class TrackTableCellFactory<S, T> extends EventAwareObject implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>>, Constants {
 
 	private PlaylistManager playlistManager;
 
@@ -42,7 +42,7 @@ public class TrackTableCellFactory<S, T> implements Callback<TableColumn<TrackTa
 						}
 					} else {
 						// Single click
-						EventManager.getInstance().fireEvent(Event.TRACK_SELECTED, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
+						fireEvent(Event.TRACK_SELECTED, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 					}
 				}
 			}
