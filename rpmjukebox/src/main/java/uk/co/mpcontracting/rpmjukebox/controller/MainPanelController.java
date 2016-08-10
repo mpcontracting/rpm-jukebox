@@ -157,6 +157,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		} else {
 			playlistManager.setPlaylistTracks(SEARCH_PLAYLIST_ID, Collections.emptyList());
 		}
+		
+		fireEvent(Event.PLAYLIST_SELECTED, SEARCH_PLAYLIST_ID);
 	}
 	
 	private void updateObservablePlaylists() {
