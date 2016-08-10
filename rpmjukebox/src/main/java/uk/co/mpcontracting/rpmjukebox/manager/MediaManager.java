@@ -88,6 +88,14 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 			currentPlayer.seek(currentDuration.multiply(seekPositionPercent / 100.0));
 		}
 	}
+	
+	public double getPlayingTimeSeconds() {
+		if (currentPlayer != null) {
+			return currentPlayer.getCurrentTime().toSeconds();
+		}
+		
+		return 0;
+	}
 
 	public void setEqualizerGain(int band, double value) {
 		if (currentPlayer != null) {

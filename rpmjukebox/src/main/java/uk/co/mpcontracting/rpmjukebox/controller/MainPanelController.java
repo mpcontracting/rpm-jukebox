@@ -184,6 +184,12 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@FXML
 	protected void handlePreviousButtonAction(ActionEvent event) {
 		log.info("Previous button pressed");
+		
+		if (mediaManager.getPlayingTimeSeconds() > PREVIOUS_SECONDS_CUTOFF) {
+			mediaManager.setSeekPositionPercent(0);
+		} else {
+			playlistManager.playPreviousTrack();
+		}
 	}
 	
 	@FXML
@@ -202,6 +208,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@FXML
 	protected void handleNextButtonAction(ActionEvent event) {
 		log.info("Next button pressed");
+		
+		playlistManager.playNextTrack();
 	}
 	
 	@FXML
@@ -295,12 +303,16 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			case MEDIA_PLAYING: {
 				playPauseButton.setStyle("-fx-background-image: url('" + IMAGE_PAUSE + "')");
 				playPauseButton.setDisable(false);
+				previousButton.setDisable(false);
+				nextButton.setDisable(false);
 				
 				break;
 			}
 			case MEDIA_PAUSED: {
 				playPauseButton.setStyle("-fx-background-image: url('" + IMAGE_PLAY + "')");
 				playPauseButton.setDisable(false);
+				previousButton.setDisable(true);
+				nextButton.setDisable(true);
 				
 				break;
 			}
@@ -310,6 +322,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				playTimeLabel.setText(StringHelper.formatElapsedTime(Duration.ZERO, Duration.ZERO));
 				timeSlider.setSliderValue(0);
 				timeSlider.setProgressValue(0);
+				previousButton.setDisable(true);
+				nextButton.setDisable(true);
 
 				break;
 			}

@@ -231,6 +231,45 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 		mediaManager.resumePlayback();
 	}
+	
+	public void restartTrack() {
+		log.info("Restarting current track");
+		
+		mediaManager.setSeekPositionPercent(0);
+	}
+	
+	public boolean playPreviousTrack() {
+		log.info("Playing previous track");
+		
+		Playlist currentPlaylist = null;
+		
+		synchronized (playlistMap) {
+			currentPlaylist = playlistMap.get(currentPlaylistId);
+		}
+		
+		if (currentPlaylist != null) {
+			if (currentPlaylistIndex > 0) {
+				currentPlaylistIndex--;
+				
+				playCurrentTrack();
+				
+				return true;
+			}
+		}
+		
+		if (repeat) {
+			currentPlaylistIndex = currentPlaylist.getTracks().size();
+			
+			playCurrentTrack();
+			
+			return true;
+		}
+		
+		currentPlaylistIndex = 0;
+		mediaManager.stopPlayback();
+
+		return false;
+	}
 
 	public boolean playNextTrack() {
 		log.info("Playing next track");
