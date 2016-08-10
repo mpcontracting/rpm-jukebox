@@ -248,6 +248,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			case MEDIA_STOPPED:
 			case END_OF_MEDIA: {
 				playTimeLabel.setText(StringHelper.formatElapsedTime(Duration.ZERO, Duration.ZERO));
+				timeSlider.setSliderValue(0);
+				timeSlider.setProgressValue(0);
 
 				break;
 			}
