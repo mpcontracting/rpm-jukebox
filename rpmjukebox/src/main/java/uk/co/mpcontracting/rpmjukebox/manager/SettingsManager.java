@@ -106,6 +106,10 @@ public class SettingsManager implements InitializingBean, Constants {
 		Element playlistsElement = factory.createElement("playlists");
 
 		for (Playlist playlist : playlistManager.getPlaylists()) {
+			if (playlist.getPlaylistId() == SEARCH_PLAYLIST_ID) {
+				continue;
+			}
+			
 			Element playlistElement = factory.createElement("playlist");
 			playlistElement.add(factory.createAttribute(playlistElement, "id", Integer.toString(playlist.getPlaylistId())));
 			playlistElement.add(factory.createAttribute(playlistElement, "name", playlist.getName()));

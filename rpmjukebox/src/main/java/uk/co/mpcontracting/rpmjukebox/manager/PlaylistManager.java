@@ -49,15 +49,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		log.info("Setting playlists");
 
 		synchronized (playlistMap) {
-			playlistMap.clear();
-
 			for (Playlist playlist : playlists) {
 				playlistMap.put(playlist.getPlaylistId(), playlist);
-			}
-
-			// Ensure the search playlist always exists
-			if (playlistMap.get(SEARCH_PLAYLIST_ID) == null) {
-				playlistMap.put(SEARCH_PLAYLIST_ID, new Playlist(SEARCH_PLAYLIST_ID, "Search Results"));
 			}
 		}
 	}
