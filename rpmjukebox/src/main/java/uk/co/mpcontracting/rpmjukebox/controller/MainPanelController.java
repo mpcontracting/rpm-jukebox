@@ -263,7 +263,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				volumeSlider.setDisable(false);
 				//shuffleButton.setDisable(false);
 				repeatButton.setDisable(false);
-				eqButton.setDisable(false);
+				//eqButton.setDisable(false);
 				randomButton.setDisable(false);
 
 				break;
