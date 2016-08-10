@@ -19,6 +19,11 @@
     -fx-border-style: solid;
 }
 
+.tooltip {
+	-fx-background-color: -jb-foreground-color;
+	-fx-text-fill: -jb-background-color;
+}
+
 .button {
 	-fx-background-repeat: no-repeat;
 	-fx-background-color: transparent;
