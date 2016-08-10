@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
@@ -25,10 +26,11 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 	private Map<Integer, Playlist> playlistMap;
 	
-	private int currentPlaylistId;
-	private int currentPlaylistIndex;
+	@Getter private int currentPlaylistId;
+	@Getter private int currentPlaylistIndex;
 	private Track currentTrack;
-	private boolean repeat;
+	@Getter private boolean shuffle;
+	@Getter private boolean repeat;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -39,6 +41,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		playlistMap.put(FAVOURITES_PLAYLIST_ID, new Playlist(FAVOURITES_PLAYLIST_ID, "Favourites"));
 		currentPlaylistId = SEARCH_PLAYLIST_ID;
 		currentPlaylistIndex = 0;
+		shuffle = false;
 		repeat = false;
 	}
 
@@ -181,19 +184,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			return false;
 		}
 	}
-	
-	public int getCurrentPlaylistId() {
-		log.info("Getting current playlist id");
 
-		return currentPlaylistId;
-	}
-	
-	public int getCurrentPlaylistIndex() {
-		log.info("Getting current playlist index");
-		
-		return currentPlaylistIndex;
-	}
-	
 	public void playPlaylist(int playlistId) {
 		log.info("Playing playlist - " + playlistId);
 
@@ -272,6 +263,14 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		mediaManager.stopPlayback();
 
 		return false;
+	}
+	
+	public void setSuffle(boolean shuffle) {
+		log.info("Setting shuffle - " + shuffle);
+		
+		synchronized (playlistMap) {
+			this.shuffle = shuffle;
+		}
 	}
 
 	public void setRepeat(boolean repeat) {

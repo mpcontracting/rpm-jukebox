@@ -87,8 +87,8 @@
          </children></HBox>
       <HBox id="optionsPanel" minHeight="40.0" prefHeight="40.0" prefWidth="105.0" styleClass="border-panel" GridPane.columnIndex="2" GridPane.rowIndex="3">
          <children>
-            <Button id="shuffleButton" fx:id="shuffleButton" disable="true" maxWidth="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" />
-            <Button id="repeatButton" fx:id="repeatButton" disable="true" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" />
+            <Button id="shuffleButton" fx:id="shuffleButton" disable="true" maxWidth="20.0" minWidth="20.0" mnemonicParsing="false" onAction="#handleShuffleButtonAction" prefHeight="20.0" />
+            <Button id="repeatButton" fx:id="repeatButton" disable="true" minWidth="20.0" mnemonicParsing="false" onAction="#handleRepeatButtonAction" prefHeight="20.0" prefWidth="20.0" />
             <Button id="eqButton" fx:id="eqButton" disable="true" minWidth="20.0" mnemonicParsing="false" onAction="#handleEqButtonAction" prefHeight="20.0" prefWidth="20.0" />
             <Button id="randomButton" fx:id="randomButton" disable="true" maxWidth="20.0" minWidth="20.0" mnemonicParsing="false" onAction="#handleRandomButtonAction" prefHeight="20.0" />
          </children></HBox>

@@ -4,6 +4,9 @@
 	-jb-background-color: #474747;
 	-jb-border-color: #555555;
 	-jb-foreground-color: #c3c3c3;
+	-jb-pressed-opacity: 0.6;
+	
+	/* Button colour 5d9bc3 */
 	
 	-fx-background-color: -jb-background-color;
 }
@@ -20,6 +23,10 @@
 	-fx-background-repeat: no-repeat;
 	-fx-background-color: transparent;
 	-fx-min-height: 10;
+}
+
+.button:pressed {
+	-fx-opacity: -jb-pressed-opacity;
 }
 
 .label {
@@ -311,7 +318,7 @@
 }
 
 #progressPanel #volumeLabel {
-	-fx-background-image: url('../images/volume.png');
+	-fx-background-image: url('../images/volume-on.png');
 	-fx-padding: 0 5 0 0;
 }
 
@@ -327,15 +334,15 @@
 }
 
 #optionsPanel #shuffleButton {
-	-fx-background-image: url('../images/shuffle.png');
+	-fx-background-image: url('../images/shuffle-off.png');
+}
+
+#optionsPanel #repeatButton {
+	-fx-background-image: url('../images/repeat-off.png');
 }
 
 #optionsPanel #eqButton {
 	-fx-background-image: url('../images/eq.png');
-}
-
-#optionsPanel #repeatButton {
-	-fx-background-image: url('../images/repeat.png');
 }
 
 #optionsPanel #randomButton {

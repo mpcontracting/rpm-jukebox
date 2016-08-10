@@ -2,7 +2,6 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import java.util.Collections;
 
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
@@ -165,33 +164,49 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 		observablePlaylists.setAll(playlistManager.getPlaylists());
 	}
+	
+	@FXML
+	protected void handleShuffleButtonAction(ActionEvent event) {
+		log.info("Shuffle button pressed");
+		
+		if (playlistManager.isShuffle()) {
+			shuffleButton.setStyle("-fx-background-image: url('/images/shuffle-off.png')");
+		} else {
+			shuffleButton.setStyle("-fx-background-image: url('/images/shuffle-on.png')");
+		}
+		
+		playlistManager.setSuffle(!playlistManager.isShuffle());
+	}
+	
+	@FXML
+	protected void handleRepeatButtonAction(ActionEvent event) {
+		log.info("Repeat button pressed");
+		
+		if (playlistManager.isRepeat()) {
+			repeatButton.setStyle("-fx-background-image: url('/images/repeat-off.png')");
+		} else {
+			repeatButton.setStyle("-fx-background-image: url('/images/repeat-on.png')");
+		}
+		
+		playlistManager.setRepeat(!playlistManager.isRepeat());
+	}
 
 	@FXML
 	protected void handleEqButtonAction(ActionEvent event) {
 		log.info("EQ button pressed");
-		
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				Stage stage = FxmlContext.getBean(RpmJukebox.class).getStage();
-				stage.getScene().getRoot().setEffect(new BoxBlur());
 
-				equalizerDialogue.show();
-			}
-		});
+		Stage stage = FxmlContext.getBean(RpmJukebox.class).getStage();
+		stage.getScene().getRoot().setEffect(new BoxBlur());
+
+		equalizerDialogue.show();
 	}
 	
 	@FXML
 	protected void handleRandomButtonAction(ActionEvent event) {
 		log.info("Random button pressed");
-		
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				playlistManager.setPlaylistTracks(SEARCH_PLAYLIST_ID, searchManager.getRandomPlaylist(RANDOM_PLAYLIST_SIZE));
-				playlistManager.playPlaylist(SEARCH_PLAYLIST_ID);
-			}
-		});
+
+		playlistManager.setPlaylistTracks(SEARCH_PLAYLIST_ID, searchManager.getRandomPlaylist(RANDOM_PLAYLIST_SIZE));
+		playlistManager.playPlaylist(SEARCH_PLAYLIST_ID);
 	}
 	
 	@Override
