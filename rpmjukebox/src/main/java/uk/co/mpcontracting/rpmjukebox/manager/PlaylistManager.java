@@ -150,6 +150,38 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistId);
 	}
 	
+	public void removeTrackFromPlaylist(int playlistId, Track track) {
+		log.info("Removing track : Playlist - " + playlistId + ", Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
+
+		synchronized (playlistMap) {
+			playlistMap.get(playlistId).removeTrack(track);
+		}
+
+		fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistId);
+	}
+
+	public boolean isTrackIdInPlaylist(int playlistId, String trackId) {
+		if (trackId == null) {
+			return false;
+		}
+		
+		synchronized (playlistMap) {
+			Playlist playlist = playlistMap.get(playlistId);
+			
+			if (playlist == null) {
+				return false;
+			}
+			
+			for (Track track : playlist.getTracks()) {
+				if (track.getTrackId().equals(trackId)) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+	}
+	
 	public int getCurrentPlaylistId() {
 		log.info("Getting current playlist id");
 
@@ -181,8 +213,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		synchronized (playlistMap) {
 			Playlist currentPlaylist = playlistMap.get(currentPlaylistId);
 
-			if (!playlistMap.get(currentPlaylistId).getTrackMap().isEmpty()) {
-				currentTrack = currentPlaylist.getTrackMap().get(currentPlaylistIndex);
+			if (!playlistMap.get(currentPlaylistId).getTracks().isEmpty()) {
+				currentTrack = currentPlaylist.getTracks().get(currentPlaylistIndex);
 
 				mediaManager.playTrack(currentTrack);
 			}
@@ -211,7 +243,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		}
 
 		if (currentPlaylist != null) {
-			if (currentPlaylistIndex < (currentPlaylist.getTrackMap().size() - 1)) {
+			if (currentPlaylistIndex < (currentPlaylist.getTracks().size() - 1)) {
 				currentPlaylistIndex++;
 
 				playCurrentTrack();

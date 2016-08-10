@@ -14,6 +14,9 @@ public interface Constants {
 	public static final int RANDOM_PLAYLIST_SIZE			= 50;
     public static final DataFormat DND_TRACK_DATA_FORMAT    = new DataFormat("dyn.dnd.track.data.format");
     
+    public static final String LOVE_BUTTON_ON_STYLE			= "loveButtonOn";
+    public static final String LOVE_BUTTON_OFF_STYLE		= "loveButtonOff";
+    
     // Reserved playlists
     public static final int SEARCH_PLAYLIST_ID              = -1;
     public static final int FAVOURITES_PLAYLIST_ID			= -2;

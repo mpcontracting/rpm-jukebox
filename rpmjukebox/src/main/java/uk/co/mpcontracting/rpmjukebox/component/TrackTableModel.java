@@ -10,6 +10,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 public class TrackTableModel {
 
 	@Getter private Track track;
+	@Getter private StringProperty trackId;
 	@Getter private StringProperty trackName;
 	@Getter private StringProperty artistName;
 	@Getter private IntegerProperty albumYear;
@@ -19,6 +20,7 @@ public class TrackTableModel {
 	public TrackTableModel(Track track) {
 		this.track = track;
 		
+		trackId = new SimpleStringProperty(track.getTrackId());
 		trackName = new SimpleStringProperty(track.getTrackName());
 		artistName = new SimpleStringProperty(track.getArtistName());
 		albumYear = new SimpleIntegerProperty(track.getYear());

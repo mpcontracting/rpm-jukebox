@@ -103,7 +103,7 @@ public class SearchManager implements Constants {
         	trackSortList = Arrays.asList(TrackSort.values());
         	
         	// See if we already have valid indexes, if not, build them
-        	if (getArtistById(1) == null || getTrackById(1) == null) {
+        	if (!isIndexValid(artistManager) || !isIndexValid(trackManager)) {
         		DataParser.parse(this, settingsManager.getDataFile(), genreList, yearList);
             	commitIndexes();
         	}
@@ -111,6 +111,28 @@ public class SearchManager implements Constants {
             log.info("SearchManager initialised");
     	} catch (Exception e) {
     		log.error("Error initlising SearchManager", e);
+    	}
+    }
+    
+    private boolean isIndexValid(SearcherManager searcherManager) {
+    	IndexSearcher indexSearcher = null;
+    	
+    	try {
+    		indexSearcher = searcherManager.acquire();
+
+    		return getRandomDocId(indexSearcher.getIndexReader()) != null;
+    	} catch (Exception e) {
+    		log.error("Unable to check if index is valid", e);
+    		
+    		return false;
+    	} finally {
+    		try {
+    			searcherManager.release(indexSearcher);
+        	} catch (Exception e) {
+        		log.warn("Unable to release track searcher");
+        	}
+    		
+    		indexSearcher = null;
     	}
     }
     
@@ -296,7 +318,7 @@ public class SearchManager implements Constants {
     	return null;
     }
     
-    public Artist getArtistById(int artistId) {
+    public Artist getArtistById(String artistId) {
     	if (artistManager == null) {
             throw new RuntimeException("Cannot search before artist index is initialised");
         }
@@ -305,7 +327,7 @@ public class SearchManager implements Constants {
     	
     	try {
     		artistSearcher = artistManager.acquire();
-    		TopDocs results = artistSearcher.search(new TermQuery(new Term(ArtistField.ARTISTID.name(), Integer.toString(artistId))), 1);
+    		TopDocs results = artistSearcher.search(new TermQuery(new Term(ArtistField.ARTISTID.name(), artistId)), 1);
 
     		if (results.totalHits < 1) {
     			return null;
@@ -327,7 +349,7 @@ public class SearchManager implements Constants {
     	}
     }
     
-	public Track getTrackById(int trackId) {
+	public Track getTrackById(String trackId) {
 		if (trackManager == null) {
             throw new RuntimeException("Cannot search before track index is initialised");
         }
@@ -336,7 +358,7 @@ public class SearchManager implements Constants {
     	
     	try {
     		trackSearcher = trackManager.acquire();
-    		TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.TRACKID.name(), Integer.toString(trackId))), 1);
+    		TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.TRACKID.name(), trackId)), 1);
 
     		if (results.totalHits < 1) {
     			return null;

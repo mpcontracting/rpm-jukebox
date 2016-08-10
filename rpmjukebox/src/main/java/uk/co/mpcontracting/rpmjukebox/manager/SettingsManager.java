@@ -97,10 +97,8 @@ public class SettingsManager implements InitializingBean, Constants {
 			playlistElement.add(factory.createAttribute(playlistElement, "id", Integer.toString(playlist.getPlaylistId())));
 			playlistElement.add(factory.createAttribute(playlistElement, "name", playlist.getName()));
 
-			for (Integer playlistIndex : playlist.getTrackMap().keySet()) {
-				Track track = playlist.getTrackMap().get(playlistIndex);
+			for (Track track : playlist.getTracks()) {
 				Element trackElement = factory.createElement("track");
-				trackElement.add(factory.createAttribute(trackElement, "index", playlistIndex.toString()));
 				trackElement.add(factory.createAttribute(trackElement, "id", track.getTrackId()));
 
 				playlistElement.add(trackElement);
@@ -169,10 +167,10 @@ public class SettingsManager implements InitializingBean, Constants {
 					playlistElement.attributeValue("name"));
 
 				for (Element trackElement : (List<Element>)playlistElement.selectNodes("track")) {
-					Track track = searchManager.getTrackById(Integer.parseInt(trackElement.attributeValue("id")));
+					Track track = searchManager.getTrackById(trackElement.attributeValue("id"));
 
 					if (track != null) {
-						playlist.putTrack(Integer.parseInt(trackElement.attributeValue("index")), track);
+						playlist.addTrack(track);
 					}
 				}
 

@@ -256,6 +256,18 @@
     -fx-border-width: 0 0 0 1;
 }
 
+#loveButtonOn {
+	-fx-background-image: url('../images/love-on.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+}
+
+#loveButtonOff {
+	-fx-background-image: url('../images/love-off.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+}
+
 #playingPanel {
     -fx-border-width: 0 0 0 1;
 }

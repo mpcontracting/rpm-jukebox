@@ -9,6 +9,7 @@ import javafx.scene.control.TableView;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
+import uk.co.mpcontracting.rpmjukebox.component.LoveButtonTableCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableModel;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
@@ -22,6 +23,9 @@ public class TrackTableController extends EventAwareObject {
 
 	@FXML
 	private TableView<TrackTableModel> trackTableView;
+	
+	@FXML
+	private TableColumn<TrackTableModel, String> loveColumn;
 
 	@FXML
 	private TableColumn<TrackTableModel, String> trackNameColumn;
@@ -54,6 +58,7 @@ public class TrackTableController extends EventAwareObject {
 		trackTableView.setItems(observableTracks);
 		
 		// Cell factories
+		loveColumn.setCellFactory(new LoveButtonTableCellFactory<TrackTableModel, String>(playlistManager));
 		trackNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>(playlistManager));
 		artistNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>(playlistManager));
 		albumYearColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, Number>(playlistManager));
@@ -61,6 +66,7 @@ public class TrackTableController extends EventAwareObject {
 		genresColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>(playlistManager));
 		
 		// Cell value factories
+		loveColumn.setCellValueFactory(cellData -> cellData.getValue().getTrackId());
 		trackNameColumn.setCellValueFactory(cellData -> cellData.getValue().getTrackName());
 		artistNameColumn.setCellValueFactory(cellData -> cellData.getValue().getArtistName());
 		albumYearColumn.setCellValueFactory(cellData -> cellData.getValue().getAlbumYear());

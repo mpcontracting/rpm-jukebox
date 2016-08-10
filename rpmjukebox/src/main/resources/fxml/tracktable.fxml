@@ -5,10 +5,11 @@
 
 <TableView fx:id="trackTableView" prefWidth="1000.0" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.TrackTableController">
   <columns>
-      <PercentageTableColumn fx:id="trackNameColumn" percentageWidth="0.33" text="Track" />
-      <PercentageTableColumn fx:id="artistNameColumn" percentageWidth="0.22" text="Artist" />
-      <PercentageTableColumn fx:id="albumNameColumn" percentageWidth="0.22" text="Album" />
-      <PercentageTableColumn fx:id="albumYearColumn" percentageWidth="0.05" text="Year" />
-      <PercentageTableColumn fx:id="genresColumn" percentageWidth="0.18" text="Genres" />
+      <PercentageTableColumn fx:id="loveColumn" editable="false" percentageWidth="0.03" resizable="false" sortable="false" text="" />
+      <PercentageTableColumn fx:id="trackNameColumn" editable="false" percentageWidth="0.30" text="Track" />
+      <PercentageTableColumn fx:id="artistNameColumn" editable="false" percentageWidth="0.22" text="Artist" />
+      <PercentageTableColumn fx:id="albumNameColumn" editable="false" percentageWidth="0.22" text="Album" />
+      <PercentageTableColumn fx:id="albumYearColumn" editable="false" percentageWidth="0.05" text="Year" />
+      <PercentageTableColumn fx:id="genresColumn" editable="false" percentageWidth="0.18" text="Genres" />
   </columns>
 </TableView>
