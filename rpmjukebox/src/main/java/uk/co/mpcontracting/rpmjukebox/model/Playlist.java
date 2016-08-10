@@ -8,10 +8,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @ToString(includeFieldNames = true)
 @EqualsAndHashCode(of = {"playlistId"})
-public class Playlist {
+public class Playlist implements Constants {
     @Getter private int playlistId;
     @Getter @Setter private String name;
     @Getter private List<Track> tracks;
@@ -34,7 +35,7 @@ public class Playlist {
     }
     
     public void addTrack(Track track) {
-    	if (!tracks.contains(track)) {
+    	if (tracks.size() < MAX_PLAYLIST_SIZE && !tracks.contains(track)) {
     		track.setPlaylistId(playlistId);
     		track.setPlaylistIndex(tracks.size());
     		tracks.add(track);

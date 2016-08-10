@@ -3,8 +3,8 @@ package uk.co.mpcontracting.rpmjukebox.event;
 public enum Event {
 	APPLICATION_INITIALISED,
     TIME_UPDATED, 
-    EQUALIZER_UPDATED,
     BUFFER_UPDATED,
+    EQUALIZER_UPDATED,
     MEDIA_PLAYING, 
     MEDIA_PAUSED, 
     MEDIA_STOPPED,
