@@ -74,6 +74,19 @@ public class SettingsManager implements InitializingBean, Constants {
 		DocumentFactory factory = DocumentFactory.getInstance();
 		Document root = factory.createDocument("UTF-8");
 		Element rpmJukeboxElement = factory.createElement("rpm-jukebox");
+		
+		// Settings
+		Element settingsElement = factory.createElement("settings");
+		
+		Element shuffleElement = factory.createElement("shuffle");
+		shuffleElement.add(factory.createAttribute(shuffleElement, "enabled", Boolean.toString(playlistManager.isShuffle())));
+		settingsElement.add(shuffleElement);
+		
+		Element repeatElement = factory.createElement("repeat");
+		repeatElement.add(factory.createAttribute(repeatElement, "enabled", Boolean.toString(playlistManager.isRepeat())));
+		settingsElement.add(repeatElement);
+		
+		rpmJukeboxElement.add(settingsElement);
 
 		// Equalizer
 		Equalizer equalizer = mediaManager.getEqualizer();
@@ -150,6 +163,15 @@ public class SettingsManager implements InitializingBean, Constants {
 			Document root = reader.read(settingsFile);
 			Node rpmJukeboxNode = root.selectSingleNode("rpm-jukebox");
 
+			// Settings
+			Node settingsNode = rpmJukeboxNode.selectSingleNode("settings");
+			
+			Element shuffleElement = (Element)settingsNode.selectSingleNode("shuffle");
+			playlistManager.setSuffle(Boolean.parseBoolean(shuffleElement.attributeValue("enabled")));
+			
+			Element repeatElement = (Element)settingsNode.selectSingleNode("repeat");
+			playlistManager.setRepeat(Boolean.parseBoolean(repeatElement.attributeValue("enabled")));
+			
 			// Equalizer
 			Node equalizerNode = rpmJukeboxNode.selectSingleNode("equalizer");
 

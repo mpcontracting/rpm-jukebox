@@ -165,6 +165,22 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		observablePlaylists.setAll(playlistManager.getPlaylists());
 	}
 	
+	private void setShuffleButtonImage() {
+		if (playlistManager.isShuffle()) {
+			shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')");
+		} else {
+			shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
+		}
+	}
+	
+	private void setRepeatButtonImage() {
+		if (playlistManager.isRepeat()) {
+			repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_ON + "')");
+		} else {
+			repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
+		}
+	}
+	
 	@FXML
 	protected void handlePreviousButtonAction(ActionEvent event) {
 		log.info("Previous button pressed");
@@ -192,26 +208,18 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleShuffleButtonAction(ActionEvent event) {
 		log.info("Shuffle button pressed");
 		
-		if (playlistManager.isShuffle()) {
-			shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
-		} else {
-			shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')");
-		}
-		
 		playlistManager.setSuffle(!playlistManager.isShuffle());
+		
+		setShuffleButtonImage();
 	}
 	
 	@FXML
 	protected void handleRepeatButtonAction(ActionEvent event) {
 		log.info("Repeat button pressed");
-		
-		if (playlistManager.isRepeat()) {
-			repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
-		} else {
-			repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_ON + "')");
-		}
-		
+
 		playlistManager.setRepeat(!playlistManager.isRepeat());
+		
+		setRepeatButtonImage();
 	}
 
 	@FXML
@@ -245,6 +253,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 					playlistPanelListView.getFocusModel().focus(0);
 				}
 				
+				// Set the button images
+				setShuffleButtonImage();
+				setRepeatButtonImage();
+				
 				// Enable GUI components
 				searchTextField.setDisable(false);
 				timeSlider.setDisable(false);
@@ -253,7 +265,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				repeatButton.setDisable(false);
 				eqButton.setDisable(false);
 				randomButton.setDisable(false);
-				
+
 				break;
 			}
 			case TIME_UPDATED: {
