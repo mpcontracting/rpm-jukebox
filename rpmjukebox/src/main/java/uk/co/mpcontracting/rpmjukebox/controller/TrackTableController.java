@@ -91,23 +91,47 @@ public class TrackTableController extends EventAwareObject {
 	public void eventReceived(Event event, Object... payload) {
 		switch (event) {
 			case PLAYLIST_CONTENT_UPDATED: {
-				Integer playlistId = (Integer)payload[0];
-	
-				if (playlistId != null && playlistId.equals(visiblePlaylistId)) {
-					updateObservableTracks(playlistId);
+				if (payload != null && payload.length > 0) {
+					Integer playlistId = (Integer)payload[0];
+		
+					if (playlistId != null && playlistId.equals(visiblePlaylistId)) {
+						updateObservableTracks(playlistId);
+					}
 				}
 	
 				break;
 			}
 			case PLAYLIST_SELECTED: {
-				Integer playlistId = (Integer)payload[0];
-	
-				if (playlistId != null && !playlistId.equals(visiblePlaylistId)) {
-					visiblePlaylistId = playlistId;
-					updateObservableTracks(visiblePlaylistId);
-	
-					break;
+				if (payload != null && payload.length > 0) {
+					Integer playlistId = (Integer)payload[0];
+		
+					if (playlistId != null && !playlistId.equals(visiblePlaylistId)) {
+						visiblePlaylistId = playlistId;
+						updateObservableTracks(visiblePlaylistId);
+
+						if (visiblePlaylistId == playlistManager.getCurrentPlaylistId()) {
+							int currentPlaylistIndex = playlistManager.getCurrentPlaylistIndex();
+
+							trackTableView.getSelectionModel().select(currentPlaylistIndex);
+							trackTableView.getFocusModel().focus(currentPlaylistIndex);
+						}
+					}
 				}
+				
+				break;
+			}
+			case TRACK_QUEUED_FOR_PLAYING: {
+				if (payload != null && payload.length > 0) {
+					Track track = (Track)payload[0];
+					
+					// Set the track as selected in the table view
+					if (track.getPlaylistId() == playlistManager.getCurrentPlaylistId()) {
+						trackTableView.getSelectionModel().select(track.getPlaylistIndex());
+						trackTableView.getFocusModel().focus(track.getPlaylistIndex());
+					}
+				}
+				
+				break;
 			}
 			default: {
 				// Nothing

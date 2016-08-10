@@ -188,6 +188,12 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		return currentPlaylistId;
 	}
 	
+	public int getCurrentPlaylistIndex() {
+		log.info("Getting current playlist index");
+		
+		return currentPlaylistIndex;
+	}
+	
 	public void playPlaylist(int playlistId) {
 		log.info("Playing playlist - " + playlistId);
 
