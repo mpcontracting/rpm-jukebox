@@ -43,7 +43,7 @@ public class PlaylistListCellFactory implements Callback<ListView<Playlist>, Lis
 					if (event.getClickCount() > 1) {
 						// Double click
 						if (listCell != null && listCell.getItem() != null) {
-							playlistManager.playPlaylist(listCell.getItem().getPlaylistId(), 0);
+							playlistManager.playPlaylist(listCell.getItem().getPlaylistId());
 						}
 					} else {
 						// Single click

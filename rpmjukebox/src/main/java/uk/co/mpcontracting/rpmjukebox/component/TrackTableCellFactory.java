@@ -36,7 +36,7 @@ public class TrackTableCellFactory<S, T> implements Callback<TableColumn<TrackTa
 					if (event.getClickCount() > 1) {
 						// Double click
 						if (tableCell != null && tableCell.getItem() != null) {
-							playlistManager.playTrackAtIndex(tableCell.getIndex());
+							playlistManager.playTrack(((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 						}
 					}
 				}

@@ -35,6 +35,8 @@ public class Playlist {
     
     public void addTrack(Track track) {
     	if (!tracks.contains(track)) {
+    		track.setPlaylistId(playlistId);
+    		track.setPlaylistIndex(tracks.size());
     		tracks.add(track);
     	}
     }

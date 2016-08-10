@@ -189,7 +189,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			@Override
 			public void run() {
 				playlistManager.setPlaylistTracks(SEARCH_PLAYLIST_ID, searchManager.getRandomPlaylist(RANDOM_PLAYLIST_SIZE));
-				playlistManager.playPlaylist(SEARCH_PLAYLIST_ID, 0);
+				playlistManager.playPlaylist(SEARCH_PLAYLIST_ID);
 			}
 		});
 	}

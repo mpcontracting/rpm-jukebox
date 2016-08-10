@@ -81,7 +81,8 @@ public abstract class DataParser implements Constants {
 							trackNumber++,
 							currentTrack.getLocation(), 
 							currentTrack.isPreferred(), 
-							currentArtist.getGenres()));
+							currentArtist.getGenres()
+						));
 					}
 				} catch (Exception e) {
 					log.warn("Error parsing line record - " + e.getMessage() + " - ignoring", e);

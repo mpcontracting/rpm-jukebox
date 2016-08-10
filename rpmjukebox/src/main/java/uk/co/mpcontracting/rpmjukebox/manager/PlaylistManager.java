@@ -160,7 +160,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistId);
 	}
 
-	public boolean isTrackIdInPlaylist(int playlistId, String trackId) {
+	public boolean isTrackInPlaylist(int playlistId, String trackId) {
 		if (trackId == null) {
 			return false;
 		}
@@ -188,21 +188,23 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		return currentPlaylistId;
 	}
 	
-	public void playPlaylist(int playlistId, int playlistIndex) {
-		log.info("Playing playlist - " + playlistId + ", index - " + playlistIndex);
+	public void playPlaylist(int playlistId) {
+		log.info("Playing playlist - " + playlistId);
 
 		currentPlaylistId = playlistId;
-		currentPlaylistIndex = playlistIndex;
+		currentPlaylistIndex = 0;
 
 		fireEvent(Event.PLAYLIST_SELECTED, playlistId);
 
 		playCurrentTrack();
 	}
 	
-	public void playTrackAtIndex(int playlistIndex) {
-		log.info("Playing track at index - " + playlistIndex);
+	public void playTrack(Track track) {
+		log.info("Playing track : Playlist - " + track.getPlaylistId() + ", Index - " + track.getPlaylistIndex() + ", Track - " + track.getArtistName() + 
+			" - " + track.getAlbumName() + " - " + track.getTrackName());
 
-		currentPlaylistIndex = playlistIndex;
+		currentPlaylistId = track.getPlaylistId();
+		currentPlaylistIndex = track.getPlaylistIndex();
 		
 		playCurrentTrack();
 	}

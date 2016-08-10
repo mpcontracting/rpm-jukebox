@@ -37,7 +37,7 @@ public class LoveButtonTableCellFactory<S, T> implements Callback<TableColumn<Tr
 						if (tableCell != null && tableCell.getItem() != null) {
 							Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
 							
-							if (playlistManager.isTrackIdInPlaylist(FAVOURITES_PLAYLIST_ID, track.getTrackId())) {
+							if (playlistManager.isTrackInPlaylist(FAVOURITES_PLAYLIST_ID, track.getTrackId())) {
 								playlistManager.removeTrackFromPlaylist(FAVOURITES_PLAYLIST_ID, track);
 							} else {
 								playlistManager.addTrackToPlaylist(FAVOURITES_PLAYLIST_ID, track);
