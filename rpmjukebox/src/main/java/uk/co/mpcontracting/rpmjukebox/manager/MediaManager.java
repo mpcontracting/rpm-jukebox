@@ -46,6 +46,8 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		createNewMediaPlayer();
 
 		currentPlayer.play();
+		
+		fireEvent(Event.TRACK_QUEUED_FOR_PLAYING, currentTrack);
 	}
 
 	public void pausePlayback() {

@@ -245,25 +245,6 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 				break;
 			}
-			case MEDIA_PLAYING: {
-				if (payload != null && payload.length > 0) {
-					Track track = (Track)payload[0];
-					
-					playingTrackLabel.setText(track.getTrackName());
-					playingAlbumLabel.setText(track.getAlbumName());
-					playingArtistLabel.setText(track.getArtistName());
-					
-					if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
-						playingImageView.setImage(new Image(track.getAlbumImage(), true));
-					} else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
-						playingImageView.setImage(new Image(track.getArtistImage(), true));
-					} else {
-						playingImageView.setImage(new Image("/images/no-artwork.png"));
-					}
-				}
-				
-				break;
-			}
 			case MEDIA_STOPPED:
 			case END_OF_MEDIA: {
 				playTimeLabel.setText(StringHelper.formatElapsedTime(Duration.ZERO, Duration.ZERO));
@@ -286,8 +267,22 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				break;
 			}
-			case TRACK_SELECTED: {
-				//playPauseButton.setDisable(false);
+			case TRACK_QUEUED_FOR_PLAYING: {
+				if (payload != null && payload.length > 0) {
+					Track track = (Track)payload[0];
+					
+					playingTrackLabel.setText(track.getTrackName());
+					playingAlbumLabel.setText(track.getAlbumName());
+					playingArtistLabel.setText(track.getArtistName());
+					
+					if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
+						playingImageView.setImage(new Image(track.getAlbumImage(), true));
+					} else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
+						playingImageView.setImage(new Image(track.getArtistImage(), true));
+					} else {
+						playingImageView.setImage(new Image("/images/no-artwork.png"));
+					}
+				}
 				
 				break;
 			}
