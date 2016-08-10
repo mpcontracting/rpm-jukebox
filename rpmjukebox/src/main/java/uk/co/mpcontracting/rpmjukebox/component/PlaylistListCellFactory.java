@@ -89,7 +89,7 @@ public class PlaylistListCellFactory implements Callback<ListView<Playlist>, Lis
 				if (listView.getItems().size() > sourceCell.getIndex()) {
 					Playlist playlist = listView.getItems().get(sourceCell.getIndex());
 		
-					if (playlist.getPlaylistId() == SEARCH_PLAYLIST_ID) {
+					if (playlist.getPlaylistId() < 0) {
 						deletePlaylistItem.setDisable(true);
 					} else {
 						deletePlaylistItem.setDisable(false);
@@ -121,7 +121,7 @@ public class PlaylistListCellFactory implements Callback<ListView<Playlist>, Lis
 		listCell.setOnDragEntered(new EventHandler<DragEvent>() {
 			@Override
 			public void handle(DragEvent event) {
-				if (event.getGestureSource() != listCell && listCell.getItem() != null && listCell.getItem().getPlaylistId() != SEARCH_PLAYLIST_ID && 
+				if (event.getGestureSource() != listCell && listCell.getItem() != null && listCell.getItem().getPlaylistId() > -1 && 
 					event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT)) {
 					listCell.setStyle("-fx-background-color: brown");
 				}
