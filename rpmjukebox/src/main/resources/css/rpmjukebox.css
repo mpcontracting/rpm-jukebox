@@ -290,6 +290,7 @@
 
 #playingPanel #playingLabelPanel {
 	-fx-border-width: 1 0 0 0;
+	-fx-padding: 0 3 0 3;
 }
 
 #controlPanel {
