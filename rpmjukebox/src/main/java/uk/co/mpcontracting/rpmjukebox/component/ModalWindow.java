@@ -1,8 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
 import javafx.event.EventHandler;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.effect.BoxBlur;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -10,15 +11,15 @@ import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlHelper;
 
-public class EqualizerDialogue extends Stage {
+public class ModalWindow extends Stage {
 
-	public EqualizerDialogue(Stage stage) {
+	public ModalWindow(Stage stage, String fxmlFile) {
 		super(StageStyle.TRANSPARENT);
 
 		initModality(Modality.WINDOW_MODAL);
 		initOwner(stage);
 
-		setScene(new Scene((BorderPane)FxmlHelper.loadFxml("equalizer.fxml"), Color.TRANSPARENT));
+		setScene(new Scene((Parent)FxmlHelper.loadFxml(fxmlFile), Color.TRANSPARENT));
 		
 		addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
 			@Override
@@ -27,5 +28,16 @@ public class EqualizerDialogue extends Stage {
 				setY((getOwner().getY() + getOwner().getHeight() / 2) - getHeight() / 2);
 			}
 		});
+	}
+
+	public void display() {
+		getOwner().getScene().getRoot().setEffect(new BoxBlur());
+		show();
+	}
+	
+	@Override
+	public void close() {
+		getOwner().getScene().getRoot().setEffect(null);
+		super.close();
 	}
 }

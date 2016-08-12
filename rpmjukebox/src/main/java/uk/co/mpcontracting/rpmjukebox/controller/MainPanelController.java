@@ -16,18 +16,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.component.EqualizerDialogue;
+import uk.co.mpcontracting.rpmjukebox.component.ModalWindow;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
@@ -106,7 +104,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@Autowired
 	private MediaManager mediaManager;
 
-	@Getter private EqualizerDialogue equalizerDialogue;
+	@Getter private ModalWindow equalizerDialogue;
 	private ObservableList<Playlist> observablePlaylists;
 
 	@FXML
@@ -138,7 +136,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		volumeSlider.setValue(mediaManager.getVolume() * 100);
 		
 		// Equalizer dialogue
-		equalizerDialogue = new EqualizerDialogue(FxmlContext.getBean(RpmJukebox.class).getStage());
+		equalizerDialogue = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "equalizer.fxml");
 		
 		// Playlist list view
 		observablePlaylists = FXCollections.observableArrayList();
@@ -236,10 +234,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleEqButtonAction(ActionEvent event) {
 		log.info("EQ button pressed");
 
-		Stage stage = FxmlContext.getBean(RpmJukebox.class).getStage();
-		stage.getScene().getRoot().setEffect(new BoxBlur());
-
-		equalizerDialogue.show();
+		equalizerDialogue.display();
 	}
 	
 	@FXML

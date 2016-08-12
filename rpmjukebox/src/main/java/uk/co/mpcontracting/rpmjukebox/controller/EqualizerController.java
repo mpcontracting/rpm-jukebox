@@ -9,7 +9,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
@@ -44,7 +43,6 @@ public class EqualizerController extends EventAwareObject {
 
 	@FXML
 	protected void handleOkAction(ActionEvent event) {
-		FxmlContext.getBean(RpmJukebox.class).getStage().getScene().getRoot().setEffect(null);
 		FxmlContext.getBean(MainPanelController.class).getEqualizerDialogue().close();
 	}
 	
