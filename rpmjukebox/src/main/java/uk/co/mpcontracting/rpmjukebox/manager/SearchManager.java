@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -103,9 +104,10 @@ public class SearchManager implements Constants {
         	trackSortList = Arrays.asList(TrackSort.values());
         	
         	// See if we already have valid indexes, if not, build them
-        	if (!isIndexValid(artistManager) || !isIndexValid(trackManager)) {
+        	if (settingsManager.isDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
         		DataParser.parse(this, settingsManager.getDataFile(), genreList, yearList);
             	commitIndexes();
+            	settingsManager.setLastIndexedDate(LocalDateTime.now());
         	}
 
             log.info("SearchManager initialised");

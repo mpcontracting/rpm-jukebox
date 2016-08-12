@@ -107,7 +107,7 @@
 					<vendor>Matt Parker</vendor>
 					<nativeReleaseVersion>${project.version}</nativeReleaseVersion>
 					<mainClass>uk.co.mpcontracting.rpmjukebox.RpmJukebox</mainClass>
-					<!--<verbose>true</verbose>-->
+					<!--<verbose>true</verbose> -->
 				</configuration>
 				<executions>
 					<execution>

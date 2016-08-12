@@ -4,6 +4,7 @@ import javafx.scene.input.DataFormat;
 
 public interface Constants {
 	public static final String PROP_DATAFILE_URL			= "datafile.url";
+	public static final String LAST_INDEXED_FILE			= "last-indexed";
 	public static final String SETTINGS_FILE				= "rpm-jukebox.xml";
 	public static final String ARTIST_INDEX_DIRECTORY		= "artistIndex";
 	public static final String TRACK_INDEX_DIRECTORY		= "trackIndex";

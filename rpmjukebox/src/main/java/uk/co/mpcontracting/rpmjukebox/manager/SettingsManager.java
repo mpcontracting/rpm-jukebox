@@ -1,8 +1,16 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -44,6 +52,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	
 	private File configDirectory;
 	@Getter private URL dataFile;
+	@Getter private boolean dataFileExpired;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -61,10 +70,77 @@ public class SettingsManager implements InitializingBean, Constants {
 
 		// Get the data file location
 		dataFile = new URL(properties.getProperty(PROP_DATAFILE_URL));
+		
+		// Determine whether the data file has expired
+		dataFileExpired = hasDataFileExpired();
 	}
 	
+	private boolean hasDataFileExpired() {
+		// Read the last modified date from the data file
+		LocalDateTime lastModified = null;
+		
+		if ("file".equals(dataFile.getProtocol())) {
+			try {
+				lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(new File(dataFile.toURI()).lastModified()), ZoneId.systemDefault());
+			} catch (Exception e) {
+				log.error("Unable to determine if local data file has expired", e);
+			}
+		} else {
+			HttpURLConnection connection = null;
+			
+			try {
+				connection = (HttpURLConnection)dataFile.openConnection();
+				lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(connection.getLastModified()), ZoneId.systemDefault());
+			} catch (Exception e) {
+				log.error("Unable to determine if data file has expired", e);
+			} finally {
+				if (connection != null) {
+					connection.disconnect();
+				}
+			}
+		}
+
+		LocalDateTime lastIndexed = getLastIndexedDate();
+		
+		log.info("Last modified - " + lastModified);
+		log.info("Last indexed - " + lastIndexed);
+		
+		// If last modified is at least 1 hour old and greater than last indexed, it's invalid
+		return lastModified.minusHours(1).isAfter(LocalDateTime.now()) && lastModified.isAfter(lastIndexed);
+	}
+
 	public File getFileFromConfigDirectory(String relativePath) {
 		return new File(configDirectory, relativePath);
+	}
+	
+	public LocalDateTime getLastIndexedDate() {
+		LocalDateTime lastIndexed = null;
+		File lastIndexedFile = getFileFromConfigDirectory(LAST_INDEXED_FILE);
+		
+		if (lastIndexedFile.exists()) {
+			try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
+				lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())), ZoneId.systemDefault());
+			} catch (Exception e) {
+				log.error("Unable to read last indexed file", e);
+			}
+		} else {
+			// Set last indexed to now
+			lastIndexed = LocalDateTime.now();
+			setLastIndexedDate(lastIndexed);
+		}
+		
+		return lastIndexed;
+	}
+	
+	public void setLastIndexedDate(LocalDateTime localDateTime) {
+		File lastIndexedFile = getFileFromConfigDirectory(LAST_INDEXED_FILE);
+		
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
+			writer.write(Long.toString(localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+			writer.newLine();
+		} catch (Exception e) {
+			log.error("Unable to write last indexed file", e);
+		}
 	}
 	
 	public void saveSettings() {
