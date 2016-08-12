@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
@@ -80,7 +80,7 @@ public class SearchManager implements Constants {
     	
     	try {
     		// Initialise the indexes
-    		analyzer = new SimpleAnalyzer();
+    		analyzer = new WhitespaceAnalyzer();
     		BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
 
     		artistDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(ARTIST_INDEX_DIRECTORY).toPath());
@@ -173,8 +173,8 @@ public class SearchManager implements Constants {
         
         // Keywords
         document.add(new TextField(TrackField.KEYWORDS.name(), 
-    		stripNonAlphaNumerics(track.getArtistName()) + " " + stripNonAlphaNumerics(track.getAlbumName()) + " " + 
-    		stripNonAlphaNumerics(track.getTrackName()), Field.Store.YES));
+    		(stripNonAlphaNumerics(track.getArtistName()) + " " + stripNonAlphaNumerics(track.getAlbumName()) + " " + 
+    		stripNonAlphaNumerics(track.getTrackName())).toLowerCase(), Field.Store.YES));
         
         // Result data
         document.add(new StringField(TrackField.ARTISTID.name(), track.getArtistId(), Field.Store.YES));
@@ -225,8 +225,8 @@ public class SearchManager implements Constants {
         
         try {
         	trackSearcher = trackManager.acquire();
-            TopFieldDocs results = trackSearcher.search(buildKeywordsQuery(stripWhitespace(trackSearch.getKeywords(), true), trackSearch.getTrackFilter().getFilter()), 
-            	MAX_SEARCH_HITS, new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
+            TopFieldDocs results = trackSearcher.search(buildKeywordsQuery(stripNonAlphaNumerics(stripWhitespace(trackSearch.getKeywords(), true).toLowerCase()), 
+            	trackSearch.getTrackFilter().getFilter()), MAX_SEARCH_HITS, new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
             ScoreDoc[] scoreDocs = results.scoreDocs;
             List<Track> tracks = new ArrayList<Track>();
             
