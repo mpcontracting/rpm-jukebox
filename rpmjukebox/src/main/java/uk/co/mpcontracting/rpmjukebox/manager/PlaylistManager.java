@@ -180,27 +180,42 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 		fireEvent(Event.PLAYLIST_SELECTED, playlistId);
 
-		playCurrentTrack();
+		playCurrentTrack(false);
 	}
 	
 	public void playTrack(Track track) {
 		log.info("Playing track : Playlist - " + track.getPlaylistId() + ", Index - " + track.getPlaylistIndex() + ", Track - " + track.getArtistName() + 
 			" - " + track.getAlbumName() + " - " + track.getTrackName());
 
-		currentPlaylistId = track.getPlaylistId();
-		currentPlaylistIndex = track.getPlaylistIndex();
+		synchronized (playlistMap) {
+			currentPlaylistId = track.getPlaylistId();
+			currentPlaylistIndex = track.getPlaylistIndex();
+		}
 		
-		playCurrentTrack();
+		playCurrentTrack(true);
 	}
 	
-	public void playCurrentTrack() {
+	public void playCurrentTrack(boolean overrideShuffle) {
 		log.info("Playing current track");
 
 		synchronized (playlistMap) {
 			Playlist currentPlaylist = playlistMap.get(currentPlaylistId);
 
-			if (!playlistMap.get(currentPlaylistId).isEmpty()) {
-				currentTrack = currentPlaylist.getTrackAtIndex(currentPlaylistIndex);
+			if (!currentPlaylist.isEmpty()) {
+				if (shuffle && !overrideShuffle) {
+					log.info("Getting shuffled track");
+					currentTrack = currentPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
+				} else {
+					log.info("Getting non-shuffled track");
+					currentTrack = currentPlaylist.getTrackAtIndex(currentPlaylistIndex);
+				}
+				
+				// If we're shuffling and overriding the shuffle, make
+				// sure the current track is placed in the current position
+				// in the shuffled stack
+				if (shuffle && overrideShuffle) {
+					currentPlaylist.setTrackAtShuffledIndex(currentTrack, currentPlaylistIndex);
+				}
 
 				mediaManager.playTrack(currentTrack);
 			}
@@ -238,7 +253,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			if (currentPlaylistIndex > 0) {
 				currentPlaylistIndex--;
 				
-				playCurrentTrack();
+				playCurrentTrack(false);
 				
 				return true;
 			}
@@ -247,7 +262,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		if (repeat) {
 			currentPlaylistIndex = currentPlaylist.size() - 1;
 			
-			playCurrentTrack();
+			playCurrentTrack(false);
 			
 			return true;
 		}
@@ -271,7 +286,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			if (currentPlaylistIndex < (currentPlaylist.size() - 1)) {
 				currentPlaylistIndex++;
 
-				playCurrentTrack();
+				playCurrentTrack(false);
 
 				return true;
 			}
@@ -279,7 +294,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			if (repeat) {
 				currentPlaylistIndex = 0;
 
-				playCurrentTrack();
+				playCurrentTrack(false);
 
 				return true;
 			}
@@ -290,11 +305,29 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		return false;
 	}
 	
-	public void setSuffle(boolean shuffle) {
+	public void setShuffle(boolean shuffle, boolean ignorePlaylist) {
 		log.info("Setting shuffle - " + shuffle);
 		
 		synchronized (playlistMap) {
 			this.shuffle = shuffle;
+			
+			if (shuffle && !ignorePlaylist) {
+				log.info("Shuffling current playlist - " + currentPlaylistId);
+				
+				playlistMap.get(currentPlaylistId).shuffle();
+				
+				// If we're playing or pausing a track, make sure that track is placed 
+				// in the current position in the shuffled stack
+				if (currentTrack != null && (mediaManager.isPlaying() || mediaManager.isPaused())) {
+					playlistMap.get(currentPlaylistId).setTrackAtShuffledIndex(currentTrack, currentPlaylistIndex);
+				}
+			} else if (!shuffle && !ignorePlaylist) {
+				// If we're playing or pausing a track, we need to reset our position
+				// in the current playlist
+				if (currentTrack != null && (mediaManager.isPlaying() || mediaManager.isPaused())) {
+					currentPlaylistIndex = currentTrack.getPlaylistIndex();
+				}
+			}
 		}
 	}
 

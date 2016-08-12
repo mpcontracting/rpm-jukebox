@@ -258,7 +258,7 @@ public class SettingsManager implements InitializingBean, Constants {
 			Node settingsNode = rpmJukeboxNode.selectSingleNode("settings");
 			
 			Element shuffleElement = (Element)settingsNode.selectSingleNode("shuffle");
-			playlistManager.setSuffle(Boolean.parseBoolean(shuffleElement.attributeValue("enabled")));
+			playlistManager.setShuffle(Boolean.parseBoolean(shuffleElement.attributeValue("enabled")), true);
 			
 			Element repeatElement = (Element)settingsNode.selectSingleNode("repeat");
 			playlistManager.setRepeat(Boolean.parseBoolean(repeatElement.attributeValue("enabled")));

@@ -225,7 +225,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		} else if (mediaManager.isPaused()) {
 			playlistManager.resumeCurrentTrack();
 		} else {
-			playlistManager.playCurrentTrack();
+			playlistManager.playCurrentTrack(true);
 		}
 	}
 	
@@ -240,7 +240,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleShuffleButtonAction(ActionEvent event) {
 		log.info("Shuffle button pressed");
 		
-		playlistManager.setSuffle(!playlistManager.isShuffle());
+		playlistManager.setShuffle(!playlistManager.isShuffle(), false);
 		
 		setShuffleButtonImage();
 	}
@@ -290,7 +290,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				searchTextField.setDisable(false);
 				timeSlider.setDisable(false);
 				volumeSlider.setDisable(false);
-				//shuffleButton.setDisable(false);
+				shuffleButton.setDisable(false);
 				repeatButton.setDisable(false);
 				//eqButton.setDisable(false);
 				randomButton.setDisable(false);
