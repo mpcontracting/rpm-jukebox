@@ -173,8 +173,8 @@ public class SearchManager implements Constants {
         
         // Keywords
         document.add(new TextField(TrackField.KEYWORDS.name(), 
-    		(stripNonAlphaNumerics(track.getArtistName()) + " " + stripNonAlphaNumerics(track.getAlbumName()) + " " + 
-    		stripNonAlphaNumerics(track.getTrackName())).toLowerCase(), Field.Store.YES));
+    		(nullSafeTrim(track.getArtistName()) + " " + nullSafeTrim(track.getAlbumName()) + " " + 
+    		nullSafeTrim(track.getTrackName())).toLowerCase(), Field.Store.YES));
         
         // Result data
         document.add(new StringField(TrackField.ARTISTID.name(), track.getArtistId(), Field.Store.YES));
@@ -225,7 +225,7 @@ public class SearchManager implements Constants {
         
         try {
         	trackSearcher = trackManager.acquire();
-            TopFieldDocs results = trackSearcher.search(buildKeywordsQuery(stripNonAlphaNumerics(stripWhitespace(trackSearch.getKeywords(), true).toLowerCase()), 
+            TopFieldDocs results = trackSearcher.search(buildKeywordsQuery(nullSafeTrim(stripWhitespace(trackSearch.getKeywords(), true).toLowerCase()), 
             	trackSearch.getTrackFilter().getFilter()), MAX_SEARCH_HITS, new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
             ScoreDoc[] scoreDocs = results.scoreDocs;
             List<Track> tracks = new ArrayList<Track>();
@@ -446,24 +446,12 @@ public class SearchManager implements Constants {
         return string.substring(string.length() - 10);
     }
     
-    private String stripNonAlphaNumerics(String string) {
+    private String nullSafeTrim(String string) {
     	if (string == null) {
             return ("");
         }
     	
-    	StringBuilder builder = new StringBuilder();
-    	
-    	for (int i = 0; i < string.length(); i++) {
-			char nextChar = string.charAt(i);
-			
-			if (nextChar == ' ' && (builder.length() == 0 || builder.charAt(builder.length() - 1) != ' ')) {
-				builder.append(nextChar);
-			} else if (Character.isAlphabetic(nextChar) || Character.isDigit(nextChar)) {
-				builder.append(nextChar);
-			}
-		}
-    	
-    	return builder.toString().trim();
+    	return string.trim();
     }
     
     private String stripWhitespace(String string, boolean keepSpaces) {
