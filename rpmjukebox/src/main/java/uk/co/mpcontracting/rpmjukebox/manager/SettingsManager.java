@@ -242,6 +242,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		File settingsFile = getFileFromConfigDirectory(SETTINGS_FILE);
 
 		if (!settingsFile.exists()) {
+			settingsLoaded = true;
 			saveSettings();
 			return;
 		}
