@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import java.util.Collections;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
@@ -105,6 +106,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private MediaManager mediaManager;
 
 	@Getter private ModalWindow equalizerDialogue;
+	private ModalWindow indexingWindow;
+	
 	private ObservableList<Playlist> observablePlaylists;
 
 	@FXML
@@ -138,6 +141,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		// Equalizer dialogue
 		equalizerDialogue = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "equalizer.fxml");
 		
+		// Indexing window
+		indexingWindow = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "indexing.fxml");
+		
 		// Playlist list view
 		observablePlaylists = FXCollections.observableArrayList();
 		playlistPanelListView.setCellFactory(new PlaylistListCellFactory(playlistManager));
@@ -145,6 +151,24 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		// Track table view
 		mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
+	}
+	
+	public void showIndexingWindow() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				indexingWindow.display();
+			}
+		});
+	}
+	
+	public void closeIndexingWindow() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				indexingWindow.close();
+			}
+		});
 	}
 	
 	private void searchTextUpdated(String searchText) {

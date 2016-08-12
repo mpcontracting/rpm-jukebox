@@ -44,6 +44,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
+import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.ArtistField;
@@ -52,6 +53,7 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSort;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.DataParser;
+import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 @Slf4j
 @Component
@@ -105,9 +107,13 @@ public class SearchManager implements Constants {
         	
         	// See if we already have valid indexes, if not, build them
         	if (settingsManager.isDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
+        		FxmlContext.getBean(MainPanelController.class).showIndexingWindow();
+
         		DataParser.parse(this, settingsManager.getDataFile(), genreList, yearList);
             	commitIndexes();
             	settingsManager.setLastIndexedDate(LocalDateTime.now());
+
+            	FxmlContext.getBean(MainPanelController.class).closeIndexingWindow();
         	}
 
             log.info("SearchManager initialised");

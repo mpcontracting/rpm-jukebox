@@ -54,6 +54,8 @@ public class SettingsManager implements InitializingBean, Constants {
 	@Getter private URL dataFile;
 	@Getter private boolean dataFileExpired;
 	
+	private boolean settingsLoaded;
+	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising SettingsManager");
@@ -73,6 +75,8 @@ public class SettingsManager implements InitializingBean, Constants {
 		
 		// Determine whether the data file has expired
 		dataFileExpired = hasDataFileExpired();
+		
+		settingsLoaded = false;
 	}
 	
 	private boolean hasDataFileExpired() {
@@ -146,6 +150,12 @@ public class SettingsManager implements InitializingBean, Constants {
 	public void saveSettings() {
 		log.info("Saving settings");
 
+		// Don't save settings if they weren't loaded successfully
+		// so we stop file corruption
+		if (!settingsLoaded) {
+			return;
+		}
+		
 		// Build the setting object before serializing it to disk
 		DocumentFactory factory = DocumentFactory.getInstance();
 		Document root = factory.createDocument("UTF-8");
@@ -280,6 +290,8 @@ public class SettingsManager implements InitializingBean, Constants {
 			}
 
 			playlistManager.setPlaylists(playlists);
+			
+			settingsLoaded = true;
 		} catch (Exception e) {
 			log.error("Unable to load settings file", e);
 		}
