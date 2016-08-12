@@ -168,13 +168,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 				return false;
 			}
 			
-			for (Track track : playlist.getTracks()) {
-				if (track.getTrackId().equals(trackId)) {
-					return true;
-				}
-			}
-			
-			return false;
+			return playlist.isTrackInPlaylist(trackId);
 		}
 	}
 
@@ -205,8 +199,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		synchronized (playlistMap) {
 			Playlist currentPlaylist = playlistMap.get(currentPlaylistId);
 
-			if (!playlistMap.get(currentPlaylistId).getTracks().isEmpty()) {
-				currentTrack = currentPlaylist.getTracks().get(currentPlaylistIndex);
+			if (!playlistMap.get(currentPlaylistId).isEmpty()) {
+				currentTrack = currentPlaylist.getTrackAtIndex(currentPlaylistIndex);
 
 				mediaManager.playTrack(currentTrack);
 			}
@@ -251,7 +245,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		}
 		
 		if (repeat) {
-			currentPlaylistIndex = currentPlaylist.getTracks().size() - 1;
+			currentPlaylistIndex = currentPlaylist.size() - 1;
 			
 			playCurrentTrack();
 			
@@ -274,7 +268,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		}
 
 		if (currentPlaylist != null) {
-			if (currentPlaylistIndex < (currentPlaylist.getTracks().size() - 1)) {
+			if (currentPlaylistIndex < (currentPlaylist.size() - 1)) {
 				currentPlaylistIndex++;
 
 				playCurrentTrack();

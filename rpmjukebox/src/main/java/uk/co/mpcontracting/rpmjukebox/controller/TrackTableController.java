@@ -82,7 +82,7 @@ public class TrackTableController extends EventAwareObject {
 
 		observableTracks.clear();
 		
-		for (Track track : playlistManager.getPlaylist(playlistId).getTracks()) {
+		for (Track track : playlistManager.getPlaylist(playlistId)) {
 			observableTracks.add(new TrackTableModel(track));
 		}
 	}
