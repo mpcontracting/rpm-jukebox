@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
+import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
@@ -55,11 +56,17 @@ public class RpmJukebox extends Application {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				searchManager.initialise();
-				settingsManager.loadSettings();
-
-				EventManager.getInstance().fireEvent(Event.APPLICATION_INITIALISED);
-				isInitialised = true;
+				try {
+					searchManager.initialise();
+					settingsManager.loadSettings();
+					
+					FxmlContext.getBean(MainPanelController.class).closeMessageWindow();
+	
+					EventManager.getInstance().fireEvent(Event.APPLICATION_INITIALISED);
+					isInitialised = true;
+				} catch (Exception e) {
+					log.error("Error initialising data", e);
+				}
 			}
 		}).start();
 	}

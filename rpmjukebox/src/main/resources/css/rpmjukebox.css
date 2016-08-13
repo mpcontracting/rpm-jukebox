@@ -386,4 +386,5 @@
 	-fx-border-color: -jb-border-color;
     -fx-border-style: solid;
     -fx-border-width: 1;
+    -fx-padding: 5;
 }

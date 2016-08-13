@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.util.Callback;
 import uk.co.mpcontracting.ioc.ApplicationContext;
 
@@ -41,5 +42,9 @@ public class FxmlContext {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public static <T> T lookup(Node parent, String id, Class<T> clazz) {
+		return clazz.cast(parent.lookup("#" + id));
 	}
 }

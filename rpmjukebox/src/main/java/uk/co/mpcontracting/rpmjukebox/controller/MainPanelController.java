@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.component.MessageWindow;
 import uk.co.mpcontracting.rpmjukebox.component.ModalWindow;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
@@ -107,7 +108,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private MediaManager mediaManager;
 
 	@Getter private ModalWindow equalizerDialogue;
-	private ModalWindow indexingWindow;
+	private MessageWindow messageWindow;
 	
 	private ObservableList<Playlist> observablePlaylists;
 
@@ -142,8 +143,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		// Equalizer dialogue
 		equalizerDialogue = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "equalizer.fxml");
 		
-		// Indexing window
-		indexingWindow = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "indexing.fxml");
+		// Message window
+		messageWindow = new MessageWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "message.fxml");
 		
 		// Playlist list view
 		observablePlaylists = FXCollections.observableArrayList();
@@ -154,20 +155,24 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
 	}
 	
-	public void showIndexingWindow() {
+	public void showMessageWindow(String message) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				indexingWindow.display();
+				messageWindow.setMessage(message);
+				
+				if (!messageWindow.isShowing()) {
+					messageWindow.display();
+				}
 			}
 		});
 	}
 	
-	public void closeIndexingWindow() {
+	public void closeMessageWindow() {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				indexingWindow.close();
+				messageWindow.close();
 			}
 		});
 	}

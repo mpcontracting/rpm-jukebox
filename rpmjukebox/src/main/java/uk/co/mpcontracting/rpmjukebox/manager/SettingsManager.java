@@ -29,11 +29,13 @@ import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.ioc.annotation.Resource;
 import uk.co.mpcontracting.ioc.factory.InitializingBean;
+import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 @Slf4j
 @Component
@@ -53,7 +55,6 @@ public class SettingsManager implements InitializingBean, Constants {
 	
 	private File configDirectory;
 	@Getter private URL dataFile;
-	@Getter private boolean dataFileExpired;
 	
 	private boolean settingsLoaded;
 	
@@ -73,14 +74,19 @@ public class SettingsManager implements InitializingBean, Constants {
 
 		// Get the data file location
 		dataFile = new URL(properties.getProperty(PROP_DATAFILE_URL));
-		
-		// Determine whether the data file has expired
-		dataFileExpired = hasDataFileExpired();
-		
+
 		settingsLoaded = false;
 	}
 	
-	private boolean hasDataFileExpired() {
+	public boolean hasDataFileExpired() {
+		FxmlContext.getBean(MainPanelController.class).showMessageWindow("Checking for new data...");
+		
+		// Wait at least 1.5 seconds so message window lasts
+		// long enough to read
+		try {
+			Thread.sleep(1500);
+		} catch (Exception e) {};
+		
 		// Read the last modified date from the data file
 		LocalDateTime lastModified = null;
 		

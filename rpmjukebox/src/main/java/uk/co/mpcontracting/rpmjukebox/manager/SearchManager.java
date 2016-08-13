@@ -78,7 +78,7 @@ public class SearchManager implements Constants {
     
     private SecureRandom random;
 
-    public void initialise() {
+    public void initialise() throws Exception {
     	log.info("Initialising SearchManager");
     	
     	try {
@@ -106,19 +106,19 @@ public class SearchManager implements Constants {
         	trackSortList = Arrays.asList(TrackSort.values());
         	
         	// See if we already have valid indexes, if not, build them
-        	if (settingsManager.isDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
-        		FxmlContext.getBean(MainPanelController.class).showIndexingWindow();
+        	if (settingsManager.hasDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
+        		FxmlContext.getBean(MainPanelController.class).showMessageWindow("Downloading and indexing data...");
 
         		DataParser.parse(this, settingsManager.getDataFile(), genreList, yearList);
             	commitIndexes();
             	settingsManager.setLastIndexedDate(LocalDateTime.now());
-
-            	FxmlContext.getBean(MainPanelController.class).closeIndexingWindow();
         	}
 
             log.info("SearchManager initialised");
     	} catch (Exception e) {
-    		log.error("Error initlising SearchManager", e);
+    		log.error("Error initialising SearchManager", e);
+    		
+    		throw e;
     	}
     }
     
