@@ -35,6 +35,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
@@ -198,10 +199,19 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	}
 	
 	private void setRepeatButtonImage() {
-		if (playlistManager.isRepeat()) {
-			repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_ON + "')");
-		} else {
-			repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
+		switch (playlistManager.getRepeat()) {
+			case OFF: {
+				repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
+				break;
+			}
+			case ALL: {
+				repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_ALL + "')");
+				break;
+			}
+			case ONE: {
+				repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_ONE + "')");
+				break;
+			}
 		}
 	}
 	
@@ -212,7 +222,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		if (mediaManager.getPlayingTimeSeconds() > PREVIOUS_SECONDS_CUTOFF) {
 			mediaManager.setSeekPositionPercent(0);
 		} else {
-			playlistManager.playPreviousTrack();
+			playlistManager.playPreviousTrack(true);
 		}
 	}
 	
@@ -233,7 +243,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleNextButtonAction(ActionEvent event) {
 		log.info("Next button pressed");
 		
-		playlistManager.playNextTrack();
+		playlistManager.playNextTrack(true);
 	}
 	
 	@FXML
@@ -249,7 +259,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleRepeatButtonAction(ActionEvent event) {
 		log.info("Repeat button pressed");
 
-		playlistManager.setRepeat(!playlistManager.isRepeat());
+		playlistManager.updateRepeat();
 		
 		setRepeatButtonImage();
 	}
@@ -342,7 +352,13 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				playPauseButton.setStyle("-fx-background-image: url('" + IMAGE_PLAY + "')");
 				playTimeLabel.setText(StringHelper.formatElapsedTime(Duration.ZERO, Duration.ZERO));
 				timeSlider.setSliderValue(0);
-				timeSlider.setProgressValue(0);
+				
+				// If the event is MEDIA_STOPPED or the playlist manager has
+				// a repeat that isn't ONE, reset the progress value
+				if (event == Event.MEDIA_STOPPED || playlistManager.getRepeat() != Repeat.ONE) {
+					timeSlider.setProgressValue(0);
+				}
+				
 				previousButton.setDisable(true);
 				nextButton.setDisable(true);
 

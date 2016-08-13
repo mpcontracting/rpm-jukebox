@@ -14,6 +14,7 @@ import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
@@ -30,7 +31,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	@Getter private int currentPlaylistIndex;
 	private Track currentTrack;
 	@Getter private boolean shuffle;
-	@Getter private boolean repeat;
+	@Getter private Repeat repeat;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -42,7 +43,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		currentPlaylistId = SEARCH_PLAYLIST_ID;
 		currentPlaylistIndex = 0;
 		shuffle = false;
-		repeat = false;
+		repeat = Repeat.OFF;
 	}
 
 	public void setPlaylists(List<Playlist> playlists) {
@@ -240,15 +241,23 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		mediaManager.setSeekPositionPercent(0);
 	}
 	
-	public boolean playPreviousTrack() {
+	public boolean playPreviousTrack(boolean overrideRepeatOne) {
 		log.info("Playing previous track");
+		
+		// Repeat ONE (overridden on previous/next button press)
+		if (!overrideRepeatOne && repeat == Repeat.ONE) {
+			mediaManager.setSeekPositionPercent(0);
+			
+			return true;
+		}
 		
 		Playlist currentPlaylist = null;
 		
 		synchronized (playlistMap) {
 			currentPlaylist = playlistMap.get(currentPlaylistId);
 		}
-		
+
+		// Still tracks in playlist
 		if (currentPlaylist != null) {
 			if (currentPlaylistIndex > 0) {
 				currentPlaylistIndex--;
@@ -257,24 +266,33 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 				
 				return true;
 			}
-		}
-		
-		if (repeat) {
-			currentPlaylistIndex = currentPlaylist.size() - 1;
 			
-			playCurrentTrack(false);
-			
-			return true;
+			// No more tracks in playlist but repeat ALL or overridden from
+			// previous/next button press and repeat ONE
+			if (repeat == Repeat.ALL || (overrideRepeatOne && repeat == Repeat.ONE)) {
+				currentPlaylistIndex = currentPlaylist.size() - 1;
+				
+				playCurrentTrack(false);
+				
+				return true;
+			}
 		}
-		
+
 		currentPlaylistIndex = 0;
 		mediaManager.stopPlayback();
 
 		return false;
 	}
 
-	public boolean playNextTrack() {
+	public boolean playNextTrack(boolean overrideRepeatOne) {
 		log.info("Playing next track");
+		
+		// Repeat ONE (overridden on previous/next button press)
+		if (!overrideRepeatOne && repeat == Repeat.ONE) {
+			mediaManager.setSeekPositionPercent(0);
+			
+			return true;
+		}
 
 		Playlist currentPlaylist = null;
 
@@ -282,6 +300,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			currentPlaylist = playlistMap.get(currentPlaylistId);
 		}
 
+		// Still tracks in playlist
 		if (currentPlaylist != null) {
 			if (currentPlaylistIndex < (currentPlaylist.size() - 1)) {
 				currentPlaylistIndex++;
@@ -291,7 +310,9 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 				return true;
 			}
 
-			if (repeat) {
+			// No more tracks in playlist but repeat ALL or overridden from
+			// previous/next button press and repeat ONE
+			if (repeat == Repeat.ALL || (overrideRepeatOne && repeat == Repeat.ONE)) {
 				currentPlaylistIndex = 0;
 
 				playCurrentTrack(false);
@@ -331,12 +352,33 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		}
 	}
 
-	public void setRepeat(boolean repeat) {
+	public void setRepeat(Repeat repeat) {
 		log.info("Setting repeat - " + repeat);
 
 		synchronized (playlistMap) {
 			this.repeat = repeat;
 		}
+	}
+	
+	public void updateRepeat() {
+		log.info("Updating repeat from - " + repeat);
+		
+		switch (repeat) {
+			case OFF: {
+				repeat = Repeat.ALL;
+				break;
+			}
+			case ALL: {
+				repeat = Repeat.ONE;
+				break;
+			}
+			case ONE: {
+				repeat = Repeat.OFF;
+				break;
+			}
+		}
+		
+		log.info("Updated to - " + repeat);
 	}
 
 	@Override
@@ -358,7 +400,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			case END_OF_MEDIA: {
 				log.info("End of track reached, looking for next track in playlist");
 
-				if (!playNextTrack()) {
+				if (!playNextTrack(false)) {
 					log.info("End of playlist reached, stopping");
 
 					currentPlaylistIndex = 0;

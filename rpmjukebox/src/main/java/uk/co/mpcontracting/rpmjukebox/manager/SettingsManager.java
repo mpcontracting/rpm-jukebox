@@ -31,6 +31,7 @@ import uk.co.mpcontracting.ioc.annotation.Resource;
 import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
@@ -169,7 +170,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		settingsElement.add(shuffleElement);
 		
 		Element repeatElement = factory.createElement("repeat");
-		repeatElement.add(factory.createAttribute(repeatElement, "enabled", Boolean.toString(playlistManager.isRepeat())));
+		repeatElement.add(factory.createAttribute(repeatElement, "value", playlistManager.getRepeat().name()));
 		settingsElement.add(repeatElement);
 		
 		rpmJukeboxElement.add(settingsElement);
@@ -261,8 +262,22 @@ public class SettingsManager implements InitializingBean, Constants {
 			playlistManager.setShuffle(Boolean.parseBoolean(shuffleElement.attributeValue("enabled")), true);
 			
 			Element repeatElement = (Element)settingsNode.selectSingleNode("repeat");
-			playlistManager.setRepeat(Boolean.parseBoolean(repeatElement.attributeValue("enabled")));
 			
+			// TODO : This can be changed back when everyone moved to new repeat
+			String repeatValue = repeatElement.attributeValue("value");
+			
+			if (repeatValue != null) {
+				playlistManager.setRepeat(Repeat.valueOf(repeatValue));
+			} else {
+				boolean oldRepeat = Boolean.parseBoolean(repeatElement.attributeValue("enabled"));
+				
+				if (oldRepeat) {
+					playlistManager.setRepeat(Repeat.ALL);
+				} else {
+					playlistManager.setRepeat(Repeat.OFF);
+				}
+			}
+
 			// Equalizer
 			Node equalizerNode = rpmJukeboxNode.selectSingleNode("equalizer");
 

@@ -26,7 +26,8 @@ public interface Constants {
     public static final String IMAGE_SHUFFLE_OFF			= "/images/shuffle-off.png";
     public static final String IMAGE_SHUFFLE_ON				= "/images/shuffle-on.png";
     public static final String IMAGE_REPEAT_OFF				= "/images/repeat-off.png";
-    public static final String IMAGE_REPEAT_ON				= "/images/repeat-on.png";
+    public static final String IMAGE_REPEAT_ALL				= "/images/repeat-all.png";
+    public static final String IMAGE_REPEAT_ONE				= "/images/repeat-one.png";
     public static final String IMAGE_PLAY					= "/images/play.png";
     public static final String IMAGE_PAUSE					= "/images/pause.png";
     
