@@ -24,8 +24,8 @@ public class DataProcessor {
 			if (outputFile.exists()) {
 				outputFile.delete();
 			}
-			
-			writer = new BufferedWriter(new FileWriter(outputFile));
+
+			writer = new BufferedWriter(new FileWriter(outputFile, false));
 		} catch (Exception e) {
 			log.error("Enable to create output file - " + outputFile, e);
 			throw new RuntimeException(e);
@@ -36,8 +36,14 @@ public class DataProcessor {
 		band = new Band(name, image, biography, members, genres);
 	}
 	
-	public void processAlbumInfo(String name, String image, int year, String preferredTrackName) {
-		band.addAlbum(new Album(name, image, year, preferredTrackName));
+	public void processAlbumInfo(String id, String name, String image, int year, String preferredTrackName) {
+		Album album = new Album(name, image, year, preferredTrackName);
+		
+		if (id != null) {
+			album.setId(id);
+		}
+
+		band.addAlbum(album);
 	}
 	
 	public void processTrackInfo(String albumName, String trackName, String location) throws Exception {
@@ -52,14 +58,46 @@ public class DataProcessor {
 		}
 		
 		for (Album album : band.getAlbums()) {
-			if (albumName.equalsIgnoreCase(album.getName())) {
+			if ((album.getId() != null && album.getId().equals(locationData.getAlbumId())) || albumName.equalsIgnoreCase(album.getName())) {
 				if (album.getId() == null) {
 					album.setId(locationData.getAlbumId());
 				}
 				
-				album.addTrack(new Track(locationData.getTrackId(), trackName, location));
+				// See if the album already has a track called this
+				boolean found = false;
+				
+				for (Track track : album.getTracks()) {
+					if (track.getName().equals(trackName)) {
+						found = true;
+						break;
+					}
+				}
+				
+				if (!found && checkFileExists(location)) {
+					album.addTrack(new Track(locationData.getTrackId(), trackName, location));
+				}
 			}
 		}
+	}
+	
+	private boolean checkFileExists(String location) {
+		return true;
+		
+		/*HttpURLConnection connection = null;
+		
+		try {
+			connection = (HttpURLConnection)new URL(location).openConnection();
+			
+			return connection.getResponseCode() == 200;
+		} catch (Exception e) {
+			log.error("Unable to check file - " + location, e);
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
+		}
+		
+		return false;*/
 	}
 	
 	public void writeBand() {
@@ -85,8 +123,6 @@ public class DataProcessor {
 	}
 	
 	public void close() {
-		writeBand();
-		
 		if (writer != null) {
 			try {
 				writer.flush();

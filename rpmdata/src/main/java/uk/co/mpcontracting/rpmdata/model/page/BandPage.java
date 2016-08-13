@@ -74,8 +74,17 @@ public class BandPage extends AbstractPage {
 								preferredTrackName = trackElement.ownText();
 							}
 						}
+
+						String albumId = null;
 						
-						dataProcessor.processAlbumInfo(albumName, (albumImage != null && !albumImage.contains("albumdef.png") ? albumImage : ""), 
+						if (albumImage != null && !albumImage.contains("albumdef.png")) {
+							int lastSlashIndex = albumImage.lastIndexOf('/');
+							int lastDotIndex = albumImage.lastIndexOf('.');
+							
+							albumId = albumImage.substring(lastSlashIndex + 1, lastDotIndex);
+						}
+						
+						dataProcessor.processAlbumInfo(albumId, albumName, (albumId != null ? albumImage : ""), 
 							albumYear, preferredTrackName);
 					}
 				}
@@ -83,7 +92,7 @@ public class BandPage extends AbstractPage {
 				// Create tracks
 				for (Element element : document.select("param[name=movie]")) {
 					String playlistUrl = parseQueryString(element.attr("value"), "&").get("playlist_url");
-		
+
 					if (playlistUrl != null) {
 						Document playlist = null;
 						
@@ -96,7 +105,7 @@ public class BandPage extends AbstractPage {
 						if (playlist != null) {
 							for (Element track : playlist.select("track")) {
 								String location = track.select("location").text();
-								
+
 								dataProcessor.processTrackInfo(track.select("album").text(), track.select("title").text(), location);
 							}
 						}
