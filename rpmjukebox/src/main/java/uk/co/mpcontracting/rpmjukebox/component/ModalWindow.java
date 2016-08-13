@@ -9,7 +9,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlHelper;
+import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 public class ModalWindow extends Stage {
 
@@ -19,7 +19,7 @@ public class ModalWindow extends Stage {
 		initModality(Modality.WINDOW_MODAL);
 		initOwner(stage);
 
-		setScene(new Scene((Parent)FxmlHelper.loadFxml(fxmlFile), Color.TRANSPARENT));
+		setScene(new Scene((Parent)FxmlContext.loadFxml(fxmlFile), Color.TRANSPARENT));
 		
 		addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
 			@Override

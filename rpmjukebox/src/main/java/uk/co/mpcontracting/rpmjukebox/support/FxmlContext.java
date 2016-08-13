@@ -1,7 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
+import java.io.IOException;
 import java.util.List;
 
+import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
 import uk.co.mpcontracting.ioc.ApplicationContext;
 
@@ -12,7 +14,7 @@ public class FxmlContext {
 	}
 	
 	public static Object loadFxml(String fxmlFilename) {
-		return FxmlHelper.loadFxml(fxmlFilename,
+		return loadFxml(fxmlFilename,
 			new Callback<Class<?>, Object>() {
 				@Override
 				public Object call(Class<?> clazz) {
@@ -24,5 +26,20 @@ public class FxmlContext {
 
 	public static <T> T getBean(Class<T> beanClass) {
 		return ApplicationContext.getBean(beanClass);
+	}
+
+	private static Object loadFxml(String fxmlFilename, Callback<Class<?>, Object> callback) {
+		try {
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(FxmlContext.class.getResource("/fxml/" + fxmlFilename));
+
+			if (callback != null) {
+				loader.setControllerFactory(callback);
+			}
+
+			return loader.load(FxmlContext.class.getResourceAsStream("/fxml/" + fxmlFilename));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

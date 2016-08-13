@@ -98,9 +98,11 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	}
 
 	public void setEqualizerGain(int band, double value) {
+		log.info("Setting EQ gain : Band - " + band + ", Value - " + value);
+		
+		equalizer.setGain(band, value);
+		
 		if (currentPlayer != null) {
-			log.info("Setting EQ gain : Band - " + band + ", Value - " + value);
-
 			currentPlayer.getAudioEqualizer().getBands().get(band).setGain(value);
 		}
 	}

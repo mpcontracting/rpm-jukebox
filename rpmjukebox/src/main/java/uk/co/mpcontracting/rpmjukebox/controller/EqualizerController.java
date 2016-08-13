@@ -8,9 +8,12 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
+import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
+import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 @Component
@@ -24,6 +27,9 @@ public class EqualizerController extends EventAwareObject {
 	
 	@FXML
 	private Button reset;
+	
+	@Autowired
+	private MediaManager mediaManager;
 
 	@FXML
 	public void initialize() {
@@ -40,6 +46,16 @@ public class EqualizerController extends EventAwareObject {
 			});
 		}
 	}
+	
+	public void updateSliderValues() {
+		Equalizer equalizer = mediaManager.getEqualizer();
+		
+		for (Node node : sliderHbox.getChildren()) {
+			final Slider slider = (Slider)node;
+			
+			slider.setValue(equalizer.getGain(Integer.parseInt(slider.getId().substring(2))));
+		}
+	}
 
 	@FXML
 	protected void handleOkAction(ActionEvent event) {
@@ -48,6 +64,12 @@ public class EqualizerController extends EventAwareObject {
 	
 	@FXML
 	protected void handleResetAction(ActionEvent event) {
-		
+		for (Node node : sliderHbox.getChildren()) {
+			final Slider slider = (Slider)node;
+			
+			slider.setValue(0);
+			
+			fireEvent(Event.EQUALIZER_UPDATED, Integer.parseInt(slider.getId().substring(2)), slider.getValue());
+		}
 	}
 }

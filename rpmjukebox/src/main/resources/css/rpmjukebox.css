@@ -373,6 +373,14 @@
 	-fx-spacing: 5;
 }
 
+#equalizer #buttonHbox .button {
+	-fx-background-color: -jb-background-color;
+	-fx-border-color: -jb-border-color;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-text-fill: -jb-foreground-color;
+}
+
 #indexing {
 	-fx-background-color: -jb-background-color;
 	-fx-border-color: -jb-border-color;

@@ -268,6 +268,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleEqButtonAction(ActionEvent event) {
 		log.info("EQ button pressed");
 
+		FxmlContext.getBean(EqualizerController.class).updateSliderValues();
 		equalizerDialogue.display();
 	}
 	
@@ -302,7 +303,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				volumeSlider.setDisable(false);
 				shuffleButton.setDisable(false);
 				repeatButton.setDisable(false);
-				//eqButton.setDisable(false);
+				eqButton.setDisable(false);
 				randomButton.setDisable(false);
 
 				break;
