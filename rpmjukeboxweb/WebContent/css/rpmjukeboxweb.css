@@ -12,11 +12,7 @@ h1, h2 {
 	margin: 0 auto;
 }
 
-.screenshot {
-	text-align: center;
-}
-
-.disclaimer {
+.center {
 	text-align: center;
 }
 
@@ -28,4 +24,12 @@ table.downloads {
 
 td.center {
 	text-align: center;
+}
+
+.disclaimer {
+	border-style: solid;
+	padding: 10px;
+	text-align: center;
+	width: 400px;
+	margin: 0 auto;
 }
