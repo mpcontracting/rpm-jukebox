@@ -204,7 +204,7 @@ public class SearchManager implements Constants {
 
         // Sorts
         document.add(new SortedDocValuesField(TrackSort.DEFAULTSORT.name(), new BytesRef(stripWhitespace(track.getArtistName(), false) + 
-        	padInteger(track.getYear()) + padInteger(track.getNumber()))));
+        	padInteger(track.getYear()) + stripWhitespace(track.getAlbumName(), false) + padInteger(track.getNumber()))));
         document.add(new SortedDocValuesField(TrackSort.ARTISTSORT.name(), new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getArtistName(), false))));
         document.add(new SortedDocValuesField(TrackSort.ALBUMSORT.name(), new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getAlbumName(), false))));
         document.add(new SortedDocValuesField(TrackSort.TRACKSORT.name(), new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getTrackName(), false))));
