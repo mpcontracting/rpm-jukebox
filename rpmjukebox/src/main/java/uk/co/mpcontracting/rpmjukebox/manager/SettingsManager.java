@@ -61,13 +61,15 @@ public class SettingsManager implements InitializingBean, Constants {
 	
 	private boolean settingsLoaded;
 	
+	public SettingsManager() {
+		// Load up the resource bundle
+		messageBundle = ResourceBundle.getBundle(MESSAGE_BUNDLE);
+	}
+	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising SettingsManager");
-		
-		// Load up the resource bundle
-		messageBundle = ResourceBundle.getBundle(MESSAGE_BUNDLE);
-		
+
 		// Look for the config directory and create it if it isn't there
 		File homeDir = new File(System.getProperty("user.home"));
 		configDirectory = new File(homeDir, ".rpmjukebox");
