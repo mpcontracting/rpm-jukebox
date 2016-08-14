@@ -50,7 +50,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 
 	public void setPlaylists(List<Playlist> playlists) {
-		log.info("Setting playlists");
+		log.debug("Setting playlists");
 
 		synchronized (playlistMap) {
 			for (Playlist playlist : playlists) {
@@ -60,7 +60,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public List<Playlist> getPlaylists() {
-		log.info("Getting playlists");
+		log.debug("Getting playlists");
 
 		List<Playlist> playlists = new ArrayList<Playlist>();
 
@@ -74,7 +74,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void createPlaylist() {
-		log.info("Creating playlist");
+		log.debug("Creating playlist");
 
 		int playlistId = 1;
 		
@@ -93,7 +93,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public Playlist getPlaylist(int playlistId) {
-		log.info("Getting playlist - " + playlistId);
+		log.debug("Getting playlist - " + playlistId);
 
 		synchronized (playlistMap) {
 			return playlistMap.get(playlistId);
@@ -101,7 +101,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void deletePlaylist(int playlistId) {
-		log.info("Delete playlist - " + playlistId);
+		log.debug("Deleting playlist - " + playlistId);
 		
 		if (playlistId == PLAYLIST_ID_SEARCH) {
 			return;
@@ -131,7 +131,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void setPlaylistTracks(int playlistId, List<Track> tracks) {
-		log.info("Setting playlist tracks - " + playlistId);
+		log.debug("Setting playlist tracks - " + playlistId);
 
 		synchronized (playlistMap) {
 			playlistMap.get(playlistId).setTracks(tracks);
@@ -141,7 +141,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void addTrackToPlaylist(int playlistId, Track track) {
-		log.info("Adding track : Playlist - " + playlistId + ", Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
+		log.debug("Adding track : Playlist - " + playlistId + ", Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
 
 		synchronized (playlistMap) {
 			playlistMap.get(playlistId).addTrack(track);
@@ -151,7 +151,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void removeTrackFromPlaylist(int playlistId, Track track) {
-		log.info("Removing track : Playlist - " + playlistId + ", Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
+		log.debug("Removing track : Playlist - " + playlistId + ", Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
 
 		synchronized (playlistMap) {
 			playlistMap.get(playlistId).removeTrack(track);
@@ -177,7 +177,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 
 	public void playPlaylist(int playlistId) {
-		log.info("Playing playlist - " + playlistId);
+		log.debug("Playing playlist - " + playlistId);
 
 		currentPlaylistId = playlistId;
 		currentPlaylistIndex = 0;
@@ -188,7 +188,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void playTrack(Track track) {
-		log.info("Playing track : Playlist - " + track.getPlaylistId() + ", Index - " + track.getPlaylistIndex() + ", Track - " + track.getArtistName() + 
+		log.debug("Playing track : Playlist - " + track.getPlaylistId() + ", Index - " + track.getPlaylistIndex() + ", Track - " + track.getArtistName() + 
 			" - " + track.getAlbumName() + " - " + track.getTrackName());
 
 		synchronized (playlistMap) {
@@ -200,7 +200,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void playCurrentTrack(boolean overrideShuffle) {
-		log.info("Playing current track");
+		log.debug("Playing current track");
 
 		synchronized (playlistMap) {
 			Playlist currentPlaylist = playlistMap.get(currentPlaylistId);
@@ -227,25 +227,25 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void pauseCurrentTrack() {
-		log.info("Pausing current track");
+		log.debug("Pausing current track");
 
 		mediaManager.pausePlayback();
 	}
 
 	public void resumeCurrentTrack() {
-		log.info("Resuming current track");
+		log.debug("Resuming current track");
 
 		mediaManager.resumePlayback();
 	}
 	
 	public void restartTrack() {
-		log.info("Restarting current track");
+		log.debug("Restarting current track");
 		
 		mediaManager.setSeekPositionPercent(0);
 	}
 	
 	public boolean playPreviousTrack(boolean overrideRepeatOne) {
-		log.info("Playing previous track");
+		log.debug("Playing previous track");
 		
 		// Repeat ONE (overridden on previous/next button press)
 		if (!overrideRepeatOne && repeat == Repeat.ONE) {
@@ -288,7 +288,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 
 	public boolean playNextTrack(boolean overrideRepeatOne) {
-		log.info("Playing next track");
+		log.debug("Playing next track");
 		
 		// Repeat ONE (overridden on previous/next button press)
 		if (!overrideRepeatOne && repeat == Repeat.ONE) {
@@ -330,7 +330,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void setShuffle(boolean shuffle, boolean ignorePlaylist) {
-		log.info("Setting shuffle - " + shuffle);
+		log.debug("Setting shuffle - " + shuffle);
 		
 		synchronized (playlistMap) {
 			this.shuffle = shuffle;
@@ -356,7 +356,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 
 	public void setRepeat(Repeat repeat) {
-		log.info("Setting repeat - " + repeat);
+		log.debug("Setting repeat - " + repeat);
 
 		synchronized (playlistMap) {
 			this.repeat = repeat;
@@ -364,7 +364,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void updateRepeat() {
-		log.info("Updating repeat from - " + repeat);
+		log.debug("Updating repeat from - " + repeat);
 		
 		switch (repeat) {
 			case OFF: {
@@ -381,7 +381,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			}
 		}
 		
-		log.info("Updated to - " + repeat);
+		log.debug("Updated to - " + repeat);
 	}
 
 	@Override
@@ -401,10 +401,10 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 				break;
 			}
 			case END_OF_MEDIA: {
-				log.info("End of track reached, looking for next track in playlist");
+				log.debug("End of track reached, looking for next track in playlist");
 
 				if (!playNextTrack(false)) {
-					log.info("End of playlist reached, stopping");
+					log.debug("End of playlist reached, stopping");
 
 					currentPlaylistIndex = 0;
 				}

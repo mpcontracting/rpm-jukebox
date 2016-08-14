@@ -114,7 +114,7 @@ public class SearchManager implements Constants {
             	settingsManager.setLastIndexedDate(LocalDateTime.now());
         	}
 
-            log.info("SearchManager initialised");
+            log.debug("SearchManager initialised");
     	} catch (Exception e) {
     		log.error("Error initialising SearchManager", e);
     		
@@ -145,7 +145,7 @@ public class SearchManager implements Constants {
     }
     
     private void commitIndexes() {
-    	log.info("Committing indexes");
+    	log.debug("Committing indexes");
     	
     	try {
     		artistWriter.commit();
@@ -154,9 +154,9 @@ public class SearchManager implements Constants {
             artistManager.maybeRefreshBlocking();
             trackManager.maybeRefreshBlocking();
             
-            log.info("Indexes committed");
+            log.debug("Indexes committed");
         } catch (Exception e) {
-            log.info("Unable to commit indexes", e);
+            log.error("Unable to commit indexes", e);
         }
     }
     
@@ -217,7 +217,7 @@ public class SearchManager implements Constants {
     }
     
     public List<Track> search(TrackSearch trackSearch) {
-    	log.info("Performing search");
+    	log.debug("Performing search");
     	
     	long startTime = System.currentTimeMillis();
         
@@ -257,12 +257,12 @@ public class SearchManager implements Constants {
         	trackSearcher = null;
             long queryTime = (System.currentTimeMillis() - startTime);
             
-            log.info("Search query time - " + queryTime + " milliseconds");
+            log.debug("Search query time - " + queryTime + " milliseconds");
         }
     }
     
     public List<Track> getRandomPlaylist(int playlistSize) {
-    	log.info("Getting random playlist size - " + playlistSize);
+    	log.debug("Getting random playlist size - " + playlistSize);
     	
     	long startTime = System.currentTimeMillis();
         
@@ -307,7 +307,7 @@ public class SearchManager implements Constants {
         	trackSearcher = null;
             long queryTime = (System.currentTimeMillis() - startTime);
             
-            log.info("Random playlist query time - " + queryTime + " milliseconds");
+            log.debug("Random playlist query time - " + queryTime + " milliseconds");
         }
     }
     

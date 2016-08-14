@@ -114,6 +114,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 	@FXML
 	public void initialize() {
+		log.info("Initialising MainPanelController");
+		
 		searchTextField.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -178,7 +180,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	}
 	
 	private void searchTextUpdated(String searchText) {
-		log.info("Search text updated - '" + searchText + "'");
+		log.debug("Search text updated - '" + searchText + "'");
 
 		if (searchText != null && searchText.trim().length() > 0) {
 			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.search(new TrackSearch(searchText.trim())));
@@ -190,7 +192,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	}
 	
 	private void updateObservablePlaylists() {
-		log.info("Updating observable playlists");
+		log.debug("Updating observable playlists");
 
 		observablePlaylists.setAll(playlistManager.getPlaylists());
 	}
@@ -222,7 +224,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handlePreviousButtonAction(ActionEvent event) {
-		log.info("Previous button pressed");
+		log.debug("Previous button pressed");
 		
 		if (mediaManager.getPlayingTimeSeconds() > PREVIOUS_SECONDS_CUTOFF) {
 			mediaManager.setSeekPositionPercent(0);
@@ -233,7 +235,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handlePlayPauseButtonAction(ActionEvent event) {
-		log.info("Play/pause button pressed");
+		log.debug("Play/pause button pressed");
 
 		if (mediaManager.isPlaying()) {
 			playlistManager.pauseCurrentTrack();
@@ -246,14 +248,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handleNextButtonAction(ActionEvent event) {
-		log.info("Next button pressed");
+		log.debug("Next button pressed");
 		
 		playlistManager.playNextTrack(true);
 	}
 	
 	@FXML
 	protected void handleShuffleButtonAction(ActionEvent event) {
-		log.info("Shuffle button pressed");
+		log.debug("Shuffle button pressed");
 		
 		playlistManager.setShuffle(!playlistManager.isShuffle(), false);
 		
@@ -262,7 +264,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handleRepeatButtonAction(ActionEvent event) {
-		log.info("Repeat button pressed");
+		log.debug("Repeat button pressed");
 
 		playlistManager.updateRepeat();
 		
@@ -271,7 +273,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 	@FXML
 	protected void handleEqButtonAction(ActionEvent event) {
-		log.info("EQ button pressed");
+		log.debug("EQ button pressed");
 
 		FxmlContext.getBean(EqualizerController.class).updateSliderValues();
 		equalizerDialogue.display();
@@ -279,7 +281,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handleRandomButtonAction(ActionEvent event) {
-		log.info("Random button pressed");
+		log.debug("Random button pressed");
 
 		playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getRandomPlaylist(RANDOM_PLAYLIST_SIZE));
 		playlistManager.playPlaylist(PLAYLIST_ID_SEARCH);

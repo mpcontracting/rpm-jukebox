@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
+import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
@@ -16,6 +17,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
+@Slf4j
 @Component
 public class EqualizerController extends EventAwareObject {
 	
@@ -33,6 +35,8 @@ public class EqualizerController extends EventAwareObject {
 
 	@FXML
 	public void initialize() {
+		log.info("Initialising EqualizerController");
+		
 		for (Node node : sliderHbox.getChildren()) {
 			final Slider slider = (Slider)node;
 

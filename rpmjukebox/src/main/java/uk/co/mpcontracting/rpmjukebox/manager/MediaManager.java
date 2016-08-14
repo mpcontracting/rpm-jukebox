@@ -39,7 +39,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	}
 	
 	public void playTrack(Track track) {
-		log.info("Playing track : " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName() + " - " + track.getLocation());
+		log.debug("Playing track : " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName() + " - " + track.getLocation());
 
 		currentTrack = track;
 		currentMedia = new Media(track.getLocation());
@@ -52,7 +52,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	}
 
 	public void pausePlayback() {
-		log.info("Pausing playback");
+		log.debug("Pausing playback");
 
 		if (currentPlayer != null) {
 			currentPlayer.pause();
@@ -60,7 +60,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	}
 
 	public void resumePlayback() {
-		log.info("Resuming playback");
+		log.debug("Resuming playback");
 
 		if (currentPlayer != null) {
 			currentPlayer.play();
@@ -68,7 +68,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	}
 
 	public void stopPlayback() {
-		log.info("Stopping playback");
+		log.debug("Stopping playback");
 
 		if (currentPlayer != null) {
 			currentPlayer.stop();
@@ -98,7 +98,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	}
 
 	public void setEqualizerGain(int band, double value) {
-		log.info("Setting EQ gain : Band - " + band + ", Value - " + value);
+		log.debug("Setting EQ gain : Band - " + band + ", Value - " + value);
 		
 		equalizer.setGain(band, value);
 		
@@ -124,7 +124,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	}
 
 	public void cleanUpResources() {
-		log.info("Cleaning up resources");
+		log.debug("Cleaning up resources");
 
 		stopPlayback();
 		currentPlayer = null;
