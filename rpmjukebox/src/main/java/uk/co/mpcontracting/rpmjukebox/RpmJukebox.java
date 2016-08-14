@@ -5,6 +5,7 @@ import java.util.Arrays;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +17,12 @@ import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 @Slf4j
 @Component
-public class RpmJukebox extends Application {
+public class RpmJukebox extends Application implements Constants {
 
 	@Autowired
 	private SettingsManager settingsManager;
@@ -48,6 +50,12 @@ public class RpmJukebox extends Application {
 
 		stage.setScene(new Scene(parent));
 		stage.setTitle("RPM Jukebox");
+
+		// If this is Windows, add a window icon
+		if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+			stage.getIcons().add(new Image(getClass().getResourceAsStream(IMAGE_WINDOW_ICON)));
+		}
+		
 		stage.show();
 
 		parent.requestFocus();
