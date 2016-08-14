@@ -69,6 +69,11 @@ public class RpmJukebox extends Application implements Constants {
 			try (FileInputStream inputStream = new FileInputStream(loggingFile)) {
 				LogManager.getLogManager().readConfiguration(inputStream);
 			}
+			
+			// Add a spacer to the logging file to separate startups
+			log.info("====================================================");
+			log.info("====================================================");
+			log.info("====================================================");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
