@@ -23,10 +23,10 @@ public class EqualizerController extends EventAwareObject {
 	private HBox sliderHbox;
 
 	@FXML
-	private Button ok;
+	private Button okButton;
 	
 	@FXML
-	private Button reset;
+	private Button resetButton;
 	
 	@Autowired
 	private MediaManager mediaManager;
@@ -46,7 +46,7 @@ public class EqualizerController extends EventAwareObject {
 			});
 		}
 	}
-	
+
 	public void updateSliderValues() {
 		Equalizer equalizer = mediaManager.getEqualizer();
 		
@@ -58,12 +58,12 @@ public class EqualizerController extends EventAwareObject {
 	}
 
 	@FXML
-	protected void handleOkAction(ActionEvent event) {
+	protected void handleOkButtonAction(ActionEvent event) {
 		FxmlContext.getBean(MainPanelController.class).getEqualizerDialogue().close();
 	}
 	
 	@FXML
-	protected void handleResetAction(ActionEvent event) {
+	protected void handleResetButtonAction(ActionEvent event) {
 		for (Node node : sliderHbox.getChildren()) {
 			final Slider slider = (Slider)node;
 			

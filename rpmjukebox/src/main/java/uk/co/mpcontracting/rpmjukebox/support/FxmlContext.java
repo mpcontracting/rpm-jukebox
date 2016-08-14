@@ -2,13 +2,14 @@ package uk.co.mpcontracting.rpmjukebox.support;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.util.Callback;
 import uk.co.mpcontracting.ioc.ApplicationContext;
 
-public class FxmlContext {
+public class FxmlContext implements Constants {
 
 	public static void initialize(List<String> scanPaths, Object... components) {
 		ApplicationContext.initialize(scanPaths, components);
@@ -33,6 +34,7 @@ public class FxmlContext {
 		try {
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(FxmlContext.class.getResource("/fxml/" + fxmlFilename));
+			loader.setResources(ResourceBundle.getBundle(MESSAGE_BUNDLE));
 
 			if (callback != null) {
 				loader.setControllerFactory(callback);

@@ -36,11 +36,11 @@
                      <children>
                         <Button id="addPlaylistButton" disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
                            <tooltip>
-                              <Tooltip text="Add new playlist" />
+                              <Tooltip text="%tooltip.addNewPlaylist" />
                            </tooltip></Button>
                         <Button id="deletePlaylistButton" disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
                            <tooltip>
-                              <Tooltip text="Delete playlist" />
+                              <Tooltip text="%tooltip.deletePlaylist" />
                            </tooltip></Button>
                      </children>
                   </HBox>
@@ -50,11 +50,11 @@
                      <children>
                         <Button id="savePlaylistButton" disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
                            <tooltip>
-                              <Tooltip text="Export playlist" />
+                              <Tooltip text="%tooltip.exportPlaylist" />
                            </tooltip></Button>
                         <Button id="settingsButton" disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
                            <tooltip>
-                              <Tooltip text="Settings" />
+                              <Tooltip text="%tooltip.settings" />
                            </tooltip></Button>
                      </children>
                   </HBox>
@@ -85,15 +85,15 @@
          <children>
             <Button id="previousButton" fx:id="previousButton" disable="true" mnemonicParsing="false" onAction="#handlePreviousButtonAction" prefHeight="26.0" prefWidth="26.0">
                <tooltip>
-                  <Tooltip text="Previous" />
+                  <Tooltip text="%tooltip.previous" />
                </tooltip></Button>
             <Button id="playPauseButton" fx:id="playPauseButton" disable="true" mnemonicParsing="false" onAction="#handlePlayPauseButtonAction" prefHeight="26.0" prefWidth="26.0">
                <tooltip>
-                  <Tooltip text="Play/Pause" />
+                  <Tooltip text="%tooltip.playPause" />
                </tooltip></Button>
             <Button id="nextButton" fx:id="nextButton" disable="true" mnemonicParsing="false" onAction="#handleNextButtonAction" prefHeight="26.0" prefWidth="26.0">
                <tooltip>
-                  <Tooltip text="Next" />
+                  <Tooltip text="%tooltip.next" />
                </tooltip></Button>
          </children></HBox>
       <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="border-panel" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
@@ -111,19 +111,19 @@
          <children>
             <Button id="shuffleButton" fx:id="shuffleButton" disable="true" maxWidth="20.0" minWidth="20.0" mnemonicParsing="false" onAction="#handleShuffleButtonAction" prefHeight="20.0">
                <tooltip>
-                  <Tooltip text="Shuffle" />
+                  <Tooltip text="%tooltip.shuffle" />
                </tooltip></Button>
             <Button id="repeatButton" fx:id="repeatButton" disable="true" minWidth="20.0" mnemonicParsing="false" onAction="#handleRepeatButtonAction" prefHeight="20.0" prefWidth="20.0">
                <tooltip>
-                  <Tooltip text="Repeat" />
+                  <Tooltip text="%tooltip.repeat" />
                </tooltip></Button>
             <Button id="eqButton" fx:id="eqButton" disable="true" minWidth="20.0" mnemonicParsing="false" onAction="#handleEqButtonAction" prefHeight="20.0" prefWidth="20.0">
                <tooltip>
-                  <Tooltip text="Display equaliser" />
+                  <Tooltip text="%tooltip.displayEqualizer" />
                </tooltip></Button>
             <Button id="randomButton" fx:id="randomButton" disable="true" maxWidth="20.0" minWidth="20.0" mnemonicParsing="false" onAction="#handleRandomButtonAction" prefHeight="20.0">
                <tooltip>
-                  <Tooltip text="Random playlist" />
+                  <Tooltip text="%tooltip.randomPlaylist" />
                </tooltip></Button>
          </children></HBox>
    </children>

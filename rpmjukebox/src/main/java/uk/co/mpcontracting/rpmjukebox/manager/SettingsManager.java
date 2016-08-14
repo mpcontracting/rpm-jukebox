@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
@@ -53,6 +54,8 @@ public class SettingsManager implements InitializingBean, Constants {
 	@Resource(location = "classpath:/rpm-jukebox.properties")
 	private Properties properties;
 	
+	@Getter private ResourceBundle messageBundle;
+	
 	private File configDirectory;
 	@Getter private URL dataFile;
 	
@@ -61,6 +64,9 @@ public class SettingsManager implements InitializingBean, Constants {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising SettingsManager");
+		
+		// Load up the resource bundle
+		messageBundle = ResourceBundle.getBundle(MESSAGE_BUNDLE);
 		
 		// Look for the config directory and create it if it isn't there
 		File homeDir = new File(System.getProperty("user.home"));
@@ -79,7 +85,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	}
 	
 	public boolean hasDataFileExpired() {
-		FxmlContext.getBean(MainPanelController.class).showMessageWindow("Checking for new data...");
+		FxmlContext.getBean(MainPanelController.class).showMessageWindow(messageBundle.getString(MESSAGE_CHECKING_DATA));
 		
 		// Wait at least 1.5 seconds so message window lasts
 		// long enough to read
@@ -199,7 +205,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		Element playlistsElement = factory.createElement("playlists");
 
 		for (Playlist playlist : playlistManager.getPlaylists()) {
-			if (playlist.getPlaylistId() == SEARCH_PLAYLIST_ID) {
+			if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
 				continue;
 			}
 			
@@ -299,6 +305,13 @@ public class SettingsManager implements InitializingBean, Constants {
 			for (Element playlistElement : (List<Element>)playlistsNode.selectNodes("playlist")) {
 				Playlist playlist = new Playlist(Integer.parseInt(playlistElement.attributeValue("id")),
 					playlistElement.attributeValue("name"));
+				
+				// Override the name of the search results and favourites playlists
+				if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
+					playlist.setName(messageBundle.getString(MESSAGE_PLAYLIST_SEARCH));
+				} else if (playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
+					playlist.setName(messageBundle.getString(MESSAGE_PLAYLIST_FAVOURITES));
+				}
 
 				for (Element trackElement : (List<Element>)playlistElement.selectNodes("track")) {
 					Track track = searchManager.getTrackById(trackElement.attributeValue("id"));

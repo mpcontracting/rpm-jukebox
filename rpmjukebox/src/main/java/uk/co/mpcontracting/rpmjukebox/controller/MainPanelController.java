@@ -181,12 +181,12 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		log.info("Search text updated - '" + searchText + "'");
 
 		if (searchText != null && searchText.trim().length() > 0) {
-			playlistManager.setPlaylistTracks(SEARCH_PLAYLIST_ID, searchManager.search(new TrackSearch(searchText.trim())));
+			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.search(new TrackSearch(searchText.trim())));
 		} else {
-			playlistManager.setPlaylistTracks(SEARCH_PLAYLIST_ID, Collections.emptyList());
+			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, Collections.emptyList());
 		}
 		
-		fireEvent(Event.PLAYLIST_SELECTED, SEARCH_PLAYLIST_ID);
+		fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
 	}
 	
 	private void updateObservablePlaylists() {
@@ -281,8 +281,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleRandomButtonAction(ActionEvent event) {
 		log.info("Random button pressed");
 
-		playlistManager.setPlaylistTracks(SEARCH_PLAYLIST_ID, searchManager.getRandomPlaylist(RANDOM_PLAYLIST_SIZE));
-		playlistManager.playPlaylist(SEARCH_PLAYLIST_ID);
+		playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getRandomPlaylist(RANDOM_PLAYLIST_SIZE));
+		playlistManager.playPlaylist(PLAYLIST_ID_SEARCH);
 	}
 	
 	@Override

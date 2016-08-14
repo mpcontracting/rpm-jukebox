@@ -23,6 +23,9 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 public class PlaylistManager extends EventAwareObject implements InitializingBean, Constants {
 	
 	@Autowired
+	private SettingsManager settingsManager;
+	
+	@Autowired
 	private MediaManager mediaManager;
 
 	private Map<Integer, Playlist> playlistMap;
@@ -38,9 +41,9 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		log.info("Initialising PlaylistManager");
 		
 		playlistMap = new LinkedHashMap<Integer, Playlist>();
-		playlistMap.put(SEARCH_PLAYLIST_ID, new Playlist(SEARCH_PLAYLIST_ID, "Search Results"));
-		playlistMap.put(FAVOURITES_PLAYLIST_ID, new Playlist(FAVOURITES_PLAYLIST_ID, "Favourites"));
-		currentPlaylistId = SEARCH_PLAYLIST_ID;
+		playlistMap.put(PLAYLIST_ID_SEARCH, new Playlist(PLAYLIST_ID_SEARCH, settingsManager.getMessageBundle().getString(MESSAGE_PLAYLIST_SEARCH)));
+		playlistMap.put(PLAYLIST_ID_FAVOURITES, new Playlist(PLAYLIST_ID_FAVOURITES, settingsManager.getMessageBundle().getString(MESSAGE_PLAYLIST_FAVOURITES)));
+		currentPlaylistId = PLAYLIST_ID_SEARCH;
 		currentPlaylistIndex = 0;
 		shuffle = false;
 		repeat = Repeat.OFF;
@@ -100,7 +103,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	public void deletePlaylist(int playlistId) {
 		log.info("Delete playlist - " + playlistId);
 		
-		if (playlistId == SEARCH_PLAYLIST_ID) {
+		if (playlistId == PLAYLIST_ID_SEARCH) {
 			return;
 		}
 

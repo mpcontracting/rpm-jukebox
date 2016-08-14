@@ -107,7 +107,7 @@ public class SearchManager implements Constants {
         	
         	// See if we already have valid indexes, if not, build them
         	if (settingsManager.hasDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
-        		FxmlContext.getBean(MainPanelController.class).showMessageWindow("Downloading and indexing data...");
+        		FxmlContext.getBean(MainPanelController.class).showMessageWindow(settingsManager.getMessageBundle().getString(MESSAGE_DOWNLOAD_INDEX));
 
         		DataParser.parse(this, settingsManager.getDataFile(), genreList, yearList);
             	commitIndexes();

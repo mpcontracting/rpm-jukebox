@@ -37,10 +37,10 @@ public class LoveButtonTableCellFactory<S, T> extends EventAwareObject implement
 						if (tableCell != null && tableCell.getItem() != null) {
 							Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
 							
-							if (playlistManager.isTrackInPlaylist(FAVOURITES_PLAYLIST_ID, track.getTrackId())) {
-								playlistManager.removeTrackFromPlaylist(FAVOURITES_PLAYLIST_ID, track);
+							if (playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, track.getTrackId())) {
+								playlistManager.removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
 							} else {
-								playlistManager.addTrackToPlaylist(FAVOURITES_PLAYLIST_ID, track);
+								playlistManager.addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
 							}
 							
 							fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistManager.getCurrentPlaylistId());

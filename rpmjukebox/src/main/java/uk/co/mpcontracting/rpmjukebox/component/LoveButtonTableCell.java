@@ -20,7 +20,7 @@ public class LoveButtonTableCell<S, T> extends TableCell<TrackTableModel, String
 		setGraphic(null);
 		
 		if (!empty && value != null) {
-			if (playlistManager.isTrackInPlaylist(FAVOURITES_PLAYLIST_ID, value)) {
+			if (playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, value)) {
 				setId(STYLE_LOVE_BUTTON_ON);
 			} else {
 				setId(STYLE_LOVE_BUTTON_OFF);

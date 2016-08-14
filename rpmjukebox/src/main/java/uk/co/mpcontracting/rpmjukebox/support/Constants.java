@@ -6,6 +6,7 @@ public interface Constants {
 	public static final String PROP_DATAFILE_URL			= "datafile.url";
 	public static final String LAST_INDEXED_FILE			= "last-indexed";
 	public static final String SETTINGS_FILE				= "rpm-jukebox.xml";
+	public static final String MESSAGE_BUNDLE				= "i18n.message-bundle";
 	public static final String ARTIST_INDEX_DIRECTORY		= "artistIndex";
 	public static final String TRACK_INDEX_DIRECTORY		= "trackIndex";
 	public static final String UNSPECIFIED_GENRE 			= "Unspecified";
@@ -16,6 +17,12 @@ public interface Constants {
 	public static final int RANDOM_PLAYLIST_SIZE			= 50;
 	public static final int PREVIOUS_SECONDS_CUTOFF			= 3;
     public static final DataFormat DND_TRACK_DATA_FORMAT    = new DataFormat("dyn.dnd.track.data.format");
+    
+    // Message bundle keys
+    public static final String MESSAGE_CHECKING_DATA		= "message.checkingData";
+    public static final String MESSAGE_DOWNLOAD_INDEX		= "message.downloadIndex";
+    public static final String MESSAGE_PLAYLIST_SEARCH		= "playlist.searchResults";
+    public static final String MESSAGE_PLAYLIST_FAVOURITES	= "playlist.favourites";
     
     // Styles
     public static final String STYLE_LOVE_BUTTON_ON			= "loveButtonOn";
@@ -32,6 +39,6 @@ public interface Constants {
     public static final String IMAGE_PAUSE					= "/images/pause.png";
     
     // Reserved playlists
-    public static final int SEARCH_PLAYLIST_ID              = -1;
-    public static final int FAVOURITES_PLAYLIST_ID			= -2;
+    public static final int PLAYLIST_ID_SEARCH              = -1;
+    public static final int PLAYLIST_ID_FAVOURITES			= -2;
 }
