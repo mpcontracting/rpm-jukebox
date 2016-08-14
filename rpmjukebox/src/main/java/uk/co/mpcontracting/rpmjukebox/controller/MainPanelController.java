@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
+import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.component.MessageWindow;
 import uk.co.mpcontracting.rpmjukebox.component.ModalWindow;
@@ -35,6 +36,7 @@ import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
+import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
@@ -45,7 +47,7 @@ import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 
 @Slf4j
 @Component
-public class MainPanelController extends EventAwareObject implements Constants {
+public class MainPanelController extends EventAwareObject implements InitializingBean, Constants {
 
 	@FXML
 	private TextField searchTextField;
@@ -99,6 +101,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private Button randomButton;
 	
 	@Autowired
+	private SettingsManager settingsManager;
+	
+	@Autowired
 	private SearchManager searchManager;
 	
 	@Autowired
@@ -109,8 +114,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 	@Getter private ModalWindow equalizerDialogue;
 	private MessageWindow messageWindow;
-	
 	private ObservableList<Playlist> observablePlaylists;
+	
+	private int previousSecondsCutoff;
+	private int randomPlaylistSize;
 
 	@FXML
 	public void initialize() {
@@ -155,6 +162,12 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		// Track table view
 		mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
+	}
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		previousSecondsCutoff = settingsManager.getPropertyInteger(PROP_PREVIOUS_SECONDS_CUTOFF);
+		randomPlaylistSize = settingsManager.getPropertyInteger(PROP_RANDOM_PLAYLIST_SIZE);
 	}
 	
 	public void showMessageWindow(String message) {
@@ -226,7 +239,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handlePreviousButtonAction(ActionEvent event) {
 		log.debug("Previous button pressed");
 		
-		if (mediaManager.getPlayingTimeSeconds() > PREVIOUS_SECONDS_CUTOFF) {
+		if (mediaManager.getPlayingTimeSeconds() > previousSecondsCutoff) {
 			mediaManager.setSeekPositionPercent(0);
 		} else {
 			playlistManager.playPreviousTrack(true);
@@ -283,7 +296,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleRandomButtonAction(ActionEvent event) {
 		log.debug("Random button pressed");
 
-		playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getRandomPlaylist(RANDOM_PLAYLIST_SIZE));
+		playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getRandomPlaylist(randomPlaylistSize));
 		playlistManager.playPlaylist(PLAYLIST_ID_SEARCH);
 	}
 	

@@ -63,7 +63,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	
 	public SettingsManager() {
 		// Load up the resource bundle
-		messageBundle = ResourceBundle.getBundle(MESSAGE_BUNDLE);
+		messageBundle = ResourceBundle.getBundle(I18N_MESSAGE_BUNDLE);
 	}
 	
 	@Override
@@ -72,7 +72,7 @@ public class SettingsManager implements InitializingBean, Constants {
 
 		// Look for the config directory and create it if it isn't there
 		File homeDir = new File(System.getProperty("user.home"));
-		configDirectory = new File(homeDir, ".rpmjukebox");
+		configDirectory = new File(homeDir, getPropertyString(PROP_DIRECTORY_CONFIG));
 
 		if (!configDirectory.exists()) {
 			if (!configDirectory.mkdir()) {
@@ -81,9 +81,33 @@ public class SettingsManager implements InitializingBean, Constants {
 		}
 
 		// Get the data file location
-		dataFile = new URL(properties.getProperty(PROP_DATAFILE_URL));
+		dataFile = new URL(getPropertyString(PROP_DATAFILE_URL));
 
 		settingsLoaded = false;
+	}
+	
+	public String getPropertyString(String key) {
+		return properties.getProperty(key);
+	}
+	
+	public Integer getPropertyInteger(String key) {
+		String value = getPropertyString(key);
+		
+		if (value != null) {
+			return Integer.valueOf(value);
+		}
+		
+		return null;
+	}
+	
+	public Double getPropertyDouble(String key) {
+		String value = getPropertyString(key);
+		
+		if (value != null) {
+			return Double.valueOf(value);
+		}
+		
+		return null;
 	}
 	
 	public boolean hasDataFileExpired() {
@@ -134,7 +158,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	
 	public LocalDateTime getLastIndexedDate() {
 		LocalDateTime lastIndexed = null;
-		File lastIndexedFile = getFileFromConfigDirectory(LAST_INDEXED_FILE);
+		File lastIndexedFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_LAST_INDEXED));
 		
 		if (lastIndexedFile.exists()) {
 			try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
@@ -152,7 +176,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	}
 	
 	public void setLastIndexedDate(LocalDateTime localDateTime) {
-		File lastIndexedFile = getFileFromConfigDirectory(LAST_INDEXED_FILE);
+		File lastIndexedFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_LAST_INDEXED));
 		
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
 			writer.write(Long.toString(localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
@@ -230,7 +254,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		root.add(rpmJukeboxElement);
 
 		// Write the file
-		File settingsFile = getFileFromConfigDirectory(SETTINGS_FILE);
+		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_SETTINGS));
 		XMLWriter writer = null;
 
 		try {
@@ -254,7 +278,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	public void loadSettings() {
 		log.debug("Loading settings");
 
-		File settingsFile = getFileFromConfigDirectory(SETTINGS_FILE);
+		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_SETTINGS));
 
 		if (!settingsFile.exists()) {
 			settingsLoaded = true;
@@ -306,7 +330,7 @@ public class SettingsManager implements InitializingBean, Constants {
 
 			for (Element playlistElement : (List<Element>)playlistsNode.selectNodes("playlist")) {
 				Playlist playlist = new Playlist(Integer.parseInt(playlistElement.attributeValue("id")),
-					playlistElement.attributeValue("name"));
+					playlistElement.attributeValue("name"), getPropertyInteger(PROP_MAX_PLAYLIST_SIZE));
 				
 				// Override the name of the search results and favourites playlists
 				if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {

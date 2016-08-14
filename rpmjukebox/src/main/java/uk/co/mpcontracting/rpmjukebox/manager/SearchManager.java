@@ -77,6 +77,7 @@ public class SearchManager implements Constants {
     private SearcherManager trackManager;
     
     private SecureRandom random;
+    private int maxSearchHits;
 
     public void initialise() throws Exception {
     	log.info("Initialising SearchManager");
@@ -86,19 +87,21 @@ public class SearchManager implements Constants {
     		analyzer = new WhitespaceAnalyzer();
     		BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
 
-    		artistDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(ARTIST_INDEX_DIRECTORY).toPath());
+    		artistDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(settingsManager.getPropertyString(PROP_DIRECTORY_ARTIST_INDEX)).toPath());
     		IndexWriterConfig artistWriterConfig = new IndexWriterConfig(analyzer);
     		artistWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             artistWriter = new IndexWriter(artistDirectory, artistWriterConfig);
     		artistManager = new SearcherManager(artistWriter, null);
 
-    		trackDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(TRACK_INDEX_DIRECTORY).toPath());
+    		trackDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(settingsManager.getPropertyString(PROP_DIRECTORY_TRACK_INDEX)).toPath());
             IndexWriterConfig trackWriterConfig = new IndexWriterConfig(analyzer);
     		trackWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             trackWriter = new IndexWriter(trackDirectory, trackWriterConfig);
             trackManager = new SearcherManager(trackWriter, null);
             
             random = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
+            
+            maxSearchHits = settingsManager.getPropertyInteger(PROP_MAX_SEARCH_HITS);
             
             // Initialise the filters and sorts
             genreList = new ArrayList<String>();
@@ -234,7 +237,7 @@ public class SearchManager implements Constants {
         try {
         	trackSearcher = trackManager.acquire();
             TopFieldDocs results = trackSearcher.search(buildKeywordsQuery(nullSafeTrim(stripWhitespace(trackSearch.getKeywords(), true).toLowerCase()), 
-            	trackSearch.getTrackFilter().getFilter()), MAX_SEARCH_HITS, new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
+            	trackSearch.getTrackFilter().getFilter()), maxSearchHits, new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
             ScoreDoc[] scoreDocs = results.scoreDocs;
             List<Track> tracks = new ArrayList<Track>();
             

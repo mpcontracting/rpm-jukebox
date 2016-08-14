@@ -36,13 +36,17 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	@Getter private boolean shuffle;
 	@Getter private Repeat repeat;
 	
+	private int maxPlaylistSize;
+	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising PlaylistManager");
 		
+		maxPlaylistSize = settingsManager.getPropertyInteger(PROP_MAX_PLAYLIST_SIZE);
+		
 		playlistMap = new LinkedHashMap<Integer, Playlist>();
-		playlistMap.put(PLAYLIST_ID_SEARCH, new Playlist(PLAYLIST_ID_SEARCH, settingsManager.getMessageBundle().getString(MESSAGE_PLAYLIST_SEARCH)));
-		playlistMap.put(PLAYLIST_ID_FAVOURITES, new Playlist(PLAYLIST_ID_FAVOURITES, settingsManager.getMessageBundle().getString(MESSAGE_PLAYLIST_FAVOURITES)));
+		playlistMap.put(PLAYLIST_ID_SEARCH, new Playlist(PLAYLIST_ID_SEARCH, settingsManager.getMessageBundle().getString(MESSAGE_PLAYLIST_SEARCH), maxPlaylistSize));
+		playlistMap.put(PLAYLIST_ID_FAVOURITES, new Playlist(PLAYLIST_ID_FAVOURITES, settingsManager.getMessageBundle().getString(MESSAGE_PLAYLIST_FAVOURITES), maxPlaylistSize));
 		currentPlaylistId = PLAYLIST_ID_SEARCH;
 		currentPlaylistIndex = 0;
 		shuffle = false;
@@ -84,7 +88,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 				playlistId++;
 			}
 
-			playlistMap.put(playlistId, new Playlist(playlistId, "New Playlist"));
+			playlistMap.put(playlistId, new Playlist(playlistId, settingsManager.getMessageBundle().getString(MESSAGE_PLAYLIST_DEFAULT), maxPlaylistSize));
 
 			log.debug("Created playlist - " + playlistId);
 		}

@@ -9,6 +9,7 @@ import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
@@ -20,8 +21,9 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 @Slf4j
 @Component
 public class MediaManager extends EventAwareObject implements InitializingBean, Constants {
-	
-	private final Object mediaPlayerLock = new Object();
+
+	@Autowired
+	private SettingsManager settingsManager;
 	
 	private MediaPlayer currentPlayer;
 	private Track currentTrack;
@@ -34,7 +36,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising MediaManager");
 		
-		volume = DEFAULT_VOLUME;
+		volume = settingsManager.getPropertyDouble(PROP_DEFAULT_VOLUME);
 		equalizer = new Equalizer(10);
 	}
 	
@@ -130,7 +132,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		currentPlayer = null;
 	}
 	
-	@Synchronized("mediaPlayerLock")
+	@Synchronized
 	private void createNewMediaPlayer() {
 		cleanUpResources();
 

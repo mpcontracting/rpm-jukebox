@@ -34,7 +34,7 @@ public class FxmlContext implements Constants {
 		try {
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(FxmlContext.class.getResource("/fxml/" + fxmlFilename));
-			loader.setResources(ResourceBundle.getBundle(MESSAGE_BUNDLE));
+			loader.setResources(ResourceBundle.getBundle(I18N_MESSAGE_BUNDLE));
 
 			if (callback != null) {
 				loader.setControllerFactory(callback);

@@ -18,14 +18,16 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 public class Playlist implements Constants, Iterable<Track> {
     @Getter private int playlistId;
     @Getter @Setter private String name;
+    private int maxPlaylistSize;
     private List<Track> tracks;
     private List<Track> shuffledTracks;
     
     private SecureRandom random;
 
-    public Playlist(int playlistId, String name) {
+    public Playlist(int playlistId, String name, int maxPlaylistSize) {
         this.playlistId = playlistId;
         this.name = name;
+        this.maxPlaylistSize = maxPlaylistSize;
         
         tracks = new ArrayList<Track>();
         shuffledTracks = new ArrayList<Track>();
@@ -81,7 +83,7 @@ public class Playlist implements Constants, Iterable<Track> {
     
     @Synchronized
     public void addTrack(Track track) {
-    	if (tracks.size() < MAX_PLAYLIST_SIZE && !tracks.contains(track)) {
+    	if (tracks.size() < maxPlaylistSize && !tracks.contains(track)) {
     		track.setPlaylistId(playlistId);
     		track.setPlaylistIndex(tracks.size());
     		tracks.add(track);
