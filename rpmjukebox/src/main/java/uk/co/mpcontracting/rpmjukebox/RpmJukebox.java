@@ -1,7 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.logging.LogManager;
 
@@ -40,22 +41,37 @@ public class RpmJukebox extends Application implements Constants {
 	private boolean isInitialised;
 	
 	public RpmJukebox() {
-		// Make sure logging directory exists
-		File logDirectory = new File(System.getProperty("user.home") + File.separator + ".rpmjukebox" + File.separator + "log");
-		
-		if (!logDirectory.exists()) {
-			logDirectory.mkdirs();
-		}
-		
-		// Initialise the logging
-		try (InputStream inputStream = getClass().getResourceAsStream("/logging.properties")) {
-			LogManager.getLogManager().readConfiguration(inputStream);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		initialiseLogging();
 	
 		// Initialise the IoC layer
 		FxmlContext.initialize(Arrays.asList("uk.co.mpcontracting.rpmjukebox"), this);
+	}
+	
+	private void initialiseLogging() {
+		try {
+			File settingsDirectory = new File(System.getProperty("user.home") + File.separator + ".rpmjukebox");
+			
+			// Make sure logging directory exists
+			File logDirectory = new File(settingsDirectory, "log");
+			
+			if (!logDirectory.exists()) {
+				logDirectory.mkdirs();
+			}
+			
+			// Copy the logging.properties file to ~/.rpmjukebox if it doesn't already exist
+			File loggingFile = new File(settingsDirectory, "logging.properties");
+			
+			if (!loggingFile.exists()) {
+				Files.copy(getClass().getResourceAsStream("/logging.properties"), loggingFile.toPath());
+			}
+			
+			// Initialise the logging
+			try (FileInputStream inputStream = new FileInputStream(loggingFile)) {
+				LogManager.getLogManager().readConfiguration(inputStream);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
