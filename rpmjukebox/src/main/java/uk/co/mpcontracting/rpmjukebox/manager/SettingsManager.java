@@ -121,8 +121,8 @@ public class SettingsManager implements InitializingBean, Constants {
 
 		LocalDateTime lastIndexed = getLastIndexedDate();
 		
-		log.info("Last modified - " + lastModified);
-		log.info("Last indexed - " + lastIndexed);
+		log.debug("Last modified - " + lastModified);
+		log.debug("Last indexed - " + lastIndexed);
 		
 		// If last modified is at least 1 hour old and greater than last indexed, it's invalid
 		return lastModified.plusHours(1).isBefore(LocalDateTime.now()) && lastModified.isAfter(lastIndexed);
@@ -163,7 +163,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	}
 	
 	public void saveSettings() {
-		log.info("Saving settings");
+		log.debug("Saving settings");
 
 		// Don't save settings if they weren't loaded successfully
 		// so we stop file corruption
@@ -252,7 +252,7 @@ public class SettingsManager implements InitializingBean, Constants {
 
 	@SuppressWarnings("unchecked")
 	public void loadSettings() {
-		log.info("Loading settings");
+		log.debug("Loading settings");
 
 		File settingsFile = getFileFromConfigDirectory(SETTINGS_FILE);
 

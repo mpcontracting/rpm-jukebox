@@ -1,6 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.logging.LogManager;
 
 import javafx.application.Application;
 import javafx.scene.Parent;
@@ -32,11 +35,26 @@ public class RpmJukebox extends Application implements Constants {
 	
 	@Autowired
 	private MediaManager mediaManager;
-	
+
 	@Getter private Stage stage;
 	private boolean isInitialised;
 	
 	public RpmJukebox() {
+		// Make sure logging directory exists
+		File logDirectory = new File(System.getProperty("user.home") + File.separator + ".rpmjukebox" + File.separator + "log");
+		
+		if (!logDirectory.exists()) {
+			logDirectory.mkdirs();
+		}
+		
+		// Initialise the logging
+		try (InputStream inputStream = getClass().getResourceAsStream("/logging.properties")) {
+			LogManager.getLogManager().readConfiguration(inputStream);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+		// Initialise the IoC layer
 		FxmlContext.initialize(Arrays.asList("uk.co.mpcontracting.rpmjukebox"), this);
 	}
 	
