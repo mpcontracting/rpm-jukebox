@@ -117,7 +117,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		log.info("Last indexed - " + lastIndexed);
 		
 		// If last modified is at least 1 hour old and greater than last indexed, it's invalid
-		return lastModified.minusHours(1).isAfter(LocalDateTime.now()) && lastModified.isAfter(lastIndexed);
+		return lastModified.plusHours(1).isBefore(LocalDateTime.now()) && lastModified.isAfter(lastIndexed);
 	}
 
 	public File getFileFromConfigDirectory(String relativePath) {
