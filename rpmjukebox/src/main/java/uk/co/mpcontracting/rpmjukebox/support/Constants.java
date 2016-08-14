@@ -11,7 +11,7 @@ public interface Constants {
 	public static final String UNSPECIFIED_GENRE 			= "Unspecified";
 	public static final double DEFAULT_VOLUME				= 0.8;
 	
-	public static final int MAX_SEARCH_HITS 				= 200;
+	public static final int MAX_SEARCH_HITS 				= 250;
 	public static final int MAX_PLAYLIST_SIZE				= 1000;
 	public static final int RANDOM_PLAYLIST_SIZE			= 50;
 	public static final int PREVIOUS_SECONDS_CUTOFF			= 3;
