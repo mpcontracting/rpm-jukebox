@@ -86,7 +86,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 			playlistMap.put(playlistId, new Playlist(playlistId, "New Playlist"));
 
-			log.info("Created playlist - " + playlistId);
+			log.debug("Created playlist - " + playlistId);
 		}
 
 		fireEvent(Event.PLAYLIST_CREATED, playlistId);
@@ -207,10 +207,10 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 			if (!currentPlaylist.isEmpty()) {
 				if (shuffle && !overrideShuffle) {
-					log.info("Getting shuffled track");
+					log.debug("Getting shuffled track");
 					currentTrack = currentPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
 				} else {
-					log.info("Getting non-shuffled track");
+					log.debug("Getting non-shuffled track");
 					currentTrack = currentPlaylist.getTrackAtIndex(currentPlaylistIndex);
 				}
 				
@@ -336,7 +336,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			this.shuffle = shuffle;
 			
 			if (shuffle && !ignorePlaylist) {
-				log.info("Shuffling current playlist - " + currentPlaylistId);
+				log.debug("Shuffling current playlist - " + currentPlaylistId);
 				
 				playlistMap.get(currentPlaylistId).shuffle();
 				
