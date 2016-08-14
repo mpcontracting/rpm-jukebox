@@ -184,6 +184,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 
 		currentPlayer.currentTimeProperty().addListener(
 			new InvalidationListener() {
+				@Override
 				public void invalidated(Observable observable) {
 					if (currentPlayer != null) {
 						fireEvent(Event.TIME_UPDATED, currentDuration, currentPlayer.getCurrentTime());
