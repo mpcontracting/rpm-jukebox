@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.component.MessageWindow;
 import uk.co.mpcontracting.rpmjukebox.component.ModalWindow;
@@ -47,7 +46,7 @@ import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 
 @Slf4j
 @Component
-public class MainPanelController extends EventAwareObject implements InitializingBean, Constants {
+public class MainPanelController extends EventAwareObject implements Constants {
 
 	@FXML
 	private TextField searchTextField;
@@ -162,14 +161,11 @@ public class MainPanelController extends EventAwareObject implements Initializin
 		
 		// Track table view
 		mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
-	}
-	
-	@Override
-	public void afterPropertiesSet() throws Exception {
+		
 		previousSecondsCutoff = settingsManager.getPropertyInteger(PROP_PREVIOUS_SECONDS_CUTOFF);
 		randomPlaylistSize = settingsManager.getPropertyInteger(PROP_RANDOM_PLAYLIST_SIZE);
 	}
-	
+
 	public void showMessageWindow(String message) {
 		Platform.runLater(new Runnable() {
 			@Override
