@@ -29,7 +29,7 @@ public class CachingMediaProxyServlet extends HttpServlet {
 		String url = request.getParameter("url");
 
 		try {
-			log.info("Getting file : Cache type - " + cacheType + ", Track ID - " + trackId + ", URL " + url);
+			log.debug("Getting file : Cache type - " + cacheType + ", Track ID - " + trackId + ", URL " + url);
 			
 			File cachedFile = ApplicationContext.getBean(CacheManager.class).readCache(cacheType, trackId);
 			

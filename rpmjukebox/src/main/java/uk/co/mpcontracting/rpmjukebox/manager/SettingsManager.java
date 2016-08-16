@@ -75,11 +75,11 @@ public class SettingsManager implements InitializingBean, Constants {
 		configDirectory = new File(homeDir, getPropertyString(PROP_DIRECTORY_CONFIG));
 
 		if (!configDirectory.exists()) {
-			if (!configDirectory.mkdir()) {
+			if (!configDirectory.mkdirs()) {
 				throw new RuntimeException("Unable to create config directory - " + configDirectory.getAbsolutePath());
 			}
 		}
-
+		
 		// Get the data file location
 		dataFile = new URL(getPropertyString(PROP_DATAFILE_URL));
 
@@ -108,6 +108,10 @@ public class SettingsManager implements InitializingBean, Constants {
 		}
 		
 		return null;
+	}
+	
+	public File getFileFromConfigDirectory(String relativePath) {
+		return new File(configDirectory, relativePath);
 	}
 	
 	public boolean hasDataFileExpired() {
@@ -152,10 +156,6 @@ public class SettingsManager implements InitializingBean, Constants {
 		return lastModified.plusHours(1).isBefore(LocalDateTime.now()) && lastModified.isAfter(lastIndexed);
 	}
 
-	public File getFileFromConfigDirectory(String relativePath) {
-		return new File(configDirectory, relativePath);
-	}
-	
 	public LocalDateTime getLastIndexedDate() {
 		LocalDateTime lastIndexed = null;
 		File lastIndexedFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_LAST_INDEXED));

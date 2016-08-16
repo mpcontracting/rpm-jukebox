@@ -14,6 +14,7 @@ public interface Constants {
     public static final String PROP_DIRECTORY_LOG			= "directory.log";
     public static final String PROP_DIRECTORY_ARTIST_INDEX	= "directory.artist.index";
     public static final String PROP_DIRECTORY_TRACK_INDEX	= "directory.track.index";
+    public static final String PROP_DIRECTORY_CACHE			= "directory.cache";
     public static final String PROP_FILE_LAST_INDEXED		= "file.last.indexed";
     public static final String PROP_FILE_SETTINGS			= "file.settings";
     public static final String PROP_DEFAULT_VOLUME			= "default.volume";

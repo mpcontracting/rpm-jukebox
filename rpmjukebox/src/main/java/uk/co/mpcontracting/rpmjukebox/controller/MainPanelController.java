@@ -32,6 +32,7 @@ import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
@@ -40,6 +41,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
+import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
@@ -110,6 +112,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private MediaManager mediaManager;
+	
+	@Autowired
+	private CacheManager cacheManager;
 
 	@Getter private ModalWindow equalizerDialogue;
 	private MessageWindow messageWindow;
@@ -431,9 +436,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 					playingArtistLabel.setText(track.getArtistName());
 					
 					if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
-						playingImageView.setImage(new Image(track.getAlbumImage(), true));
+						playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE, track.getTrackId(), track.getAlbumImage()), true));
 					} else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
-						playingImageView.setImage(new Image(track.getArtistImage(), true));
+						playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE, track.getTrackId(), track.getArtistImage()), true));
 					} else {
 						playingImageView.setImage(new Image(IMAGE_NO_ARTWORK));
 					}

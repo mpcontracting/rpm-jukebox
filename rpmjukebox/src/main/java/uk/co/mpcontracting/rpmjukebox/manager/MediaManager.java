@@ -1,7 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import java.net.URLEncoder;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.scene.media.Media;
@@ -9,7 +7,6 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.util.Duration;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
@@ -19,6 +16,7 @@ import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
+import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
@@ -28,42 +26,35 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	@Autowired
 	private SettingsManager settingsManager;
 	
+	@Autowired
+	private CacheManager cacheManager;
+	
 	private MediaPlayer currentPlayer;
 	private Track currentTrack;
 	private Media currentMedia;
 	private Duration currentDuration;
 	@Getter private Equalizer equalizer;
 	@Getter private double volume;
-	
-	private int internalJettyPort;
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising MediaManager");
 		
 		volume = settingsManager.getPropertyDouble(PROP_DEFAULT_VOLUME);
 		equalizer = new Equalizer(10);
-		
-		internalJettyPort = settingsManager.getPropertyInteger(PROP_INTERNAL_JETTY_PORT);
 	}
 
 	public void playTrack(Track track) {
 		log.debug("Playing track : " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName() + " - " + track.getLocation());
 
 		currentTrack = track;
-		currentMedia = new Media(constructInternalUrl(track));
+		currentMedia = new Media(cacheManager.constructInternalUrl(CacheType.TRACK, track.getTrackId(), track.getLocation()));
 
 		createNewMediaPlayer();
 
 		currentPlayer.play();
 		
 		fireEvent(Event.TRACK_QUEUED_FOR_PLAYING, currentTrack);
-	}
-	
-	@SneakyThrows
-	private String constructInternalUrl(Track track) {
-		return "http://localhost:" + internalJettyPort + "/cache?cacheType=TRACK&trackId=" + track.getTrackId() + 
-			"&url=" + URLEncoder.encode(track.getLocation(), "UTF-8");
 	}
 
 	public void pausePlayback() {
