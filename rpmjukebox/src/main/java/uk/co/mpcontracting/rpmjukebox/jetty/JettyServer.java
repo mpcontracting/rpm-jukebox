@@ -9,12 +9,18 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.ioc.factory.InitializingBean;
+import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
 @Component
-public class JettyServer implements InitializingBean {
+public class JettyServer implements InitializingBean, Constants {
+	
+	@Autowired
+	private SettingsManager settingsManager;
 	
 	private Server server;
 	
@@ -25,7 +31,7 @@ public class JettyServer implements InitializingBean {
 		server = new Server();
 
         ServerConnector connector = new ServerConnector(server);
-        connector.setPort(43125);
+        connector.setPort(settingsManager.getPropertyInteger(PROP_INTERNAL_JETTY_PORT));
         
         server.setConnectors(new Connector[] {connector});
         

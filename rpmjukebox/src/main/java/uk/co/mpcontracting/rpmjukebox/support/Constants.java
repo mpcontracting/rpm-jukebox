@@ -21,6 +21,7 @@ public interface Constants {
     public static final String PROP_MAX_PLAYLIST_SIZE		= "max.playlist.size";
     public static final String PROP_RANDOM_PLAYLIST_SIZE	= "random.playlist.size";
     public static final String PROP_PREVIOUS_SECONDS_CUTOFF	= "previous.seconds.cutoff";
+    public static final String PROP_INTERNAL_JETTY_PORT		= "internal.jetty.port";
     
     // Message bundle keys
     public static final String MESSAGE_CHECKING_DATA		= "message.checkingData";

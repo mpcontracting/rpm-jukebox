@@ -13,18 +13,23 @@ import org.eclipse.jetty.io.EofException;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
+import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 
 @Slf4j
 public class CachingDataStream implements WriteListener {
 
+	private CacheType cacheType;
 	private String trackId;
+	private boolean isCached;
 	private InputStream inputStream;
 	private AsyncContext asyncContext;
 	private ServletOutputStream outputStream;
 	private ByteArrayOutputStream byteStream;
 
-	public CachingDataStream(String trackId, InputStream inputStream, AsyncContext asyncContext, ServletOutputStream outputStream) {
+	public CachingDataStream(CacheType cacheType, String trackId, boolean isCached, InputStream inputStream, AsyncContext asyncContext, ServletOutputStream outputStream) {
+		this.cacheType = cacheType;
 		this.trackId = trackId;
+		this.isCached = isCached;
 		this.inputStream = inputStream;
 		this.asyncContext = asyncContext;
 		this.outputStream = outputStream;
@@ -44,7 +49,9 @@ public class CachingDataStream implements WriteListener {
 			if (length < 0) {
 				asyncContext.complete();
 
-				ApplicationContext.getBean(CacheManager.class).writeCache(trackId, byteStream.toByteArray());
+				if (!isCached) {
+					ApplicationContext.getBean(CacheManager.class).writeCache(cacheType, trackId, byteStream.toByteArray());
+				}
 				
 				return;
 			}
@@ -60,6 +67,10 @@ public class CachingDataStream implements WriteListener {
 			log.error("Error streaming data", t);
 		}
 
-	    asyncContext.complete();
+		try {
+			asyncContext.complete();
+		} catch (Exception e) {
+			// Ignore any errors here
+		}
 	}
 }

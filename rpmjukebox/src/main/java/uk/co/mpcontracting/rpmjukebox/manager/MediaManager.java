@@ -35,26 +35,35 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	@Getter private Equalizer equalizer;
 	@Getter private double volume;
 	
+	private int internalJettyPort;
+	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising MediaManager");
 		
 		volume = settingsManager.getPropertyDouble(PROP_DEFAULT_VOLUME);
 		equalizer = new Equalizer(10);
+		
+		internalJettyPort = settingsManager.getPropertyInteger(PROP_INTERNAL_JETTY_PORT);
 	}
-	
-	@SneakyThrows
+
 	public void playTrack(Track track) {
 		log.debug("Playing track : " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName() + " - " + track.getLocation());
 
 		currentTrack = track;
-		currentMedia = new Media("http://localhost:43125/cache?trackId=" + track.getTrackId() + "&url=" + URLEncoder.encode(track.getLocation(), "UTF-8"));
+		currentMedia = new Media(constructInternalUrl(track));
 
 		createNewMediaPlayer();
 
 		currentPlayer.play();
 		
 		fireEvent(Event.TRACK_QUEUED_FOR_PLAYING, currentTrack);
+	}
+	
+	@SneakyThrows
+	private String constructInternalUrl(Track track) {
+		return "http://localhost:" + internalJettyPort + "/cache?cacheType=TRACK&trackId=" + track.getTrackId() + 
+			"&url=" + URLEncoder.encode(track.getLocation(), "UTF-8");
 	}
 
 	public void pausePlayback() {
