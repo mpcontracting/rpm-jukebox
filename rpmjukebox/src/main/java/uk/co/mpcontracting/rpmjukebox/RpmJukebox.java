@@ -18,6 +18,7 @@ import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
@@ -36,6 +37,9 @@ public class RpmJukebox extends Application implements Constants {
 	
 	@Autowired
 	private MediaManager mediaManager;
+	
+	@Autowired
+	private JettyServer jettyServer;
 
 	@Getter private Stage stage;
 	private boolean isInitialised;
@@ -127,6 +131,8 @@ public class RpmJukebox extends Application implements Constants {
 		if (isInitialised) {
 			settingsManager.saveSettings();
 		}
+
+		jettyServer.stop();
 
 		super.stop();
 	}

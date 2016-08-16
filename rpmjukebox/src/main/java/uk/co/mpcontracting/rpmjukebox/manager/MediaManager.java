@@ -1,5 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import java.net.URLEncoder;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.scene.media.Media;
@@ -7,6 +9,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.util.Duration;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
@@ -40,11 +43,12 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		equalizer = new Equalizer(10);
 	}
 	
+	@SneakyThrows
 	public void playTrack(Track track) {
 		log.debug("Playing track : " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName() + " - " + track.getLocation());
 
 		currentTrack = track;
-		currentMedia = new Media(track.getLocation());
+		currentMedia = new Media("http://localhost:43125/cache?trackId=" + track.getTrackId() + "&url=" + URLEncoder.encode(track.getLocation(), "UTF-8"));
 
 		createNewMediaPlayer();
 
