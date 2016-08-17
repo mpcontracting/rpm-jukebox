@@ -17,12 +17,13 @@ public interface Constants {
     public static final String PROP_DIRECTORY_CACHE			= "directory.cache";
     public static final String PROP_FILE_LAST_INDEXED		= "file.last.indexed";
     public static final String PROP_FILE_SETTINGS			= "file.settings";
+    public static final String PROP_INTERNAL_JETTY_PORT		= "internal.jetty.port";
     public static final String PROP_DEFAULT_VOLUME			= "default.volume";
     public static final String PROP_MAX_SEARCH_HITS			= "max.search.hits";
     public static final String PROP_MAX_PLAYLIST_SIZE		= "max.playlist.size";
     public static final String PROP_RANDOM_PLAYLIST_SIZE	= "random.playlist.size";
     public static final String PROP_PREVIOUS_SECONDS_CUTOFF	= "previous.seconds.cutoff";
-    public static final String PROP_INTERNAL_JETTY_PORT		= "internal.jetty.port";
+    public static final String PROP_CACHE_SIZE_MB			= "cache.size.mb";
     
     // Message bundle keys
     public static final String MESSAGE_CHECKING_DATA		= "message.checkingData";

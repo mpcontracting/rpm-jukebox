@@ -3,9 +3,12 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URLEncoder;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import lombok.SneakyThrows;
 import lombok.Synchronized;
@@ -25,6 +28,9 @@ public class CacheManager implements InitializingBean, Constants {
 	
 	private File cacheDirectory;
 	private int internalJettyPort;
+	private int cacheSizeMb;
+	
+	private Comparator<File> timestampComparator;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -41,6 +47,18 @@ public class CacheManager implements InitializingBean, Constants {
 		}
 		
 		internalJettyPort = settingsManager.getPropertyInteger(PROP_INTERNAL_JETTY_PORT);
+		cacheSizeMb = settingsManager.getPropertyInteger(PROP_CACHE_SIZE_MB);
+		
+		timestampComparator = new Comparator<File>() {
+			@Override
+			public int compare(File file1, File file2) {
+				if (file1.lastModified() == file2.lastModified()) {
+					return 0;
+				}
+				
+				return (file1.lastModified() > file2.lastModified() ? 1 : -1);
+			}
+		};
 	}
 	
 	@SneakyThrows
@@ -52,7 +70,7 @@ public class CacheManager implements InitializingBean, Constants {
 	@Synchronized
 	public File readCache(CacheType cacheType, String trackId) {
 		log.debug("Reading cache : Cache type - " + cacheType + ", Track ID - " + trackId);
-		
+
 		File file = new File(cacheDirectory, trackId + "-" + cacheType);
 		
 		if (file.exists()) {
@@ -83,5 +101,41 @@ public class CacheManager implements InitializingBean, Constants {
 		} catch (Exception e) {
 			log.error("Unable to write cache : Cache type - " + cacheType + ", Track ID - " + trackId, e);
 		}
+		
+		trimCache();
+	}
+	
+	private void trimCache() {
+		log.debug("Trimming the cache to " + cacheSizeMb + "Mb");
+		
+		List<File> files = new ArrayList<File>();
+		
+		for (File file : cacheDirectory.listFiles()) {
+			files.add(file);
+		}
+		
+		Collections.sort(files, timestampComparator);
+
+		while (getCacheSizeMb(files) > cacheSizeMb && !files.isEmpty()) {
+			File file = files.get(0);
+
+			if (!file.delete()) {
+				log.warn("Unable to delete file - " + file.getAbsolutePath());
+				
+				break;
+			}
+
+			files.remove(file);
+		}
+	}
+	
+	private int getCacheSizeMb(List<File> files) {
+		long cacheSizeBytes = 0;
+		
+		for (File file : files) {
+			cacheSizeBytes += file.length();
+		}
+
+		return (int)cacheSizeBytes / 1024 / 1024;
 	}
 }
