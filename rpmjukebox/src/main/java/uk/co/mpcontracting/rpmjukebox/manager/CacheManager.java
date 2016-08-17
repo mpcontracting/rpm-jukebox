@@ -3,6 +3,9 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URLEncoder;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import lombok.SneakyThrows;
 import lombok.Synchronized;
@@ -55,6 +58,8 @@ public class CacheManager implements InitializingBean, Constants {
 		if (file.exists()) {
 			log.debug("Found cached file : Cache type - " + cacheType + ", Track ID - " + trackId);
 			
+			file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+
 			return file;
 		}
 		
