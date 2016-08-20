@@ -31,7 +31,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	private Map<Integer, Playlist> playlistMap;
 	
 	@Getter private int currentPlaylistId;
-	@Getter private int currentPlaylistIndex;
+	private int currentPlaylistIndex;
 	private Track currentTrack;
 	@Getter private boolean shuffle;
 	@Getter private Repeat repeat;
@@ -331,6 +331,24 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		mediaManager.stopPlayback();
 
 		return false;
+	}
+	
+	public Track getTrackAtCurrentPlaylistIndex() {
+		synchronized (playlistMap) {
+			Playlist currentPlaylist = playlistMap.get(currentPlaylistId);
+
+			if (!currentPlaylist.isEmpty()) {
+				if (shuffle) {
+					log.debug("Getting shuffled track");
+					return currentPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
+				} else {
+					log.debug("Getting non-shuffled track");
+					return currentPlaylist.getTrackAtIndex(currentPlaylistIndex);
+				}
+			}
+			
+			return null;
+		}
 	}
 	
 	public void setShuffle(boolean shuffle, boolean ignorePlaylist) {

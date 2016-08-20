@@ -5,13 +5,13 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.component.LoveButtonTableCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableModel;
+import uk.co.mpcontracting.rpmjukebox.component.TrackTableView;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
@@ -22,7 +22,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 public class TrackTableController extends EventAwareObject {
 
 	@FXML
-	private TableView<TrackTableModel> trackTableView;
+	private TrackTableView<TrackTableModel> trackTableView;
 	
 	@FXML
 	private TableColumn<TrackTableModel, String> loveColumn;
@@ -104,18 +104,13 @@ public class TrackTableController extends EventAwareObject {
 			case PLAYLIST_SELECTED: {
 				if (payload != null && payload.length > 0) {
 					Integer playlistId = (Integer)payload[0];
-		
+
 					if (playlistId != null && !playlistId.equals(visiblePlaylistId)) {
 						visiblePlaylistId = playlistId;
 						updateObservableTracks(visiblePlaylistId);
-
-						if (visiblePlaylistId == playlistManager.getCurrentPlaylistId()) {
-							int currentPlaylistIndex = playlistManager.getCurrentPlaylistIndex();
-
-							trackTableView.getSelectionModel().select(currentPlaylistIndex);
-							trackTableView.getFocusModel().focus(currentPlaylistIndex);
-						}
 					}
+					
+					trackTableView.highlightTrack(playlistManager.getTrackAtCurrentPlaylistIndex());
 				}
 				
 				break;
@@ -126,8 +121,7 @@ public class TrackTableController extends EventAwareObject {
 					
 					// Set the track as selected in the table view
 					if (track.getPlaylistId() == visiblePlaylistId && track.getPlaylistId() == playlistManager.getCurrentPlaylistId()) {
-						trackTableView.getSelectionModel().select(track.getPlaylistIndex());
-						trackTableView.getFocusModel().focus(track.getPlaylistIndex());
+						trackTableView.highlightTrack(track);
 					}
 				}
 				
