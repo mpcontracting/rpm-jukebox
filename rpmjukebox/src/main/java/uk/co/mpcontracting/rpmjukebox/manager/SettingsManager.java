@@ -18,6 +18,9 @@ import java.util.ResourceBundle;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
@@ -31,6 +34,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.settings.EqBand;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.settings.Settings;
+import uk.co.mpcontracting.rpmjukebox.settings.Window;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
@@ -186,63 +190,61 @@ public class SettingsManager implements InitializingBean, Constants {
 		}
 	}
 	
-	public void saveSettings() {
-		log.debug("Saving settings");
+	public void loadWindowSettings(Stage stage) {
+		log.debug("Loading window settings");
 		
-		// Don't save settings if they weren't loaded successfully
-		// so we stop file corruption
-		if (!settingsLoaded) {
-			return;
-		}
+		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_WINDOW_SETTINGS));
+		Window window = null;
 		
-		// Build the setting object before serializing it to disk
-		Settings settings = new Settings();
-		
-		// General settings
-		settings.setShuffle(playlistManager.isShuffle());
-		settings.setRepeat(playlistManager.getRepeat());
-		
-		// Equalizer
-		Equalizer equalizer = mediaManager.getEqualizer();
-		List<EqBand> eqBands = new ArrayList<EqBand>();
-		
-		for (int i = 0; i < equalizer.getNumberOfBands(); i++) {
-			eqBands.add(new EqBand(i, equalizer.getGain(i)));
-		}
-		
-		settings.setEqBands(eqBands);
-		
-		// Playlists
-		List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();
-		
-		for (Playlist playlist : playlistManager.getPlaylists()) {
-			if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
-				continue;
+		if (settingsFile.exists()) {
+			// Read the file
+			try (FileReader fileReader = new FileReader(settingsFile)) {
+				window = gson.fromJson(fileReader, Window.class);
+			} catch (Exception e) {
+				log.error("Unable to load window settings file", e);
+				
+				return;
 			}
+		} else {
+			// By default, set width and height to 75% of screen size
+			Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+			double width = (bounds.getWidth() / 100d) * 75d;
+			double height = (bounds.getHeight() / 100d) * 75d;
+			
+			window = new Window(
+				(bounds.getWidth() - width) / 2d,
+				(bounds.getHeight() - height) / 2d,
+				width,
+				height
+			);
+		}
 
-			PlaylistSettings playlistSettings = new PlaylistSettings(playlist.getPlaylistId(), playlist.getName());
-			List<String> tracks = new ArrayList<String>();
-			
-			for (Track track : playlist) {
-				tracks.add(track.getTrackId());
-			}
-			
-			playlistSettings.setTracks(tracks);
-			playlists.add(playlistSettings);
-		}
-		
-		settings.setPlaylists(playlists);
+		stage.setX(window.getX());
+		stage.setY(window.getY());
+		stage.setWidth(window.getWidth());
+		stage.setHeight(window.getHeight());
+	}
+	
+	public void saveWindowSettings(Stage stage) {
+		log.debug("Saving window settings");
+
+		Window window = new Window(
+			stage.getX(),
+			stage.getY(),
+			stage.getWidth(),
+			stage.getHeight()
+		);
 
 		// Write the file
-		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_SETTINGS));
+		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_WINDOW_SETTINGS));
 		
 		try (FileWriter fileWriter = new FileWriter(settingsFile)) {
-			fileWriter.write(gson.toJson(settings));
+			fileWriter.write(gson.toJson(window));
 		} catch (Exception e) {
-			log.error("Unable to save settings file", e);
+			log.error("Unable to save window settings file", e);
 		}
 	}
-
+	
 	public void loadSettings() {
 		log.debug("Loading settings");
 
@@ -306,5 +308,62 @@ public class SettingsManager implements InitializingBean, Constants {
 		playlistManager.setPlaylists(playlists);
 		
 		settingsLoaded = true;
+	}
+	
+	public void saveSettings() {
+		log.debug("Saving settings");
+		
+		// Don't save settings if they weren't loaded successfully
+		// so we stop file corruption
+		if (!settingsLoaded) {
+			return;
+		}
+		
+		// Build the setting object before serializing it to disk
+		Settings settings = new Settings();
+		
+		// General settings
+		settings.setShuffle(playlistManager.isShuffle());
+		settings.setRepeat(playlistManager.getRepeat());
+		
+		// Equalizer
+		Equalizer equalizer = mediaManager.getEqualizer();
+		List<EqBand> eqBands = new ArrayList<EqBand>();
+		
+		for (int i = 0; i < equalizer.getNumberOfBands(); i++) {
+			eqBands.add(new EqBand(i, equalizer.getGain(i)));
+		}
+		
+		settings.setEqBands(eqBands);
+		
+		// Playlists
+		List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();
+		
+		for (Playlist playlist : playlistManager.getPlaylists()) {
+			if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
+				continue;
+			}
+
+			PlaylistSettings playlistSettings = new PlaylistSettings(playlist.getPlaylistId(), playlist.getName());
+			List<String> tracks = new ArrayList<String>();
+			
+			for (Track track : playlist) {
+				tracks.add(track.getTrackId());
+			}
+			
+			playlistSettings.setTracks(tracks);
+			playlists.add(playlistSettings);
+		}
+		
+		settings.setPlaylists(playlists);
+
+		// Write the file
+		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_SETTINGS));
+		
+		try (FileWriter fileWriter = new FileWriter(settingsFile)) {
+			fileWriter.write(gson.toJson(settings));
+		} catch (Exception e) {
+			log.error("Unable to save settings file", e);
+		}
 	}
 }

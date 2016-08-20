@@ -8,7 +8,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(includeFieldNames = true)
-public class EqBand {
-	@Getter private int band;
-	@Getter private double value;
+public class Window {
+	@Getter private double x;
+	@Getter private double y;
+	@Getter private double width;
+	@Getter private double height;
 }

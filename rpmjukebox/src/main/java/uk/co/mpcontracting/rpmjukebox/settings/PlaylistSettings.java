@@ -10,8 +10,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(includeFieldNames = true)
 public class PlaylistSettings {
-	@Getter @Setter private int id;
-	@Getter @Setter private String name;
+	@Getter private int id;
+	@Getter private String name;
 	@Getter @Setter private List<String> tracks;
 	
 	public PlaylistSettings(int id, String name) {

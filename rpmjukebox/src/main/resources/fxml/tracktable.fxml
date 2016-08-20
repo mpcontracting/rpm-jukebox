@@ -3,7 +3,7 @@
 <?import uk.co.mpcontracting.rpmjukebox.component.PercentageTableColumn?>
 <?import uk.co.mpcontracting.rpmjukebox.component.TrackTableView?>
 
-<TrackTableView fx:id="trackTableView" prefWidth="1000.0" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.TrackTableController">
+<TrackTableView fx:id="trackTableView" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.TrackTableController">
   <columns>
       <PercentageTableColumn fx:id="loveColumn" editable="false" percentageWidth="0.03" resizable="false" sortable="false" text="" />
       <PercentageTableColumn fx:id="trackNameColumn" editable="false" percentageWidth="0.30" sortable="true" text="%trackTable.track" />

@@ -99,6 +99,9 @@ public class RpmJukebox extends Application implements Constants {
 			stage.getIcons().add(new Image(getClass().getResourceAsStream(IMAGE_WINDOW_ICON)));
 		}
 		
+		// Load the window settings
+		settingsManager.loadWindowSettings(stage);
+
 		stage.show();
 
 		parent.requestFocus();
@@ -129,6 +132,7 @@ public class RpmJukebox extends Application implements Constants {
 		mediaManager.cleanUpResources();
 
 		if (isInitialised) {
+			settingsManager.saveWindowSettings(stage);
 			settingsManager.saveSettings();
 		}
 

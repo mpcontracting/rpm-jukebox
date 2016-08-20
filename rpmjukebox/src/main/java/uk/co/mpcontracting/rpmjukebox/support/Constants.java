@@ -16,6 +16,7 @@ public interface Constants {
     public static final String PROP_DIRECTORY_TRACK_INDEX	= "directory.track.index";
     public static final String PROP_DIRECTORY_CACHE			= "directory.cache";
     public static final String PROP_FILE_LAST_INDEXED		= "file.last.indexed";
+    public static final String PROP_FILE_WINDOW_SETTINGS	= "file.window.settings";
     public static final String PROP_FILE_SETTINGS			= "file.settings";
     public static final String PROP_INTERNAL_JETTY_PORT		= "internal.jetty.port";
     public static final String PROP_DEFAULT_VOLUME			= "default.volume";
