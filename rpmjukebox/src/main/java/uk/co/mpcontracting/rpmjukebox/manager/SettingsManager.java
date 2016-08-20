@@ -3,7 +3,6 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.net.HttpURLConnection;
@@ -16,13 +15,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentFactory;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.SAXReader;
-import org.dom4j.io.XMLWriter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +27,10 @@ import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
+import uk.co.mpcontracting.rpmjukebox.settings.EqBand;
+import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
+import uk.co.mpcontracting.rpmjukebox.settings.Settings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
@@ -59,11 +55,15 @@ public class SettingsManager implements InitializingBean, Constants {
 	private File configDirectory;
 	@Getter private URL dataFile;
 	
+	private Gson gson;
 	private boolean settingsLoaded;
 	
 	public SettingsManager() {
 		// Load up the resource bundle
 		messageBundle = ResourceBundle.getBundle(I18N_MESSAGE_BUNDLE);
+		
+		// Initialise Gson
+		gson = new GsonBuilder().setPrettyPrinting().create();
 	}
 	
 	@Override
@@ -188,7 +188,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	
 	public void saveSettings() {
 		log.debug("Saving settings");
-
+		
 		// Don't save settings if they weren't loaded successfully
 		// so we stop file corruption
 		if (!settingsLoaded) {
@@ -196,141 +196,93 @@ public class SettingsManager implements InitializingBean, Constants {
 		}
 		
 		// Build the setting object before serializing it to disk
-		DocumentFactory factory = DocumentFactory.getInstance();
-		Document root = factory.createDocument("UTF-8");
-		Element rpmJukeboxElement = factory.createElement("rpm-jukebox");
+		Settings settings = new Settings();
 		
-		// Settings
-		Element settingsElement = factory.createElement("settings");
+		// General settings
+		settings.setShuffle(playlistManager.isShuffle());
+		settings.setRepeat(playlistManager.getRepeat());
 		
-		Element shuffleElement = factory.createElement("shuffle");
-		shuffleElement.add(factory.createAttribute(shuffleElement, "enabled", Boolean.toString(playlistManager.isShuffle())));
-		settingsElement.add(shuffleElement);
-		
-		Element repeatElement = factory.createElement("repeat");
-		repeatElement.add(factory.createAttribute(repeatElement, "value", playlistManager.getRepeat().name()));
-		settingsElement.add(repeatElement);
-		
-		rpmJukeboxElement.add(settingsElement);
-
 		// Equalizer
 		Equalizer equalizer = mediaManager.getEqualizer();
-		Element equalizerElement = factory.createElement("equalizer");
-
+		List<EqBand> eqBands = new ArrayList<EqBand>();
+		
 		for (int i = 0; i < equalizer.getNumberOfBands(); i++) {
-			Element bandElement = factory.createElement("band");
-			bandElement.add(factory.createAttribute(bandElement, "id", Integer.toString(i)));
-			bandElement.add(factory.createAttribute(bandElement, "value", Double.toString(equalizer.getGain(i))));
-
-			equalizerElement.add(bandElement);
+			eqBands.add(new EqBand(i, equalizer.getGain(i)));
 		}
-
-		rpmJukeboxElement.add(equalizerElement);
-
+		
+		settings.setEqBands(eqBands);
+		
 		// Playlists
-		Element playlistsElement = factory.createElement("playlists");
-
+		List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();
+		
 		for (Playlist playlist : playlistManager.getPlaylists()) {
 			if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
 				continue;
 			}
+
+			PlaylistSettings playlistSettings = new PlaylistSettings(playlist.getPlaylistId(), playlist.getName());
+			List<String> tracks = new ArrayList<String>();
 			
-			Element playlistElement = factory.createElement("playlist");
-			playlistElement.add(factory.createAttribute(playlistElement, "id", Integer.toString(playlist.getPlaylistId())));
-			playlistElement.add(factory.createAttribute(playlistElement, "name", playlist.getName()));
-
 			for (Track track : playlist) {
-				Element trackElement = factory.createElement("track");
-				trackElement.add(factory.createAttribute(trackElement, "id", track.getTrackId()));
-
-				playlistElement.add(trackElement);
+				tracks.add(track.getTrackId());
 			}
-
-			playlistsElement.add(playlistElement);
+			
+			playlistSettings.setTracks(tracks);
+			playlists.add(playlistSettings);
 		}
-
-		rpmJukeboxElement.add(playlistsElement);
-
-		root.add(rpmJukeboxElement);
+		
+		settings.setPlaylists(playlists);
 
 		// Write the file
 		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_SETTINGS));
-		XMLWriter writer = null;
-
-		try {
-			writer = new XMLWriter(new FileOutputStream(settingsFile), OutputFormat.createPrettyPrint());
-			writer.write(root);
-			writer.flush();
+		
+		try (FileWriter fileWriter = new FileWriter(settingsFile)) {
+			fileWriter.write(gson.toJson(settings));
 		} catch (Exception e) {
 			log.error("Unable to save settings file", e);
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (Exception e) {
-					log.error("Unable to close output stream", e);
-				}
-			}
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public void loadSettings() {
 		log.debug("Loading settings");
 
 		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_SETTINGS));
-
+		
 		if (!settingsFile.exists()) {
 			settingsLoaded = true;
 			saveSettings();
 			return;
 		}
+		
+		// Read the file
+		Settings settings = null;
+		
+		try (FileReader fileReader = new FileReader(settingsFile)) {
+			settings = gson.fromJson(fileReader, Settings.class);
+		} catch (Exception e) {
+			log.error("Unable to load settings file", e);
+			
+			return;
+		}
 
-		DocumentFactory factory = DocumentFactory.getInstance();
-		SAXReader reader = new SAXReader(factory);
-
-		try {
-			Document root = reader.read(settingsFile);
-			Node rpmJukeboxNode = root.selectSingleNode("rpm-jukebox");
-
-			// Settings
-			Node settingsNode = rpmJukeboxNode.selectSingleNode("settings");
-			
-			Element shuffleElement = (Element)settingsNode.selectSingleNode("shuffle");
-			playlistManager.setShuffle(Boolean.parseBoolean(shuffleElement.attributeValue("enabled")), true);
-			
-			Element repeatElement = (Element)settingsNode.selectSingleNode("repeat");
-			
-			// TODO : This can be changed back when everyone moved to new repeat
-			String repeatValue = repeatElement.attributeValue("value");
-			
-			if (repeatValue != null) {
-				playlistManager.setRepeat(Repeat.valueOf(repeatValue));
-			} else {
-				boolean oldRepeat = Boolean.parseBoolean(repeatElement.attributeValue("enabled"));
-				
-				if (oldRepeat) {
-					playlistManager.setRepeat(Repeat.ALL);
-				} else {
-					playlistManager.setRepeat(Repeat.OFF);
-				}
+		// General settings
+		playlistManager.setShuffle(settings.isShuffle(), true);
+		playlistManager.setRepeat(settings.getRepeat());
+		
+		// Equalizer
+		if (settings.getEqBands() != null) {
+			for (EqBand eqBand : settings.getEqBands()) {
+				mediaManager.setEqualizerGain(eqBand.getBand(), eqBand.getValue());
 			}
-
-			// Equalizer
-			Node equalizerNode = rpmJukeboxNode.selectSingleNode("equalizer");
-
-			for (Element bandElement : (List<Element>)equalizerNode.selectNodes("band")) {
-				mediaManager.setEqualizerGain(Integer.parseInt(bandElement.attributeValue("id")), Double.parseDouble(bandElement.attributeValue("value")));
-			}
-
-			// Playlists
-			List<Playlist> playlists = new ArrayList<Playlist>();
-
-			Node playlistsNode = rpmJukeboxNode.selectSingleNode("playlists");
-
-			for (Element playlistElement : (List<Element>)playlistsNode.selectNodes("playlist")) {
-				Playlist playlist = new Playlist(Integer.parseInt(playlistElement.attributeValue("id")),
-					playlistElement.attributeValue("name"), getPropertyInteger(PROP_MAX_PLAYLIST_SIZE));
+		}
+		
+		// Playlists
+		List<Playlist> playlists = new ArrayList<Playlist>();
+		
+		if (settings.getPlaylists() != null) {
+			for (PlaylistSettings playlistSettings : settings.getPlaylists()) {
+				Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), 
+					getPropertyInteger(PROP_MAX_PLAYLIST_SIZE));
 				
 				// Override the name of the search results and favourites playlists
 				if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
@@ -338,23 +290,21 @@ public class SettingsManager implements InitializingBean, Constants {
 				} else if (playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
 					playlist.setName(messageBundle.getString(MESSAGE_PLAYLIST_FAVOURITES));
 				}
-
-				for (Element trackElement : (List<Element>)playlistElement.selectNodes("track")) {
-					Track track = searchManager.getTrackById(trackElement.attributeValue("id"));
-
+				
+				for (String trackId : playlistSettings.getTracks()) {
+					Track track = searchManager.getTrackById(trackId);
+					
 					if (track != null) {
 						playlist.addTrack(track);
 					}
 				}
-
+				
 				playlists.add(playlist);
 			}
-
-			playlistManager.setPlaylists(playlists);
-			
-			settingsLoaded = true;
-		} catch (Exception e) {
-			log.error("Unable to load settings file", e);
 		}
+		
+		playlistManager.setPlaylists(playlists);
+		
+		settingsLoaded = true;
 	}
 }
