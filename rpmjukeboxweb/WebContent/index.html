@@ -29,6 +29,7 @@
 				<li>The ability to mark a track as a favourite and for it to appear in the favourites playlist</li>
 				<li>Play a random selection of songs from the RPM catalogue</li>
 				<li>Display of album/artist images where available (I think all images prior to 2016 have been lost to the ether)</li>
+				<li>File caching to take the load off the RPM servers</li>
 				<li>Shuffle/repeat play</li>
 				<li>Graphic equalizer</li>
 				<li>Mac OSX and Windows versions</li>
@@ -46,14 +47,31 @@
 			<h2>Downloads</h2>
 			<table class="downloads">
 				<tr>
-					<td>RPM Jukebox v1.0.0-Beta-1</td>
-					<td class="center"><a href="./releases/rpm-jukebox-1.0.0-beta-1.dmg">Mac OSX</a></td>
-					<td class="center"><a href="./releases/rpm-jukebox-1.0.0-beta-1.exe">Windows</a></td>
+					<td>RPM Jukebox v1.0.0-Beta-2</td>
+					<td>
+						Changes in this release:-
+						<ul>
+							<li>Added a file cache to take the load off the RPM servers</li>
+							<li>Corrupt MP3s no longer hang the jukebox</li>
+							<li>Changed config file format to JSON from XML</li>
+							<li>Fixed highlighting of the playing track</li>
+							<li>Enabled column heading sorting</li>
+							<li>Starts with sensible window size defaults and remembers settings on shutdown</li>
+						</ul>
+					</td>
+					<td class="center"><a href="./releases/rpm-jukebox-1.0.0-beta-2.dmg">Mac OSX</a></td>
+					<td class="center"><a href="./releases/rpm-jukebox-1.0.0-beta-2.exe">Windows</a></td>
 				</tr>
 			</table>
 			<p class="center">
 				Please report any issues you discover on the <a href="https://github.com/mpcontracting/rpmjukebox/issues">GitHub issues page</a>.
 			</p>
+			<h2>Notes</h2>
+			<p>
+				On Windows you may see a firewall warning pop-up like that shown below. This is due to the way the file caching works and you can safely leave
+				the jukebox blocked by hitting cancel, it doesn't need the external access, it's just Windows being dumb.
+			</p>
+			<div class="center"><img src="./images/windows-firewall.png"/></div>
 			<br/>
 			<div class="disclaimer">
 				<em>Please note that this is an unofficial project and has not been developed with any involvement or endorsement from the RPM Challenge staff.</em> 
