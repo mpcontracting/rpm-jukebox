@@ -71,7 +71,7 @@ public class CacheManager implements InitializingBean, Constants {
 	public File readCache(CacheType cacheType, String id) {
 		log.debug("Reading cache : Cache type - " + cacheType + ", ID - " + id);
 
-		File file = new File(cacheDirectory, id + "-" + cacheType);
+		File file = new File(cacheDirectory, id);
 		
 		if (file.exists()) {
 			log.debug("Found cached file : Cache type - " + cacheType + ", ID - " + id);
@@ -90,7 +90,7 @@ public class CacheManager implements InitializingBean, Constants {
 	public void writeCache(CacheType cacheType, String id, byte[] fileContent) {
 		log.debug("Writing cache : Cache type - " + cacheType + ", ID - " + id);
 		
-		File file = new File(cacheDirectory, id + "-" + cacheType);
+		File file = new File(cacheDirectory, id);
 		
 		if (file.exists()) {
 			file.delete();
