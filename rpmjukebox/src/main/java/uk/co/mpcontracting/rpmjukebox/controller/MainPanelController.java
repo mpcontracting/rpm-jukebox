@@ -436,9 +436,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 					playingArtistLabel.setText(track.getArtistName());
 					
 					if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
-						playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE, track.getTrackId(), track.getAlbumImage()), true));
+						playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE, track.getAlbumId(), track.getAlbumImage()), true));
 					} else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
-						playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE, track.getTrackId(), track.getArtistImage()), true));
+						playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE, track.getAlbumId(), track.getArtistImage()), true));
 					} else {
 						playingImageView.setImage(new Image(IMAGE_NO_ARTWORK));
 					}

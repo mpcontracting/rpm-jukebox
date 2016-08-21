@@ -19,16 +19,16 @@ import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 public class CachingDataStream implements WriteListener {
 
 	private CacheType cacheType;
-	private String trackId;
+	private String id;
 	private boolean isCached;
 	private InputStream inputStream;
 	private AsyncContext asyncContext;
 	private ServletOutputStream outputStream;
 	private ByteArrayOutputStream byteStream;
 
-	public CachingDataStream(CacheType cacheType, String trackId, boolean isCached, InputStream inputStream, AsyncContext asyncContext, ServletOutputStream outputStream) {
+	public CachingDataStream(CacheType cacheType, String id, boolean isCached, InputStream inputStream, AsyncContext asyncContext, ServletOutputStream outputStream) {
 		this.cacheType = cacheType;
-		this.trackId = trackId;
+		this.id = id;
 		this.isCached = isCached;
 		this.inputStream = inputStream;
 		this.asyncContext = asyncContext;
@@ -50,7 +50,7 @@ public class CachingDataStream implements WriteListener {
 				asyncContext.complete();
 
 				if (!isCached) {
-					ApplicationContext.getBean(CacheManager.class).writeCache(cacheType, trackId, byteStream.toByteArray());
+					ApplicationContext.getBean(CacheManager.class).writeCache(cacheType, id, byteStream.toByteArray());
 				}
 				
 				return;

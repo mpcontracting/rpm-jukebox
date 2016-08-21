@@ -25,19 +25,19 @@ public class CachingMediaProxyServlet extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
 		CacheType cacheType = CacheType.valueOf(request.getParameter("cacheType"));
-		String trackId = request.getParameter("trackId");
+		String id = request.getParameter("id");
 		String url = request.getParameter("url");
 
 		try {
-			log.debug("Getting file : Cache type - " + cacheType + ", Track ID - " + trackId + ", URL " + url);
+			log.debug("Getting file : Cache type - " + cacheType + ", ID - " + id + ", URL " + url);
 			
-			File cachedFile = ApplicationContext.getBean(CacheManager.class).readCache(cacheType, trackId);
+			File cachedFile = ApplicationContext.getBean(CacheManager.class).readCache(cacheType, id);
 			
 			if (cachedFile != null) {
 				response.setContentLengthLong(cachedFile.length());
 				
 				if (!request.getMethod().equals("HEAD")) {
-					openDataStream(request, response, cacheType, trackId, true, new FileInputStream(cachedFile));
+					openDataStream(request, response, cacheType, id, true, new FileInputStream(cachedFile));
 				}
 			} else {
 				URL location = new URL(url);
@@ -49,14 +49,14 @@ public class CachingMediaProxyServlet extends HttpServlet {
 					response.setContentLength(connection.getContentLength());
 	
 					if (!request.getMethod().equals("HEAD")) {
-						openDataStream(request, response, cacheType, trackId, false, connection.getInputStream());
+						openDataStream(request, response, cacheType, id, false, connection.getInputStream());
 					}
 				} else {
 					response.setStatus(connection.getResponseCode());
 				}
 			}
 		} catch (Exception e) {
-			log.error("Error getting file : ID - " + trackId + ", URL " + url);
+			log.error("Error getting file : ID - " + id + ", URL " + url);
 		}
 	}
 	

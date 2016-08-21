@@ -62,35 +62,35 @@ public class CacheManager implements InitializingBean, Constants {
 	}
 	
 	@SneakyThrows
-	public String constructInternalUrl(CacheType cacheType, String trackId, String location) {
-		return "http://localhost:" + internalJettyPort + "/cache?cacheType=" + cacheType + "&trackId=" + trackId + 
+	public String constructInternalUrl(CacheType cacheType, String id, String location) {
+		return "http://localhost:" + internalJettyPort + "/cache?cacheType=" + cacheType + "&id=" + id + 
 			"&url=" + URLEncoder.encode(location, "UTF-8");
 	}
 	
 	@Synchronized
-	public File readCache(CacheType cacheType, String trackId) {
-		log.debug("Reading cache : Cache type - " + cacheType + ", Track ID - " + trackId);
+	public File readCache(CacheType cacheType, String id) {
+		log.debug("Reading cache : Cache type - " + cacheType + ", ID - " + id);
 
-		File file = new File(cacheDirectory, trackId + "-" + cacheType);
+		File file = new File(cacheDirectory, id + "-" + cacheType);
 		
 		if (file.exists()) {
-			log.debug("Found cached file : Cache type - " + cacheType + ", Track ID - " + trackId);
+			log.debug("Found cached file : Cache type - " + cacheType + ", ID - " + id);
 			
 			file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 
 			return file;
 		}
 		
-		log.debug("Cached file not found : Cache type - " + cacheType + ", Track ID - " + trackId);
+		log.debug("Cached file not found : Cache type - " + cacheType + ", ID - " + id);
 		
 		return null;
 	}
 	
 	@Synchronized
-	public void writeCache(CacheType cacheType, String trackId, byte[] fileContent) {
-		log.debug("Writing cache : Cache type - " + cacheType + ", Track ID - " + trackId);
+	public void writeCache(CacheType cacheType, String id, byte[] fileContent) {
+		log.debug("Writing cache : Cache type - " + cacheType + ", ID - " + id);
 		
-		File file = new File(cacheDirectory, trackId + "-" + cacheType);
+		File file = new File(cacheDirectory, id + "-" + cacheType);
 		
 		if (file.exists()) {
 			file.delete();
@@ -99,7 +99,7 @@ public class CacheManager implements InitializingBean, Constants {
 		try (FileOutputStream outputStream = new FileOutputStream(file)) {
 			outputStream.write(fileContent);
 		} catch (Exception e) {
-			log.error("Unable to write cache : Cache type - " + cacheType + ", Track ID - " + trackId, e);
+			log.error("Unable to write cache : Cache type - " + cacheType + ", Track ID - " + id, e);
 		}
 		
 		trimCache();
