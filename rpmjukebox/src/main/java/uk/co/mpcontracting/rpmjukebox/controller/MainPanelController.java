@@ -60,6 +60,18 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private BorderPane mainPanel;
 	
 	@FXML
+	private Button addPlaylistButton;
+	
+	@FXML
+	private Button deletePlaylistButton;
+	
+	@FXML
+	private Button exportPlaylistButton;
+	
+	@FXML
+	private Button settingsButton;
+	
+	@FXML
 	private ImageView playingImageView;
 	
 	@FXML
@@ -237,6 +249,26 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	}
 	
 	@FXML
+	protected void handleAddPlaylistButtonAction(ActionEvent event) {
+		log.info("Add playlist button pressed");
+	}
+	
+	@FXML
+	protected void handleDeletePlaylistButtonAction(ActionEvent event) {
+		log.info("Delete playlist button pressed");
+	}
+	
+	@FXML
+	protected void handleExportPlaylistButtonAction(ActionEvent event) {
+		log.info("Export playlist button pressed");
+	}
+	
+	@FXML
+	protected void handleSettingsButtonAction(ActionEvent event) {
+		log.info("Settings button pressed");
+	}
+	
+	@FXML
 	protected void handlePreviousButtonAction(ActionEvent event) {
 		log.debug("Previous button pressed");
 		
@@ -320,6 +352,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				// Enable GUI components
 				searchTextField.setDisable(false);
+				//addPlaylistButton.setDisable(false);
+				//deletePlaylistButton.setDisable(false);
+				//exportPlaylistButton.setDisable(false);
+				//settingsButton.setDisable(false);
 				timeSlider.setDisable(false);
 				volumeSlider.setDisable(false);
 				shuffleButton.setDisable(false);

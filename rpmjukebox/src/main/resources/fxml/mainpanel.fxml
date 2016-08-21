@@ -34,11 +34,11 @@
                <left>
                   <HBox id="plusMinusHBox" minHeight="34.0" prefHeight="34.0">
                      <children>
-                        <Button id="addPlaylistButton" disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
+                        <Button id="addPlaylistButton" fx:id="addPlaylistButton" disable="true" mnemonicParsing="false" onAction="#handleAddPlaylistButtonAction" prefHeight="20.0" prefWidth="20.0">
                            <tooltip>
                               <Tooltip text="%tooltip.addNewPlaylist" />
                            </tooltip></Button>
-                        <Button id="deletePlaylistButton" disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
+                        <Button id="deletePlaylistButton" fx:id="deletePlaylistButton" disable="true" mnemonicParsing="false" onAction="#handleDeletePlaylistButtonAction" prefHeight="20.0" prefWidth="20.0">
                            <tooltip>
                               <Tooltip text="%tooltip.deletePlaylist" />
                            </tooltip></Button>
@@ -48,11 +48,11 @@
                <right>
                   <HBox id="saveSettingsHBox" minHeight="34.0" prefHeight="34.0">
                      <children>
-                        <Button id="savePlaylistButton" disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
+                        <Button id="exportPlaylistButton" fx:id="exportPlaylistButton" disable="true" mnemonicParsing="false" onAction="#handleExportPlaylistButtonAction" prefHeight="20.0" prefWidth="20.0">
                            <tooltip>
                               <Tooltip text="%tooltip.exportPlaylist" />
                            </tooltip></Button>
-                        <Button id="settingsButton" disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
+                        <Button id="settingsButton" fx:id="settingsButton" disable="true" mnemonicParsing="false" onAction="#handleSettingsButtonAction" prefHeight="20.0" prefWidth="20.0">
                            <tooltip>
                               <Tooltip text="%tooltip.settings" />
                            </tooltip></Button>

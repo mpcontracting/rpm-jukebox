@@ -256,7 +256,7 @@
 	-fx-background-image: url('../images/minus.png');
 }
 
-#playlistPanel #savePlaylistButton {
+#playlistPanel #exportPlaylistButton {
 	-fx-background-image: url('../images/save.png');
 }
 
