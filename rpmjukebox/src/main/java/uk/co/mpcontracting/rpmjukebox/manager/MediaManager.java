@@ -187,6 +187,15 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 				fireEvent(Event.END_OF_MEDIA);
 			}
 		});
+		
+		currentPlayer.setOnError(new Runnable() {
+			@Override
+			public void run() {
+				log.warn("Error occurred playing media - " + currentPlayer.getError());
+				
+				fireEvent(Event.END_OF_MEDIA);
+			}
+		});
 
 		currentPlayer.currentTimeProperty().addListener(
 			new InvalidationListener() {
