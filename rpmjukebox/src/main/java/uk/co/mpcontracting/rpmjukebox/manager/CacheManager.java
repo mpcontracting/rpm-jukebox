@@ -18,6 +18,7 @@ import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
 @Slf4j
 @Component
@@ -71,17 +72,21 @@ public class CacheManager implements InitializingBean, Constants {
 	public File readCache(CacheType cacheType, String id) {
 		log.debug("Reading cache : Cache type - " + cacheType + ", ID - " + id);
 
-		File file = new File(cacheDirectory, id);
-		
-		if (file.exists()) {
-			log.debug("Found cached file : Cache type - " + cacheType + ", ID - " + id);
+		try {
+			File file = new File(cacheDirectory, (cacheType == CacheType.TRACK ? id : HashGenerator.generateHash(id)));
 			
-			file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-
-			return file;
-		}
+			if (file.exists()) {
+				log.debug("Found cached file : Cache type - " + cacheType + ", ID - " + id);
+				
+				file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+	
+				return file;
+			}
 		
-		log.debug("Cached file not found : Cache type - " + cacheType + ", ID - " + id);
+			log.debug("Cached file not found : Cache type - " + cacheType + ", ID - " + id);
+		} catch (Exception e) {
+			log.error("Unable to read cache : Cache type - " + cacheType + ", ID - " + id, e);
+		}
 		
 		return null;
 	}
@@ -90,19 +95,23 @@ public class CacheManager implements InitializingBean, Constants {
 	public void writeCache(CacheType cacheType, String id, byte[] fileContent) {
 		log.debug("Writing cache : Cache type - " + cacheType + ", ID - " + id);
 		
-		File file = new File(cacheDirectory, id);
+		try {
+			File file = new File(cacheDirectory, (cacheType == CacheType.TRACK ? id : HashGenerator.generateHash(id)));
+			
+			if (file.exists()) {
+				file.delete();
+			}
+			
+			try (FileOutputStream outputStream = new FileOutputStream(file)) {
+				outputStream.write(fileContent);
+			} catch (Exception e) {
+				log.error("Unable to write cache : Cache type - " + cacheType + ", ID - " + id, e);
+			}
 		
-		if (file.exists()) {
-			file.delete();
-		}
-		
-		try (FileOutputStream outputStream = new FileOutputStream(file)) {
-			outputStream.write(fileContent);
+			trimCache();
 		} catch (Exception e) {
-			log.error("Unable to write cache : Cache type - " + cacheType + ", Track ID - " + id, e);
+			log.error("Unable to write cache : Cache type - " + cacheType + ", ID - " + id, e);
 		}
-		
-		trimCache();
 	}
 	
 	private void trimCache() {
