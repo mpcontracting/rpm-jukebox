@@ -42,7 +42,9 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 						}
 					} else {
 						// Single click
-						fireEvent(Event.TRACK_SELECTED, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
+						if (tableCell != null && tableCell.getItem() != null) {
+							fireEvent(Event.TRACK_SELECTED, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
+						}
 					}
 				}
 			}
@@ -55,12 +57,14 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 		tableCell.setOnDragDetected(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY);
-				ClipboardContent clipboardContent = new ClipboardContent();
-				clipboardContent.put(DND_TRACK_DATA_FORMAT, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
-				dragboard.setContent(clipboardContent);
-
-				event.consume();
+				if (tableCell != null && tableCell.getItem() != null) {
+					Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY);
+					ClipboardContent clipboardContent = new ClipboardContent();
+					clipboardContent.put(DND_TRACK_DATA_FORMAT, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
+					dragboard.setContent(clipboardContent);
+	
+					event.consume();
+				}
 			}
 		});
 		
