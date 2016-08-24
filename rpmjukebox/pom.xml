@@ -116,7 +116,11 @@
 					<vendor>Matt Parker</vendor>
 					<nativeReleaseVersion>${project.version}</nativeReleaseVersion>
 					<mainClass>uk.co.mpcontracting.rpmjukebox.RpmJukebox</mainClass>
-					<!--<verbose>true</verbose> -->
+					<!--<verbose>true</verbose>-->
+					<bundleArguments>
+						<systemWide>true</systemWide>
+						<win.menuGroup>RPM Jukebox</win.menuGroup>
+					</bundleArguments>
 				</configuration>
 				<executions>
 					<execution>
