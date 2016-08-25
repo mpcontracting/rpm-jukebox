@@ -120,6 +120,7 @@
 					<bundleArguments>
 						<systemWide>true</systemWide>
 						<win.menuGroup>RPM Jukebox</win.menuGroup>
+						<win.msi.productVersion>1.0.3</win.msi.productVersion>
 					</bundleArguments>
 				</configuration>
 				<executions>
