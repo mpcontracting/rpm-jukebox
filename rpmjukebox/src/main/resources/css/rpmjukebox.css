@@ -9,6 +9,7 @@
 	/* Button colour 5d9bc3 */
 	
 	-fx-background-color: -jb-background-color;
+	-fx-opacity: 1;
 }
 
 /* Standard Component Styles */
@@ -52,8 +53,28 @@
 	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
 }
 
+.context-menu {
+	-fx-background-color: -jb-background-color;
+	-fx-border-color: -jb-border-color;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-padding: 3 3 3 3;
+}
+
+.context-menu .menu-item  {
+	-fx-background-color: -jb-background-color;
+}
+
 .context-menu .menu-item .label {
-	-fx-text-fill: black;
+	-fx-text-fill: -jb-foreground-color;
+}
+
+.context-menu .menu-item:focused {
+	-fx-background-color: -jb-foreground-color;
+}
+
+.context-menu .menu-item:focused .label {
+	-fx-text-fill: -jb-background-color;
 }
 
 .scroll-bar:vertical .track {

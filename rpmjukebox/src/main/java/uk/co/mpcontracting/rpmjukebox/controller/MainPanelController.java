@@ -173,7 +173,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		// Playlist list view
 		observablePlaylists = FXCollections.observableArrayList();
-		playlistPanelListView.setCellFactory(new PlaylistListCellFactory(playlistManager));
+		playlistPanelListView.setCellFactory(new PlaylistListCellFactory(settingsManager, playlistManager));
 		playlistPanelListView.setItems(observablePlaylists);
 		
 		// Track table view
