@@ -376,25 +376,25 @@
 	-fx-background-image: url('../images/random.png');
 }
 
-#equalizer {
+#equalizerPanel {
 	-fx-background-color: -jb-background-color;
 	-fx-border-color: -jb-border-color;
     -fx-border-style: solid;
     -fx-border-width: 1;
 }
 
-#equalizer #sliderHbox {
+#equalizerPanel #sliderHbox {
 	-fx-padding: 5 5 5 5;
 	-fx-spacing: 5;
 }
 
-#equalizer #buttonHbox {
+#equalizerPanel #buttonHbox {
 	-fx-alignment: center;
 	-fx-padding: 5 5 5 5;
 	-fx-spacing: 5;
 }
 
-#equalizer #buttonHbox .button {
+#equalizerPanel #buttonHbox .button {
 	-fx-background-color: -jb-background-color;
 	-fx-border-color: -jb-border-color;
     -fx-border-style: solid;
@@ -402,10 +402,24 @@
     -fx-text-fill: -jb-foreground-color;
 }
 
-#indexing {
+#messagePanel {
 	-fx-background-color: -jb-background-color;
 	-fx-border-color: -jb-border-color;
     -fx-border-style: solid;
     -fx-border-width: 1;
     -fx-padding: 5;
+}
+
+#messagePanel #buttonHbox {
+	-fx-alignment: center;
+	-fx-padding: 5 5 5 5;
+	-fx-spacing: 5;
+}
+
+#messagePanel #buttonHbox .button {
+	-fx-background-color: -jb-background-color;
+	-fx-border-color: -jb-border-color;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-text-fill: -jb-foreground-color;
 }

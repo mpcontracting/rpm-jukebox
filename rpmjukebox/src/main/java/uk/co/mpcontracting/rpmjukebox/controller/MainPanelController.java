@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.component.ConfirmWindow;
 import uk.co.mpcontracting.rpmjukebox.component.MessageWindow;
 import uk.co.mpcontracting.rpmjukebox.component.ModalWindow;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
@@ -130,6 +131,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 	@Getter private ModalWindow equalizerDialogue;
 	private MessageWindow messageWindow;
+	private ConfirmWindow confirmWindow;
 	private ObservableList<Playlist> observablePlaylists;
 	
 	private int previousSecondsCutoff;
@@ -171,6 +173,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		// Message window
 		messageWindow = new MessageWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "message.fxml");
 		
+		// Confirm window
+		confirmWindow = new ConfirmWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "confirm.fxml");
+		
 		// Playlist list view
 		observablePlaylists = FXCollections.observableArrayList();
 		playlistPanelListView.setCellFactory(new PlaylistListCellFactory(settingsManager, playlistManager));
@@ -205,6 +210,20 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		});
 	}
 	
+	public void showConfirmWindow(String message, Runnable okRunnable, Runnable cancelRunnable) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				confirmWindow.setMessage(message);
+				confirmWindow.setRunnables(okRunnable, cancelRunnable);
+				
+				if (!confirmWindow.isShowing()) {
+					confirmWindow.display();
+				}
+			}
+		});
+	}
+
 	private void searchTextUpdated(String searchText) {
 		log.debug("Search text updated - '" + searchText + "'");
 

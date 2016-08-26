@@ -13,6 +13,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
+import uk.co.mpcontracting.ioc.ApplicationContext;
+import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
@@ -77,7 +79,20 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 		deletePlaylistItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				playlistManager.deletePlaylist(listView.getSelectionModel().getSelectedItem().getPlaylistId());
+				ApplicationContext.getBean(MainPanelController.class).showConfirmWindow("Are you sure you want to delete the \"" + listView.getSelectionModel().getSelectedItem().getName() + "\" playlist?", 
+					new Runnable() {
+						@Override
+						public void run() {
+							playlistManager.deletePlaylist(listView.getSelectionModel().getSelectedItem().getPlaylistId());
+						}
+					},
+					new Runnable() {
+						@Override
+						public void run() {
+							// No-op
+						}
+					}
+				);
 			}
 		});
 		contextMenu.getItems().add(deletePlaylistItem);
