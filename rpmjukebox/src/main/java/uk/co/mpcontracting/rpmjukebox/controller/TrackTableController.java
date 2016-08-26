@@ -101,6 +101,8 @@ public class TrackTableController extends EventAwareObject {
 	
 				break;
 			}
+			case PLAYLIST_CREATED:
+			case PLAYLIST_DELETED:
 			case PLAYLIST_SELECTED: {
 				if (payload != null && payload.length > 0) {
 					Integer playlistId = (Integer)payload[0];

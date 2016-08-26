@@ -427,12 +427,20 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				updateObservablePlaylists();
 
 				if (payload != null && payload.length > 0) {
-					Integer selectedPlaylist = (Integer)payload[0];
+					Integer selectedPlaylistId = (Integer)payload[0];
 					
 					// Select the correct playlist
-					if (observablePlaylists.size() > selectedPlaylist) {
-						playlistPanelListView.getSelectionModel().select(selectedPlaylist);
-						playlistPanelListView.getFocusModel().focus(selectedPlaylist);
+					if (selectedPlaylistId != null && observablePlaylists.size() > selectedPlaylistId) {
+						for (int i = 0; i < observablePlaylists.size(); i++) {
+							Playlist playlist = observablePlaylists.get(i);
+							
+							if (playlist.getPlaylistId() == selectedPlaylistId) {
+								playlistPanelListView.getSelectionModel().select(i);
+								playlistPanelListView.getFocusModel().focus(i);
+								
+								break;
+							}
+						}
 					}
 				}
 				
@@ -442,6 +450,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				if (payload != null && payload.length > 0) {
 					Integer playlistId = (Integer)payload[0];
 		
+					// Select the correct playlist
 					if (playlistId != null) {
 						for (int i = 0; i < observablePlaylists.size(); i++) {
 							Playlist playlist = observablePlaylists.get(i);

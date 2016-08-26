@@ -107,31 +107,32 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	public void deletePlaylist(int playlistId) {
 		log.debug("Deleting playlist - " + playlistId);
 		
-		if (playlistId == PLAYLIST_ID_SEARCH) {
+		if (playlistId < 0) {
 			return;
 		}
 
 		// Selected playlist is the position in the list and is
 		// re-calculated after every delete from the list
-		int selectedPlaylist = 0;
+		int selectedPlaylistId = 0;
 		
 		synchronized (playlistMap) {
 			for (int nextPlaylistId : playlistMap.keySet()) {
+				
 				if (nextPlaylistId == playlistId) {
 					break;
 				}
 				
-				selectedPlaylist++;
+				selectedPlaylistId = nextPlaylistId;
 			}
 			
 			playlistMap.remove(playlistId);
 			
-			if (selectedPlaylist > 0) {
-				selectedPlaylist--;
+			if (playlistMap.get(selectedPlaylistId) == null) {
+				selectedPlaylistId = 0;
 			}
 		}
 
-		fireEvent(Event.PLAYLIST_DELETED, selectedPlaylist);
+		fireEvent(Event.PLAYLIST_DELETED, selectedPlaylistId);
 	}
 	
 	public void setPlaylistTracks(int playlistId, List<Track> tracks) {
