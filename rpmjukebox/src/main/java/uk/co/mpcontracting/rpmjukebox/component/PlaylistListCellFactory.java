@@ -56,6 +56,11 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 							fireEvent(Event.PLAYLIST_SELECTED, listCell.getItem().getPlaylistId());
 						}
 					}
+				} else if (event.getButton() == MouseButton.SECONDARY && event.getClickCount() < 2) {
+					// Right click
+					if (listCell != null && listCell.getItem() != null) {
+						fireEvent(Event.PLAYLIST_SELECTED, listCell.getItem().getPlaylistId());
+					}
 				}
 			}
 		});
