@@ -53,8 +53,15 @@ public class RpmJukebox extends Application implements Constants {
 	
 	private void initialiseLogging() {
 		try {
-			File settingsDirectory = new File(System.getProperty("user.home") + File.separator + ".rpmjukebox");
+			File settingsDirectory = null;
 			
+			// See if we have a command line override
+			if (System.getProperty(PROP_DIRECTORY_CONFIG) != null) {
+				settingsDirectory = new File(System.getProperty("user.home") + File.separator + System.getProperty(PROP_DIRECTORY_CONFIG));
+			} else {
+				settingsDirectory = new File(System.getProperty("user.home") + File.separator + ".rpmjukebox");
+			}
+
 			// Make sure logging directory exists
 			File logDirectory = new File(settingsDirectory, "log");
 			
@@ -64,7 +71,7 @@ public class RpmJukebox extends Application implements Constants {
 			
 			// Copy the logging.properties file to ~/.rpmjukebox if it doesn't already exist
 			File loggingFile = new File(settingsDirectory, "logging.properties");
-			
+
 			if (!loggingFile.exists()) {
 				Files.copy(getClass().getResourceAsStream("/logging.properties"), loggingFile.toPath());
 			}
