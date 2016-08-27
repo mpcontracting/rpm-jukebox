@@ -6,11 +6,22 @@ import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
 
 public class ConfirmWindow extends MessageWindow {
 
+	private ConfirmController confirmController;
+	
 	public ConfirmWindow(Stage stage, String fxmlFile) {
 		super(stage, fxmlFile);
+		
+		confirmController = ApplicationContext.getBean(ConfirmController.class);
 	}
 	
 	public void setRunnables(Runnable okRunnable, Runnable cancelRunnable) {
-		ApplicationContext.getBean(ConfirmController.class).setRunnables(okRunnable, cancelRunnable);
+		confirmController.setRunnables(okRunnable, cancelRunnable);
+	}
+	
+	@Override
+	public void display() {
+		confirmController.setOkFocused();
+		
+		super.display();
 	}
 }

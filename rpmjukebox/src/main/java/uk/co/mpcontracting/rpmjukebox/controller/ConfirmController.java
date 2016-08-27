@@ -3,6 +3,8 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Component;
@@ -37,8 +39,23 @@ public class ConfirmController {
 		}
 	}
 	
+	public void setOkFocused() {
+		okButton.requestFocus();
+	}
+	
 	@FXML
 	protected void handleOkButtonAction(ActionEvent event) {
+		okButtonPressed();
+	}
+	
+	@FXML
+	protected void handleOkButtonKeyPressed(KeyEvent event) {
+		if (event.getCode() == KeyCode.ENTER) {
+			okButtonPressed();
+		}
+	}
+	
+	private void okButtonPressed() {
 		log.debug("OK button pressed");
 		
 		if (okRunnable != null) {
@@ -50,6 +67,17 @@ public class ConfirmController {
 	
 	@FXML
 	protected void handleCancelButtonAction(ActionEvent event) {
+		cancelButtonPressed();
+	}
+	
+	@FXML
+	protected void handleCancelButtonKeyPressed(KeyEvent event) {
+		if (event.getCode() == KeyCode.ENTER) {
+			cancelButtonPressed();
+		}
+	}
+	
+	private void cancelButtonPressed() {
 		log.debug("Cancel button pressed");
 		
 		if (cancelRunnable != null) {

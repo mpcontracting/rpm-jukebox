@@ -12,8 +12,8 @@
    <bottom>
       <HBox id="buttonHbox">
          <children>
-            <Button id="okButton" fx:id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
-            <Button id="cancelButton" fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel" />
+            <Button id="okButton" fx:id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" onKeyPressed="#handleOkButtonKeyPressed" text="%button.ok" />
+            <Button id="cancelButton" fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" onKeyPressed="#handleCancelButtonKeyPressed" text="%button.cancel" />
          </children>
       </HBox>
    </bottom>
