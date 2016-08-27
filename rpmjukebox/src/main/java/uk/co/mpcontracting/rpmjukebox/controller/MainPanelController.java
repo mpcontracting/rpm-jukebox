@@ -10,6 +10,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -19,10 +20,13 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
@@ -185,6 +189,29 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		playlistPanelListView.setCellFactory(new PlaylistListCellFactory());
 		playlistPanelListView.setEditable(true);
 		playlistPanelListView.setItems(observablePlaylists);
+		playlistPanelListView.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
+					Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
+					
+					ApplicationContext.getBean(MainPanelController.class).showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+						new Runnable() {
+							@Override
+							public void run() {
+								playlistManager.deletePlaylist(playlist.getPlaylistId());
+							}
+						},
+						new Runnable() {
+							@Override
+							public void run() {
+								// No-op
+							}
+						}
+					);
+				}
+			}
+		});
 		
 		// Track table view
 		mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
@@ -500,27 +527,6 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				break;
 			}
-			/*case PLAYLIST_SELECTED: {
-				if (payload != null && payload.length > 0) {
-					Integer playlistId = (Integer)payload[0];
-		
-					// Select the correct playlist
-					if (playlistId != null) {
-						for (int i = 0; i < observablePlaylists.size(); i++) {
-							Playlist playlist = observablePlaylists.get(i);
-							
-							if (playlist.getPlaylistId() == playlistId) {
-								playlistPanelListView.getSelectionModel().select(i);
-								playlistPanelListView.getFocusModel().focus(i);
-								
-								break;
-							}
-						}
-					}
-				}
-				
-				break;
-			}*/
 			case TRACK_SELECTED: {
 				playPauseButton.setDisable(false);
 

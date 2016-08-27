@@ -99,6 +99,10 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		fireEvent(Event.PLAYLIST_CREATED, playlistId);
 	}
 	
+	public void createPlaylistFromAlbum(Track track) {
+		log.info("Creating playlist from album : Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
+	}
+	
 	public Playlist getPlaylist(int playlistId) {
 		log.debug("Getting playlist - " + playlistId);
 
@@ -163,6 +167,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 		synchronized (playlistMap) {
 			playlistMap.get(playlistId).removeTrack(track);
+
+			currentPlaylistIndex = 0;
 		}
 
 		fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistId);
@@ -341,7 +347,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		synchronized (playlistMap) {
 			Playlist currentPlaylist = playlistMap.get(currentPlaylistId);
 
-			if (!currentPlaylist.isEmpty()) {
+			if (currentPlaylist != null && !currentPlaylist.isEmpty()) {
 				if (shuffle) {
 					log.debug("Getting shuffled track");
 					return currentPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);

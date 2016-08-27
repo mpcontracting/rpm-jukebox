@@ -9,8 +9,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
@@ -67,19 +65,6 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 			}
 		});
 		
-		/////////////////////
-		// Keyboard Events //
-		/////////////////////
-		
-		listView.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent event) {
-				if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
-					deleteSelectedPlaylist(listView);
-				}
-			}
-		});
-		
 		//////////////////
 		// Context Menu //
 		//////////////////
@@ -99,7 +84,22 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 		deletePlaylistItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				deleteSelectedPlaylist(listView);
+				Playlist playlist = listView.getSelectionModel().getSelectedItem();
+				
+				ApplicationContext.getBean(MainPanelController.class).showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+					new Runnable() {
+						@Override
+						public void run() {
+							playlistManager.deletePlaylist(playlist.getPlaylistId());
+						}
+					},
+					new Runnable() {
+						@Override
+						public void run() {
+							// No-op
+						}
+					}
+				);
 			}
 		});
 		contextMenu.getItems().add(deletePlaylistItem);
@@ -109,7 +109,7 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 			@Override
 			public void handle(ContextMenuEvent event) {
 				@SuppressWarnings("unchecked")
-				ListCell<Playlist> sourceCell = (ListCell<Playlist>) event.getSource();
+				ListCell<Playlist> sourceCell = (ListCell<Playlist>)event.getSource();
 		
 				if (listView.getItems().size() > sourceCell.getIndex()) {
 					Playlist playlist = listView.getItems().get(sourceCell.getIndex());
@@ -180,24 +180,5 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 		});
 		
 		return listCell;
-	}
-	
-	private void deleteSelectedPlaylist(ListView<Playlist> listView) {
-		Playlist playlist = listView.getSelectionModel().getSelectedItem();
-		
-		ApplicationContext.getBean(MainPanelController.class).showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
-			new Runnable() {
-				@Override
-				public void run() {
-					playlistManager.deletePlaylist(playlist.getPlaylistId());
-				}
-			},
-			new Runnable() {
-				@Override
-				public void run() {
-					// No-op
-				}
-			}
-		);
 	}
 }

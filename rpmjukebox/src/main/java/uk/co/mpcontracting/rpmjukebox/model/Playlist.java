@@ -38,12 +38,20 @@ public class Playlist implements Constants, Iterable<Track> {
     
     @Synchronized
     public Track getTrackAtIndex(int index) {
-    	return tracks.get(index);
+    	if (index < tracks.size()) {
+    		return tracks.get(index);
+    	}
+    	
+    	return null;
     }
     
     @Synchronized
     public Track getShuffledTrackAtIndex(int index) {
-    	return shuffledTracks.get(index);
+    	if (index < shuffledTracks.size()) {
+    		return shuffledTracks.get(index);
+    	}
+    	
+    	return null;
     }
     
     @Synchronized

@@ -1,9 +1,13 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
@@ -13,14 +17,18 @@ import javafx.util.Callback;
 import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 public class TrackTableCellFactory<S, T> extends EventAwareObject implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>>, Constants {
 
+	private MessageManager messageManager;
 	private PlaylistManager playlistManager;
 
 	public TrackTableCellFactory() {
+		messageManager = ApplicationContext.getBean(MessageManager.class);
 		playlistManager = ApplicationContext.getBean(PlaylistManager.class);
 	}
 	
@@ -47,6 +55,55 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 							fireEvent(Event.TRACK_SELECTED, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 						}
 					}
+				}
+			}
+		});
+		
+		//////////////////
+		// Context Menu //
+		//////////////////
+		
+		ContextMenu contextMenu = new ContextMenu();
+		
+		final MenuItem createPlaylistFromAlbumItem = new MenuItem(messageManager.getMessage(MESSAGE_TRACK_TABLE_CONTEXT_CREATE_PLAYLIST_FROM_ALBUM));
+		createPlaylistFromAlbumItem.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				if (tableCell != null && tableCell.getItem() != null) {
+					playlistManager.createPlaylistFromAlbum(((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
+				}
+			}
+		});
+		contextMenu.getItems().add(createPlaylistFromAlbumItem);
+		
+		final MenuItem deleteTrackFromPlaylistItem = new MenuItem(messageManager.getMessage(MESSAGE_TRACK_TABLE_CONTEXT_DELETE_TRACK_FROM_PLAYLIST));
+		deleteTrackFromPlaylistItem.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				if (tableCell != null && tableCell.getItem() != null) {
+					Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
+					
+					playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
+				}
+			}
+		});
+		contextMenu.getItems().add(deleteTrackFromPlaylistItem);
+		
+		tableCell.setContextMenu(contextMenu);
+		tableCell.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+			@Override
+			public void handle(ContextMenuEvent event) {
+				if (tableCell != null && tableCell.getItem() != null) {
+					if (((TrackTableModel)tableCell.getTableRow().getItem()).getTrack().getPlaylistId() == PLAYLIST_ID_SEARCH) {
+						createPlaylistFromAlbumItem.setDisable(false);
+						deleteTrackFromPlaylistItem.setDisable(true);
+					} else {
+						createPlaylistFromAlbumItem.setDisable(true);
+						deleteTrackFromPlaylistItem.setDisable(false);
+					}
+				} else {
+					createPlaylistFromAlbumItem.setDisable(true);
+					deleteTrackFromPlaylistItem.setDisable(true);
 				}
 			}
 		});

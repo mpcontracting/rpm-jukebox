@@ -404,6 +404,40 @@ public class SearchManager implements Constants {
         	trackSearcher = null;
     	}
 	}
+	
+	public List<Track> getAlbumById(String albumId) {
+		if (trackManager == null) {
+			throw new RuntimeException("Cannot search before track index is initialised");
+		}
+		
+		IndexSearcher trackSearcher = null;
+    	
+    	try {
+    		trackSearcher = trackManager.acquire();
+    		TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.ALBUMID.name(), albumId)), maxSearchHits, 
+    			new Sort(new SortField(TrackSort.DEFAULTSORT.name(), SortField.Type.STRING)));
+    		ScoreDoc[] scoreDocs = results.scoreDocs;
+            List<Track> tracks = new ArrayList<Track>();
+            
+            for (ScoreDoc scoreDoc : scoreDocs) {
+            	tracks.add(getTrackByDocId(trackSearcher, scoreDoc.doc));
+            }
+
+            return tracks;
+    	} catch (Exception e) {
+            log.error("Unable to run get track by id", e);
+            
+            return null;
+        } finally {
+        	try {
+	        	trackManager.release(trackSearcher);
+        	} catch (Exception e) {
+        		log.warn("Unable to release track searcher");
+        	}
+	        
+        	trackSearcher = null;
+    	}
+	}
 
     private Artist getArtistByDocId(IndexSearcher artistSearcher, int docId) throws Exception {
     	Document document = artistSearcher.doc(docId);

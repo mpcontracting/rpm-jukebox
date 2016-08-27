@@ -2,9 +2,12 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
@@ -56,6 +59,18 @@ public class TrackTableController extends EventAwareObject {
 		observableTracks = FXCollections.observableArrayList();
 		trackTableView.setPlaceholder(new Label(""));
 		trackTableView.setItems(observableTracks);
+		trackTableView.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
+					Track track = trackTableView.getSelectionModel().getSelectedItem().getTrack();
+					
+					if (track != null) {
+						playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
+					}
+				}
+			}
+		});
 		
 		// Cell factories
 		loveColumn.setCellFactory(new LoveButtonTableCellFactory<TrackTableModel, String>());
@@ -111,7 +126,7 @@ public class TrackTableController extends EventAwareObject {
 						visiblePlaylistId = playlistId;
 						updateObservableTracks(visiblePlaylistId);
 					}
-					
+
 					trackTableView.highlightTrack(playlistManager.getTrackAtCurrentPlaylistIndex());
 				}
 				
