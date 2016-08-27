@@ -13,7 +13,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.ResourceBundle;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,6 +42,9 @@ import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 public class SettingsManager implements InitializingBean, Constants {
 
 	@Autowired
+	private MessageManager messageManager;
+	
+	@Autowired
 	private SearchManager searchManager;
 
 	@Autowired
@@ -53,9 +55,7 @@ public class SettingsManager implements InitializingBean, Constants {
 
 	@Resource(location = "classpath:/rpm-jukebox.properties")
 	private Properties properties;
-	
-	@Getter private ResourceBundle messageBundle;
-	
+
 	private File configDirectory;
 	@Getter private URL dataFile;
 	
@@ -63,9 +63,6 @@ public class SettingsManager implements InitializingBean, Constants {
 	private boolean settingsLoaded;
 	
 	public SettingsManager() {
-		// Load up the resource bundle
-		messageBundle = ResourceBundle.getBundle(I18N_MESSAGE_BUNDLE);
-		
 		// Initialise Gson
 		gson = new GsonBuilder().setPrettyPrinting().create();
 	}
@@ -113,13 +110,13 @@ public class SettingsManager implements InitializingBean, Constants {
 		
 		return null;
 	}
-	
+
 	public File getFileFromConfigDirectory(String relativePath) {
 		return new File(configDirectory, relativePath);
 	}
 	
 	public boolean hasDataFileExpired() {
-		FxmlContext.getBean(MainPanelController.class).showMessageWindow(messageBundle.getString(MESSAGE_CHECKING_DATA));
+		FxmlContext.getBean(MainPanelController.class).showMessageWindow(messageManager.getMessage(MESSAGE_CHECKING_DATA));
 		
 		// Wait at least 1.5 seconds so message window lasts
 		// long enough to read
@@ -288,9 +285,9 @@ public class SettingsManager implements InitializingBean, Constants {
 				
 				// Override the name of the search results and favourites playlists
 				if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
-					playlist.setName(messageBundle.getString(MESSAGE_PLAYLIST_SEARCH));
+					playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH));
 				} else if (playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
-					playlist.setName(messageBundle.getString(MESSAGE_PLAYLIST_FAVOURITES));
+					playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES));
 				}
 				
 				for (String trackId : playlistSettings.getTracks()) {

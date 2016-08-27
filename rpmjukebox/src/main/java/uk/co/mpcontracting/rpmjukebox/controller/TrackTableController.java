@@ -58,12 +58,12 @@ public class TrackTableController extends EventAwareObject {
 		trackTableView.setItems(observableTracks);
 		
 		// Cell factories
-		loveColumn.setCellFactory(new LoveButtonTableCellFactory<TrackTableModel, String>(playlistManager));
-		trackNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>(playlistManager));
-		artistNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>(playlistManager));
-		albumYearColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, Number>(playlistManager));
-		albumNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>(playlistManager));
-		genresColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>(playlistManager));
+		loveColumn.setCellFactory(new LoveButtonTableCellFactory<TrackTableModel, String>());
+		trackNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>());
+		artistNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>());
+		albumYearColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, Number>());
+		albumNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>());
+		genresColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>());
 		
 		// Cell value factories
 		loveColumn.setCellValueFactory(cellData -> cellData.getValue().getTrackId());

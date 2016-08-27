@@ -10,6 +10,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
+import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
@@ -19,8 +20,8 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 
 	private PlaylistManager playlistManager;
 
-	public TrackTableCellFactory(PlaylistManager playlistManager) {
-		this.playlistManager = playlistManager;
+	public TrackTableCellFactory() {
+		playlistManager = ApplicationContext.getBean(PlaylistManager.class);
 	}
 	
 	@Override

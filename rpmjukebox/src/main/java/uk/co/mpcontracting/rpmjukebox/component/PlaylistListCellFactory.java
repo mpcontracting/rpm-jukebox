@@ -17,20 +17,20 @@ import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
-import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 public class PlaylistListCellFactory extends EventAwareObject implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
 
-	private SettingsManager settingsManager;
+	private MessageManager messageManager;
 	private PlaylistManager playlistManager;
 
-	public PlaylistListCellFactory(SettingsManager settingsManager, PlaylistManager playlistManager) {
-		this.settingsManager = settingsManager;
-		this.playlistManager = playlistManager;
+	public PlaylistListCellFactory() {
+		messageManager = ApplicationContext.getBean(MessageManager.class);
+		playlistManager = ApplicationContext.getBean(PlaylistManager.class);
 	}
 	
 	@Override
@@ -71,7 +71,7 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 
 		ContextMenu contextMenu = new ContextMenu();
 		
-		final MenuItem newPlaylistItem = new MenuItem(settingsManager.getMessageBundle().getString(MESSAGE_PLAYLIST_CONTEXT_NEW_PLAYLIST));
+		final MenuItem newPlaylistItem = new MenuItem(messageManager.getMessage(MESSAGE_PLAYLIST_CONTEXT_NEW_PLAYLIST));
 		newPlaylistItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -80,7 +80,7 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 		});
 		contextMenu.getItems().add(newPlaylistItem);
 		
-		final MenuItem deletePlaylistItem = new MenuItem(settingsManager.getMessageBundle().getString(MESSAGE_PLAYLIST_CONTEXT_DELETE_PLAYLIST));
+		final MenuItem deletePlaylistItem = new MenuItem(messageManager.getMessage(MESSAGE_PLAYLIST_CONTEXT_DELETE_PLAYLIST));
 		deletePlaylistItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {

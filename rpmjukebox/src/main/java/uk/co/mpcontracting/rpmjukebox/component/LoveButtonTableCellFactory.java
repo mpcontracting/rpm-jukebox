@@ -6,6 +6,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
+import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
@@ -16,8 +17,8 @@ public class LoveButtonTableCellFactory<S, T> extends EventAwareObject implement
 
 	private PlaylistManager playlistManager;
 
-	public LoveButtonTableCellFactory(PlaylistManager playlistManager) {
-		this.playlistManager = playlistManager;
+	public LoveButtonTableCellFactory() {
+		playlistManager = ApplicationContext.getBean(PlaylistManager.class);
 	}
 	
 	@Override

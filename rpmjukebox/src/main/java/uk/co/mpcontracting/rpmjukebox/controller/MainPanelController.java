@@ -35,6 +35,7 @@ import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
+import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
@@ -115,6 +116,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private Button randomButton;
 	
 	@Autowired
+	private MessageManager messageManager;
+	
+	@Autowired
 	private SettingsManager settingsManager;
 	
 	@Autowired
@@ -178,7 +182,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		// Playlist list view
 		observablePlaylists = FXCollections.observableArrayList();
-		playlistPanelListView.setCellFactory(new PlaylistListCellFactory(settingsManager, playlistManager));
+		playlistPanelListView.setCellFactory(new PlaylistListCellFactory());
 		playlistPanelListView.setItems(observablePlaylists);
 		
 		// Track table view
