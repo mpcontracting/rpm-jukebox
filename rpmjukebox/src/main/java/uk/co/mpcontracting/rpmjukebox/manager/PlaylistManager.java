@@ -29,6 +29,9 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	private SettingsManager settingsManager;
 	
 	@Autowired
+	private SearchManager searchManager;
+	
+	@Autowired
 	private MediaManager mediaManager;
 
 	private Map<Integer, Playlist> playlistMap;
@@ -81,9 +84,14 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	}
 	
 	public void createPlaylist() {
-		log.debug("Creating playlist");
+		createPlaylist(messageManager.getMessage(MESSAGE_PLAYLIST_DEFAULT), true);
+	}
+	
+	private Playlist createPlaylist(String name, boolean autoEdit) {
+		log.debug("Creating playlist - " + name);
 
 		int playlistId = 1;
+		Playlist playlist = null;
 		
 		synchronized (playlistMap) {
 			// Find the first ID available
@@ -91,16 +99,29 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 				playlistId++;
 			}
 
-			playlistMap.put(playlistId, new Playlist(playlistId, messageManager.getMessage(MESSAGE_PLAYLIST_DEFAULT), maxPlaylistSize));
+			playlist = new Playlist(playlistId, name, maxPlaylistSize);
+			playlistMap.put(playlistId, playlist);
 
 			log.debug("Created playlist - " + playlistId);
 		}
 
-		fireEvent(Event.PLAYLIST_CREATED, playlistId);
+		fireEvent(Event.PLAYLIST_CREATED, playlistId, autoEdit);
+		
+		return playlist;
 	}
 	
 	public void createPlaylistFromAlbum(Track track) {
-		log.info("Creating playlist from album : Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
+		log.debug("Creating playlist from album : Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
+		
+		List<Track> tracks = searchManager.getAlbumById(track.getAlbumId());
+		
+		if (tracks != null && !tracks.isEmpty()) {
+			Playlist playlist = createPlaylist(track.getArtistName() + " - " + track.getAlbumName(), false);
+			
+			if (playlist != null) {
+				playlist.setTracks(tracks);
+			}
+		}
 	}
 	
 	public Playlist getPlaylist(int playlistId) {

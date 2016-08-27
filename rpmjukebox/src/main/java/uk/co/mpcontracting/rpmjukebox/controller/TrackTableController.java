@@ -63,10 +63,12 @@ public class TrackTableController extends EventAwareObject {
 			@Override
 			public void handle(KeyEvent event) {
 				if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
-					Track track = trackTableView.getSelectionModel().getSelectedItem().getTrack();
-					
-					if (track != null) {
-						playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
+					if (trackTableView.getSelectionModel().getSelectedItem() != null) {
+						Track track = trackTableView.getSelectionModel().getSelectedItem().getTrack();
+						
+						if (track != null) {
+							playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
+						}
 					}
 				}
 			}

@@ -516,7 +516,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 								
 								// If this is a playlist creation event, go straight into edit mode
 								if (event == Event.PLAYLIST_CREATED) {
-									playlistPanelListView.edit(i);
+									if (payload.length > 1 && (Boolean)payload[1]) {
+										playlistPanelListView.edit(i);
+									}
 								}
 								
 								break;

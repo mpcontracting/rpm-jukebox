@@ -205,7 +205,7 @@ public class SearchManager implements Constants {
         document.add(new StringField(TrackField.ARTISTID.name(), track.getArtistId(), Field.Store.YES));
         document.add(new StringField(TrackField.ARTISTNAME.name(), track.getArtistName(), Field.Store.YES));
         document.add(new StringField(TrackField.ARTISTIMAGE.name(), nullIsBlank(track.getArtistImage()), Field.Store.YES));
-        document.add(new StoredField(TrackField.ALBUMID.name(), track.getAlbumId()));
+        document.add(new StringField(TrackField.ALBUMID.name(), track.getAlbumId(), Field.Store.YES));
         document.add(new StringField(TrackField.ALBUMNAME.name(), track.getAlbumName(), Field.Store.YES));
         document.add(new StringField(TrackField.ALBUMIMAGE.name(), nullIsBlank(track.getAlbumImage()), Field.Store.YES));
         document.add(new StoredField(TrackField.YEAR.name(), track.getYear()));
@@ -409,7 +409,7 @@ public class SearchManager implements Constants {
 		if (trackManager == null) {
 			throw new RuntimeException("Cannot search before track index is initialised");
 		}
-		
+
 		IndexSearcher trackSearcher = null;
     	
     	try {
