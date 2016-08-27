@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 import uk.co.mpcontracting.ioc.annotation.Component;
@@ -16,6 +17,6 @@ public class MessageManager implements Constants {
 	}
 	
 	public String getMessage(String key, Object... arguments) {
-		return messageBundle.getString(key);
+		return MessageFormat.format(messageBundle.getString(key), arguments);
 	}
 }

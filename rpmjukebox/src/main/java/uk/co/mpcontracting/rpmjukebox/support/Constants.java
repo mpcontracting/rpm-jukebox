@@ -34,6 +34,7 @@ public interface Constants {
     public static final String MESSAGE_PLAYLIST_FAVOURITES				= "playlist.favourites";
     public static final String MESSAGE_PLAYLIST_CONTEXT_NEW_PLAYLIST	= "playlist.context.newPlaylist";
     public static final String MESSAGE_PLAYLIST_CONTEXT_DELETE_PLAYLIST	= "playlist.context.deletePlaylist";
+    public static final String MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE		= "playlist.delete.areYouSure";
     
     // Styles
     public static final String STYLE_LOVE_BUTTON_ON						= "loveButtonOn";
