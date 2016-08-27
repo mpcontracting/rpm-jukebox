@@ -37,6 +37,7 @@ import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 
@@ -121,6 +122,16 @@ public class SearchManager implements Constants {
         	}
 
             log.debug("SearchManager initialised");
+    	} catch (LockObtainFailedException e) {
+    		FxmlContext.getBean(MainPanelController.class).showMessageWindow(messageManager.getMessage(MESSAGE_ALREADY_RUNNING));
+    		
+    		// Wait at least 5 seconds so message window lasts
+    		// long enough to read
+    		try {
+    			Thread.sleep(5000);
+    		} catch (Exception e2) {};
+    		
+    		System.exit(1);
     	} catch (Exception e) {
     		log.error("Error initialising SearchManager", e);
     		

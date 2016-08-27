@@ -29,6 +29,7 @@ public interface Constants {
     // Message bundle keys
     public static final String MESSAGE_CHECKING_DATA					= "message.checkingData";
     public static final String MESSAGE_DOWNLOAD_INDEX					= "message.downloadIndex";
+    public static final String MESSAGE_ALREADY_RUNNING					= "message.alreadyRunning";
     public static final String MESSAGE_PLAYLIST_DEFAULT					= "playlist.default";
     public static final String MESSAGE_PLAYLIST_SEARCH					= "playlist.searchResults";
     public static final String MESSAGE_PLAYLIST_FAVOURITES				= "playlist.favourites";
