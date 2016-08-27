@@ -71,9 +71,18 @@ public class SettingsManager implements InitializingBean, Constants {
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising SettingsManager");
 
+		
 		// Look for the config directory and create it if it isn't there
 		File homeDir = new File(System.getProperty("user.home"));
-		configDirectory = new File(homeDir, getPropertyString(PROP_DIRECTORY_CONFIG));
+		
+		// See if we have a command line override
+		if (System.getProperty(PROP_DIRECTORY_CONFIG) != null) {
+			log.info("Using system property config directory - " + System.getProperty(PROP_DIRECTORY_CONFIG));
+			
+			configDirectory = new File(homeDir, System.getProperty(PROP_DIRECTORY_CONFIG));
+		} else {
+			configDirectory = new File(homeDir, getPropertyString(PROP_DIRECTORY_CONFIG));
+		}
 
 		if (!configDirectory.exists()) {
 			if (!configDirectory.mkdirs()) {
