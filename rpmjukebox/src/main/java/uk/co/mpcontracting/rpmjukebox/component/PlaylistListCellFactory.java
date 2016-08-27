@@ -37,7 +37,7 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 	
 	@Override
 	public ListCell<Playlist> call(ListView<Playlist> listView) {
-		final PlaylistListCell listCell = new PlaylistListCell();
+		final PlaylistListCell listCell = new PlaylistListCell(new PlaylistStringConverter<Playlist>());
 
 		//////////////////
 		// Mouse Events //
