@@ -467,9 +467,13 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 				break;
 			}
+			case PLAYLIST_SELECTED:
 			case PLAYLIST_CREATED:
 			case PLAYLIST_DELETED: {
-				updateObservablePlaylists();
+				// If we have created or deleted a playlist, update the observable list
+				if (event == Event.PLAYLIST_CREATED || event == Event.PLAYLIST_DELETED) {
+					updateObservablePlaylists();
+				}
 
 				if (payload != null && payload.length > 0) {
 					Integer selectedPlaylistId = (Integer)payload[0];
@@ -483,6 +487,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
 								playlistPanelListView.getSelectionModel().select(i);
 								playlistPanelListView.getFocusModel().focus(i);
 								
+								// If this is a playlist creation event, go straight into edit mode
+								if (event == Event.PLAYLIST_CREATED) {
+									playlistPanelListView.edit(i);
+								}
+								
 								break;
 							}
 						}
@@ -491,7 +500,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				break;
 			}
-			case PLAYLIST_SELECTED: {
+			/*case PLAYLIST_SELECTED: {
 				if (payload != null && payload.length > 0) {
 					Integer playlistId = (Integer)payload[0];
 		
@@ -511,7 +520,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				}
 				
 				break;
-			}
+			}*/
 			case TRACK_SELECTED: {
 				playPauseButton.setDisable(false);
 

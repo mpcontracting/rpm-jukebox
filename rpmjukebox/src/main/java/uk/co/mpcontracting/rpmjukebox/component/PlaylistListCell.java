@@ -26,7 +26,16 @@ public class PlaylistListCell extends TextFieldListCell<Playlist> {
 				setEditable(false);
 			}
 
-			setText(playlist.getName());
+			// If we're updating the cell and the graphic is a TextField, then
+			// we're being put into auto-edit mode, so select all the text in
+			// the TextField and set the text in the Label to null
+			if (getGraphic() instanceof TextField) {
+				((TextField)getGraphic()).selectAll();
+				
+				setText(null);
+			} else {
+				setText(playlist.getName());
+			}
 		}
 	}
 	
@@ -34,6 +43,7 @@ public class PlaylistListCell extends TextFieldListCell<Playlist> {
 	public void startEdit() {
 		super.startEdit();
 
+		// If the TextField loses focus, commit the edit
 		if (getGraphic() instanceof TextField) {
 			TextField textField = (TextField)getGraphic();
 			
