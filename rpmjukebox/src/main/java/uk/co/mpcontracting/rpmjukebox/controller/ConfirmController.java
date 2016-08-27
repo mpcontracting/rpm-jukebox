@@ -41,7 +41,9 @@ public class ConfirmController {
 	protected void handleOkButtonAction(ActionEvent event) {
 		log.debug("OK button pressed");
 		
-		okRunnable.run();
+		if (okRunnable != null) {
+			okRunnable.run();
+		}
 		
 		((Stage)okButton.getScene().getWindow()).close();
 	}
@@ -50,7 +52,9 @@ public class ConfirmController {
 	protected void handleCancelButtonAction(ActionEvent event) {
 		log.debug("Cancel button pressed");
 		
-		cancelRunnable.run();
+		if (cancelRunnable != null) {
+			cancelRunnable.run();
+		}
 		
 		((Stage)cancelButton.getScene().getWindow()).close();
 	}
