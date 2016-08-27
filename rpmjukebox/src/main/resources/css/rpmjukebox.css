@@ -142,9 +142,8 @@
 }
 
 .list-cell .text-field {
-	-fx-border-style: solid;
-    -fx-border-width: 1;
-    -fx-border-color: red;
+	-fx-background-color: -jb-border-color, -jb-border-color, -jb-border-color;
+	-fx-padding: 0;
 }
 
 .table-view {
