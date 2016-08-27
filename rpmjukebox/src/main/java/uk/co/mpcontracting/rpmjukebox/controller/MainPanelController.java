@@ -273,12 +273,33 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handleAddPlaylistButtonAction(ActionEvent event) {
-		log.info("Add playlist button pressed");
+		log.debug("Add playlist button pressed");
+		
+		playlistManager.createPlaylist();
 	}
 	
 	@FXML
 	protected void handleDeletePlaylistButtonAction(ActionEvent event) {
-		log.info("Delete playlist button pressed");
+		log.debug("Delete playlist button pressed");
+		
+		Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
+		
+		if (playlist != null && playlist.getPlaylistId() > 0) {
+			showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+				new Runnable() {
+					@Override
+					public void run() {
+						playlistManager.deletePlaylist(playlist.getPlaylistId());
+					}
+				},
+				new Runnable() {
+					@Override
+					public void run() {
+						// No-op
+					}
+				}
+			);
+		}
 	}
 	
 	@FXML
@@ -375,8 +396,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				// Enable GUI components
 				searchTextField.setDisable(false);
-				//addPlaylistButton.setDisable(false);
-				//deletePlaylistButton.setDisable(false);
+				addPlaylistButton.setDisable(false);
+				deletePlaylistButton.setDisable(false);
 				//exportPlaylistButton.setDisable(false);
 				//settingsButton.setDisable(false);
 				timeSlider.setDisable(false);
