@@ -48,6 +48,11 @@ public class SettingsController extends EventAwareObject {
 	}
 	
 	@FXML
+	protected void handleOkButtonAction(ActionEvent event) {
+		mainPanelController.getSettingsWindow().close();
+	}
+	
+	@FXML
 	protected void handleCancelButtonAction(ActionEvent event) {
 		mainPanelController.getSettingsWindow().close();
 	}

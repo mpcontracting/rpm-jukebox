@@ -10,7 +10,7 @@
    <bottom>
       <HBox styleClass="buttonHbox" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" text="%button.ok" />
+            <Button mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
             <Button mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel" />
             <Button mnemonicParsing="false" onAction="#handleReindexButtonAction" text="%settings.reindex" />
          </children>
