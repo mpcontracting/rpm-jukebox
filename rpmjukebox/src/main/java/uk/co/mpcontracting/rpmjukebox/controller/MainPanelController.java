@@ -120,6 +120,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private Button randomButton;
 	
 	@Autowired
+	private RpmJukebox rpmJukebox;
+	
+	@Autowired
 	private MessageManager messageManager;
 	
 	@Autowired
@@ -136,6 +139,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private CacheManager cacheManager;
+	
+	@Autowired
+	private EqualizerController equalizerController;
 
 	@Getter private ModalWindow equalizerWindow;
 	@Getter private ModalWindow settingsWindow;
@@ -177,16 +183,16 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		volumeSlider.setValue(mediaManager.getVolume() * 100);
 		
 		// Equalizer window
-		equalizerWindow = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "equalizer.fxml");
+		equalizerWindow = new ModalWindow(rpmJukebox.getStage(), "equalizer.fxml");
 		
 		// Settings window
-		settingsWindow = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "settings.fxml");
+		settingsWindow = new ModalWindow(rpmJukebox.getStage(), "settings.fxml");
 		
 		// Message window
-		messageWindow = new MessageWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "message.fxml");
+		messageWindow = new MessageWindow(rpmJukebox.getStage(), "message.fxml");
 		
 		// Confirm window
-		confirmWindow = new ConfirmWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "confirm.fxml");
+		confirmWindow = new ConfirmWindow(rpmJukebox.getStage(), "confirm.fxml");
 		
 		// Playlist list view
 		observablePlaylists = FXCollections.observableArrayList();
@@ -399,7 +405,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleEqButtonAction(ActionEvent event) {
 		log.debug("EQ button pressed");
 
-		FxmlContext.getBean(EqualizerController.class).updateSliderValues();
+		equalizerController.updateSliderValues();
 		equalizerWindow.display();
 	}
 	

@@ -8,15 +8,19 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.SettingsController">
    <bottom>
-      <Label text="%settings.copyright" BorderPane.alignment="CENTER" />
-   </bottom>
-   <center>
-      <HBox prefHeight="100.0" prefWidth="200.0" styleClass="buttonHbox" BorderPane.alignment="CENTER">
+      <HBox styleClass="buttonHbox" BorderPane.alignment="CENTER">
          <children>
             <Button mnemonicParsing="false" text="%button.ok" />
             <Button mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel" />
-            <Button mnemonicParsing="false" text="%settings.reindex" />
+            <Button mnemonicParsing="false" onAction="#handleReindexButtonAction" text="%settings.reindex" />
          </children>
       </HBox>
+   </bottom>
+   <center>
+      <BorderPane BorderPane.alignment="CENTER">
+         <bottom>
+            <Label text="%settings.copyright" BorderPane.alignment="CENTER" />
+         </bottom>
+      </BorderPane>
    </center>
 </BorderPane>

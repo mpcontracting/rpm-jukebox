@@ -39,6 +39,9 @@ public class RpmJukebox extends Application implements Constants {
 	private MediaManager mediaManager;
 	
 	@Autowired
+	private MainPanelController mainPanelController;
+	
+	@Autowired
 	private JettyServer jettyServer;
 
 	@Getter private Stage stage;
@@ -121,7 +124,7 @@ public class RpmJukebox extends Application implements Constants {
 					searchManager.initialise();
 					settingsManager.loadSettings();
 					
-					FxmlContext.getBean(MainPanelController.class).closeMessageWindow();
+					mainPanelController.closeMessageWindow();
 	
 					EventManager.getInstance().fireEvent(Event.APPLICATION_INITIALISED);
 					isInitialised = true;

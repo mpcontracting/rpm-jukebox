@@ -35,7 +35,6 @@ import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.settings.Settings;
 import uk.co.mpcontracting.rpmjukebox.settings.Window;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 @Slf4j
 @Component
@@ -52,6 +51,9 @@ public class SettingsManager implements InitializingBean, Constants {
 	
 	@Autowired
 	private MediaManager mediaManager;
+	
+	@Autowired
+	private MainPanelController mainPanelController;
 
 	@Resource(location = "classpath:/rpm-jukebox.properties")
 	private Properties properties;
@@ -125,7 +127,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	}
 	
 	public boolean hasDataFileExpired() {
-		FxmlContext.getBean(MainPanelController.class).showMessageWindow(messageManager.getMessage(MESSAGE_CHECKING_DATA));
+		mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_CHECKING_DATA));
 		
 		// Wait at least 1.5 seconds so message window lasts
 		// long enough to read

@@ -26,10 +26,6 @@ public class FxmlContext implements Constants {
 		);
 	}
 
-	public static <T> T getBean(Class<T> beanClass) {
-		return ApplicationContext.getBean(beanClass);
-	}
-
 	private static Object loadFxml(String fxmlFilename, Callback<Class<?>, Object> callback) {
 		try {
 			FXMLLoader loader = new FXMLLoader();

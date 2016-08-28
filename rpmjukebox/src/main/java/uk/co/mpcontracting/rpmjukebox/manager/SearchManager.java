@@ -46,6 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
+import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.ArtistField;
@@ -54,17 +56,19 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSort;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.DataParser;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 @Slf4j
 @Component
-public class SearchManager implements Constants {
+public class SearchManager extends EventAwareObject implements Constants {
 
 	@Autowired
 	private MessageManager messageManager;
 	
 	@Autowired
     private SettingsManager settingsManager;
+	
+	@Autowired
+	private MainPanelController mainPanelController;
     
     @Getter private List<String> genreList;
     @Getter private List<String> yearList;
@@ -114,16 +118,12 @@ public class SearchManager implements Constants {
         	
         	// See if we already have valid indexes, if not, build them
         	if (settingsManager.hasDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
-        		FxmlContext.getBean(MainPanelController.class).showMessageWindow(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX));
-
-        		DataParser.parse(this, settingsManager.getDataFile(), genreList, yearList);
-            	commitIndexes();
-            	settingsManager.setLastIndexedDate(LocalDateTime.now());
+        		indexData();
         	}
 
             log.debug("SearchManager initialised");
     	} catch (LockObtainFailedException e) {
-    		FxmlContext.getBean(MainPanelController.class).showMessageWindow(messageManager.getMessage(MESSAGE_ALREADY_RUNNING));
+    		mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_ALREADY_RUNNING));
     		
     		// Wait at least 5 seconds so message window lasts
     		// long enough to read
@@ -159,6 +159,16 @@ public class SearchManager implements Constants {
     		
     		indexSearcher = null;
     	}
+    }
+    
+    public void indexData() throws Exception {
+    	mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX));
+
+		DataParser.parse(this, settingsManager.getDataFile(), genreList, yearList);
+    	commitIndexes();
+    	settingsManager.setLastIndexedDate(LocalDateTime.now());
+    	
+    	fireEvent(Event.DATA_INDEXED);
     }
     
     private void commitIndexes() {

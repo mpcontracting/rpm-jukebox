@@ -15,7 +15,6 @@ import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 @Slf4j
 @Component
@@ -32,6 +31,9 @@ public class EqualizerController extends EventAwareObject {
 	
 	@Autowired
 	private MediaManager mediaManager;
+	
+	@Autowired
+	private MainPanelController mainPanelController;
 
 	@FXML
 	public void initialize() {
@@ -63,7 +65,7 @@ public class EqualizerController extends EventAwareObject {
 
 	@FXML
 	protected void handleOkButtonAction(ActionEvent event) {
-		FxmlContext.getBean(MainPanelController.class).getEqualizerWindow().close();
+		mainPanelController.getEqualizerWindow().close();
 	}
 	
 	@FXML
