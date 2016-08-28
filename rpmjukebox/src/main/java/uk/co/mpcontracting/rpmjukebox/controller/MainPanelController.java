@@ -206,6 +206,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 					Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
 					
 					ApplicationContext.getBean(MainPanelController.class).showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+						true,
 						new Runnable() {
 							@Override
 							public void run() {
@@ -230,14 +231,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		randomPlaylistSize = settingsManager.getPropertyInteger(PROP_RANDOM_PLAYLIST_SIZE);
 	}
 
-	public void showMessageWindow(String message) {
+	public void showMessageWindow(String message, boolean blurBackground) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
 				messageWindow.setMessage(message);
 				
 				if (!messageWindow.isShowing()) {
-					messageWindow.display();
+					messageWindow.display(blurBackground);
 				}
 			}
 		});
@@ -252,7 +253,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		});
 	}
 	
-	public void showConfirmWindow(String message, Runnable okRunnable, Runnable cancelRunnable) {
+	public void showConfirmWindow(String message, boolean blurBackground, Runnable okRunnable, Runnable cancelRunnable) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -260,10 +261,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				confirmWindow.setRunnables(okRunnable, cancelRunnable);
 				
 				if (!confirmWindow.isShowing()) {
-					confirmWindow.display();
+					confirmWindow.display(blurBackground);
 				}
 			}
 		});
+	}
+	
+	public void closeConfirmWindow() {
+		confirmWindow.close();
 	}
 
 	private void searchTextUpdated(String searchText) {
@@ -324,6 +329,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		if (playlist != null && playlist.getPlaylistId() > 0) {
 			showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+				true,
 				new Runnable() {
 					@Override
 					public void run() {
@@ -349,7 +355,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleSettingsButtonAction(ActionEvent event) {
 		log.debug("Settings button pressed");
 		
-		settingsWindow.display();
+		settingsWindow.display(true);
 	}
 	
 	@FXML
@@ -406,7 +412,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		log.debug("EQ button pressed");
 
 		equalizerController.updateSliderValues();
-		equalizerWindow.display();
+		equalizerWindow.display(true);
 	}
 	
 	@FXML

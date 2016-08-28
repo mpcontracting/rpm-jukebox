@@ -127,7 +127,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	}
 	
 	public boolean hasDataFileExpired() {
-		mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_CHECKING_DATA));
+		mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_CHECKING_DATA), true);
 		
 		// Wait at least 1.5 seconds so message window lasts
 		// long enough to read

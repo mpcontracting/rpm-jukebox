@@ -5,8 +5,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 
 @Slf4j
@@ -18,6 +18,9 @@ public class ConfirmController {
 	
 	@FXML
 	private Button cancelButton;
+	
+	@Autowired
+	private MainPanelController mainPanelController;
 
 	private Runnable okRunnable;
 	private Runnable cancelRunnable;
@@ -61,8 +64,8 @@ public class ConfirmController {
 		if (okRunnable != null) {
 			okRunnable.run();
 		}
-		
-		((Stage)okButton.getScene().getWindow()).close();
+
+		mainPanelController.closeConfirmWindow();
 	}
 	
 	@FXML
@@ -83,7 +86,7 @@ public class ConfirmController {
 		if (cancelRunnable != null) {
 			cancelRunnable.run();
 		}
-		
-		((Stage)cancelButton.getScene().getWindow()).close();
+
+		mainPanelController.closeConfirmWindow();
 	}
 }

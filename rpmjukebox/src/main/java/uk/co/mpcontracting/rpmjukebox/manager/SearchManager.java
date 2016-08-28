@@ -118,12 +118,12 @@ public class SearchManager extends EventAwareObject implements Constants {
         	
         	// See if we already have valid indexes, if not, build them
         	if (settingsManager.hasDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
-        		indexData();
+        		indexData(true);
         	}
 
             log.debug("SearchManager initialised");
     	} catch (LockObtainFailedException e) {
-    		mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_ALREADY_RUNNING));
+    		mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_ALREADY_RUNNING), true);
     		
     		// Wait at least 5 seconds so message window lasts
     		// long enough to read
@@ -161,8 +161,8 @@ public class SearchManager extends EventAwareObject implements Constants {
     	}
     }
     
-    public void indexData() throws Exception {
-    	mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX));
+    public void indexData(boolean blurBackground) throws Exception {
+    	mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX), blurBackground);
 
 		DataParser.parse(this, settingsManager.getDataFile(), genreList, yearList);
     	commitIndexes();

@@ -19,9 +19,9 @@ public class ConfirmWindow extends MessageWindow {
 	}
 	
 	@Override
-	public void display() {
+	public void display(boolean blurBackground) {
 		confirmController.setOkFocused();
 		
-		super.display();
+		super.display(blurBackground);
 	}
 }

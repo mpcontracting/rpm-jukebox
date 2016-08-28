@@ -13,6 +13,8 @@ import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 public class ModalWindow extends Stage {
 
+	private boolean blurBackground;
+	
 	public ModalWindow(Stage stage, String fxmlFile) {
 		super(StageStyle.TRANSPARENT);
 
@@ -30,14 +32,22 @@ public class ModalWindow extends Stage {
 		});
 	}
 
-	public void display() {
-		getOwner().getScene().getRoot().setEffect(new BoxBlur());
+	public void display(boolean blurBackground) {
+		this.blurBackground = blurBackground;
+		
+		if (blurBackground) {
+			getOwner().getScene().getRoot().setEffect(new BoxBlur());
+		}
+		
 		show();
 	}
 	
 	@Override
 	public void close() {
-		getOwner().getScene().getRoot().setEffect(null);
+		if (blurBackground) {
+			getOwner().getScene().getRoot().setEffect(null);
+		}
+		
 		super.close();
 	}
 }

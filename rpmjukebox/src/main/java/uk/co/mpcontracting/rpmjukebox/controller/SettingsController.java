@@ -31,14 +31,14 @@ public class SettingsController extends EventAwareObject {
 	@FXML
 	protected void handleReindexButtonAction(ActionEvent event) {
 		log.info("Re-index data button pressed");
-		
+
 		// Don't run this on the GUI thread
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					isReindexing = true;
-					searchManager.indexData();
+					searchManager.indexData(false);
 				} catch (Exception e) {
 					mainPanelController.closeMessageWindow();
 					isReindexing = false;
