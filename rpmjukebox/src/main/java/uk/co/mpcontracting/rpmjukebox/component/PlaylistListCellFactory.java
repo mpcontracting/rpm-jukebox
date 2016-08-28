@@ -45,12 +45,21 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 			@Override
 			public void handle(MouseEvent event) {
 				if (event.getButton() == MouseButton.PRIMARY) {
-					if (event.getClickCount() > 1) {
+					// This doesn't work as the default cell behaviour class WAY down the
+					// stack interprets a double click as a request to edit and doesn't
+					// forward the event onwards
+					/*if (event.getClickCount() > 1) {
 						// Double click
 						if (listCell != null && listCell.getItem() != null) {
 							playlistManager.playPlaylist(listCell.getItem().getPlaylistId());
 						}
 					} else {
+						// Single click
+						if (listCell != null && listCell.getItem() != null) {
+							fireEvent(Event.PLAYLIST_SELECTED, listCell.getItem().getPlaylistId());
+						}
+					}*/
+					if (event.getClickCount() == 1) {
 						// Single click
 						if (listCell != null && listCell.getItem() != null) {
 							fireEvent(Event.PLAYLIST_SELECTED, listCell.getItem().getPlaylistId());
