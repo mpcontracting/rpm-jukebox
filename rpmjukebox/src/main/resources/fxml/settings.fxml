@@ -2,9 +2,12 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-
+<?import javafx.scene.layout.RowConstraints?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.SettingsController">
    <bottom>
@@ -12,15 +15,88 @@
          <children>
             <Button mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
             <Button mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel" />
-            <Button mnemonicParsing="false" onAction="#handleReindexButtonAction" text="%settings.reindex" />
          </children>
       </HBox>
    </bottom>
    <center>
-      <BorderPane BorderPane.alignment="CENTER">
-         <bottom>
-            <Label text="%settings.copyright" BorderPane.alignment="CENTER" />
-         </bottom>
-      </BorderPane>
+      <GridPane BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints />
+          <ColumnConstraints />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints />
+          <RowConstraints />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" />
+          <RowConstraints />
+        </rowConstraints>
+         <children>
+            <HBox styleClass="buttonHbox" GridPane.columnSpan="2">
+               <children>
+                  <Label text="%settings.copyright" />
+               </children>
+            </HBox>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="1">
+               <children>
+                  <Label text="%settings.label.defaultVolume" />
+               </children>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <children>
+                  <TextField />
+               </children>
+            </HBox>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="2">
+               <children>
+                  <Label text="%settings.label.maxSearchHits" />
+               </children>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <children>
+                  <TextField />
+               </children>
+            </HBox>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="3">
+               <children>
+                  <Label text="%settings.label.maxPlaylistSize" />
+               </children>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="3">
+               <children>
+                  <TextField />
+               </children>
+            </HBox>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="4">
+               <children>
+                  <Label text="%settings.label.randomPlaylistSize" />
+               </children>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="4">
+               <children>
+                  <TextField />
+               </children>
+            </HBox>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="5">
+               <children>
+                  <Label text="%settings.label.cacheSizeMb" />
+               </children>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="5">
+               <children>
+                  <TextField />
+               </children>
+            </HBox>
+            <HBox prefWidth="250.0" styleClass="labelHbox" GridPane.rowIndex="6">
+               <children>
+                  <Label text="%settings.label.reindex" wrapText="true" />
+               </children>
+            </HBox>
+            <HBox prefWidth="150.0" styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="6">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#handleReindexButtonAction" text="%settings.button.reindex" />
+               </children>
+            </HBox>
+         </children>
+      </GridPane>
    </center>
 </BorderPane>
