@@ -63,7 +63,7 @@ public class EqualizerController extends EventAwareObject {
 
 	@FXML
 	protected void handleOkButtonAction(ActionEvent event) {
-		FxmlContext.getBean(MainPanelController.class).getEqualizerDialogue().close();
+		FxmlContext.getBean(MainPanelController.class).getEqualizerWindow().close();
 	}
 	
 	@FXML

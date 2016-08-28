@@ -234,6 +234,33 @@
     -fx-padding: 2;
 }
 
+.popUpPanel {
+	-fx-background-color: -jb-background-color;
+	-fx-border-color: -jb-border-color;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-padding: 5;
+}
+
+.popUpPanel .button {
+	-fx-background-color: -jb-background-color;
+	-fx-border-color: -jb-border-color;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-text-fill: -jb-foreground-color;
+}
+
+.buttonHbox {
+	-fx-alignment: center;
+	-fx-padding: 5 5 5 5;
+	-fx-spacing: 5;
+}
+
+.sliderHbox {
+	-fx-padding: 5 5 5 5;
+	-fx-spacing: 5;
+}
+
 /* Styles By Id */
 
 #searchPanel {
@@ -381,55 +408,7 @@
 	-fx-background-image: url('../images/random.png');
 }
 
-#equalizerPanel {
-	-fx-background-color: -jb-background-color;
-	-fx-border-color: -jb-border-color;
-    -fx-border-style: solid;
-    -fx-border-width: 1;
-}
-
-#equalizerPanel #sliderHbox {
-	-fx-padding: 5 5 5 5;
-	-fx-spacing: 5;
-}
-
-#equalizerPanel #buttonHbox {
-	-fx-alignment: center;
-	-fx-padding: 5 5 5 5;
-	-fx-spacing: 5;
-}
-
-#equalizerPanel #buttonHbox .button {
-	-fx-background-color: -jb-background-color;
-	-fx-border-color: -jb-border-color;
-    -fx-border-style: solid;
-    -fx-border-width: 1;
-    -fx-text-fill: -jb-foreground-color;
-}
-
-#messagePanel {
-	-fx-background-color: -jb-background-color;
-	-fx-border-color: -jb-border-color;
-    -fx-border-style: solid;
-    -fx-border-width: 1;
-    -fx-padding: 5;
-}
-
-#messagePanel #buttonHbox {
-	-fx-alignment: center;
-	-fx-padding: 5 5 5 5;
-	-fx-spacing: 5;
-}
-
-#messagePanel #buttonHbox .button {
-	-fx-background-color: -jb-background-color;
-	-fx-border-color: -jb-border-color;
-    -fx-border-style: solid;
-    -fx-border-width: 1;
-    -fx-text-fill: -jb-foreground-color;
-}
-
-#messagePanel #buttonHbox .button:focused {
+#focusableButton:focused {
 	-fx-background-color: -jb-foreground-color;
 	-fx-background-insets: 0;
     -fx-background-radius: 0;

@@ -137,7 +137,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@Autowired
 	private CacheManager cacheManager;
 
-	@Getter private ModalWindow equalizerDialogue;
+	@Getter private ModalWindow equalizerWindow;
+	@Getter private ModalWindow settingsWindow;
 	private MessageWindow messageWindow;
 	private ConfirmWindow confirmWindow;
 	private ObservableList<Playlist> observablePlaylists;
@@ -175,8 +176,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		playTimeLabel.setText(StringHelper.formatElapsedTime(Duration.ZERO, Duration.ZERO));
 		volumeSlider.setValue(mediaManager.getVolume() * 100);
 		
-		// Equalizer dialogue
-		equalizerDialogue = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "equalizer.fxml");
+		// Equalizer window
+		equalizerWindow = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "equalizer.fxml");
+		
+		// Settings window
+		settingsWindow = new ModalWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "settings.fxml");
 		
 		// Message window
 		messageWindow = new MessageWindow(FxmlContext.getBean(RpmJukebox.class).getStage(), "message.fxml");
@@ -337,7 +341,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handleSettingsButtonAction(ActionEvent event) {
-		log.info("Settings button pressed");
+		log.debug("Settings button pressed");
+		
+		settingsWindow.display();
 	}
 	
 	@FXML
@@ -394,7 +400,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		log.debug("EQ button pressed");
 
 		FxmlContext.getBean(EqualizerController.class).updateSliderValues();
-		equalizerDialogue.display();
+		equalizerWindow.display();
 	}
 	
 	@FXML
@@ -427,7 +433,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				addPlaylistButton.setDisable(false);
 				deletePlaylistButton.setDisable(false);
 				//exportPlaylistButton.setDisable(false);
-				//settingsButton.setDisable(false);
+				settingsButton.setDisable(false);
 				timeSlider.setDisable(false);
 				volumeSlider.setDisable(false);
 				shuffleButton.setDisable(false);

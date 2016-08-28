@@ -6,9 +6,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.media.EqualizerBand?>
 
-<BorderPane id="equalizerPanel" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.EqualizerController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.EqualizerController">
    <center>
-      <HBox id="sliderHbox" fx:id="sliderHbox">
+      <HBox fx:id="sliderHbox" styleClass="sliderHbox">
          <children>
             <Slider id="eq0" orientation="VERTICAL" value="0">
 				<min>
@@ -94,10 +94,10 @@
       </HBox>
    </center>
    <bottom>
-      <HBox id="buttonHbox">
+      <HBox styleClass="buttonHbox">
          <children>
-            <Button id="okButton" fx:id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
-            <Button id="resetButton" fx:id="resetButton" mnemonicParsing="false" onAction="#handleResetButtonAction" text="%button.reset" />
+            <Button fx:id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
+            <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleResetButtonAction" text="%button.reset" />
          </children>
       </HBox>
    </bottom>
