@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.SettingsController">
    <bottom>
@@ -27,15 +28,19 @@
         <rowConstraints>
           <RowConstraints />
           <RowConstraints />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" />
+            <RowConstraints />
           <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
         </rowConstraints>
          <children>
-            <HBox styleClass="buttonHbox" GridPane.columnSpan="2">
+            <VBox styleClass="buttonHbox" GridPane.columnSpan="2">
                <children>
-                  <Label text="%settings.copyright" />
+                  <Label styleClass="copyright1" text="%settings.copyright.1" />
+                  <Label styleClass="copyright2" text="%settings.copyright.2" />
                </children>
-            </HBox>
+            </VBox>
             <HBox styleClass="labelHbox" GridPane.rowIndex="1">
                <children>
                   <Label text="%settings.label.defaultVolume" />
@@ -43,7 +48,7 @@
             </HBox>
             <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <children>
-                  <TextField />
+                  <TextField fx:id="defaultVolumeTextField" />
                </children>
             </HBox>
             <HBox styleClass="labelHbox" GridPane.rowIndex="2">
@@ -53,7 +58,7 @@
             </HBox>
             <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <children>
-                  <TextField />
+                  <TextField fx:id="maxSearchHitsTextField" />
                </children>
             </HBox>
             <HBox styleClass="labelHbox" GridPane.rowIndex="3">
@@ -63,7 +68,7 @@
             </HBox>
             <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="3">
                <children>
-                  <TextField />
+                  <TextField fx:id="maxPlaylistSizeTextField" />
                </children>
             </HBox>
             <HBox styleClass="labelHbox" GridPane.rowIndex="4">
@@ -73,7 +78,7 @@
             </HBox>
             <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <children>
-                  <TextField />
+                  <TextField fx:id="randomPlaylistSizeTextField" />
                </children>
             </HBox>
             <HBox styleClass="labelHbox" GridPane.rowIndex="5">
@@ -83,7 +88,7 @@
             </HBox>
             <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="5">
                <children>
-                  <TextField />
+                  <TextField fx:id="cacheSizeMbTextField" />
                </children>
             </HBox>
             <HBox prefWidth="250.0" styleClass="labelHbox" GridPane.rowIndex="6">

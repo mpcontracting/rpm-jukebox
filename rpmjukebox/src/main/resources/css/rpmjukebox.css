@@ -269,6 +269,15 @@
 	-fx-spacing: 5;
 }
 
+.copyright1 {
+	-fx-font-size: 18pt;
+	-fx-font-weight: bold;
+}
+
+.copyright2 {
+	-fx-font-size: 8pt;
+}
+
 /* Styles By Id */
 
 #searchPanel {

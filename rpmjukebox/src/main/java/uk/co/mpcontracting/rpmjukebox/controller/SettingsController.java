@@ -2,17 +2,34 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.TextField;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
+import uk.co.mpcontracting.rpmjukebox.model.SystemSettings;
 
 @Slf4j
 @Component
 public class SettingsController extends EventAwareObject {
 
+	@FXML
+	private TextField defaultVolumeTextField;
+	
+	@FXML
+	private TextField maxSearchHitsTextField;
+	
+	@FXML
+	private TextField maxPlaylistSizeTextField;
+	
+	@FXML
+	private TextField randomPlaylistSizeTextField;
+	
+	@FXML
+	private TextField cacheSizeMbTextField;
+	
 	@Autowired
 	private SearchManager searchManager;
 	
@@ -26,6 +43,16 @@ public class SettingsController extends EventAwareObject {
 		log.info("Initialising SettingsController");
 		
 		isReindexing = false;
+	}
+	
+	public void bindSystemSettings(SystemSettings systemSettings) {
+		log.info("Binding system settings - " + systemSettings);
+		
+		defaultVolumeTextField.setText(Double.toString(systemSettings.getDefaultVolume()));
+		maxSearchHitsTextField.setText(Integer.toString(systemSettings.getMaxSearchHits()));
+		maxPlaylistSizeTextField.setText(Integer.toString(systemSettings.getMaxPlaylistSize()));
+		randomPlaylistSizeTextField.setText(Integer.toString(systemSettings.getRandomPlaylistSize()));
+		cacheSizeMbTextField.setText(Integer.toString(systemSettings.getCacheSizeMb()));
 	}
 	
 	@FXML

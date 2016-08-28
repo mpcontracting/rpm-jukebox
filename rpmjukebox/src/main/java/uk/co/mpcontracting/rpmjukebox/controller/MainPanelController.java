@@ -45,6 +45,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
+import uk.co.mpcontracting.rpmjukebox.model.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
@@ -142,6 +143,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private EqualizerController equalizerController;
+	
+	@Autowired
+	private SettingsController settingsController;
 
 	@Getter private ModalWindow equalizerWindow;
 	@Getter private ModalWindow settingsWindow;
@@ -354,6 +358,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@FXML
 	protected void handleSettingsButtonAction(ActionEvent event) {
 		log.debug("Settings button pressed");
+		
+		settingsController.bindSystemSettings(new SystemSettings(
+			0.8,
+			250,
+			1000,
+			50,
+			500
+		));
 		
 		settingsWindow.display(true);
 	}
