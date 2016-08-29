@@ -60,6 +60,10 @@
     -fx-background-radius: 0, 0, 0;
 }
 
+.check-box:selected .mark {
+    -fx-background-color: -jb-foreground-color;
+}
+
 .context-menu {
 	-fx-background-color: -jb-background-color;
 	-fx-border-color: -jb-border-color;
