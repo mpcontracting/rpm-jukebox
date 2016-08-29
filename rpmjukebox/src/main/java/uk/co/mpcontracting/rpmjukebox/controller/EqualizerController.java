@@ -5,7 +5,6 @@ import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +21,6 @@ public class EqualizerController extends EventAwareObject {
 	
 	@FXML
 	private HBox sliderHbox;
-
-	@FXML
-	private Button okButton;
-	
-	@FXML
-	private Button resetButton;
 	
 	@Autowired
 	private MediaManager mediaManager;
