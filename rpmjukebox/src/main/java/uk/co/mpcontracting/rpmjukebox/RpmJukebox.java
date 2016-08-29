@@ -24,6 +24,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
@@ -117,22 +118,19 @@ public class RpmJukebox extends Application implements Constants {
 		parent.requestFocus();
 		
 		// Initialise data in a new thread for GUI responsiveness
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					searchManager.initialise();
-					settingsManager.loadSettings();
-					
-					mainPanelController.closeMessageWindow();
-	
-					EventManager.getInstance().fireEvent(Event.APPLICATION_INITIALISED);
-					isInitialised = true;
-				} catch (Exception e) {
-					log.error("Error initialising data", e);
-				}
+		ThreadRunner.run(() -> {
+			try {
+				searchManager.initialise();
+				settingsManager.loadSettings();
+				
+				mainPanelController.closeMessageWindow();
+
+				EventManager.getInstance().fireEvent(Event.APPLICATION_INITIALISED);
+				isInitialised = true;
+			} catch (Exception e) {
+				log.error("Error initialising data", e);
 			}
-		}).start();
+		});
 	}
 	
 	@Override

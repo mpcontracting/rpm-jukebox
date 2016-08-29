@@ -12,6 +12,7 @@ import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
@@ -89,21 +90,18 @@ public class SettingsController extends EventAwareObject {
 	
 	@FXML
 	protected void handleReindexButtonAction(ActionEvent event) {
-		log.info("Re-index data button pressed");
+		log.debug("Re-index data button pressed");
 
 		// Don't run this on the GUI thread
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					isReindexing = true;
-					searchManager.indexData(false);
-				} catch (Exception e) {
-					mainPanelController.closeMessageWindow();
-					isReindexing = false;
-				}
+		ThreadRunner.run(() -> {
+			try {
+				isReindexing = true;
+				searchManager.indexData(false);
+			} catch (Exception e) {
+				mainPanelController.closeMessageWindow();
+				isReindexing = false;
 			}
-		}).start();
+		});
 	}
 	
 	@FXML

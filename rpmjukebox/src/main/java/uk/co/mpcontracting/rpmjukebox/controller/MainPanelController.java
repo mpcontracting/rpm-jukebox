@@ -2,7 +2,6 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import java.util.Collections;
 
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
@@ -51,6 +50,7 @@ import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
@@ -235,37 +235,28 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	}
 
 	public void showMessageWindow(String message, boolean blurBackground) {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				messageWindow.setMessage(message);
-				
-				if (!messageWindow.isShowing()) {
-					messageWindow.display(blurBackground);
-				}
+		ThreadRunner.runOnGui(() -> {
+			messageWindow.setMessage(message);
+			
+			if (!messageWindow.isShowing()) {
+				messageWindow.display(blurBackground);
 			}
 		});
 	}
 	
 	public void closeMessageWindow() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				messageWindow.close();
-			}
+		ThreadRunner.runOnGui(() -> {
+			messageWindow.close();
 		});
 	}
 	
 	public void showConfirmWindow(String message, boolean blurBackground, Runnable okRunnable, Runnable cancelRunnable) {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				confirmWindow.setMessage(message);
-				confirmWindow.setRunnables(okRunnable, cancelRunnable);
-				
-				if (!confirmWindow.isShowing()) {
-					confirmWindow.display(blurBackground);
-				}
+		ThreadRunner.runOnGui(() -> {
+			confirmWindow.setMessage(message);
+			confirmWindow.setRunnables(okRunnable, cancelRunnable);
+			
+			if (!confirmWindow.isShowing()) {
+				confirmWindow.display(blurBackground);
 			}
 		});
 	}
