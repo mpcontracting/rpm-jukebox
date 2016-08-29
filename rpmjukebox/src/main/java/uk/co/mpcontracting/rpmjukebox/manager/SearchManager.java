@@ -42,6 +42,7 @@ import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 
 import lombok.Getter;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
@@ -161,6 +162,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     	}
     }
     
+    @Synchronized
     public void indexData(boolean blurBackground) throws Exception {
     	mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX), blurBackground);
 
@@ -243,6 +245,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         }
     }
     
+    @Synchronized
     public List<Track> search(TrackSearch trackSearch) {
     	log.debug("Performing search");
     	
@@ -288,6 +291,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         }
     }
     
+    @Synchronized
     public List<Track> getRandomPlaylist(int playlistSize) {
     	log.debug("Getting random playlist size - " + playlistSize);
     	
@@ -353,6 +357,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     	return null;
     }
     
+    @Synchronized
     public Artist getArtistById(String artistId) {
     	if (artistManager == null) {
             throw new RuntimeException("Cannot search before artist index is initialised");
@@ -384,6 +389,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     	}
     }
     
+    @Synchronized
 	public Track getTrackById(String trackId) {
 		if (trackManager == null) {
             throw new RuntimeException("Cannot search before track index is initialised");
@@ -415,6 +421,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     	}
 	}
 	
+    @Synchronized
 	public List<Track> getAlbumById(String albumId) {
 		if (trackManager == null) {
 			throw new RuntimeException("Cannot search before track index is initialised");
