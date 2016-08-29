@@ -25,7 +25,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
@@ -208,7 +207,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
 					Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
 					
-					ApplicationContext.getBean(MainPanelController.class).showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+					showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
 						true,
 						new Runnable() {
 							@Override
