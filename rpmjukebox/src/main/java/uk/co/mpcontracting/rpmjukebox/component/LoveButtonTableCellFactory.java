@@ -1,10 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import javafx.event.EventHandler;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
@@ -29,23 +27,20 @@ public class LoveButtonTableCellFactory<S, T> extends EventAwareObject implement
 		// Mouse Events //
 		//////////////////
 		
-		tableCell.setOnMouseClicked(new EventHandler<MouseEvent> () {
-			@Override
-			public void handle(MouseEvent event) {
-				if (event.getButton() == MouseButton.PRIMARY) {
-					if (event.getClickCount() == 1) {
-						// Single click
-						if (tableCell != null && tableCell.getItem() != null) {
-							Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
-							
-							if (playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, track.getTrackId())) {
-								playlistManager.removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-							} else {
-								playlistManager.addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
-							}
-							
-							fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistManager.getCurrentPlaylistId());
+		tableCell.setOnMouseClicked((event) -> {
+			if (event.getButton() == MouseButton.PRIMARY) {
+				if (event.getClickCount() == 1) {
+					// Single click
+					if (tableCell != null && tableCell.getItem() != null) {
+						Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
+
+						if (playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, track.getTrackId())) {
+							playlistManager.removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
+						} else {
+							playlistManager.addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track.clone());
 						}
+						
+						fireEvent(Event.PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
 					}
 				}
 			}

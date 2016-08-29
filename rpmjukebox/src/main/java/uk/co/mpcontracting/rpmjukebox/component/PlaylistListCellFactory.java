@@ -180,7 +180,7 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 				Dragboard dragboard = event.getDragboard();
 		
 				if (dragboard.hasContent(DND_TRACK_DATA_FORMAT)) {
-					playlistManager.addTrackToPlaylist(listCell.getItem().getPlaylistId(), (Track)dragboard.getContent(DND_TRACK_DATA_FORMAT));
+					playlistManager.addTrackToPlaylist(listCell.getItem().getPlaylistId(), ((Track)dragboard.getContent(DND_TRACK_DATA_FORMAT)).clone());
 		
 					event.setDropCompleted(true);
 				}

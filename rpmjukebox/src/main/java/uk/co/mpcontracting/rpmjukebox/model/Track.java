@@ -10,7 +10,7 @@ import lombok.ToString;
 
 @ToString(includeFieldNames = true)
 @EqualsAndHashCode(of = {"artistId", "albumId", "trackId"})
-public class Track implements Serializable {
+public class Track implements Serializable, Cloneable {
 	private static final long serialVersionUID = 55518786963702600L;
 	
 	public Track(String artistId, String artistName, String artistImage, String albumId, String albumName, String albumImage,
@@ -46,4 +46,16 @@ public class Track implements Serializable {
     
     @Getter @Setter private int playlistId;
     @Getter @Setter private int playlistIndex;
+    
+    @Override
+    public Track clone() {
+    	Track clone = new Track(
+    		artistId, artistName, artistImage, albumId, albumName, albumImage,
+    		year, trackId, trackName, number, location, isPreferred, genres
+    	);
+    	clone.setPlaylistId(playlistId);
+    	clone.setPlaylistIndex(playlistIndex);
+    	
+    	return clone;
+    }
 }
