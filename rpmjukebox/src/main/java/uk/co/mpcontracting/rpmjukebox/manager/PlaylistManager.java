@@ -83,6 +83,24 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		return Collections.unmodifiableList(playlists);
 	}
 	
+	public void addPlaylist(Playlist playlist) {
+		log.debug("Adding playlist - " + playlist);
+		
+		int playlistId = 1;
+		
+		synchronized (playlistMap) {
+			// Find the first ID available
+			while (playlistMap.get(playlistId) != null) {
+				playlistId++;
+			}
+			
+			playlist.setPlaylistId(playlistId);
+			playlistMap.put(playlistId, playlist);
+			
+			log.debug("Added playlist - " + playlistId);
+		}
+	}
+	
 	public void createPlaylist() {
 		createPlaylist(messageManager.getMessage(MESSAGE_PLAYLIST_DEFAULT), true);
 	}

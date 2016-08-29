@@ -1,6 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+
+import com.google.gson.reflect.TypeToken;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,10 +18,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +48,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
+import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
@@ -154,6 +164,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	private int previousSecondsCutoff;
 	private int randomPlaylistSize;
+	private String playlistExtensionFilter;
 
 	@FXML
 	public void initialize() {
@@ -217,6 +228,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		previousSecondsCutoff = settingsManager.getPropertyInteger(PROP_PREVIOUS_SECONDS_CUTOFF);
 		randomPlaylistSize = settingsManager.getPropertyInteger(PROP_RANDOM_PLAYLIST_SIZE);
+		playlistExtensionFilter = "*." + settingsManager.getPropertyString(PROP_PLAYLIST_FILE_EXTENSION);
 	}
 
 	public void showMessageWindow(String message, boolean blurBackground) {
@@ -319,7 +331,57 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handleImportPlaylistButtonAction(ActionEvent event) {
-		log.info("Import playlist button pressed");
+		log.debug("Import playlist button pressed");
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle(messageManager.getMessage(MESSAGE_EXPORT_PLAYLIST_TITLE));
+		fileChooser.getExtensionFilters().add(new ExtensionFilter(messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter), 
+			playlistExtensionFilter));
+		
+		rpmJukebox.getStage().getScene().getRoot().setEffect(new BoxBlur());
+		
+		int currentPlaylistSelection = playlistPanelListView.getSelectionModel().getSelectedIndex();
+		
+		File file = fileChooser.showOpenDialog(rpmJukebox.getStage());
+
+		if (file != null) {
+			List<PlaylistSettings> playlists = null;
+			
+			try (FileReader fileReader = new FileReader(file)) {
+				playlists = settingsManager.getGson().fromJson(fileReader, new TypeToken<ArrayList<PlaylistSettings>>(){}.getType());
+				
+				if (playlists != null) {
+					for (PlaylistSettings playlistSettings : playlists) {
+						Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), 
+							settingsManager.getPropertyInteger(PROP_MAX_PLAYLIST_SIZE));
+
+						for (String trackId : playlistSettings.getTracks()) {
+							Track track = searchManager.getTrackById(trackId);
+							
+							if (track != null) {
+								playlist.addTrack(track);
+							}
+						}
+						
+						playlistManager.addPlaylist(playlist);
+					}
+					
+					
+					// Update the observable lists
+					updateObservablePlaylists();
+					
+					// Select the last selected playlist
+					playlistPanelListView.getSelectionModel().select(currentPlaylistSelection);
+					playlistPanelListView.getFocusModel().focus(currentPlaylistSelection);
+				}
+			} catch (Exception e) {
+				log.error("Unable to import playlists file - " + file.getAbsolutePath(), e);
+				
+				return;
+			}
+		}
+		
+		rpmJukebox.getStage().getScene().getRoot().setEffect(null);
 	}
 	
 	@FXML

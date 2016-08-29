@@ -22,6 +22,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableCell;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableModel;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
@@ -47,6 +48,9 @@ public class ExportController implements Constants {
 	@FXML
 	private Button cancelButton;
 
+	@Autowired
+	private RpmJukebox rpmJukebox;
+	
 	@Autowired
 	private MessageManager messageManager;
 	
@@ -142,7 +146,7 @@ public class ExportController implements Constants {
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter), 
 				playlistExtensionFilter));
 			
-			File file = fileChooser.showSaveDialog(cancelButton.getScene().getWindow());
+			File file = fileChooser.showSaveDialog(rpmJukebox.getStage());
 			
 			if (file != null) {
 				List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();
@@ -154,7 +158,7 @@ public class ExportController implements Constants {
 				try (FileWriter fileWriter = new FileWriter(file)) {
 					fileWriter.write(settingsManager.getGson().toJson(playlists));
 				} catch (Exception e) {
-					log.error("Unable to export playlists file", e);
+					log.error("Unable to export playlists file - " + file.getAbsolutePath(), e);
 				}
 				
 				mainPanelController.getExportWindow().close();

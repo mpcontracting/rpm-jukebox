@@ -40,6 +40,7 @@ public interface Constants {
     public static final String MESSAGE_TRACK_TABLE_CONTEXT_CREATE_PLAYLIST_FROM_ALBUM	= "trackTable.context.createPlaylistFromAlbum";
     public static final String MESSAGE_TRACK_TABLE_CONTEXT_DELETE_TRACK_FROM_PLAYLIST	= "trackTable.context.deleteTrackFromPlaylist";
     public static final String MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER						= "file.chooser.playlist.filter";
+    public static final String MESSAGE_IMPORT_PLAYLIST_TITLE							= "import.playlist.title";
     public static final String MESSAGE_EXPORT_PLAYLIST_TITLE							= "export.playlist.title";
 
     // Styles

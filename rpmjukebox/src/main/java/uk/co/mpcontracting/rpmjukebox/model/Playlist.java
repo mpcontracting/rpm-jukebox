@@ -16,7 +16,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 @ToString(includeFieldNames = true)
 @EqualsAndHashCode(of = {"playlistId"})
 public class Playlist implements Constants, Iterable<Track> {
-    @Getter private int playlistId;
+    @Getter @Setter private int playlistId;
     @Getter @Setter private String name;
     private int maxPlaylistSize;
     private List<Track> tracks;
