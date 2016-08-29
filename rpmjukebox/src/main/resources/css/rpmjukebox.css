@@ -7,7 +7,7 @@
 	-jb-error-color: #cf0000;
 	-jb-pressed-opacity: 0.6;
 	
-	/* Button colour 5d9bc3 */
+	/* Button toggle colour 5d9bc3 */
 	
 	-fx-background-color: -jb-background-color;
 	-fx-opacity: 1;
@@ -307,19 +307,19 @@
     -fx-border-width: 1 0 0 0;
 }
 
-#playlistControlPanel #plusMinusHBox {
+#playlistPanel #plusMinusHBox {
 	-fx-alignment: center;
     -fx-spacing: 5;
     -fx-padding: 0 0 0 5;
 }
 
-#playlistControlPanel #importExportHBox {
+#playlistPanel #importExportHBox {
 	-fx-alignment: center;
     -fx-spacing: 5;
     -fx-padding: 0;
 }
 
-#playlistControlPanel #saveSettingsHBox {
+#playlistPanel #saveSettingsHBox {
 	-fx-alignment: center;
     -fx-spacing: 5;
     -fx-padding: 0 5 0 0;

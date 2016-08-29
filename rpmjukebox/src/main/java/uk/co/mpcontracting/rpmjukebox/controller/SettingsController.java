@@ -12,15 +12,13 @@ import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
-public class SettingsController extends EventAwareObject {
+public class SettingsController extends EventAwareObject implements Constants {
 
-	private static final String VALID_STYLE		= "-fx-border-color: -jb-border-color";
-	private static final String INVALID_STYLE	= "-fx-border-color: -jb-error-color";
-	
 	@FXML
 	private TextField cacheSizeMbTextField;
 	
@@ -79,10 +77,10 @@ public class SettingsController extends EventAwareObject {
 		} catch (Exception e) {}
 		
 		if (!isCacheSizeMbValid) {
-			cacheSizeMbTextField.setStyle(INVALID_STYLE);
+			cacheSizeMbTextField.setStyle(STYLE_INVALID_BORDER);
 			isFormValid = false;
 		} else {
-			cacheSizeMbTextField.setStyle(VALID_STYLE);
+			cacheSizeMbTextField.setStyle(STYLE_VALID_BORDER);
 		}
 		
 		return isFormValid;

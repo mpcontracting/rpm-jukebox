@@ -141,9 +141,13 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private SettingsController settingsController;
+	
+	@Autowired
+	private ExportController exportController;
 
 	@Getter private ModalWindow equalizerWindow;
 	@Getter private ModalWindow settingsWindow;
+	@Getter private ModalWindow exportWindow;
 	private MessageWindow messageWindow;
 	private ConfirmWindow confirmWindow;
 	private ObservableList<Playlist> observablePlaylists;
@@ -179,6 +183,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		// Settings window
 		settingsWindow = new ModalWindow(rpmJukebox.getStage(), "settings.fxml");
+		
+		// Export window
+		exportWindow = new ModalWindow(rpmJukebox.getStage(), "export.fxml");
 		
 		// Message window
 		messageWindow = new MessageWindow(rpmJukebox.getStage(), "message.fxml");
@@ -317,7 +324,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handleExportPlaylistButtonAction(ActionEvent event) {
-		log.info("Export playlist button pressed");
+		log.debug("Export playlist button pressed");
+		
+		exportController.bindPlaylists();
+		exportWindow.display(true);
 	}
 	
 	@FXML

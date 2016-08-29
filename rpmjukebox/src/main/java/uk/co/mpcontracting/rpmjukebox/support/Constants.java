@@ -42,6 +42,8 @@ public interface Constants {
     // Styles
     public static final String STYLE_LOVE_BUTTON_ON										= "loveButtonOn";
     public static final String STYLE_LOVE_BUTTON_OFF									= "loveButtonOff";
+    public static final String STYLE_VALID_BORDER										= "-fx-border-color: -jb-border-color";
+    public static final String STYLE_INVALID_BORDER										= "-fx-border-color: -jb-error-color";
     
     // Images
     public static final String IMAGE_WINDOW_ICON										= "/images/window-icon.png";
