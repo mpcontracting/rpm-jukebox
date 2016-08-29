@@ -89,6 +89,7 @@ public class RpmJukebox extends Application implements Constants {
 			log.info("====================================================");
 			log.info("====================================================");
 			log.info("====================================================");
+			log.info("Java Version - " + System.getProperty("java.version"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

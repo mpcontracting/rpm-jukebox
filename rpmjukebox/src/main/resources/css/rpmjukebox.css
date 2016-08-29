@@ -54,6 +54,12 @@
 	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
 }
 
+.check-box .box {
+	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+	-fx-background-insets: 0, 1, 1;
+    -fx-background-radius: 0, 0, 0;
+}
+
 .context-menu {
 	-fx-background-color: -jb-background-color;
 	-fx-border-color: -jb-border-color;
@@ -277,6 +283,10 @@
 
 .copyright2 {
 	-fx-font-size: 8pt;
+}
+
+.playlistTableView .table-cell {
+    -fx-border-width: 0;
 }
 
 /* Styles By Id */

@@ -9,11 +9,16 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.rpmjukebox.component.ExportPlaylistListCellFactory;
+import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableCell;
+import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableModel;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
@@ -26,7 +31,13 @@ import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 public class ExportController extends EventAwareObject implements Constants {
 
 	@FXML
-	private ListView<Playlist> playlistListView;
+	private TableView<PlaylistTableModel> playlistTableView;
+	
+	@FXML
+	private TableColumn<PlaylistTableModel, Boolean> selectColumn;
+
+	@FXML
+	private TableColumn<PlaylistTableModel, String> playlistColumn;
 	
 	@FXML
 	private Button cancelButton;
@@ -37,7 +48,7 @@ public class ExportController extends EventAwareObject implements Constants {
 	@Autowired
 	private MainPanelController mainPanelController;
 	
-	private ObservableList<Playlist> observablePlaylists;
+	private ObservableList<PlaylistTableModel> observablePlaylists;
 	private Set<Integer> playlistsToExport;
 	
 	@FXML
@@ -45,9 +56,35 @@ public class ExportController extends EventAwareObject implements Constants {
 		log.info("Initialising ExportController");
 		
 		observablePlaylists = FXCollections.observableArrayList();
-		playlistListView.setCellFactory(new ExportPlaylistListCellFactory());
-		playlistListView.setItems(observablePlaylists);
+		playlistTableView.setPlaceholder(new Label(""));
+		playlistTableView.setItems(observablePlaylists);
+		playlistTableView.setEditable(true);
+		playlistTableView.setSelectionModel(null);
 		
+		// Hide the table header
+		playlistTableView.widthProperty().addListener((observable, oldValue, newValue) -> {
+			Pane header = (Pane)playlistTableView.lookup("TableHeaderRow");
+			
+			if (header != null && header.isVisible()) {
+				header.setMaxHeight(0);
+				header.setMinHeight(0);
+				header.setPrefHeight(0);
+				header.setVisible(false);
+				header.setManaged(false);
+			}
+		});
+
+		// Cell factories
+		selectColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectColumn));
+		playlistColumn.setCellFactory(tableColumn -> { return new PlaylistTableCell<PlaylistTableModel, String>(); });
+		
+		// Cell value factories
+		selectColumn.setCellValueFactory(cellData -> cellData.getValue().getSelected());
+		playlistColumn.setCellValueFactory(cellData -> cellData.getValue().getName());
+		
+		// Set the select column to be editable
+		selectColumn.setEditable(true);
+
 		playlistsToExport = new HashSet<Integer>();
 	}
 	
@@ -59,7 +96,13 @@ public class ExportController extends EventAwareObject implements Constants {
 		
 		for (Playlist playlist : playlists) {
 			if (playlist.getPlaylistId() > 0 || playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
-				observablePlaylists.add(playlist);
+				PlaylistTableModel tableModel = new PlaylistTableModel(playlist);
+				
+				tableModel.getSelected().addListener((observable, oldValue, newValue) -> {
+					setPlaylistToExport(tableModel.getPlaylist().getPlaylistId(), newValue);
+				});
+				
+				observablePlaylists.add(tableModel);
 			}
 		}
 
