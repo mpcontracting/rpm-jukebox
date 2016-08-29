@@ -313,6 +313,12 @@
     -fx-padding: 0 0 0 5;
 }
 
+#playlistControlPanel #importExportHBox {
+	-fx-alignment: center;
+    -fx-spacing: 5;
+    -fx-padding: 0;
+}
+
 #playlistControlPanel #saveSettingsHBox {
 	-fx-alignment: center;
     -fx-spacing: 5;
@@ -327,8 +333,12 @@
 	-fx-background-image: url('../images/minus.png');
 }
 
+#playlistPanel #importPlaylistButton {
+	-fx-background-image: url('../images/import.png');
+}
+
 #playlistPanel #exportPlaylistButton {
-	-fx-background-image: url('../images/save.png');
+	-fx-background-image: url('../images/export.png');
 }
 
 #playlistPanel #settingsButton {

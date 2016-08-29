@@ -65,6 +65,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private Button deletePlaylistButton;
 	
 	@FXML
+	private Button importPlaylistButton;
+	
+	@FXML
 	private Button exportPlaylistButton;
 	
 	@FXML
@@ -308,6 +311,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	}
 	
 	@FXML
+	protected void handleImportPlaylistButtonAction(ActionEvent event) {
+		log.info("Import playlist button pressed");
+	}
+	
+	@FXML
 	protected void handleExportPlaylistButtonAction(ActionEvent event) {
 		log.info("Export playlist button pressed");
 	}
@@ -406,7 +414,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				searchTextField.setDisable(false);
 				addPlaylistButton.setDisable(false);
 				deletePlaylistButton.setDisable(false);
-				//exportPlaylistButton.setDisable(false);
+				importPlaylistButton.setDisable(false);
+				exportPlaylistButton.setDisable(false);
 				settingsButton.setDisable(false);
 				timeSlider.setDisable(false);
 				volumeSlider.setDisable(false);

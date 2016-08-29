@@ -48,10 +48,7 @@
                <right>
                   <HBox id="saveSettingsHBox" minHeight="34.0" prefHeight="34.0">
                      <children>
-                        <Button id="exportPlaylistButton" fx:id="exportPlaylistButton" disable="true" mnemonicParsing="false" onAction="#handleExportPlaylistButtonAction" prefHeight="20.0" prefWidth="20.0">
-                           <tooltip>
-                              <Tooltip text="%tooltip.exportPlaylist" />
-                           </tooltip></Button>
+                        <Button disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" />
                         <Button id="settingsButton" fx:id="settingsButton" disable="true" mnemonicParsing="false" onAction="#handleSettingsButtonAction" prefHeight="20.0" prefWidth="20.0">
                            <tooltip>
                               <Tooltip text="%tooltip.settings" />
@@ -59,6 +56,21 @@
                      </children>
                   </HBox>
                </right>
+               <center>
+                  <HBox id="importExportHBox" minHeight="34.0" prefHeight="34.0">
+                     <children>
+                        <Button id="importPlaylistButton" fx:id="importPlaylistButton" disable="true" mnemonicParsing="false" onAction="#handleImportPlaylistButtonAction" prefHeight="20.0" prefWidth="20.0">
+                           <tooltip>
+                              <Tooltip text="%tooltip.importPlaylist" />
+                           </tooltip>
+                        </Button>
+                        <Button id="exportPlaylistButton" fx:id="exportPlaylistButton" disable="true" mnemonicParsing="false" onAction="#handleExportPlaylistButtonAction" prefHeight="20.0" prefWidth="20.0">
+                           <tooltip>
+                              <Tooltip text="%tooltip.exportPlaylist" />
+                           </tooltip></Button>
+                     </children>
+                  </HBox>
+               </center>
             </BorderPane>
          </bottom>
       </BorderPane>
