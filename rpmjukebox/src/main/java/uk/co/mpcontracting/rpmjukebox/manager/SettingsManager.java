@@ -33,6 +33,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.settings.EqBand;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.settings.Settings;
+import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.settings.Window;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
@@ -60,6 +61,7 @@ public class SettingsManager implements InitializingBean, Constants {
 
 	private File configDirectory;
 	@Getter private URL dataFile;
+	@Getter private SystemSettings systemSettings;
 	
 	private Gson gson;
 	private boolean settingsLoaded;
@@ -259,6 +261,8 @@ public class SettingsManager implements InitializingBean, Constants {
 		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_SETTINGS));
 		
 		if (!settingsFile.exists()) {
+			initialiseDefaultSystemSettings();
+			
 			settingsLoaded = true;
 			saveSettings();
 			return;
@@ -279,6 +283,13 @@ public class SettingsManager implements InitializingBean, Constants {
 		playlistManager.setShuffle(settings.isShuffle(), true);
 		playlistManager.setRepeat(settings.getRepeat());
 		
+		// System settings
+		systemSettings = settings.getSystemSettings();
+		
+		if (systemSettings == null) {
+			initialiseDefaultSystemSettings();
+		}
+
 		// Equalizer
 		if (settings.getEqBands() != null) {
 			for (EqBand eqBand : settings.getEqBands()) {
@@ -334,6 +345,9 @@ public class SettingsManager implements InitializingBean, Constants {
 		settings.setShuffle(playlistManager.isShuffle());
 		settings.setRepeat(playlistManager.getRepeat());
 		
+		// System settings
+		settings.setSystemSettings(systemSettings);
+		
 		// Equalizer
 		Equalizer equalizer = mediaManager.getEqualizer();
 		List<EqBand> eqBands = new ArrayList<EqBand>();
@@ -373,5 +387,10 @@ public class SettingsManager implements InitializingBean, Constants {
 		} catch (Exception e) {
 			log.error("Unable to save settings file", e);
 		}
+	}
+	
+	private void initialiseDefaultSystemSettings() {
+		systemSettings = new SystemSettings();
+		systemSettings.setCacheSizeMb(getPropertyInteger(PROP_CACHE_SIZE_MB));
 	}
 }

@@ -29,8 +29,7 @@ public class CacheManager implements InitializingBean, Constants {
 	
 	private File cacheDirectory;
 	private int internalJettyPort;
-	private int cacheSizeMb;
-	
+
 	private Comparator<File> timestampComparator;
 	
 	@Override
@@ -48,8 +47,7 @@ public class CacheManager implements InitializingBean, Constants {
 		}
 		
 		internalJettyPort = settingsManager.getPropertyInteger(PROP_INTERNAL_JETTY_PORT);
-		cacheSizeMb = settingsManager.getPropertyInteger(PROP_CACHE_SIZE_MB);
-		
+
 		timestampComparator = new Comparator<File>() {
 			@Override
 			public int compare(File file1, File file2) {
@@ -115,6 +113,8 @@ public class CacheManager implements InitializingBean, Constants {
 	}
 	
 	private void trimCache() {
+		int cacheSizeMb = settingsManager.getSystemSettings().getCacheSizeMb();
+		
 		log.debug("Trimming the cache to " + cacheSizeMb + "Mb");
 		
 		List<File> files = new ArrayList<File>();

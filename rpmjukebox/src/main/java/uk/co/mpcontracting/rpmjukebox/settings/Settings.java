@@ -11,6 +11,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 public class Settings {
 	@Getter @Setter private boolean shuffle;
 	@Getter @Setter private Repeat repeat;
+	@Getter @Setter private SystemSettings systemSettings;
 	@Getter @Setter private List<EqBand> eqBands;
 	@Getter @Setter private List<PlaylistSettings> playlists;
 }

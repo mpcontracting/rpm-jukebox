@@ -11,14 +11,6 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.SettingsController">
-   <bottom>
-      <HBox styleClass="buttonHbox" BorderPane.alignment="CENTER">
-         <children>
-            <Button mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
-            <Button mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel" />
-         </children>
-      </HBox>
-   </bottom>
    <center>
       <GridPane BorderPane.alignment="CENTER">
         <columnConstraints>
@@ -28,11 +20,9 @@
         <rowConstraints>
           <RowConstraints />
           <RowConstraints />
-            <RowConstraints />
           <RowConstraints />
-            <RowConstraints />
-            <RowConstraints />
-            <RowConstraints />
+          <RowConstraints />
+          <RowConstraints />
         </rowConstraints>
          <children>
             <VBox styleClass="buttonHbox" GridPane.columnSpan="2">
@@ -41,67 +31,37 @@
                   <Label styleClass="copyright2" text="%settings.copyright.2" />
                </children>
             </VBox>
-            <HBox styleClass="labelHbox" GridPane.rowIndex="1">
-               <children>
-                  <Label text="%settings.label.defaultVolume" />
-               </children>
-            </HBox>
-            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="1">
-               <children>
-                  <TextField fx:id="defaultVolumeTextField" />
-               </children>
-            </HBox>
+            <HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="1" />
             <HBox styleClass="labelHbox" GridPane.rowIndex="2">
-               <children>
-                  <Label text="%settings.label.maxSearchHits" />
-               </children>
-            </HBox>
-            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="2">
-               <children>
-                  <TextField fx:id="maxSearchHitsTextField" />
-               </children>
-            </HBox>
-            <HBox styleClass="labelHbox" GridPane.rowIndex="3">
-               <children>
-                  <Label text="%settings.label.maxPlaylistSize" />
-               </children>
-            </HBox>
-            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="3">
-               <children>
-                  <TextField fx:id="maxPlaylistSizeTextField" />
-               </children>
-            </HBox>
-            <HBox styleClass="labelHbox" GridPane.rowIndex="4">
-               <children>
-                  <Label text="%settings.label.randomPlaylistSize" />
-               </children>
-            </HBox>
-            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="4">
-               <children>
-                  <TextField fx:id="randomPlaylistSizeTextField" />
-               </children>
-            </HBox>
-            <HBox styleClass="labelHbox" GridPane.rowIndex="5">
                <children>
                   <Label text="%settings.label.cacheSizeMb" />
                </children>
             </HBox>
-            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <children>
                   <TextField fx:id="cacheSizeMbTextField" />
                </children>
             </HBox>
-            <HBox prefWidth="250.0" styleClass="labelHbox" GridPane.rowIndex="6">
+            <HBox prefWidth="250.0" styleClass="labelHbox" GridPane.rowIndex="3">
                <children>
                   <Label text="%settings.label.reindex" wrapText="true" />
                </children>
             </HBox>
-            <HBox prefWidth="150.0" styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="6">
+            <HBox prefWidth="150.0" styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="3">
                <children>
                   <Button mnemonicParsing="false" onAction="#handleReindexButtonAction" text="%settings.button.reindex" />
                </children>
             </HBox>
+            <HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="4" />
          </children>
       </GridPane>
    </center>
+   <bottom>
+      <HBox styleClass="buttonHbox" BorderPane.alignment="CENTER">
+         <children>
+            <Button mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
+            <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel" />
+         </children>
+      </HBox>
+   </bottom>
 </BorderPane>
