@@ -28,18 +28,6 @@ public class ConfirmController {
 	public void setRunnables(Runnable okRunnable, Runnable cancelRunnable) {
 		this.okRunnable = okRunnable;
 		this.cancelRunnable = cancelRunnable;
-		
-		if (okRunnable != null) {
-			okButton.setVisible(true);
-		} else {
-			okButton.setVisible(false);
-		}
-		
-		if (cancelRunnable != null) {
-			cancelButton.setVisible(true);
-		} else {
-			cancelButton.setVisible(false);
-		}
 	}
 	
 	public void setOkFocused() {

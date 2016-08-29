@@ -1,7 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -35,12 +33,9 @@ public class EqualizerController extends EventAwareObject {
 		for (Node node : sliderHbox.getChildren()) {
 			final Slider slider = (Slider)node;
 
-			slider.valueProperty().addListener(new InvalidationListener() {
-				@Override
-				public void invalidated(Observable observable) {
-					if (slider.isValueChanging()) {
-						fireEvent(Event.EQUALIZER_UPDATED, Integer.parseInt(slider.getId().substring(2)), slider.getValue());
-					}
+			slider.valueProperty().addListener(observable -> {
+				if (slider.isValueChanging()) {
+					fireEvent(Event.EQUALIZER_UPDATED, Integer.parseInt(slider.getId().substring(2)), slider.getValue());
 				}
 			});
 		}

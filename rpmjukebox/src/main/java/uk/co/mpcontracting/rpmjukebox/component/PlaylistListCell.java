@@ -1,7 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldListCell;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
@@ -47,12 +45,9 @@ public class PlaylistListCell extends TextFieldListCell<Playlist> {
 		if (getGraphic() instanceof TextField) {
 			TextField textField = (TextField)getGraphic();
 			
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-					if (newValue != null && !newValue) {
-						commitEdit(getItem());
-					}
+			textField.focusedProperty().addListener((observableValue, oldValue, newValue) -> {
+				if (newValue != null && !newValue) {
+					commitEdit(getItem());
 				}
 			});
 		}

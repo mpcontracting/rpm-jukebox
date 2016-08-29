@@ -1,7 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
@@ -150,74 +148,46 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 			currentPlayer.getAudioEqualizer().getBands().get(i).setGain(equalizer.getGain(i));
 		}
 
-		currentPlayer.setOnReady(new Runnable() {
-			@Override
-			public void run() {
-				currentPlayer.seek(currentPlayer.getStartTime());
-				currentDuration = currentPlayer.getMedia().getDuration();
+		currentPlayer.setOnReady(() -> {
+			currentPlayer.seek(currentPlayer.getStartTime());
+			currentDuration = currentPlayer.getMedia().getDuration();
 
+			fireEvent(Event.TIME_UPDATED, currentDuration, currentPlayer.getCurrentTime());
+		});
+
+		currentPlayer.setOnPlaying(() -> {
+			fireEvent(Event.MEDIA_PLAYING, currentTrack);
+		});
+
+		currentPlayer.setOnPaused(() -> {
+			fireEvent(Event.MEDIA_PAUSED);
+		});
+
+		currentPlayer.setOnStopped(() -> {
+			fireEvent(Event.MEDIA_STOPPED);
+		});
+
+		currentPlayer.setOnEndOfMedia(() -> {
+			fireEvent(Event.END_OF_MEDIA);
+		});
+
+		currentPlayer.setOnError(() -> {
+			log.warn("Error occurred playing media - " + currentPlayer.getError());
+			
+			fireEvent(Event.END_OF_MEDIA);
+		});
+
+		currentPlayer.currentTimeProperty().addListener(observable -> {
+			if (currentPlayer != null) {
 				fireEvent(Event.TIME_UPDATED, currentDuration, currentPlayer.getCurrentTime());
 			}
 		});
 
-		currentPlayer.setOnPlaying(new Runnable() {
-			@Override
-			public void run() {
-				fireEvent(Event.MEDIA_PLAYING, currentTrack);
+		currentPlayer.bufferProgressTimeProperty().addListener(observable -> {
+			if (currentPlayer != null) {
+				fireEvent(Event.BUFFER_UPDATED, currentDuration, currentPlayer.getBufferProgressTime());
 			}
 		});
-
-		currentPlayer.setOnPaused(new Runnable() {
-			@Override
-			public void run() {
-				fireEvent(Event.MEDIA_PAUSED);
-			}
-		});
-
-		currentPlayer.setOnStopped(new Runnable() {
-			@Override
-			public void run() {
-				fireEvent(Event.MEDIA_STOPPED);
-			}
-		});
-
-		currentPlayer.setOnEndOfMedia(new Runnable() {
-			@Override
-			public void run() {
-				fireEvent(Event.END_OF_MEDIA);
-			}
-		});
-		
-		currentPlayer.setOnError(new Runnable() {
-			@Override
-			public void run() {
-				log.warn("Error occurred playing media - " + currentPlayer.getError());
-				
-				fireEvent(Event.END_OF_MEDIA);
-			}
-		});
-
-		currentPlayer.currentTimeProperty().addListener(
-			new InvalidationListener() {
-				@Override
-				public void invalidated(Observable observable) {
-					if (currentPlayer != null) {
-						fireEvent(Event.TIME_UPDATED, currentDuration, currentPlayer.getCurrentTime());
-					}
-				}
-			}
-		);
-
-		currentPlayer.bufferProgressTimeProperty().addListener(
-			new InvalidationListener() {
-				@Override
-				public void invalidated(Observable observable) {
-					if (currentPlayer != null) {
-						fireEvent(Event.BUFFER_UPDATED, currentDuration, currentPlayer.getBufferProgressTime());
-					}
-				}
-			}
-		);
 	}
 	
 	@Override

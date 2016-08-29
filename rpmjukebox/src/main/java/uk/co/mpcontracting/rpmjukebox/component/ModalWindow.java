@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.effect.BoxBlur;
@@ -23,12 +22,9 @@ public class ModalWindow extends Stage {
 
 		setScene(new Scene((Parent)FxmlContext.loadFxml(fxmlFile), Color.TRANSPARENT));
 		
-		addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(WindowEvent event) {
-				setX((getOwner().getX() + getOwner().getWidth() / 2) - getWidth() / 2);
-				setY((getOwner().getY() + getOwner().getHeight() / 2) - getHeight() / 2);
-			}
+		addEventHandler(WindowEvent.WINDOW_SHOWN, event -> {
+			setX((getOwner().getX() + getOwner().getWidth() / 2) - getWidth() / 2);
+			setY((getOwner().getY() + getOwner().getHeight() / 2) - getHeight() / 2);
 		});
 	}
 

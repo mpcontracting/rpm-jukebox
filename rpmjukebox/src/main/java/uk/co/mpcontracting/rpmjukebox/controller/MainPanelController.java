@@ -2,14 +2,9 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import java.util.Collections;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -20,7 +15,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import lombok.Getter;
@@ -158,26 +152,19 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	public void initialize() {
 		log.info("Initialising MainPanelController");
 		
-		searchTextField.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				searchTextUpdated(newValue);
-			}
+		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+			searchTextUpdated(newValue);
 		});
-		
-		timeSlider.sliderValueProperty().addListener(new InvalidationListener() {
-			public void invalidated(Observable observable) {
-				if (timeSlider.isSliderValueChanging()) {
-					mediaManager.setSeekPositionPercent(timeSlider.getSliderValue());
-				}
+
+		timeSlider.sliderValueProperty().addListener(observable -> {
+			if (timeSlider.isSliderValueChanging()) {
+				mediaManager.setSeekPositionPercent(timeSlider.getSliderValue());
 			}
 		});
 
-		volumeSlider.valueProperty().addListener(new InvalidationListener() {
-			public void invalidated(Observable observable) {
-				if (volumeSlider.isValueChanging()) {
-					mediaManager.setVolumePercent(volumeSlider.getValue());
-				}
+		volumeSlider.valueProperty().addListener(observable -> {
+			if (volumeSlider.isValueChanging()) {
+				mediaManager.setVolumePercent(volumeSlider.getValue());
 			}
 		});
 
@@ -201,28 +188,17 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		playlistPanelListView.setCellFactory(new PlaylistListCellFactory());
 		playlistPanelListView.setEditable(true);
 		playlistPanelListView.setItems(observablePlaylists);
-		playlistPanelListView.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent event) {
-				if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
-					Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
-					
-					showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
-						true,
-						new Runnable() {
-							@Override
-							public void run() {
-								playlistManager.deletePlaylist(playlist.getPlaylistId());
-							}
-						},
-						new Runnable() {
-							@Override
-							public void run() {
-								// No-op
-							}
-						}
-					);
-				}
+		playlistPanelListView.setOnKeyPressed(event -> {
+			if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
+				Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
+				
+				showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+					true,
+					() -> {
+						playlistManager.deletePlaylist(playlist.getPlaylistId());
+					},
+					null
+				);
 			}
 		});
 		
@@ -323,18 +299,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		if (playlist != null && playlist.getPlaylistId() > 0) {
 			showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
 				true,
-				new Runnable() {
-					@Override
-					public void run() {
-						playlistManager.deletePlaylist(playlist.getPlaylistId());
-					}
+				() -> {
+					playlistManager.deletePlaylist(playlist.getPlaylistId());
 				},
-				new Runnable() {
-					@Override
-					public void run() {
-						// No-op
-					}
-				}
+				null
 			);
 		}
 	}

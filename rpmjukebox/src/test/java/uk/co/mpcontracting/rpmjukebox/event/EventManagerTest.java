@@ -31,12 +31,9 @@ public class EventManagerTest extends ApplicationTest {
 	@Test
 	public void shouldFireEventOnAnEventListener() throws Exception {
 		EventManager eventManager = EventManager.getInstance();
-		eventManager.addEventListener(new EventListener() {
-			@Override
-			public void eventReceived(Event event, Object... payload) {
-				receivedEvent = event;
-				latch.countDown();
-			}
+		eventManager.addEventListener((event, payload) -> {
+			receivedEvent = event;
+			latch.countDown();
 		});
 		
 		eventManager.fireEvent(Event.APPLICATION_INITIALISED);

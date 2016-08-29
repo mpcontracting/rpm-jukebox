@@ -27,7 +27,7 @@ public class LoveButtonTableCellFactory<S, T> extends EventAwareObject implement
 		// Mouse Events //
 		//////////////////
 		
-		tableCell.setOnMouseClicked((event) -> {
+		tableCell.setOnMouseClicked(event -> {
 			if (event.getButton() == MouseButton.PRIMARY) {
 				if (event.getClickCount() == 1) {
 					// Single click

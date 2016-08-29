@@ -16,14 +16,7 @@ public class FxmlContext implements Constants {
 	}
 	
 	public static Object loadFxml(String fxmlFilename) {
-		return loadFxml(fxmlFilename,
-			new Callback<Class<?>, Object>() {
-				@Override
-				public Object call(Class<?> clazz) {
-					return ApplicationContext.getBean(clazz);
-				}
-			}
-		);
+		return loadFxml(fxmlFilename, clazz -> ApplicationContext.getBean(clazz));
 	}
 
 	private static Object loadFxml(String fxmlFilename, Callback<Class<?>, Object> callback) {

@@ -1,17 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import uk.co.mpcontracting.ioc.ApplicationContext;
@@ -40,20 +35,17 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 		// Mouse Events //
 		//////////////////
 		
-		tableCell.setOnMouseClicked(new EventHandler<MouseEvent> () {
-			@Override
-			public void handle(MouseEvent event) {
-				if (event.getButton() == MouseButton.PRIMARY) {
-					if (event.getClickCount() > 1) {
-						// Double click
-						if (tableCell != null && tableCell.getItem() != null) {
-							playlistManager.playTrack(((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
-						}
-					} else {
-						// Single click
-						if (tableCell != null && tableCell.getItem() != null) {
-							fireEvent(Event.TRACK_SELECTED, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
-						}
+		tableCell.setOnMouseClicked(event -> {
+			if (event.getButton() == MouseButton.PRIMARY) {
+				if (event.getClickCount() > 1) {
+					// Double click
+					if (tableCell != null && tableCell.getItem() != null) {
+						playlistManager.playTrack(((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
+					}
+				} else {
+					// Single click
+					if (tableCell != null && tableCell.getItem() != null) {
+						fireEvent(Event.TRACK_SELECTED, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 					}
 				}
 			}
@@ -66,45 +58,36 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 		ContextMenu contextMenu = new ContextMenu();
 		
 		final MenuItem createPlaylistFromAlbumItem = new MenuItem(messageManager.getMessage(MESSAGE_TRACK_TABLE_CONTEXT_CREATE_PLAYLIST_FROM_ALBUM));
-		createPlaylistFromAlbumItem.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				if (tableCell != null && tableCell.getItem() != null) {
-					playlistManager.createPlaylistFromAlbum(((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
-				}
+		createPlaylistFromAlbumItem.setOnAction(event -> {
+			if (tableCell != null && tableCell.getItem() != null) {
+				playlistManager.createPlaylistFromAlbum(((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 			}
 		});
 		contextMenu.getItems().add(createPlaylistFromAlbumItem);
 		
 		final MenuItem deleteTrackFromPlaylistItem = new MenuItem(messageManager.getMessage(MESSAGE_TRACK_TABLE_CONTEXT_DELETE_TRACK_FROM_PLAYLIST));
-		deleteTrackFromPlaylistItem.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				if (tableCell != null && tableCell.getItem() != null) {
-					Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
-					
-					playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
-				}
+		deleteTrackFromPlaylistItem.setOnAction(event -> {
+			if (tableCell != null && tableCell.getItem() != null) {
+				Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
+				
+				playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
 			}
 		});
 		contextMenu.getItems().add(deleteTrackFromPlaylistItem);
 		
 		tableCell.setContextMenu(contextMenu);
-		tableCell.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
-			@Override
-			public void handle(ContextMenuEvent event) {
-				if (tableCell != null && tableCell.getItem() != null) {
-					if (((TrackTableModel)tableCell.getTableRow().getItem()).getTrack().getPlaylistId() == PLAYLIST_ID_SEARCH) {
-						createPlaylistFromAlbumItem.setDisable(false);
-						deleteTrackFromPlaylistItem.setDisable(true);
-					} else {
-						createPlaylistFromAlbumItem.setDisable(true);
-						deleteTrackFromPlaylistItem.setDisable(false);
-					}
+		tableCell.setOnContextMenuRequested(event -> {
+			if (tableCell != null && tableCell.getItem() != null) {
+				if (((TrackTableModel)tableCell.getTableRow().getItem()).getTrack().getPlaylistId() == PLAYLIST_ID_SEARCH) {
+					createPlaylistFromAlbumItem.setDisable(false);
+					deleteTrackFromPlaylistItem.setDisable(true);
 				} else {
 					createPlaylistFromAlbumItem.setDisable(true);
-					deleteTrackFromPlaylistItem.setDisable(true);
+					deleteTrackFromPlaylistItem.setDisable(false);
 				}
+			} else {
+				createPlaylistFromAlbumItem.setDisable(true);
+				deleteTrackFromPlaylistItem.setDisable(true);
 			}
 		});
 
@@ -112,25 +95,19 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 		// Drag And Drop //
 		///////////////////
 		
-		tableCell.setOnDragDetected(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				if (tableCell != null && tableCell.getItem() != null) {
-					Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY);
-					ClipboardContent clipboardContent = new ClipboardContent();
-					clipboardContent.put(DND_TRACK_DATA_FORMAT, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
-					dragboard.setContent(clipboardContent);
-	
-					event.consume();
-				}
-			}
-		});
-		
-		tableCell.setOnDragDone(new EventHandler<DragEvent>() {
-			@Override
-			public void handle(DragEvent event) {
+		tableCell.setOnDragDetected(event -> {
+			if (tableCell != null && tableCell.getItem() != null) {
+				Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY);
+				ClipboardContent clipboardContent = new ClipboardContent();
+				clipboardContent.put(DND_TRACK_DATA_FORMAT, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
+				dragboard.setContent(clipboardContent);
+
 				event.consume();
 			}
+		});
+
+		tableCell.setOnDragDone(event -> {
+			event.consume();
 		});
 
 		return tableCell;
