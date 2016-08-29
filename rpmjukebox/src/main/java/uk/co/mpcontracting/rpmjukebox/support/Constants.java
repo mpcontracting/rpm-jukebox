@@ -24,6 +24,7 @@ public interface Constants {
     public static final String PROP_MAX_PLAYLIST_SIZE									= "max.playlist.size";
     public static final String PROP_RANDOM_PLAYLIST_SIZE								= "random.playlist.size";
     public static final String PROP_PREVIOUS_SECONDS_CUTOFF								= "previous.seconds.cutoff";
+    public static final String PROP_PLAYLIST_FILE_EXTENSION								= "playlist.file.extension";
     public static final String PROP_CACHE_SIZE_MB										= "cache.size.mb";
     
     // Message bundle keys
@@ -38,7 +39,9 @@ public interface Constants {
     public static final String MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE						= "playlist.delete.areYouSure";
     public static final String MESSAGE_TRACK_TABLE_CONTEXT_CREATE_PLAYLIST_FROM_ALBUM	= "trackTable.context.createPlaylistFromAlbum";
     public static final String MESSAGE_TRACK_TABLE_CONTEXT_DELETE_TRACK_FROM_PLAYLIST	= "trackTable.context.deleteTrackFromPlaylist";
-    
+    public static final String MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER						= "file.chooser.playlist.filter";
+    public static final String MESSAGE_EXPORT_PLAYLIST_TITLE							= "export.playlist.title";
+
     // Styles
     public static final String STYLE_LOVE_BUTTON_ON										= "loveButtonOn";
     public static final String STYLE_LOVE_BUTTON_OFF									= "loveButtonOff";

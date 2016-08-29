@@ -1,5 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,21 +17,23 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableCell;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableModel;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
+import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
-public class ExportController extends EventAwareObject implements Constants {
+public class ExportController implements Constants {
 
 	@FXML
 	private TableView<PlaylistTableModel> playlistTableView;
@@ -43,6 +48,12 @@ public class ExportController extends EventAwareObject implements Constants {
 	private Button cancelButton;
 
 	@Autowired
+	private MessageManager messageManager;
+	
+	@Autowired
+	private SettingsManager settingsManager;
+
+	@Autowired
 	private PlaylistManager playlistManager;
 	
 	@Autowired
@@ -50,6 +61,7 @@ public class ExportController extends EventAwareObject implements Constants {
 	
 	private ObservableList<PlaylistTableModel> observablePlaylists;
 	private Set<Integer> playlistsToExport;
+	private String playlistExtensionFilter;
 	
 	@FXML
 	public void initialize() {
@@ -86,6 +98,7 @@ public class ExportController extends EventAwareObject implements Constants {
 		selectColumn.setEditable(true);
 
 		playlistsToExport = new HashSet<Integer>();
+		playlistExtensionFilter = "*." + settingsManager.getPropertyString(PROP_PLAYLIST_FILE_EXTENSION);
 	}
 	
 	public void bindPlaylists() {
@@ -110,7 +123,7 @@ public class ExportController extends EventAwareObject implements Constants {
 	}
 	
 	public void setPlaylistToExport(int playlistId, boolean export) {
-		log.info("Setting playlist to export : ID - " + playlistId + ", Export - " + export);
+		log.debug("Setting playlist to export : ID - " + playlistId + ", Export - " + export);
 		
 		if (export) {
 			playlistsToExport.add(playlistId);
@@ -118,36 +131,41 @@ public class ExportController extends EventAwareObject implements Constants {
 			playlistsToExport.remove(playlistId);
 		}
 	}
-	
-	private void exportPlaylists() {
-		log.info("Exporting playlists - " + playlistsToExport);
-		fireEvent(Event.PLAYLISTS_EXPORTED);
-	}
-	
+
 	@FXML
 	protected void handleOkButtonAction(ActionEvent event) {
-		// Don't run this on the GUI thread
-		ThreadRunner.run(() -> {
-			exportPlaylists();
-		});
+		log.debug("Exporting playlists - " + playlistsToExport);
+		
+		if (!playlistsToExport.isEmpty()) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle(messageManager.getMessage(MESSAGE_EXPORT_PLAYLIST_TITLE));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter(messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter), 
+				playlistExtensionFilter));
+			
+			File file = fileChooser.showSaveDialog(cancelButton.getScene().getWindow());
+			
+			if (file != null) {
+				List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();
+				
+				for (Integer playlistId : playlistsToExport) {
+					playlists.add(new PlaylistSettings(playlistManager.getPlaylist(playlistId)));
+				}
+				
+				try (FileWriter fileWriter = new FileWriter(file)) {
+					fileWriter.write(settingsManager.getGson().toJson(playlists));
+				} catch (Exception e) {
+					log.error("Unable to export playlists file", e);
+				}
+				
+				mainPanelController.getExportWindow().close();
+			}
+		} else {
+			mainPanelController.getExportWindow().close();
+		}
 	}
 	
 	@FXML
 	protected void handleCancelButtonAction(ActionEvent event) {
 		mainPanelController.getExportWindow().close();
-	}
-	
-	@Override
-	public void eventReceived(Event event, Object... payload) {
-		switch (event) {
-			case PLAYLISTS_EXPORTED: {
-				mainPanelController.getExportWindow().close();
-				
-				break;
-			}
-			default: {
-				// Nothing
-			}
-		}
 	}
 }

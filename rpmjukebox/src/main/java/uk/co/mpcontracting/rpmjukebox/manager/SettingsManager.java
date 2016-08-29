@@ -63,7 +63,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	@Getter private URL dataFile;
 	@Getter private SystemSettings systemSettings;
 	
-	private Gson gson;
+	@Getter private Gson gson;
 	private boolean settingsLoaded;
 	
 	public SettingsManager() {
@@ -366,15 +366,7 @@ public class SettingsManager implements InitializingBean, Constants {
 				continue;
 			}
 
-			PlaylistSettings playlistSettings = new PlaylistSettings(playlist.getPlaylistId(), playlist.getName());
-			List<String> tracks = new ArrayList<String>();
-			
-			for (Track track : playlist) {
-				tracks.add(track.getTrackId());
-			}
-			
-			playlistSettings.setTracks(tracks);
-			playlists.add(playlistSettings);
+			playlists.add(new PlaylistSettings(playlist));
 		}
 		
 		settings.setPlaylists(playlists);
