@@ -59,6 +59,11 @@ public class CachingDataStream implements WriteListener {
 					byteStream = null;
 				}
 				
+				// Clean up the input stream
+				if (inputStream != null) {
+					inputStream.close();
+				}
+				
 				return;
 			}
 			
@@ -72,7 +77,7 @@ public class CachingDataStream implements WriteListener {
 		if (!(t instanceof EofException)) {
 			log.error("Error streaming data", t);
 		}
-		
+
 		try {
 			asyncContext.complete();
 		} catch (Exception e) {
@@ -83,6 +88,15 @@ public class CachingDataStream implements WriteListener {
 		if (byteStream != null) {
 			byteStream.reset();
 			byteStream = null;
+		}
+		
+		// Clean up the input stream
+		try {
+			if (inputStream != null) {
+				inputStream.close();
+			}
+		} catch (Exception e) {
+			// Ignore any errors here
 		}
 	}
 }
