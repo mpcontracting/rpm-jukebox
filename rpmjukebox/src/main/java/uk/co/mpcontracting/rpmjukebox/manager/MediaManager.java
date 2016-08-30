@@ -131,6 +131,11 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		log.debug("Cleaning up resources");
 
 		stopPlayback();
+		
+		if (currentPlayer != null) {
+			currentPlayer.dispose();
+		}
+		
 		currentPlayer = null;
 	}
 	

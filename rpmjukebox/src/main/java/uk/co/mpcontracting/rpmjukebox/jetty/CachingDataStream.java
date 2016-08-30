@@ -53,6 +53,12 @@ public class CachingDataStream implements WriteListener {
 					ApplicationContext.getBean(CacheManager.class).writeCache(cacheType, id, byteStream.toByteArray());
 				}
 				
+				// Make sure the byte array is disposed of
+				if (byteStream != null) {
+					byteStream.reset();
+					byteStream = null;
+				}
+				
 				return;
 			}
 			
@@ -66,11 +72,17 @@ public class CachingDataStream implements WriteListener {
 		if (!(t instanceof EofException)) {
 			log.error("Error streaming data", t);
 		}
-
+		
 		try {
 			asyncContext.complete();
 		} catch (Exception e) {
 			// Ignore any errors here
+		}
+		
+		// Make sure the byte array is disposed of
+		if (byteStream != null) {
+			byteStream.reset();
+			byteStream = null;
 		}
 	}
 }
