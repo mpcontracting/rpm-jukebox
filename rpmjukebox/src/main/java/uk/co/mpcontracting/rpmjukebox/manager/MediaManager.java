@@ -137,6 +137,9 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		}
 		
 		currentPlayer = null;
+		
+		// Kick the garbage collector
+		System.gc();
 	}
 	
 	@Synchronized
