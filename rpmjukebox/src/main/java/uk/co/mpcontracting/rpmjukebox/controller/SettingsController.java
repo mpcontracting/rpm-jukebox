@@ -3,12 +3,14 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
@@ -20,10 +22,16 @@ import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 public class SettingsController extends EventAwareObject implements Constants {
 
 	@FXML
+	private Label versionLabel;
+	
+	@FXML
 	private TextField cacheSizeMbTextField;
 	
 	@FXML
 	private Button cancelButton;
+	
+	@Autowired
+	private MessageManager messageManager;
 	
 	@Autowired
 	private SettingsManager settingsManager;
@@ -52,6 +60,7 @@ public class SettingsController extends EventAwareObject implements Constants {
 	public void bindSystemSettings() {
 		SystemSettings systemSettings = settingsManager.getSystemSettings();
 
+		versionLabel.setText(messageManager.getMessage(MESSAGE_SETTINGS_COPYRIGHT_2, settingsManager.getPropertyString(PROP_VERSION)));
 		cacheSizeMbTextField.setText(Integer.toString(systemSettings.getCacheSizeMb()));
 		cancelButton.requestFocus();
 		

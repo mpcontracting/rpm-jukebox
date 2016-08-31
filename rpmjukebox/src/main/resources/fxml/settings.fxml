@@ -28,7 +28,8 @@
             <VBox styleClass="buttonHbox" GridPane.columnSpan="2">
                <children>
                   <Label styleClass="copyright1" text="%settings.copyright.1" />
-                  <Label styleClass="copyright2" text="%settings.copyright.2" />
+                  <Label fx:id="versionLabel" styleClass="copyright2" text="%settings.copyright.2" />
+                  <Label styleClass="copyright3" text="%settings.copyright.3" />
                </children>
             </VBox>
             <HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="1" />

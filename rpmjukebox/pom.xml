@@ -4,7 +4,7 @@
 
 	<groupId>uk.co.mpcontracting</groupId>
 	<artifactId>rpmjukebox</artifactId>
-	<version>1.0.0-beta-3</version>
+	<version>1.0.0-beta-4</version>
 	<packaging>jar</packaging>
 
 	<name>RPM Jukebox</name>
@@ -117,13 +117,13 @@
 					<nativeReleaseVersion>${project.version}</nativeReleaseVersion>
 					<mainClass>uk.co.mpcontracting.rpmjukebox.RpmJukebox</mainClass>
 					<jvmArgs>
-						<jvmArg>-Xmx256m</jvmArg>
+						<jvmArg>-Xmx128m</jvmArg>
 					</jvmArgs>
 					<!--<verbose>true</verbose> -->
 					<bundleArguments>
 						<systemWide>true</systemWide>
 						<win.menuGroup>RPM Jukebox</win.menuGroup>
-						<win.msi.productVersion>1.0.3</win.msi.productVersion>
+						<win.msi.productVersion>1.0.4</win.msi.productVersion>
 					</bundleArguments>
 				</configuration>
 				<executions>

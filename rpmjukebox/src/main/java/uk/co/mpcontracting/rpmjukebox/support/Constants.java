@@ -9,6 +9,7 @@ public interface Constants {
     public static final DataFormat DND_TRACK_DATA_FORMAT    							= new DataFormat("dyn.dnd.track.data.format");
     
     // Property keys
+    public static final String PROP_VERSION												= "version";
     public static final String PROP_DATAFILE_URL										= "datafile.url";
     public static final String PROP_DIRECTORY_CONFIG									= "directory.config";
     public static final String PROP_DIRECTORY_LOG										= "directory.log";
@@ -42,6 +43,7 @@ public interface Constants {
     public static final String MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER						= "file.chooser.playlist.filter";
     public static final String MESSAGE_IMPORT_PLAYLIST_TITLE							= "import.playlist.title";
     public static final String MESSAGE_EXPORT_PLAYLIST_TITLE							= "export.playlist.title";
+    public static final String MESSAGE_SETTINGS_COPYRIGHT_2								= "settings.copyright.2";
 
     // Styles
     public static final String STYLE_LOVE_BUTTON_ON										= "loveButtonOn";
