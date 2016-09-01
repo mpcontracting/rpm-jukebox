@@ -107,6 +107,24 @@ public class Playlist implements Constants, Iterable<Track> {
     	}
     }
     
+    @Synchronized
+    public void swapTracks(Track source, Track target) {
+		int trackSourceIndex = tracks.indexOf(source);
+		int trackTargetIndex = tracks.indexOf(target);
+		int shuffledSourceIndex = shuffledTracks.indexOf(source);
+		int shuffledTargetIndex = shuffledTracks.indexOf(target);
+		
+		if (trackSourceIndex > -1 && trackTargetIndex > -1 && shuffledSourceIndex > -1 && shuffledTargetIndex > -1) {
+			if (trackSourceIndex <= trackTargetIndex) {
+		        Collections.rotate(tracks.subList(trackSourceIndex, trackTargetIndex + 1), -1);
+		    } else {
+		        Collections.rotate(tracks.subList(trackTargetIndex, trackSourceIndex + 1), 1);
+		    }
+
+			Collections.swap(shuffledTracks, shuffledSourceIndex, shuffledTargetIndex);
+		}
+    }
+    
     @Override
     @Synchronized
 	public Iterator<Track> iterator() {

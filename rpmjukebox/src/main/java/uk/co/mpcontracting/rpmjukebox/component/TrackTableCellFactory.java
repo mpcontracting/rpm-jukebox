@@ -97,13 +97,52 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 		
 		tableCell.setOnDragDetected(event -> {
 			if (tableCell != null && tableCell.getItem() != null) {
-				Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY);
+				Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY_OR_MOVE);
 				ClipboardContent clipboardContent = new ClipboardContent();
 				clipboardContent.put(DND_TRACK_DATA_FORMAT, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 				dragboard.setContent(clipboardContent);
 
 				event.consume();
 			}
+		});
+		
+		tableCell.setOnDragOver(event -> {
+			if (event.getGestureSource() != tableCell && event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT) &&
+				tableCell.getTableRow().getItem() != null && ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack().getPlaylistId() != PLAYLIST_ID_SEARCH) {
+				event.acceptTransferModes(TransferMode.MOVE);
+			}
+	
+			event.consume();
+		});
+		
+		tableCell.setOnDragEntered(event -> {
+			if (event.getGestureSource() != tableCell && event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT) &&
+				tableCell.getTableRow().getItem() != null && ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack().getPlaylistId() != PLAYLIST_ID_SEARCH) {
+				tableCell.getTableRow().setStyle("-fx-background-color: -jb-border-color");
+			}
+			
+			event.consume();
+		});
+
+		tableCell.setOnDragExited(event -> {
+			tableCell.getTableRow().setStyle(null);
+			
+			event.consume();
+		});
+		
+		tableCell.setOnDragDropped(event -> {
+			Dragboard dragboard = event.getDragboard();
+			
+			if (dragboard.hasContent(DND_TRACK_DATA_FORMAT)) {
+				Track source = (Track)dragboard.getContent(DND_TRACK_DATA_FORMAT);
+				Track target = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
+				
+				playlistManager.moveTracksInPlaylist(source.getPlaylistId(), source, target);
+				
+				event.setDropCompleted(true);
+			}
+			
+			event.consume();
 		});
 
 		tableCell.setOnDragDone(event -> {

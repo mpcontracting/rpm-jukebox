@@ -212,6 +212,16 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 		fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistId);
 	}
+	
+	public void moveTracksInPlaylist(int playlistId, Track source, Track target) {
+		log.debug("Moving tracks : Playist - " + playlistId + ", Source - " + source.getTrackName() + ", Target - " + target.getTrackName());
+		
+		synchronized (playlistMap) {
+			playlistMap.get(playlistId).swapTracks(source, target);
+		}
+		
+		fireEvent(Event.PLAYLIST_CONTENT_UPDATED, playlistId);
+	}
 
 	public boolean isTrackInPlaylist(int playlistId, String trackId) {
 		if (trackId == null) {
