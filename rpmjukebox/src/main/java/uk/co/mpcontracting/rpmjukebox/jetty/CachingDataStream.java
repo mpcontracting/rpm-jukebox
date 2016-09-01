@@ -53,16 +53,7 @@ public class CachingDataStream implements WriteListener {
 					ApplicationContext.getBean(CacheManager.class).writeCache(cacheType, id, byteStream.toByteArray());
 				}
 				
-				// Make sure the byte array is disposed of
-				if (byteStream != null) {
-					byteStream.reset();
-					byteStream = null;
-				}
-				
-				// Clean up the input stream
-				if (inputStream != null) {
-					inputStream.close();
-				}
+				cleanUpResources();
 				
 				return;
 			}
@@ -83,6 +74,12 @@ public class CachingDataStream implements WriteListener {
 		} catch (Exception e) {
 			// Ignore any errors here
 		}
+		
+		cleanUpResources();
+	}
+	
+	private void cleanUpResources() {
+		log.debug("Cleaning up resources");
 		
 		// Make sure the byte array is disposed of
 		if (byteStream != null) {
