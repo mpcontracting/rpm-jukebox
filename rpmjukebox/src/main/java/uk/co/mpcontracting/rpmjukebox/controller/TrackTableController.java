@@ -108,6 +108,14 @@ public class TrackTableController extends EventAwareObject {
 		
 					if (playlistId != null && playlistId.equals(visiblePlaylistId)) {
 						updateObservableTracks(playlistId);
+						
+						if (payload.length > 1) {
+							Track track = (Track)payload[1];
+							
+							if (track != null) {
+								trackTableView.highlightTrack(track);
+							}
+						}
 					}
 				}
 	

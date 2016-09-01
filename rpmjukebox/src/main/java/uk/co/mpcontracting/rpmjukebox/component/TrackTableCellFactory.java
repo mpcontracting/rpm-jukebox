@@ -97,10 +97,13 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 		
 		tableCell.setOnDragDetected(event -> {
 			if (tableCell != null && tableCell.getItem() != null) {
+				Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
 				Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY_OR_MOVE);
 				ClipboardContent clipboardContent = new ClipboardContent();
-				clipboardContent.put(DND_TRACK_DATA_FORMAT, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
+				clipboardContent.put(DND_TRACK_DATA_FORMAT, track);
 				dragboard.setContent(clipboardContent);
+				
+				fireEvent(Event.TRACK_SELECTED, track);
 
 				event.consume();
 			}

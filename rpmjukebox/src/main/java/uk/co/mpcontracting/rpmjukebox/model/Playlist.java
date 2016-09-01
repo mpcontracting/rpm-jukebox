@@ -59,6 +59,17 @@ public class Playlist implements Constants, Iterable<Track> {
     }
     
     @Synchronized
+    public Track getPlaylistTrack(Track track) {
+    	for (Track playlistTrack : tracks) {
+    		if (playlistTrack.equals(track)) {
+    			return playlistTrack;
+    		}
+    	}
+    	
+    	return null;
+    }
+
+    @Synchronized
     public Track getShuffledTrackAtIndex(int index) {
     	if (index < shuffledTracks.size()) {
     		return shuffledTracks.get(index);
@@ -135,6 +146,10 @@ public class Playlist implements Constants, Iterable<Track> {
 		    }
 
 			Collections.swap(shuffledTracks, shuffledSourceIndex, shuffledTargetIndex);
+			
+			for (int i = 0; i < tracks.size(); i++) {
+				tracks.get(i).setPlaylistIndex(i);
+			}
 		}
     }
     
