@@ -32,12 +32,14 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	private Media currentMedia;
 	private Duration currentDuration;
 	@Getter private Equalizer equalizer;
+	@Getter private boolean muted;
 	@Getter private double volume;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising MediaManager");
 		
+		muted = false;
 		volume = settingsManager.getPropertyDouble(PROP_DEFAULT_VOLUME);
 		equalizer = new Equalizer(10);
 	}
@@ -81,9 +83,29 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 
 	public void setVolumePercent(double volumePercent) {
 		this.volume = volumePercent / 100.0;
+		
+		boolean currentMuted = muted;
+		
+		if (volume > 0) {
+			muted = false;
+		} else {
+			muted = true;
+		}
+		
+		if (muted != currentMuted) {
+			fireEvent(Event.MUTE_UPDATED);
+		}
 
 		if (currentPlayer != null) {
 			currentPlayer.setVolume(volume);
+		}
+	}
+	
+	public void setMuted() {
+		muted = !muted;
+		
+		if (currentPlayer != null) {
+			currentPlayer.setVolume(muted ? 0 : volume);
 		}
 	}
 
@@ -149,7 +171,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		boolean repeat = false;
 
 		currentPlayer = new MediaPlayer(currentMedia);
-		currentPlayer.setVolume(volume);
+		currentPlayer.setVolume(muted ? 0 : volume);
 		currentPlayer.setCycleCount(repeat ? MediaPlayer.INDEFINITE : 1);
 
 		for (int i = 0; i < equalizer.getNumberOfBands(); i++) {

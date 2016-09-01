@@ -111,6 +111,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private Label playTimeLabel;
 	
 	@FXML
+	private Button volumeButton;
+	
+	@FXML
 	private Slider volumeSlider;
 	
 	@FXML
@@ -280,6 +283,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		observablePlaylists.setAll(playlistManager.getPlaylists());
 	}
 	
+	private void setVolumeButtonImage() {
+		if (mediaManager.isMuted()) {
+			volumeButton.setStyle("-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')");
+		} else {
+			volumeButton.setStyle("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')");
+		}
+	}
+	
 	private void setShuffleButtonImage() {
 		if (playlistManager.isShuffle()) {
 			shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')");
@@ -432,6 +443,15 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	}
 	
 	@FXML
+	protected void handleVolumeButtonAction(ActionEvent event) {
+		log.debug("Volume button pressed");
+		
+		mediaManager.setMuted();
+		
+		setVolumeButtonImage();
+	}
+	
+	@FXML
 	protected void handleShuffleButtonAction(ActionEvent event) {
 		log.debug("Shuffle button pressed");
 		
@@ -479,6 +499,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				}
 				
 				// Set the button images
+				setVolumeButtonImage();
 				setShuffleButtonImage();
 				setRepeatButtonImage();
 				
@@ -490,12 +511,18 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				exportPlaylistButton.setDisable(false);
 				settingsButton.setDisable(false);
 				timeSlider.setDisable(false);
+				volumeButton.setDisable(false);
 				volumeSlider.setDisable(false);
 				shuffleButton.setDisable(false);
 				repeatButton.setDisable(false);
 				eqButton.setDisable(false);
 				randomButton.setDisable(false);
 
+				break;
+			}
+			case MUTE_UPDATED: {
+				setVolumeButtonImage();
+				
 				break;
 			}
 			case TIME_UPDATED: {

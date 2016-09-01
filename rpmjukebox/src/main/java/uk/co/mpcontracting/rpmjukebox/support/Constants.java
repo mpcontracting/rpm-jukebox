@@ -54,6 +54,8 @@ public interface Constants {
     // Images
     public static final String IMAGE_WINDOW_ICON										= "/images/window-icon.png";
     public static final String IMAGE_NO_ARTWORK											= "/images/no-artwork.png";
+    public static final String IMAGE_VOLUME_OFF											= "/images/volume-off.png";
+    public static final String IMAGE_VOLUME_ON											= "/images/volume-on.png";
     public static final String IMAGE_SHUFFLE_OFF										= "/images/shuffle-off.png";
     public static final String IMAGE_SHUFFLE_ON											= "/images/shuffle-on.png";
     public static final String IMAGE_REPEAT_OFF											= "/images/repeat-off.png";

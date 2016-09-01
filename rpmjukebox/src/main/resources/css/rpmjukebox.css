@@ -422,8 +422,13 @@
 	-fx-spacing: 3;
 }
 
-#progressPanel #volumeLabel {
+#progressPanel #volumeButtonOn {
 	-fx-background-image: url('../images/volume-on.png');
+	-fx-padding: 0 5 0 0;
+}
+
+#progressPanel #volumeButtonOff {
+	-fx-background-image: url('../images/volume-off.png');
 	-fx-padding: 0 5 0 0;
 }
 
