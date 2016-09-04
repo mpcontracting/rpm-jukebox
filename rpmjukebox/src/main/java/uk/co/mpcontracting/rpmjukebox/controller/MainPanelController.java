@@ -168,6 +168,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private int previousSecondsCutoff;
 	private int randomPlaylistSize;
 	private String playlistExtensionFilter;
+	private int currentSelectedPlaylistId;
 
 	@FXML
 	public void initialize() {
@@ -232,6 +233,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		previousSecondsCutoff = settingsManager.getPropertyInteger(PROP_PREVIOUS_SECONDS_CUTOFF);
 		randomPlaylistSize = settingsManager.getPropertyInteger(PROP_RANDOM_PLAYLIST_SIZE);
 		playlistExtensionFilter = "*." + settingsManager.getPropertyString(PROP_PLAYLIST_FILE_EXTENSION);
+		currentSelectedPlaylistId = -999;
 	}
 
 	public void showMessageWindow(String message, boolean blurBackground) {
@@ -424,7 +426,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handlePlayPauseButtonAction(ActionEvent event) {
-		log.debug("Play/pause button pressed");
+		log.info("Play/pause button pressed");
 
 		if (mediaManager.isPlaying()) {
 			playlistManager.pauseCurrentTrack();
@@ -612,9 +614,16 @@ public class MainPanelController extends EventAwareObject implements Constants {
 								break;
 							}
 						}
+						
+						// If we're changing playlists, there will be no track selected
+						// so disable the play button
+						if (selectedPlaylistId != currentSelectedPlaylistId) {
+							currentSelectedPlaylistId = selectedPlaylistId;
+							playPauseButton.setDisable(true);
+						}
 					}
 				}
-				
+
 				break;
 			}
 			case TRACK_SELECTED: {

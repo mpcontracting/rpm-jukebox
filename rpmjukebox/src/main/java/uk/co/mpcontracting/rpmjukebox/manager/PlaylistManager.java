@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.ioc.factory.InitializingBean;
+import uk.co.mpcontracting.rpmjukebox.controller.TrackTableController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
@@ -33,6 +34,9 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	
 	@Autowired
 	private MediaManager mediaManager;
+	
+	@Autowired
+	private TrackTableController trackTableController;
 
 	private Map<Integer, Playlist> playlistMap;
 	
@@ -276,6 +280,12 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		log.debug("Playing current track");
 
 		synchronized (playlistMap) {
+			// If the playing playlist is null, initialise is from
+			// the current playlist ID
+			if (playingPlaylist == null) {
+				playingPlaylist = playlistMap.get(currentPlaylistId).clone();
+			}
+			
 			if (playingPlaylist != null && !playingPlaylist.isEmpty()) {
 				if (shuffle && !overrideShuffle) {
 					log.debug("Getting shuffled track");
@@ -305,6 +315,20 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 
 	public void resumeCurrentTrack() {
 		log.debug("Resuming current track");
+
+		// If the selected track is a different track, or is in a different playlist
+		// then play that instead of resuming the current track
+		Track selectedTrack = trackTableController.getSelectedTrack();
+		
+		if (selectedTrack != null) {
+			log.debug("Playing playlist - " + playingPlaylist.getPlaylistId() + ", Track playlist - " + selectedTrack.getPlaylistId() + ", Track - " + selectedTrack.getTrackName());
+			
+			if (playingPlaylist.getPlaylistId() != selectedTrack.getPlaylistId() || (currentTrack != null && !currentTrack.equals(selectedTrack))) {
+				playTrack(selectedTrack);
+				
+				return;
+			}
+		}
 
 		mediaManager.resumePlayback();
 	}

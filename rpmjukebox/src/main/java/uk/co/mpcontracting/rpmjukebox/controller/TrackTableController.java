@@ -99,6 +99,16 @@ public class TrackTableController extends EventAwareObject {
 		}
 	}
 	
+	public Track getSelectedTrack() {
+		TrackTableModel trackTableModel = trackTableView.getSelectionModel().getSelectedItem();
+		
+		if (trackTableModel != null) {
+			return trackTableModel.getTrack();
+		}
+		
+		return null;
+	}
+	
 	@Override
 	public void eventReceived(Event event, Object... payload) {
 		switch (event) {
