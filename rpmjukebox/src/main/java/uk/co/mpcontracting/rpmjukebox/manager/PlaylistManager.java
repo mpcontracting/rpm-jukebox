@@ -39,6 +39,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	@Getter private int currentPlaylistId;
 	private int currentPlaylistIndex;
 	private Track currentTrack;
+	private Playlist playingPlaylist;
 	@Getter private boolean shuffle;
 	@Getter private Repeat repeat;
 	
@@ -55,6 +56,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		playlistMap.put(PLAYLIST_ID_FAVOURITES, new Playlist(PLAYLIST_ID_FAVOURITES, messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES), maxPlaylistSize));
 		currentPlaylistId = PLAYLIST_ID_SEARCH;
 		currentPlaylistIndex = 0;
+		currentTrack = null;
+		playingPlaylist = null;
 		shuffle = false;
 		repeat = Repeat.OFF;
 	}
@@ -245,8 +248,11 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	public void playPlaylist(int playlistId) {
 		log.debug("Playing playlist - " + playlistId);
 
-		currentPlaylistId = playlistId;
-		currentPlaylistIndex = 0;
+		synchronized (playlistMap) {
+			currentPlaylistId = playlistId;
+			currentPlaylistIndex = 0;
+			playingPlaylist = playlistMap.get(currentPlaylistId).clone();
+		}
 
 		fireEvent(Event.PLAYLIST_SELECTED, playlistId);
 
@@ -260,6 +266,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		synchronized (playlistMap) {
 			currentPlaylistId = track.getPlaylistId();
 			currentPlaylistIndex = track.getPlaylistIndex();
+			playingPlaylist = playlistMap.get(currentPlaylistId).clone();
 		}
 		
 		playCurrentTrack(true);
@@ -269,22 +276,20 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		log.debug("Playing current track");
 
 		synchronized (playlistMap) {
-			Playlist currentPlaylist = playlistMap.get(currentPlaylistId);
-
-			if (!currentPlaylist.isEmpty()) {
+			if (playingPlaylist != null && !playingPlaylist.isEmpty()) {
 				if (shuffle && !overrideShuffle) {
 					log.debug("Getting shuffled track");
-					currentTrack = currentPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
+					currentTrack = playingPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
 				} else {
 					log.debug("Getting non-shuffled track");
-					currentTrack = currentPlaylist.getTrackAtIndex(currentPlaylistIndex);
+					currentTrack = playingPlaylist.getTrackAtIndex(currentPlaylistIndex);
 				}
 				
 				// If we're shuffling and overriding the shuffle, make
 				// sure the current track is placed in the current position
 				// in the shuffled stack
 				if (shuffle && overrideShuffle) {
-					currentPlaylist.setTrackAtShuffledIndex(currentTrack, currentPlaylistIndex);
+					playingPlaylist.setTrackAtShuffledIndex(currentTrack, currentPlaylistIndex);
 				}
 
 				mediaManager.playTrack(currentTrack);
@@ -319,15 +324,9 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			
 			return true;
 		}
-		
-		Playlist currentPlaylist = null;
-		
-		synchronized (playlistMap) {
-			currentPlaylist = playlistMap.get(currentPlaylistId);
-		}
 
 		// Still tracks in playlist
-		if (currentPlaylist != null) {
+		if (playingPlaylist != null) {
 			if (currentPlaylistIndex > 0) {
 				currentPlaylistIndex--;
 				
@@ -339,7 +338,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			// No more tracks in playlist but repeat ALL or overridden from
 			// previous/next button press and repeat ONE
 			if (repeat == Repeat.ALL || (overrideRepeatOne && repeat == Repeat.ONE)) {
-				currentPlaylistIndex = currentPlaylist.size() - 1;
+				currentPlaylistIndex = playingPlaylist.size() - 1;
 				
 				playCurrentTrack(false);
 				
@@ -363,15 +362,9 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			return true;
 		}
 
-		Playlist currentPlaylist = null;
-
-		synchronized (playlistMap) {
-			currentPlaylist = playlistMap.get(currentPlaylistId);
-		}
-
 		// Still tracks in playlist
-		if (currentPlaylist != null) {
-			if (currentPlaylistIndex < (currentPlaylist.size() - 1)) {
+		if (playingPlaylist != null) {
+			if (currentPlaylistIndex < (playingPlaylist.size() - 1)) {
 				currentPlaylistIndex++;
 
 				playCurrentTrack(false);
@@ -395,22 +388,18 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		return false;
 	}
 	
-	public Track getTrackAtCurrentPlaylistIndex() {
-		synchronized (playlistMap) {
-			Playlist currentPlaylist = playlistMap.get(currentPlaylistId);
-
-			if (currentPlaylist != null && !currentPlaylist.isEmpty()) {
-				if (shuffle) {
-					log.debug("Getting shuffled track");
-					return currentPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
-				} else {
-					log.debug("Getting non-shuffled track");
-					return currentPlaylist.getTrackAtIndex(currentPlaylistIndex);
-				}
+	public Track getTrackAtPlayingPlaylistIndex() {
+		if (playingPlaylist != null && !playingPlaylist.isEmpty()) {
+			if (shuffle) {
+				log.debug("Getting shuffled track");
+				return playingPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
+			} else {
+				log.debug("Getting non-shuffled track");
+				return playingPlaylist.getTrackAtIndex(currentPlaylistIndex);
 			}
-			
-			return null;
 		}
+		
+		return null;
 	}
 	
 	public void setShuffle(boolean shuffle, boolean ignorePlaylist) {
@@ -422,12 +411,14 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			if (shuffle && !ignorePlaylist) {
 				log.debug("Shuffling current playlist - " + currentPlaylistId);
 				
-				playlistMap.get(currentPlaylistId).shuffle();
+				Playlist playlist = playlistMap.get(currentPlaylistId);
+				playlist.shuffle();
 				
 				// If we're playing or pausing a track, make sure that track is placed 
 				// in the current position in the shuffled stack
 				if (currentTrack != null && (mediaManager.isPlaying() || mediaManager.isPaused())) {
-					playlistMap.get(currentPlaylistId).setTrackAtShuffledIndex(currentTrack, currentPlaylistIndex);
+					playlist.setTrackAtShuffledIndex(currentTrack, currentPlaylistIndex);
+					playingPlaylist = playlist.clone();
 				}
 			} else if (!shuffle && !ignorePlaylist) {
 				// If we're playing or pausing a track, we need to reset our position

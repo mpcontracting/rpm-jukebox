@@ -11,17 +11,19 @@ public class TrackTableView<T> extends TableView<TrackTableModel> {
 	public void highlightTrack(Track track) {
 		log.debug("Highlighting track - " + track);
 		
-		ObservableList<TrackTableModel> observableTracks = getItems();
-		
-		if (observableTracks != null) {
-			for (int i = 0; i < observableTracks.size(); i++) {
-				TrackTableModel trackTableModel = observableTracks.get(i);
-
-				if (trackTableModel.getTrack() != null && trackTableModel.getTrack().equals(track)) {
-					getSelectionModel().select(i);
-					getFocusModel().focus(i);
-					
-					break;
+		if (track != null) {
+			ObservableList<TrackTableModel> observableTracks = getItems();
+			
+			if (observableTracks != null) {
+				for (int i = 0; i < observableTracks.size(); i++) {
+					TrackTableModel trackTableModel = observableTracks.get(i);
+	
+					if (trackTableModel.getTrack() != null && trackTableModel.getTrack().equals(track)) {
+						getSelectionModel().select(i);
+						getFocusModel().focus(i);
+						
+						break;
+					}
 				}
 			}
 		}

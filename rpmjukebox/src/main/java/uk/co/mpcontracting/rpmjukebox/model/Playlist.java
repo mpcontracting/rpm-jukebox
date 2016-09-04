@@ -15,7 +15,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @ToString(includeFieldNames = true)
 @EqualsAndHashCode(of = {"playlistId"})
-public class Playlist implements Constants, Iterable<Track> {
+public class Playlist implements Cloneable, Iterable<Track>, Constants {
     @Getter private int playlistId;
     @Getter @Setter private String name;
     private int maxPlaylistSize;
@@ -23,6 +23,8 @@ public class Playlist implements Constants, Iterable<Track> {
     private List<Track> shuffledTracks;
     
     private SecureRandom random;
+    
+    private Playlist() {}
 
     public Playlist(int playlistId, String name, int maxPlaylistSize) {
         this.playlistId = playlistId;
@@ -173,5 +175,30 @@ public class Playlist implements Constants, Iterable<Track> {
     public void clear() {
     	tracks.clear();
     	shuffledTracks.clear();
+    }
+    
+    @Synchronized
+    public Playlist clone() {
+    	Playlist clone = new Playlist();
+    	clone.playlistId = playlistId;
+    	clone.name = name;
+    	clone.maxPlaylistSize = maxPlaylistSize;
+    	
+    	clone.tracks = new ArrayList<Track>();
+    	
+    	for (Track track : tracks) {
+    		clone.tracks.add(track.clone());
+    	}
+    	
+    	clone.shuffledTracks = new ArrayList<Track>();
+    	
+    	for (Track track : shuffledTracks) {
+    		clone.shuffledTracks.add(track.clone());
+    	}
+    	
+    	clone.random = new SecureRandom();
+        clone.random.setSeed(System.currentTimeMillis());
+    	
+    	return clone;
     }
 }

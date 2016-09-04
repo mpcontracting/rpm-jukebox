@@ -132,7 +132,7 @@ public class TrackTableController extends EventAwareObject {
 						updateObservableTracks(visiblePlaylistId);
 					}
 
-					trackTableView.highlightTrack(playlistManager.getTrackAtCurrentPlaylistIndex());
+					trackTableView.highlightTrack(playlistManager.getTrackAtPlayingPlaylistIndex());
 				}
 				
 				break;
