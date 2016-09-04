@@ -36,6 +36,7 @@ import uk.co.mpcontracting.rpmjukebox.settings.Settings;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.settings.Window;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
 @Slf4j
 @Component
@@ -59,6 +60,8 @@ public class SettingsManager implements InitializingBean, Constants {
 	@Resource(location = "classpath:/rpm-jukebox.properties")
 	private Properties properties;
 
+	@Getter private OsType osType;
+	
 	private File configDirectory;
 	@Getter private URL dataFile;
 	@Getter private SystemSettings systemSettings;
@@ -67,6 +70,19 @@ public class SettingsManager implements InitializingBean, Constants {
 	private boolean settingsLoaded;
 	
 	public SettingsManager() {
+		// Determine the OS type
+		String osName = System.getProperty("os.name").toLowerCase();
+		
+		if (osName.contains("windows")) {
+			osType = OsType.WINDOWS;
+		} else if (osName.contains("mac")) {
+			osType = OsType.OSX;
+		} else if (osName.contains("linux")) {
+			osType = OsType.LINUX;
+		} else {
+			osType = OsType.UNKNOWN;
+		}
+		
 		// Initialise Gson
 		gson = new GsonBuilder().setPrettyPrinting().create();
 	}

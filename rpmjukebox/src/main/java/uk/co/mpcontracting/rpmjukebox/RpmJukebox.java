@@ -24,6 +24,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.OsType;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
@@ -107,7 +108,7 @@ public class RpmJukebox extends Application implements Constants {
 		stage.setTitle("RPM Jukebox");
 
 		// If this is Windows, add a window icon
-		if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+		if (settingsManager.getOsType() == OsType.WINDOWS) {
 			stage.getIcons().add(new Image(getClass().getResourceAsStream(IMAGE_WINDOW_ICON)));
 		}
 		

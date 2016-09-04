@@ -15,16 +15,20 @@ import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
+import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
 public class TrackTableCellFactory<S, T> extends EventAwareObject implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>>, Constants {
 
+	private SettingsManager settingsManager;
 	private MessageManager messageManager;
 	private PlaylistManager playlistManager;
 	private Image dragNDrop;
 
 	public TrackTableCellFactory() {
+		settingsManager = ApplicationContext.getBean(SettingsManager.class);
 		messageManager = ApplicationContext.getBean(MessageManager.class);
 		playlistManager = ApplicationContext.getBean(PlaylistManager.class);
 		dragNDrop = new Image(IMAGE_DRAG_N_DROP);
@@ -102,7 +106,11 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 			if (tableCell != null && tableCell.getItem() != null) {
 				Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
 				Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY_OR_MOVE);
-				dragboard.setDragView(dragNDrop);
+				
+				// Only set the drag and drop image on OSX
+				if (settingsManager.getOsType() == OsType.OSX) {
+					dragboard.setDragView(dragNDrop);
+				}
 				
 				ClipboardContent clipboardContent = new ClipboardContent();
 				clipboardContent.put(DND_TRACK_DATA_FORMAT, track);
