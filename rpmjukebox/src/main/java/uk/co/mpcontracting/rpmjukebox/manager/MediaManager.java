@@ -187,6 +187,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 
 		currentPlayer.setOnPlaying(() -> {
 			fireEvent(Event.MEDIA_PLAYING, currentTrack);
+			fireEvent(Event.BUFFER_UPDATED, currentDuration, currentPlayer.getBufferProgressTime());
 		});
 
 		currentPlayer.setOnPaused(() -> {
