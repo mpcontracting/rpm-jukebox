@@ -4,6 +4,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
@@ -21,10 +22,12 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 
 	private MessageManager messageManager;
 	private PlaylistManager playlistManager;
+	private Image dragNDrop;
 
 	public TrackTableCellFactory() {
 		messageManager = ApplicationContext.getBean(MessageManager.class);
 		playlistManager = ApplicationContext.getBean(PlaylistManager.class);
+		dragNDrop = new Image(IMAGE_DRAG_N_DROP);
 	}
 	
 	@Override
@@ -99,6 +102,8 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 			if (tableCell != null && tableCell.getItem() != null) {
 				Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
 				Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY_OR_MOVE);
+				dragboard.setDragView(dragNDrop);
+				
 				ClipboardContent clipboardContent = new ClipboardContent();
 				clipboardContent.put(DND_TRACK_DATA_FORMAT, track);
 				dragboard.setContent(clipboardContent);
