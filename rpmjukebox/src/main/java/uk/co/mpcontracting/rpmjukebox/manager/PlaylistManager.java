@@ -280,7 +280,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		log.debug("Playing current track");
 
 		synchronized (playlistMap) {
-			// If the playing playlist is null, initialise is from
+			// If the playing playlist is null, initialise it from
 			// the current playlist ID
 			if (playingPlaylist == null) {
 				playingPlaylist = playlistMap.get(currentPlaylistId).clone();

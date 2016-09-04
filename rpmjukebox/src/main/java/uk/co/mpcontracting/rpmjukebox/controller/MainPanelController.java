@@ -615,11 +615,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
 							}
 						}
 						
-						// If we're changing playlists, there will be no track selected
-						// so disable the play button
+						// If we're changing playlists and we're not playing or paused, there will 
+						// be no track selected so disable the play button
 						if (selectedPlaylistId != currentSelectedPlaylistId) {
 							currentSelectedPlaylistId = selectedPlaylistId;
-							playPauseButton.setDisable(true);
+							
+							if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
+								playPauseButton.setDisable(true);
+							}
 						}
 					}
 				}
