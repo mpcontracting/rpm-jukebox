@@ -4,7 +4,7 @@
 
 	<groupId>uk.co.mpcontracting</groupId>
 	<artifactId>rpmjukebox</artifactId>
-	<version>1.0.0-beta-4</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>RPM Jukebox</name>
@@ -121,9 +121,10 @@
 					</jvmArgs>
 					<!--<verbose>true</verbose> -->
 					<bundleArguments>
+						<copyright>©2016 Matt Parker</copyright>
 						<systemWide>true</systemWide>
 						<win.menuGroup>RPM Jukebox</win.menuGroup>
-						<win.msi.productVersion>1.0.4</win.msi.productVersion>
+						<win.msi.productVersion>1.0.0</win.msi.productVersion>
 					</bundleArguments>
 				</configuration>
 				<executions>
