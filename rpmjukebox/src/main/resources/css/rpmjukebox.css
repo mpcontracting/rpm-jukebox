@@ -299,6 +299,10 @@
 
 /* Styles By Id */
 
+#newVersionButton {
+	-fx-text-fill: -jb-foreground-color;
+}
+
 #searchPanel {
 	-fx-background-image: url("../images/header.png");
 	-fx-background-repeat: no-repeat;

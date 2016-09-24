@@ -60,7 +60,7 @@ public class SettingsController extends EventAwareObject implements Constants {
 	public void bindSystemSettings() {
 		SystemSettings systemSettings = settingsManager.getSystemSettings();
 
-		versionLabel.setText(messageManager.getMessage(MESSAGE_SETTINGS_COPYRIGHT_2, settingsManager.getPropertyString(PROP_VERSION)));
+		versionLabel.setText(messageManager.getMessage(MESSAGE_SETTINGS_COPYRIGHT_2, settingsManager.getVersion()));
 		cacheSizeMbTextField.setText(Integer.toString(systemSettings.getCacheSizeMb()));
 		cancelButton.requestFocus();
 		

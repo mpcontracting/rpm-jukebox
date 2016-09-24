@@ -18,9 +18,18 @@
    <children>
       <BorderPane id="searchPanel" minHeight="40.0" prefHeight="40.0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
          <right>
-            <HBox id="searchTextHBox">
+            <HBox>
                <children>
-                  <TextField id="searchTextField" fx:id="searchTextField" disable="true" />
+                  <HBox styleClass="buttonHbox">
+                     <children>
+                        <Button id="newVersionButton" fx:id="newVersionButton" disable="true" focusTraversable="false" mnemonicParsing="false" onAction="#handleNewVersionButtonAction" text="%message.newVersionAvailable" visible="false" />
+                     </children>
+                  </HBox>
+                  <HBox id="searchTextHBox">
+                     <children>
+                        <TextField id="searchTextField" fx:id="searchTextField" disable="true" />
+                     </children>
+                  </HBox>
                </children>
             </HBox>
          </right>

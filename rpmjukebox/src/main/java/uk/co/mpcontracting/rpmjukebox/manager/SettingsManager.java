@@ -16,6 +16,7 @@ import java.util.Properties;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.igormaznitsa.commons.version.Version;
 
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
@@ -61,6 +62,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	private Properties properties;
 
 	@Getter private OsType osType;
+	@Getter private Version version;
 	
 	private File configDirectory;
 	@Getter private URL dataFile;
@@ -91,6 +93,9 @@ public class SettingsManager implements InitializingBean, Constants {
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising SettingsManager");
 
+		// Get the application version
+		version = new Version(getPropertyString(PROP_VERSION));
+		
 		// Look for the config directory and create it if it isn't there
 		File homeDir = new File(System.getProperty("user.home"));
 		

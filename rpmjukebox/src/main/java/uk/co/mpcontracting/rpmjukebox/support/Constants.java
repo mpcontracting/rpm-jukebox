@@ -10,6 +10,8 @@ public interface Constants {
     
     // Property keys
     public static final String PROP_VERSION												= "version";
+    public static final String PROP_VERSION_URL											= "version.url";
+    public static final String PROP_WEBSITE_URL											= "website.url";
     public static final String PROP_DATAFILE_URL										= "datafile.url";
     public static final String PROP_DIRECTORY_CONFIG									= "directory.config";
     public static final String PROP_DIRECTORY_LOG										= "directory.log";
@@ -32,6 +34,7 @@ public interface Constants {
     public static final String MESSAGE_CHECKING_DATA									= "message.checkingData";
     public static final String MESSAGE_DOWNLOAD_INDEX									= "message.downloadIndex";
     public static final String MESSAGE_ALREADY_RUNNING									= "message.alreadyRunning";
+    public static final String MESSAGE_NEW_VERSION_AVAILABLE							= "message.newVersionAvailable";
     public static final String MESSAGE_PLAYLIST_DEFAULT									= "playlist.default";
     public static final String MESSAGE_PLAYLIST_SEARCH									= "playlist.searchResults";
     public static final String MESSAGE_PLAYLIST_FAVOURITES								= "playlist.favourites";

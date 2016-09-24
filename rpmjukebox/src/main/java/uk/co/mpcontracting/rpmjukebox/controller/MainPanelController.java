@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
+import com.igormaznitsa.commons.version.Version;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -45,6 +46,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.NativeManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
+import uk.co.mpcontracting.rpmjukebox.manager.UpdateManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
@@ -60,6 +62,9 @@ import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 @Component
 public class MainPanelController extends EventAwareObject implements Constants {
 
+	@FXML
+	private Button newVersionButton;
+	
 	@FXML
 	private TextField searchTextField;
 	
@@ -152,6 +157,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private NativeManager nativeManager;
+	
+	@Autowired
+	private UpdateManager updateManager;
 	
 	@Autowired
 	private EqualizerController equalizerController;
@@ -320,6 +328,13 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				break;
 			}
 		}
+	}
+	
+	@FXML
+	protected void handleNewVersionButtonAction(ActionEvent event) {
+		log.debug("New version button pressed");
+
+		updateManager.downloadNewVersion();
 	}
 	
 	@FXML
@@ -524,6 +539,15 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				eqButton.setDisable(false);
 				randomButton.setDisable(false);
 
+				break;
+			}
+			case NEW_VERSION_AVAILABLE: {
+				Version newVersion = (Version)payload[0];
+
+				newVersionButton.setText(messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, newVersion));
+				newVersionButton.setDisable(false);
+				newVersionButton.setVisible(true);
+				
 				break;
 			}
 			case MUTE_UPDATED: {

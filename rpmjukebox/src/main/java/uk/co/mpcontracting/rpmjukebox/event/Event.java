@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.event;
 
 public enum Event {
 	APPLICATION_INITIALISED,
+	NEW_VERSION_AVAILABLE,
 	DATA_INDEXED,
 	MUTE_UPDATED,
     TIME_UPDATED, 
