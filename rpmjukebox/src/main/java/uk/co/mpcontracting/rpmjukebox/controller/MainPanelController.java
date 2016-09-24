@@ -41,6 +41,7 @@ import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
+import uk.co.mpcontracting.rpmjukebox.manager.NativeManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
@@ -148,6 +149,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private CacheManager cacheManager;
+	
+	@Autowired
+	private NativeManager nativeManager;
 	
 	@Autowired
 	private EqualizerController equalizerController;
@@ -651,6 +655,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 					}
 					
 					playPauseButton.setDisable(true);
+					
+					nativeManager.displayNotification(track);
 				}
 				
 				break;

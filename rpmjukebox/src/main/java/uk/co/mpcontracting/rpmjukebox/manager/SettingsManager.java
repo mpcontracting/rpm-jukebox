@@ -82,7 +82,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		} else {
 			osType = OsType.UNKNOWN;
 		}
-		
+
 		// Initialise Gson
 		gson = new GsonBuilder().setPrettyPrinting().create();
 	}
@@ -91,7 +91,6 @@ public class SettingsManager implements InitializingBean, Constants {
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising SettingsManager");
 
-		
 		// Look for the config directory and create it if it isn't there
 		File homeDir = new File(System.getProperty("user.home"));
 		
