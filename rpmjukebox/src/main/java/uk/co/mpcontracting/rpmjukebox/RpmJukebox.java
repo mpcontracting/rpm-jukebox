@@ -20,7 +20,6 @@ import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
-import uk.co.mpcontracting.rpmjukebox.manager.NativeManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
@@ -32,9 +31,6 @@ import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 @Component
 public class RpmJukebox extends Application implements Constants {
 
-	@Autowired
-	private NativeManager nativeManager;
-	
 	@Autowired
 	private SettingsManager settingsManager;
 	
@@ -126,7 +122,6 @@ public class RpmJukebox extends Application implements Constants {
 		// Initialise data in a new thread for GUI responsiveness
 		ThreadRunner.run(() -> {
 			try {
-				nativeManager.initialise();
 				searchManager.initialise();
 				settingsManager.loadSettings();
 				

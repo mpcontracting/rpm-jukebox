@@ -10,25 +10,27 @@ import com.sun.jna.Native;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.ioc.annotation.Autowired;
 import uk.co.mpcontracting.ioc.annotation.Component;
+import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
-public class NativeManager {
+public class NativeManager implements InitializingBean {
 
 	@Autowired
 	private SettingsManager settingsManager;
 	
 	private NsUserNotificationsBridge nsUserNotificationsBridge;
 
-	public void initialise() throws Exception {
+	@Override
+	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising NativeManager");
 		
 		// Make sure the native directory exists
 		File nativeDirectory = settingsManager.getFileFromConfigDirectory("native");
-		
+
 		if (!nativeDirectory.exists()) {
 			nativeDirectory.mkdirs();
 		}
@@ -46,7 +48,7 @@ public class NativeManager {
 			}
 		}
 	}
-	
+
 	public void displayNotification(Track track) {
 		if (settingsManager.getOsType() == OsType.OSX) {
 			ThreadRunner.run(() -> {

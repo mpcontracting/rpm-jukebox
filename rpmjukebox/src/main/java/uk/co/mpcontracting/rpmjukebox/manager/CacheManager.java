@@ -36,20 +36,8 @@ public class CacheManager implements InitializingBean, Constants {
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising CacheManager");
 		
-		// See if we have a command line override
-		File homeDir = new File(System.getProperty("user.home"));
-		File configDirectory = null;
-		
-		if (System.getProperty(PROP_DIRECTORY_CONFIG) != null) {
-			log.info("Using system property config directory - " + System.getProperty(PROP_DIRECTORY_CONFIG));
-			
-			configDirectory = new File(homeDir, System.getProperty(PROP_DIRECTORY_CONFIG));
-		} else {
-			configDirectory = new File(homeDir, settingsManager.getPropertyString(PROP_DIRECTORY_CONFIG));
-		}
-		
 		// Look for the cache directory and create it if it isn't there
-		cacheDirectory = new File(configDirectory, settingsManager.getPropertyString(PROP_DIRECTORY_CACHE));
+		cacheDirectory = settingsManager.getFileFromConfigDirectory(settingsManager.getPropertyString(PROP_DIRECTORY_CACHE));
 
 		if (!cacheDirectory.exists()) {
 			if (!cacheDirectory.mkdirs()) {

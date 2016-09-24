@@ -39,7 +39,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
 @Slf4j
-@Component
+@Component(priority = 1)
 public class SettingsManager implements InitializingBean, Constants {
 
 	@Autowired
