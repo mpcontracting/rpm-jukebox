@@ -122,6 +122,14 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		
 		return 0;
 	}
+	
+	public double getPlayingTimePercent() {
+		if (currentPlayer != null) {
+			return (currentPlayer.getCurrentTime().toMillis() / currentPlayer.getTotalDuration().toMillis()) * 100.0;
+		}
+		
+		return 0;
+	}
 
 	public void setEqualizerGain(int band, double value) {
 		log.debug("Setting EQ gain : Band - " + band + ", Value - " + value);

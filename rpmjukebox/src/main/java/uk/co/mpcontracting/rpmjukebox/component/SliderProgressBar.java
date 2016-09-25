@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
@@ -23,6 +24,10 @@ public class SliderProgressBar extends StackPane {
 
 	public DoubleProperty sliderValueProperty() {
 		return slider.valueProperty();
+	}
+	
+	public BooleanProperty sliderValueChangingProperty() {
+		return slider.valueChangingProperty();
 	}
 
 	public boolean isSliderValueChanging() {

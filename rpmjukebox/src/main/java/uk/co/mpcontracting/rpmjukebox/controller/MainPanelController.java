@@ -190,9 +190,20 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			searchTextUpdated(newValue);
 		});
 
-		timeSlider.sliderValueProperty().addListener(observable -> {
-			if (timeSlider.isSliderValueChanging()) {
+		timeSlider.sliderValueChangingProperty().addListener((observable, wasChanging, isChanging) -> {
+			if (!isChanging) {
 				mediaManager.setSeekPositionPercent(timeSlider.getSliderValue());
+			}
+		});
+		
+		timeSlider.sliderValueProperty().addListener((observable, oldValue, newValue) -> {
+			if (!timeSlider.isSliderValueChanging()) {
+				double sliderPercent = newValue.doubleValue();
+				double trackPercent = mediaManager.getPlayingTimePercent();
+				
+				if (Math.abs(trackPercent - sliderPercent) > 0.5) {
+					mediaManager.setSeekPositionPercent(timeSlider.getSliderValue());
+				}
 			}
 		});
 
