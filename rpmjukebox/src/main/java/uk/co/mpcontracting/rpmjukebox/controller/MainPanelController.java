@@ -14,6 +14,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -26,6 +28,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -134,6 +138,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@FXML
 	private Button randomButton;
 	
+	@FXML
+	private Button visualizerButton;
+	
 	@Autowired
 	private RpmJukebox rpmJukebox;
 	
@@ -169,12 +176,16 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private ExportController exportController;
+	
+	@Autowired
+	private VisualizerController visualizerController;
 
 	@Getter private ModalWindow equalizerWindow;
 	@Getter private ModalWindow settingsWindow;
 	@Getter private ModalWindow exportWindow;
 	private MessageWindow messageWindow;
 	private ConfirmWindow confirmWindow;
+	private Stage visualizerWindow;
 	private ObservableList<Playlist> observablePlaylists;
 	
 	private int previousSecondsCutoff;
@@ -230,6 +241,17 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		// Confirm window
 		confirmWindow = new ConfirmWindow(rpmJukebox.getStage(), "confirm.fxml");
+		
+		// Visualizer window
+		visualizerWindow = new Stage();
+		visualizerWindow.setScene(new Scene((Parent)FxmlContext.loadFxml("visualizer.fxml")));
+		visualizerWindow.addEventHandler(WindowEvent.WINDOW_SHOWN, event -> {
+			visualizerWindow.setX((rpmJukebox.getStage().getX() + rpmJukebox.getStage().getWidth() / 2) - visualizerWindow.getWidth() / 2);
+			visualizerWindow.setY((rpmJukebox.getStage().getY() + rpmJukebox.getStage().getHeight() / 2) - visualizerWindow.getHeight() / 2);
+		});
+		visualizerWindow.setOnHidden(event -> {
+			visualizerController.destroyVisualizer();
+		});
 		
 		// Playlist list view
 		observablePlaylists = FXCollections.observableArrayList();
@@ -456,7 +478,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@FXML
 	protected void handlePlayPauseButtonAction(ActionEvent event) {
-		log.info("Play/pause button pressed");
+		log.debug("Play/pause button pressed");
 
 		if (mediaManager.isPlaying()) {
 			playlistManager.pauseCurrentTrack();
@@ -517,6 +539,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		playlistManager.playPlaylist(PLAYLIST_ID_SEARCH);
 	}
 	
+	@FXML
+	protected void handleVisualizerButtonAction(ActionEvent event) {
+		log.debug("Visualizer button pressed");
+
+		visualizerController.createVisualizer();
+		visualizerWindow.show();
+	}
+	
 	@Override
 	public void eventReceived(Event event, Object... payload) {
 		switch (event) {
@@ -549,6 +579,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				repeatButton.setDisable(false);
 				eqButton.setDisable(false);
 				randomButton.setDisable(false);
+				visualizerButton.setDisable(false);
 
 				break;
 			}

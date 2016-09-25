@@ -16,6 +16,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.visualizer.AbstractVisualizer;
 
 @Slf4j
 @Component
@@ -34,6 +35,8 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	@Getter private Equalizer equalizer;
 	@Getter private boolean muted;
 	@Getter private double volume;
+	
+	private AbstractVisualizer visualizer;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -141,6 +144,32 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		}
 	}
 	
+	@Synchronized
+	public void setVisualizer(AbstractVisualizer visualizer) {
+		log.info("Setting visualizer - " + (visualizer != null ? visualizer.getClass().getName() : "null"));
+		
+		if (visualizer != null) {
+			if (currentPlayer != null) {
+				currentPlayer.audioSpectrumListenerProperty().setValue(visualizer);
+			}
+			
+			this.visualizer = visualizer;
+		} else {
+			clearVisualiser();
+		}
+	}
+	
+	@Synchronized
+	public void clearVisualiser() {
+		log.info("Clearing visualizer - " + (visualizer != null ? visualizer.getClass().getName() : "null"));
+		
+		if (currentPlayer != null) {
+			currentPlayer.audioSpectrumListenerProperty().setValue(null);
+		}
+		
+		visualizer = null;
+	}
+	
 	public boolean isPlaying() {
 		if (currentPlayer != null) {
 			return currentPlayer.getStatus() == Status.PLAYING;
@@ -184,6 +213,10 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 
 		for (int i = 0; i < equalizer.getNumberOfBands(); i++) {
 			currentPlayer.getAudioEqualizer().getBands().get(i).setGain(equalizer.getGain(i));
+		}
+		
+		if (visualizer != null) {
+			currentPlayer.audioSpectrumListenerProperty().setValue(visualizer);
 		}
 
 		currentPlayer.setOnReady(() -> {
