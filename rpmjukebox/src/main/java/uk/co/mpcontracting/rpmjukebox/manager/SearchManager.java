@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
@@ -210,7 +211,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         
         // Keywords
         document.add(new TextField(TrackField.KEYWORDS.name(), 
-    		(nullSafeTrim(track.getArtistName()) + " " + nullSafeTrim(track.getAlbumName()) + " " + 
+    		StringUtils.stripAccents(nullSafeTrim(track.getArtistName()) + " " + nullSafeTrim(track.getAlbumName()) + " " + 
     		nullSafeTrim(track.getTrackName())).toLowerCase(), Field.Store.YES));
         
         // Result data
@@ -263,7 +264,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         
         try {
         	trackSearcher = trackManager.acquire();
-            TopFieldDocs results = trackSearcher.search(buildKeywordsQuery(nullSafeTrim(stripWhitespace(trackSearch.getKeywords(), true).toLowerCase()), 
+            TopFieldDocs results = trackSearcher.search(buildKeywordsQuery(StringUtils.stripAccents(nullSafeTrim(stripWhitespace(trackSearch.getKeywords(), true)).toLowerCase()), 
             	trackSearch.getTrackFilter().getFilter()), maxSearchHits, new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
             ScoreDoc[] scoreDocs = results.scoreDocs;
             List<Track> tracks = new ArrayList<Track>();
