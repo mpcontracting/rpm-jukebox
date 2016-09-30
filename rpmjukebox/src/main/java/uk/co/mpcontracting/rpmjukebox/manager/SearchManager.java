@@ -122,6 +122,13 @@ public class SearchManager extends EventAwareObject implements Constants {
         	if (settingsManager.hasDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
         		indexData(true);
         	}
+        	
+        	// Warm up the search
+        	String searchWarmer = "test song";
+        	
+        	for (int i = 0; i < searchWarmer.length(); i++) {
+        		search(new TrackSearch(searchWarmer.substring(0, i + 1)));
+        	}
 
             log.debug("SearchManager initialised");
     	} catch (LockObtainFailedException e) {
