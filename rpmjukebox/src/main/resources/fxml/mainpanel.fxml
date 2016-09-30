@@ -146,7 +146,6 @@
                <tooltip>
                   <Tooltip text="%tooltip.randomPlaylist" />
                </tooltip></Button>
-            <Button id="randomButton" fx:id="visualizerButton" disable="true" minWidth="20.0" mnemonicParsing="false" onAction="#handleVisualizerButtonAction" prefHeight="20.0" prefWidth="20.0" />
          </children></HBox>
    </children>
    <columnConstraints>
