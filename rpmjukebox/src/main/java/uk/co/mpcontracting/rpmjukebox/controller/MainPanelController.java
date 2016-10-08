@@ -462,6 +462,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			playlistManager.pauseCurrentTrack();
 		} else if (mediaManager.isPaused()) {
 			playlistManager.resumeCurrentTrack();
+		} else if (!playlistManager.getPlaylist(currentSelectedPlaylistId).isEmpty() && 
+			playlistManager.getSelectedTrack() == null) {
+			playlistManager.playPlaylist(currentSelectedPlaylistId);
 		} else {
 			playlistManager.playCurrentTrack(true);
 		}
@@ -654,12 +657,19 @@ public class MainPanelController extends EventAwareObject implements Constants {
 							}
 						}
 						
-						// If we're changing playlists and we're not playing or paused, there will 
-						// be no track selected so disable the play button
-						if (selectedPlaylistId != currentSelectedPlaylistId) {
-							currentSelectedPlaylistId = selectedPlaylistId;
-							
-							if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
+						// If we're selecting a new playlist, then clear the selected track
+						if (currentSelectedPlaylistId != selectedPlaylistId) {
+							playlistManager.clearSelectedTrack();
+						}
+						
+						currentSelectedPlaylistId = selectedPlaylistId;
+
+						// If we're not playing or paused and the playlist is not empty
+						// then enable the play button so we can play the playlist
+						if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
+							if (!playlistManager.getPlaylist(currentSelectedPlaylistId).isEmpty()) {
+								playPauseButton.setDisable(false);
+							} else {
 								playPauseButton.setDisable(true);
 							}
 						}

@@ -47,6 +47,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	@Getter private boolean shuffle;
 	@Getter private Repeat repeat;
 	
+	@Getter private Track selectedTrack;
+	
 	private int maxPlaylistSize;
 	
 	@Override
@@ -64,6 +66,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		playingPlaylist = null;
 		shuffle = false;
 		repeat = Repeat.OFF;
+		
+		selectedTrack = null;
 	}
 
 	public void setPlaylists(List<Playlist> playlists) {
@@ -426,6 +430,10 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		return null;
 	}
 	
+	public void clearSelectedTrack() {
+		selectedTrack = null;
+	}
+	
 	public void setShuffle(boolean shuffle, boolean ignorePlaylist) {
 		log.debug("Setting shuffle - " + shuffle);
 		
@@ -489,6 +497,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 			case TRACK_SELECTED: {
 				if (payload != null && payload.length > 0) {
 					Track track = (Track)payload[0];
+					
+					selectedTrack = track;
 					
 					// If we're not playing a track, the selected track is queued up next
 					if (!mediaManager.isPlaying()) {
