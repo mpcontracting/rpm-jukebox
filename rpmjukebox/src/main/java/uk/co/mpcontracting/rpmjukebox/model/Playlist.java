@@ -19,7 +19,7 @@ public class Playlist implements Cloneable, Iterable<Track>, Constants {
     @Getter private int playlistId;
     @Getter @Setter private String name;
     private int maxPlaylistSize;
-    private List<Track> tracks;
+    @Getter private List<Track> tracks;
     private List<Track> shuffledTracks;
     
     private SecureRandom random;

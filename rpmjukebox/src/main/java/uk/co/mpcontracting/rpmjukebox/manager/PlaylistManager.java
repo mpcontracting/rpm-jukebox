@@ -43,7 +43,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	@Getter private int currentPlaylistId;
 	private int currentPlaylistIndex;
 	private Track currentTrack;
-	private Playlist playingPlaylist;
+	@Getter private Playlist playingPlaylist;
 	@Getter private boolean shuffle;
 	@Getter private Repeat repeat;
 	

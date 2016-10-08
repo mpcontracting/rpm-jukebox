@@ -295,6 +295,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 		if (searchText != null && searchText.trim().length() > 0) {
 			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.search(new TrackSearch(searchText.trim())));
+		} else if (playlistManager.getPlayingPlaylist() != null && playlistManager.getPlayingPlaylist().getPlaylistId() == PLAYLIST_ID_SEARCH) {
+			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, playlistManager.getPlayingPlaylist().getTracks());
 		} else {
 			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, Collections.emptyList());
 		}
