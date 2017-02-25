@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +25,8 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BooleanQuery.Builder;
@@ -112,16 +116,22 @@ public class SearchManager extends EventAwareObject implements Constants {
             random = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
             
             maxSearchHits = settingsManager.getPropertyInteger(PROP_MAX_SEARCH_HITS);
-            
-            // Initialise the filters and sorts
-            genreList = new ArrayList<String>();
-        	yearList = new ArrayList<String>();
-        	trackSortList = Arrays.asList(TrackSort.values());
-        	
+
         	// See if we already have valid indexes, if not, build them
         	if (settingsManager.hasDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
         		indexData(true);
         	}
+        	
+        	// Initialise the filters and sorts
+            genreList = new ArrayList<String>();
+            genreList.add(UNSPECIFIED_GENRE);
+            genreList.addAll(getDistinctTrackFieldValues(TrackField.GENRE));
+            Collections.sort(genreList);
+            
+        	yearList = getDistinctTrackFieldValues(TrackField.YEAR);
+        	Collections.sort(yearList);
+        	
+        	trackSortList = Arrays.asList(TrackSort.values());
         	
         	// Warm up the search
         	String searchWarmer = "test song";
@@ -174,7 +184,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     public void indexData(boolean blurBackground) throws Exception {
     	mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX), blurBackground);
 
-		DataParser.parse(this, settingsManager.getDataFile(), genreList, yearList);
+		DataParser.parse(this, settingsManager.getDataFile());
     	commitIndexes();
     	settingsManager.setLastIndexedDate(LocalDateTime.now());
     	
@@ -228,7 +238,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         document.add(new StringField(TrackField.ALBUMID.name(), track.getAlbumId(), Field.Store.YES));
         document.add(new StringField(TrackField.ALBUMNAME.name(), track.getAlbumName(), Field.Store.YES));
         document.add(new StringField(TrackField.ALBUMIMAGE.name(), nullIsBlank(track.getAlbumImage()), Field.Store.YES));
-        document.add(new StoredField(TrackField.YEAR.name(), track.getYear()));
+        document.add(new StringField(TrackField.YEAR.name(), Integer.toString(track.getYear()), Field.Store.YES));
         document.add(new StringField(TrackField.TRACKID.name(), track.getTrackId(), Field.Store.YES));
         document.add(new StringField(TrackField.TRACKNAME.name(), track.getTrackName(), Field.Store.YES));
         document.add(new StoredField(TrackField.NUMBER.name(), track.getNumber()));
@@ -251,6 +261,56 @@ public class SearchManager extends EventAwareObject implements Constants {
         } catch (Exception e) {
             log.error("Unable to index track - " + track.getTrackId());
         }
+    }
+    
+    @Synchronized
+    private List<String> getDistinctTrackFieldValues(TrackField trackField) {
+    	log.debug("Getting distinct track field values - " + trackField);
+    	
+    	long startTime = System.currentTimeMillis();
+    	
+    	if (trackManager == null) {
+    		throw new RuntimeException("Cannot search before track index is initialised");
+    	}
+
+		IndexSearcher trackSearcher = null;
+		
+		try {
+			trackSearcher = trackManager.acquire();
+			
+			Set<String> fieldValues = new HashSet<String>();
+			IndexReader indexReader = trackSearcher.getIndexReader();
+			
+			for (LeafReaderContext context : indexReader.leaves()) {
+				Terms terms = context.reader().terms(trackField.name());
+
+				if (terms != null) {
+					TermsEnum termsEnum = terms.iterator();
+					BytesRef bytesRef = null;
+					
+					while ((bytesRef = termsEnum.next()) != null) {
+						fieldValues.add(bytesRef.utf8ToString());
+					}
+				}
+			}
+
+			return new ArrayList<String>(fieldValues);
+		} catch (Exception e) {
+			log.error("Unable to get distinct track field values - " + trackField, e);
+			
+			return Collections.emptyList();
+		} finally {
+			try {
+	        	trackManager.release(trackSearcher);
+        	} catch (Exception e) {
+        		log.warn("Unable to release track searcher");
+        	}
+	        
+        	trackSearcher = null;
+        	long queryTime = (System.currentTimeMillis() - startTime);
+            
+            log.debug("Distinct track field values query time - " + queryTime + " milliseconds");
+		}
     }
     
     @Synchronized

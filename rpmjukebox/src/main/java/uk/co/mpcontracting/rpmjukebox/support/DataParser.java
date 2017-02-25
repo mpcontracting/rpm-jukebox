@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
@@ -24,9 +23,7 @@ public abstract class DataParser implements Constants {
 
 	private DataParser() {}
 	
-	public static void parse(SearchManager searchManager, URL dataFile, List<String> genreList, List<String> yearList) throws Exception {
-		genreList.add(UNSPECIFIED_GENRE);
-
+	public static void parse(SearchManager searchManager, URL dataFile) throws Exception {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(dataFile.openStream()), Charset.forName("UTF-8")))) {
 			log.info("Loading data from - " + dataFile);
 
@@ -45,12 +42,6 @@ public abstract class DataParser implements Constants {
 					if ("B".equals(getRowData(rowData, 0))) {
 						currentArtist = parseArtist(rowData);
 
-						for (String genre : currentArtist.getGenres()) {
-							if (!genreList.contains(genre)) {
-								genreList.add(genre);
-							}
-						}
-
 						searchManager.addArtist(new Artist(
 							currentArtist.getArtistId(),
 							currentArtist.getArtistName(),
@@ -60,12 +51,6 @@ public abstract class DataParser implements Constants {
 					} else if ("A".equals(getRowData(rowData, 0))) {
 						currentAlbum = parseAlbum(rowData);
 						trackNumber = 1;
-
-						String year = Integer.toString(currentAlbum.getYear());
-
-						if (!yearList.contains(year)) {
-							yearList.add(year);
-						}
 					} else if ("T".equals(getRowData(rowData, 0))) {
 						ParserModelTrack currentTrack = parseTrack(rowData);
 
@@ -90,9 +75,6 @@ public abstract class DataParser implements Constants {
 					log.warn("Record - " + nextLine);
 				}
 			}
-
-			Collections.sort(genreList);
-			Collections.sort(yearList);
 		}
 	}
 	

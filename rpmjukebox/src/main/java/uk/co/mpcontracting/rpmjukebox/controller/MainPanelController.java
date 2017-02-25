@@ -15,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
@@ -64,6 +65,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 	@FXML
 	private Button newVersionButton;
+	
+	@FXML
+	private ChoiceBox<String> yearFilterChoiceBox;
 	
 	@FXML
 	private TextField searchTextField;
@@ -304,6 +308,12 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
 	}
 	
+	private void updateYearFilter() {
+		log.debug("Updating year filter - " + searchManager.getYearList());
+		
+		yearFilterChoiceBox.getItems().addAll(searchManager.getYearList());
+	}
+	
 	private void updateObservablePlaylists() {
 		log.debug("Updating observable playlists");
 
@@ -526,6 +536,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	public void eventReceived(Event event, Object... payload) {
 		switch (event) {
 			case APPLICATION_INITIALISED: {
+				// Update year filter
+				updateYearFilter();
+				
 				// Update the observable lists
 				updateObservablePlaylists();
 				
