@@ -555,19 +555,23 @@ public class SearchManager extends EventAwareObject implements Constants {
     }
     
     private Query buildKeywordsQuery(String keywords, Query trackFilter) {
-        // Split into whole words with the last word having
-        // a wildcard '*' on the end
     	Builder builder = new BooleanQuery.Builder();
 
-        for (StringTokenizer tokens = new StringTokenizer(keywords, " "); tokens.hasMoreTokens();) {
-            String token = tokens.nextToken();
-
-            if (tokens.hasMoreElements()) {
-                builder.add(new TermQuery(new Term(TrackField.KEYWORDS.name(), token)), BooleanClause.Occur.MUST);
-            } else {
-                builder.add(new WildcardQuery(new Term(TrackField.KEYWORDS.name(), (token + "*"))), BooleanClause.Occur.MUST);
-            }
-        }
+    	if ("*".equals(keywords)) {
+    		builder.add(new WildcardQuery(new Term(TrackField.KEYWORDS.name(), keywords)), BooleanClause.Occur.MUST);
+    	} else {
+	    	// Split into whole words with the last word having
+	        // a wildcard '*' on the end
+	        for (StringTokenizer tokens = new StringTokenizer(keywords, " "); tokens.hasMoreTokens();) {
+	            String token = tokens.nextToken();
+	
+	            if (tokens.hasMoreElements()) {
+	                builder.add(new TermQuery(new Term(TrackField.KEYWORDS.name(), token)), BooleanClause.Occur.MUST);
+	            } else {
+	                builder.add(new WildcardQuery(new Term(TrackField.KEYWORDS.name(), (token + "*"))), BooleanClause.Occur.MUST);
+	            }
+	        }
+    	}
         
         if (trackFilter != null) {
         	builder.add(trackFilter, BooleanClause.Occur.MUST);

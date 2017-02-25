@@ -15,7 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
@@ -51,6 +51,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.UpdateManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
+import uk.co.mpcontracting.rpmjukebox.search.TrackFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
@@ -67,7 +68,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private Button newVersionButton;
 	
 	@FXML
-	private ChoiceBox<String> yearFilterChoiceBox;
+	private ComboBox<String> yearFilterComboBox;
 	
 	@FXML
 	private TextField searchTextField;
@@ -190,8 +191,12 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	public void initialize() {
 		log.info("Initialising MainPanelController");
 		
+		yearFilterComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+			searchParametersUpdated(searchTextField.getText(), yearFilterComboBox.getSelectionModel().getSelectedItem());
+		});
+		
 		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-			searchTextUpdated(newValue);
+			searchParametersUpdated(newValue, yearFilterComboBox.getSelectionModel().getSelectedItem());
 		});
 
 		timeSlider.sliderValueChangingProperty().addListener((observable, wasChanging, isChanging) -> {
@@ -294,11 +299,32 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		confirmWindow.close();
 	}
 
-	private void searchTextUpdated(String searchText) {
-		log.debug("Search text updated - '" + searchText + "'");
+	private void searchParametersUpdated(String searchText, String yearFilter) {
+		log.debug("Search parameters updated - '" + searchText + "'" + " - " + yearFilter);
 
-		if (searchText != null && searchText.trim().length() > 0) {
-			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.search(new TrackSearch(searchText.trim())));
+		if ((searchText != null && searchText.trim().length() > 0) || (yearFilter != null && yearFilter.trim().length() > 0)) {
+			String searchString = null;
+			TrackFilter trackFilter = null;
+			
+			if (searchText != null && searchText.trim().length() > 0) {
+				searchString = searchText.trim();
+			}
+			
+			if (yearFilter != null && yearFilter.trim().length() > 0) {
+				trackFilter = new TrackFilter(null, yearFilter);
+			}
+			
+			TrackSearch trackSearch = null;
+			
+			if (searchString != null && trackFilter != null) {
+				trackSearch = new TrackSearch(searchString, trackFilter);
+			} else if (searchString != null) {
+				trackSearch = new TrackSearch(searchString);
+			} else if (trackFilter != null) {
+				trackSearch = new TrackSearch("*", trackFilter);
+			}
+			
+			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.search(trackSearch));
 		} else if (playlistManager.getPlayingPlaylist() != null && playlistManager.getPlayingPlaylist().getPlaylistId() == PLAYLIST_ID_SEARCH) {
 			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, playlistManager.getPlayingPlaylist().getTracks());
 		} else {
@@ -311,7 +337,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private void updateYearFilter() {
 		log.debug("Updating year filter - " + searchManager.getYearList());
 		
-		yearFilterChoiceBox.getItems().addAll(searchManager.getYearList());
+		yearFilterComboBox.getItems().addAll(searchManager.getYearList());
 	}
 	
 	private void updateObservablePlaylists() {
@@ -554,6 +580,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				setRepeatButtonImage();
 				
 				// Enable GUI components
+				yearFilterComboBox.setDisable(false);
 				searchTextField.setDisable(false);
 				addPlaylistButton.setDisable(false);
 				deletePlaylistButton.setDisable(false);
