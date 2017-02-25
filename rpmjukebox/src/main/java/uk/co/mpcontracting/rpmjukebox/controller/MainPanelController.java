@@ -51,6 +51,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.UpdateManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
+import uk.co.mpcontracting.rpmjukebox.model.YearFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
@@ -68,7 +69,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private Button newVersionButton;
 	
 	@FXML
-	private ComboBox<String> yearFilterComboBox;
+	private ComboBox<YearFilter> yearFilterComboBox;
 	
 	@FXML
 	private TextField searchTextField;
@@ -192,11 +193,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		log.info("Initialising MainPanelController");
 		
 		yearFilterComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			searchParametersUpdated(searchTextField.getText(), yearFilterComboBox.getSelectionModel().getSelectedItem());
+			searchParametersUpdated(searchTextField.getText(), yearFilterComboBox.getSelectionModel().getSelectedItem(), false);
 		});
 		
 		searchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-			searchParametersUpdated(newValue, yearFilterComboBox.getSelectionModel().getSelectedItem());
+			searchParametersUpdated(newValue, yearFilterComboBox.getSelectionModel().getSelectedItem(), true);
 		});
 
 		timeSlider.sliderValueChangingProperty().addListener((observable, wasChanging, isChanging) -> {
@@ -299,10 +300,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		confirmWindow.close();
 	}
 
-	private void searchParametersUpdated(String searchText, String yearFilter) {
+	private void searchParametersUpdated(String searchText, YearFilter yearFilter, boolean searchTextUpdated) {
 		log.debug("Search parameters updated - '" + searchText + "'" + " - " + yearFilter);
 
-		if ((searchText != null && searchText.trim().length() > 0) || (yearFilter != null && yearFilter.trim().length() > 0)) {
+		if ((searchText != null && searchText.trim().length() > 0) || (yearFilter != null && yearFilter.getYear() != null && yearFilter.getYear().trim().length() > 0)) {
 			String searchString = null;
 			TrackFilter trackFilter = null;
 			
@@ -310,8 +311,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				searchString = searchText.trim();
 			}
 			
-			if (yearFilter != null && yearFilter.trim().length() > 0) {
-				trackFilter = new TrackFilter(null, yearFilter);
+			if (yearFilter != null && yearFilter.getYear() != null && yearFilter.getYear().trim().length() > 0) {
+				trackFilter = new TrackFilter(null, yearFilter.getYear());
 			}
 			
 			TrackSearch trackSearch = null;
@@ -331,13 +332,24 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, Collections.emptyList());
 		}
 		
-		fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+		// If the search text has been updated, switch to the search playlist
+		if (searchTextUpdated) {
+			fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+		}
 	}
 	
 	private void updateYearFilter() {
 		log.debug("Updating year filter - " + searchManager.getYearList());
 		
-		yearFilterComboBox.getItems().addAll(searchManager.getYearList());
+		List<YearFilter> yearFilters = new ArrayList<YearFilter>();
+		yearFilters.add(new YearFilter("None", null));
+		
+		for (String year : searchManager.getYearList()) {
+			yearFilters.add(new YearFilter(year, year));
+		}
+		
+		yearFilterComboBox.getItems().addAll(yearFilters);
+		yearFilterComboBox.getSelectionModel().selectFirst();
 	}
 	
 	private void updateObservablePlaylists() {

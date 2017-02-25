@@ -28,7 +28,11 @@
                   </HBox>
                   <HBox styleClass="buttonHbox">
                      <children>
-                        <ComboBox fx:id="yearFilterComboBox" disable="true" />
+                        <ComboBox fx:id="yearFilterComboBox" disable="true" prefWidth="90.0">
+                        	<tooltip>
+                              <Tooltip text="%tooltip.yearFilter" />
+                           </tooltip>
+                        </ComboBox>
                      </children>
                   </HBox>
                   <HBox id="searchTextHBox">

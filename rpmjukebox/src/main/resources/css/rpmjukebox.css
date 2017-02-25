@@ -245,7 +245,34 @@
     -fx-padding: 2;
 }
 
-/* Customer Style Classes */
+.combo-box {
+	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+	-fx-background-insets: 0, 1, 1;
+    -fx-background-radius: 0, 0, 0;
+	-fx-text-fill: -jb-foreground-color;
+	-fx-highlight-fill: -jb-foreground-color;
+    -fx-highlight-text-fill: -jb-background-color;
+}
+
+.combo-box > .list-cell {
+	-fx-background-color: -jb-background-color;
+	-fx-border-color: -jb-border-color;
+    -fx-border-width: 1;
+    -fx-alignment: center;
+}
+
+.combo-box-popup .list-view {
+	-fx-background-color: -jb-background-color;
+	-fx-border-color: -jb-border-color;
+    -fx-border-width: 1;
+}
+
+.combo-box-popup .scroll-bar:vertical {
+    -fx-border-color: -jb-border-color;
+    -fx-border-width: 1 1 1 0;
+}
+
+/* Custom Style Classes */
 
 .popUpPanel {
 	-fx-background-color: -jb-background-color;
