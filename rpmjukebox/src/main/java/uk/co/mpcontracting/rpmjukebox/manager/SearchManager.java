@@ -9,6 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -31,6 +35,7 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherManager;
@@ -43,7 +48,6 @@ import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
-import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.BytesRef;
 
 import lombok.Getter;
@@ -92,11 +96,16 @@ public class SearchManager extends EventAwareObject implements Constants {
     
     private SecureRandom random;
     private int maxSearchHits;
+    
+    private ExecutorService executorService;
 
     public void initialise() throws Exception {
     	log.info("Initialising SearchManager");
     	
     	try {
+    		// Initialise the executor service
+    		executorService = Executors.newSingleThreadExecutor();
+    		
     		// Initialise the indexes
     		analyzer = new WhitespaceAnalyzer();
     		BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
@@ -164,7 +173,9 @@ public class SearchManager extends EventAwareObject implements Constants {
     	try {
     		indexSearcher = searcherManager.acquire();
 
-    		return getRandomDocId(indexSearcher.getIndexReader()) != null;
+    		List<Track> tracks = search(new TrackSearch("*"));
+    		
+    		return tracks != null && !tracks.isEmpty();
     	} catch (Exception e) {
     		log.error("Unable to check if index is valid", e);
     		
@@ -360,8 +371,8 @@ public class SearchManager extends EventAwareObject implements Constants {
     }
     
     @Synchronized
-    public List<Track> getRandomPlaylist(int playlistSize) {
-    	log.debug("Getting random playlist size - " + playlistSize);
+    public List<Track> getRandomPlaylist(int playlistSize, String yearFilter) {
+    	log.debug("Getting random playlist size - " + playlistSize + " - " + yearFilter);
     	
     	long startTime = System.currentTimeMillis();
         
@@ -374,21 +385,60 @@ public class SearchManager extends EventAwareObject implements Constants {
         try {
         	trackSearcher = trackManager.acquire();
         	
-        	IndexReader indexReader = trackSearcher.getIndexReader();
+        	int maxSearchHits = trackSearcher.getIndexReader().maxDoc();
         	List<Track> playlist = new ArrayList<Track>();
         	
-        	while (playlist.size() < playlistSize) {
-        		Integer nextDocId = getRandomDocId(indexReader);
+        	log.debug("Max search hits - " + maxSearchHits);
+        	
+        	Query query = null;
 
-        		if (nextDocId == null) {
-        			continue;
+        	if (yearFilter != null) {
+        		query = new BooleanQuery.Builder().add(new TermQuery(new Term(TrackField.YEAR.name(), yearFilter)), BooleanClause.Occur.MUST).build();
+        	} else {
+        		query = new MatchAllDocsQuery();
+        	}
+
+        	TopDocs results = trackSearcher.search(query, maxSearchHits);
+        	ScoreDoc[] scoreDocs = results.scoreDocs;
+        	
+        	log.debug("Hits - " + results.totalHits);
+        	log.debug("Score docs - " + scoreDocs.length);
+
+        	if (playlistSize < results.totalHits) {
+        		final IndexSearcher finalSearcher = trackSearcher;
+        		Future<Integer> future = executorService.submit(() -> {
+        			while (playlist.size() < playlistSize) {
+    	        		int docId = (int)(random.nextDouble() * results.totalHits);
+    	        		Track track = getTrackByDocId(finalSearcher, scoreDocs[docId].doc);
+
+    	    			if (!playlist.contains(track)) {
+    	    				playlist.add(track);
+    	    			}
+    	    			
+    	    			if (Thread.interrupted()) {
+    	    				log.debug("Random playlist future interrupted");
+    	    				return 1;
+    	    			}
+    	        	}
+        			
+        			return 0;
+        		});
+        		
+        		try {
+        			future.get(1000, TimeUnit.MILLISECONDS);
+        		} catch (Exception e) {
+        			// Ignore this as we will return what we've got
+        			if (!future.isDone()) {
+        				log.debug("Timed out getting random playlist, killing future");
+        				future.cancel(true);
+        			}
         		}
-
-    			Track track = getTrackByDocId(trackSearcher, nextDocId);
-    			
-    			if (!playlist.contains(track)) {
-    				playlist.add(track);
-    			}
+        	} else {
+        		for (ScoreDoc scoreDoc : scoreDocs) {
+        			playlist.add(getTrackByDocId(trackSearcher, scoreDoc.doc));
+        		}
+        		
+        		Collections.shuffle(playlist);
         	}
         	
         	return playlist;
@@ -408,21 +458,6 @@ public class SearchManager extends EventAwareObject implements Constants {
             
             log.debug("Random playlist query time - " + queryTime + " milliseconds");
         }
-    }
-    
-    private Integer getRandomDocId(IndexReader indexReader) {
-    	int docId = (int)(random.nextDouble() * indexReader.maxDoc());
-
-    	for (LeafReaderContext context : indexReader.leaves()) {
-    		Bits liveDocs = context.reader().getLiveDocs();
-
-    		// Live docs is null if there are no deleted documents
-    		if (liveDocs == null || liveDocs.get(docId)) {
-    			return docId;
-    		}
-    	}
-    	
-    	return null;
     }
     
     @Synchronized

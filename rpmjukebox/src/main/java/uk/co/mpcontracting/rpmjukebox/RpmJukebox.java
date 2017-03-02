@@ -149,6 +149,8 @@ public class RpmJukebox extends Application implements Constants {
 		jettyServer.stop();
 
 		super.stop();
+		
+		System.exit(0);
 	}
 	
 	public static void main(String [] args) {

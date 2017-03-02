@@ -303,26 +303,18 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private void searchParametersUpdated(String searchText, YearFilter yearFilter, boolean searchTextUpdated) {
 		log.debug("Search parameters updated - '" + searchText + "'" + " - " + yearFilter);
 
-		if ((searchText != null && searchText.trim().length() > 0) || (yearFilter != null && yearFilter.getYear() != null && yearFilter.getYear().trim().length() > 0)) {
-			String searchString = null;
+		if (searchText != null && searchText.trim().length() > 0) {
 			TrackFilter trackFilter = null;
-			
-			if (searchText != null && searchText.trim().length() > 0) {
-				searchString = searchText.trim();
-			}
+			TrackSearch trackSearch = null;
 			
 			if (yearFilter != null && yearFilter.getYear() != null && yearFilter.getYear().trim().length() > 0) {
 				trackFilter = new TrackFilter(null, yearFilter.getYear());
 			}
 			
-			TrackSearch trackSearch = null;
-			
-			if (searchString != null && trackFilter != null) {
-				trackSearch = new TrackSearch(searchString, trackFilter);
-			} else if (searchString != null) {
-				trackSearch = new TrackSearch(searchString);
-			} else if (trackFilter != null) {
-				trackSearch = new TrackSearch("*", trackFilter);
+			if (trackFilter != null) {
+				trackSearch = new TrackSearch(searchText.trim(), trackFilter);
+			} else { 
+				trackSearch = new TrackSearch(searchText.trim());
 			}
 			
 			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.search(trackSearch));
@@ -332,7 +324,6 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, Collections.emptyList());
 		}
 		
-		// If the search text has been updated, switch to the search playlist
 		if (searchTextUpdated) {
 			fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
 		}
@@ -348,6 +339,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			yearFilters.add(new YearFilter(year, year));
 		}
 		
+		yearFilterComboBox.getItems().clear();
 		yearFilterComboBox.getItems().addAll(yearFilters);
 		yearFilterComboBox.getSelectionModel().selectFirst();
 	}
@@ -566,7 +558,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleRandomButtonAction(ActionEvent event) {
 		log.debug("Random button pressed");
 
-		playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getRandomPlaylist(randomPlaylistSize));
+		YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
+		
+		playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getRandomPlaylist(randomPlaylistSize, (yearFilter != null ? yearFilter.getYear() : null)));
 		playlistManager.playPlaylist(PLAYLIST_ID_SEARCH);
 	}
 
@@ -607,6 +601,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				eqButton.setDisable(false);
 				randomButton.setDisable(false);
 
+				break;
+			}
+			case DATA_INDEXED: {
+				updateYearFilter();
+				
 				break;
 			}
 			case NEW_VERSION_AVAILABLE: {
