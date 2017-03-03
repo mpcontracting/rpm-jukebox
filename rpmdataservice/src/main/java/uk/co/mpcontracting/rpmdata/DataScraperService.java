@@ -22,6 +22,8 @@ public class DataScraperService {
 	}
 	
 	public static void main(String[] args) {
+		System.setProperty("spring.profiles.default", "live");
+		
 		SpringApplication.run(DataScraperService.class, args);
 	}
 }
