@@ -99,7 +99,7 @@ public class BandPage extends AbstractPage {
 						try (InputStream inputStream = new URL(url + playlistUrl).openStream()) {
 							playlist = Jsoup.parse(inputStream, "UTF-8", "", Parser.xmlParser());
 						} catch (FileNotFoundException e) {
-							log.error("Unable to find url - " + url + playlistUrl);
+							log.warn("Unable to find url - " + url + playlistUrl);
 						}
 						
 						if (playlist != null) {
@@ -117,9 +117,9 @@ public class BandPage extends AbstractPage {
 			}
 		} catch (Exception e) {
 			if (e instanceof HttpStatusException) {
-				log.error("Unable to fetch url - " + url + " - " + ((HttpStatusException)e).getStatusCode());
+				log.warn("Unable to fetch url - " + url + " - " + ((HttpStatusException)e).getStatusCode());
 			} else {
-				log.error("Unable to fetch url - " + url + " - " + e.getMessage());
+				log.warn("Unable to fetch url - " + url + " - " + e.getMessage());
 			}
 		}
 	}

@@ -13,12 +13,12 @@ public class DataScraper {
 	
 	public static void main(String[] args) {
 		String rootPage = "http://jukebox.rpmchallenge.com/byname.cgi";
-		File outputFile = new File("data/rpm-data.txt");
+		File outputFile = new File("data/rpm-data.gz");
 		
 		log.info("Scraping data from - " + rootPage);
 		log.info("Output file - " + outputFile.getAbsolutePath());
 		
-		DataProcessor dataProcessor = new DataProcessor(outputFile);
+		DataProcessor dataProcessor = new DataProcessor(outputFile, true);
 		
 		try {
 			new IndexPage().parse(rootPage, dataProcessor);

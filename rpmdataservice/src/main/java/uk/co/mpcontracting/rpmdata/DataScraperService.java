@@ -1,29 +1,20 @@
 package uk.co.mpcontracting.rpmdata;
 
-import org.quartz.Scheduler;
-import org.quartz.SchedulerFactory;
-import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
+@SpringBootApplication
+@EnableScheduling
+@PropertySource("classpath:datascraper-${spring.profiles.active}.properties")
 public class DataScraperService {
-
-	public DataScraperService() {
-		try {
-			SchedulerFactory schedulerFactory = new StdSchedulerFactory();
-			Scheduler scheduler = schedulerFactory.getScheduler();
-	
-			scheduler.start();
-		} catch (Exception e) {
-			log.error("Error starting Quartz scheduler", e);
-		}
-	}
 	
 	public static void main(String[] args) {
-		System.setProperty("spring.profiles.default", "live");
-		
+		if (System.getProperty("spring.profiles.active") == null) {
+			System.setProperty("spring.profiles.active", "live");
+		}
+
 		SpringApplication.run(DataScraperService.class, args);
 	}
 }

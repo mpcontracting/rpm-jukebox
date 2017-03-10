@@ -32,9 +32,9 @@ public class IndexPage extends AbstractPage {
 			}
 		} catch (Exception e) {
 			if (e instanceof HttpStatusException) {
-				log.error("Unable to fetch url - " + url + " - " + ((HttpStatusException)e).getStatusCode());
+				log.warn("Unable to fetch url - " + url + " - " + ((HttpStatusException)e).getStatusCode());
 			} else {
-				log.error("Unable to fetch url - " + url + " - " + e.getMessage());
+				log.warn("Unable to fetch url - " + url + " - " + e.getMessage());
 			}
 		}
 	}

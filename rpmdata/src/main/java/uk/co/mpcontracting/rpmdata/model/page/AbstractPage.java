@@ -33,7 +33,7 @@ public abstract class AbstractPage {
 			}
 		}
 		catch (Exception e) {
-			log.error("Unable to parse query string - " + url, e);
+			log.warn("Unable to parse query string - " + url, e);
 		}
 		
 		return queryStringMap;

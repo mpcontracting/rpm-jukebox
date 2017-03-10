@@ -2,8 +2,11 @@ package uk.co.mpcontracting.rpmdata.model;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.zip.GZIPOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +22,17 @@ public class DataProcessor {
 	private Writer writer;
 	private Band band;
 
-	public DataProcessor(File outputFile) {
+	public DataProcessor(File outputFile, boolean gzipped) {
 		try {
 			if (outputFile.exists()) {
 				outputFile.delete();
 			}
 
-			writer = new BufferedWriter(new FileWriter(outputFile, false));
+			if (gzipped) {
+				writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outputFile, false)), "UTF-8"));
+			} else {
+				writer = new BufferedWriter(new FileWriter(outputFile, false));
+			}
 		} catch (Exception e) {
 			log.error("Enable to create output file - " + outputFile, e);
 			throw new RuntimeException(e);
