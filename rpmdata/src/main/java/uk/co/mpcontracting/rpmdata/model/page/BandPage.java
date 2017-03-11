@@ -118,6 +118,8 @@ public class BandPage extends AbstractPage {
 		} catch (Exception e) {
 			if (e instanceof HttpStatusException) {
 				log.warn("Unable to fetch url - " + url + " - " + ((HttpStatusException)e).getStatusCode());
+				
+				throw e;
 			} else {
 				log.warn("Unable to fetch url - " + url + " - " + e.getMessage());
 			}

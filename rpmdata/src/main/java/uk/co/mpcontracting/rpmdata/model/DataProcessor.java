@@ -34,7 +34,7 @@ public class DataProcessor {
 				writer = new BufferedWriter(new FileWriter(outputFile, false));
 			}
 		} catch (Exception e) {
-			log.error("Enable to create output file - " + outputFile, e);
+			log.error("Unable to create output file - " + outputFile, e);
 			throw new RuntimeException(e);
 		}
 	}

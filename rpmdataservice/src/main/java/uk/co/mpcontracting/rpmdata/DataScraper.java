@@ -51,12 +51,14 @@ public class DataScraper {
 		log.info("Running scraper - " + new Date());
 		
 		File outputFile = new File(outputFilename);
-		scrapeRpmSite(outputFile);
-		byte[] data = readDataFile(outputFile);
-		ftpFile(data);
+		
+		if (scrapeRpmSite(outputFile)) {
+			byte[] data = readDataFile(outputFile);
+			ftpFile(data);
+		}
 	}
 	
-	private void scrapeRpmSite(File outputFile) {
+	private boolean scrapeRpmSite(File outputFile) {
 		log.info("Scraping data from - " + rootPage);
 		log.info("Output file - " + outputFile.getAbsolutePath());
 		
@@ -66,11 +68,15 @@ public class DataScraper {
 			new IndexPage().parse(rootPage, dataProcessor);
 		} catch (Exception e) {
 			log.error("Exception scraping data from root page - " + rootPage, e);
+			
+			return false;
 		} finally {
 			dataProcessor.close();
 		}
 		
 		log.info("Scraping finished - " + new Date());
+		
+		return true;
 	}
 	
 	private byte[] readDataFile(File outputFile) {
