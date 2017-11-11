@@ -43,8 +43,8 @@ public class NativeManager implements InitializingBean {
 				Files.copy(getClass().getResourceAsStream(userNotifications), userNotificationsFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	
 				nsUserNotificationsBridge = (NsUserNotificationsBridge)Native.loadLibrary(userNotificationsFile.getAbsolutePath(), NsUserNotificationsBridge.class);
-			} catch (Exception e) {
-				log.error("Error", e);
+			} catch (Throwable t) {
+				log.error("Error", t);
 			}
 		}
 	}
