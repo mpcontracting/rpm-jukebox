@@ -7,6 +7,7 @@ import java.net.URL;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import com.igormaznitsa.commons.version.Version;
 
@@ -18,7 +19,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
-//@Component
+@Component
 public class UpdateManager extends EventAwareObject implements Constants {
 
 	@Autowired

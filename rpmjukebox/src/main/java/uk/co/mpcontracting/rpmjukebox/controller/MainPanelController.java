@@ -18,11 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.component.ModalWindow;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
+import uk.co.mpcontracting.rpmjukebox.manager.NativeManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
+import uk.co.mpcontracting.rpmjukebox.manager.UpdateManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.YearFilter;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
@@ -124,7 +127,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@Autowired
 	private MediaManager mediaManager;
 	
-	/*@Autowired
+	@Autowired
 	private CacheManager cacheManager;
 	
 	@Autowired
@@ -133,7 +136,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@Autowired
 	private UpdateManager updateManager;
 	
-	@Autowired
+	/*@Autowired
 	private EqualizerController equalizerController;
 	
 	@Autowired
