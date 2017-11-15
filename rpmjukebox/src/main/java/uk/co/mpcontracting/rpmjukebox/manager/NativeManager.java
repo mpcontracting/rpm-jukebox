@@ -6,6 +6,7 @@ import java.nio.file.StandardCopyOption;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -16,7 +17,7 @@ import uk.co.mpcontracting.rpmjukebox.support.OsType;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
-//@Component
+@Component
 public class NativeManager implements InitializingBean {
 
 	@Autowired
