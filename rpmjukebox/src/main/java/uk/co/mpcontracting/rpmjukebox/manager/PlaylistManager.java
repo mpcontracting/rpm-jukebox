@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
-//@Component
+@Component
 public class PlaylistManager extends EventAwareObject implements InitializingBean, Constants {
 	
 	@Autowired
@@ -30,10 +31,10 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	@Autowired
 	private SearchManager searchManager;
 	
-	@Autowired
+	//@Autowired
 	private MediaManager mediaManager;
 	
-	@Autowired
+	//@Autowired
 	private TrackTableController trackTableController;
 	
 	@Value("${max.playlist.size}")

@@ -47,10 +47,10 @@ public class SettingsManager implements InitializingBean, Constants {
 	@Autowired
 	private MessageManager messageManager;
 	
-	//@Autowired
+	@Autowired
 	private SearchManager searchManager;
 
-	//@Autowired
+	@Autowired
 	private PlaylistManager playlistManager;
 	
 	//@Autowired
