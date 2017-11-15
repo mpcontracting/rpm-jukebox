@@ -1,163 +1,95 @@
 package uk.co.mpcontracting.rpmjukebox;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.logging.LogManager;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
 
-import javafx.application.Application;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import de.felixroske.jfxsupport.AbstractJavaFxApplicationSupport;
+import de.felixroske.jfxsupport.SplashScreen;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.event.EventManager;
-import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
-import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
-import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
-import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
-import uk.co.mpcontracting.rpmjukebox.support.OsType;
-import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
+import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
 @Slf4j
-@Component
-public class RpmJukebox extends Application implements Constants {
+@SpringBootApplication
+public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Constants {
 
-	@Autowired
-	private SettingsManager settingsManager;
-	
-	@Autowired
-	private SearchManager searchManager;
-	
-	@Autowired
-	private MediaManager mediaManager;
-	
-	@Autowired
-	private MainPanelController mainPanelController;
-	
-	@Autowired
-	private JettyServer jettyServer;
+	@Getter private static File configDirectory;
 
-	@Getter private Stage stage;
-	private boolean isInitialised;
-	
-	public RpmJukebox() {
+	public static void main(String[] args) {
+		// Look for the config directory and create it if it isn't there
+		File homeDir = new File(System.getProperty("user.home"));
+		
+		// See if we have a command line override
+		if (System.getProperty("directory.config") != null) {
+			configDirectory = new File(homeDir, System.getProperty("directory.config"));
+			
+		} else {
+			configDirectory = new File(homeDir, ".rpmjukebox");
+		}
+
+		if (!configDirectory.exists()) {
+			if (!configDirectory.mkdirs()) {
+				throw new RuntimeException("Unable to create config directory - " + configDirectory.getAbsolutePath());
+			}
+		}
+
+		log.info("Config directory - " + configDirectory);
+
+		// Initialise the logging
 		initialiseLogging();
-	
-		// Initialise the IoC layer
-		FxmlContext.initialize(Arrays.asList("uk.co.mpcontracting.rpmjukebox"), this);
+
+		// Add a spacer to the logging file to separate startups
+		/*log.info("====================================================");
+		log.info("====================================================");
+		log.info("====================================================");
+		log.info("Java Version - " + System.getProperty("java.version"));*/
+		
+		launchApp(RpmJukebox.class, MainPanelView.class, new RpmJukeboxSplash(), args);
 	}
 	
-	private void initialiseLogging() {
+	private static void initialiseLogging() {
 		try {
-			File settingsDirectory = null;
-			
-			// See if we have a command line override
-			if (System.getProperty(PROP_DIRECTORY_CONFIG) != null) {
-				settingsDirectory = new File(System.getProperty("user.home") + File.separator + System.getProperty(PROP_DIRECTORY_CONFIG));
-			} else {
-				settingsDirectory = new File(System.getProperty("user.home") + File.separator + ".rpmjukebox");
-			}
-
-			// Make sure logging directory exists
-			File logDirectory = new File(settingsDirectory, "log");
-			
-			if (!logDirectory.exists()) {
-				logDirectory.mkdirs();
-			}
-			
-			// Copy the logging.properties file to ~/.rpmjukebox if it doesn't already exist
-			File loggingFile = new File(settingsDirectory, "logging.properties");
+			// Copy the logging.properties file if it doesn't already exist
+			File loggingFile = new File(configDirectory, "logback.xml");
 
 			if (!loggingFile.exists()) {
-				Files.copy(getClass().getResourceAsStream("/logging.properties"), loggingFile.toPath());
+				// Load into memory and replace the log root
+				StringBuilder builder = new StringBuilder();
+				
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader(RpmJukebox.class.getResourceAsStream("/logback-config.xml")))) {
+					reader.lines().forEach(line -> {
+						if (line.contains("${}")) {
+							builder.append(StringUtils.replace(line, "${}", new File(configDirectory, "log").getAbsolutePath()));
+						} else {
+							builder.append(line);
+						}
+						
+						builder.append("\r\n");
+					});
+				}
+
+				try (FileWriter writer = new FileWriter(loggingFile)) {
+					writer.write(builder.toString());
+				}
 			}
 			
-			// Initialise the logging
-			try (FileInputStream inputStream = new FileInputStream(loggingFile)) {
-				LogManager.getLogManager().readConfiguration(inputStream);
-			}
-			
-			// Add a spacer to the logging file to separate startups
-			log.info("====================================================");
-			log.info("====================================================");
-			log.info("====================================================");
-			log.info("Java Version - " + System.getProperty("java.version"));
+			// Notify Spring where the logging config is
+			System.setProperty("logging.config", loggingFile.getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	@Override
-	public void start(Stage stage) throws Exception {
-		log.info("Starting application");
 
-		this.stage = stage;
-
-		Parent parent = (Parent)FxmlContext.loadFxml("mainpanel.fxml");
-
-		stage.setScene(new Scene(parent));
-		stage.setTitle("RPM Jukebox");
-
-		// If this is Windows, add a window icon
-		if (settingsManager.getOsType() == OsType.WINDOWS) {
-			stage.getIcons().add(new Image(getClass().getResourceAsStream(IMAGE_WINDOW_ICON)));
-		}
-		
-		// Load the window settings
-		settingsManager.loadWindowSettings(stage);
-
-		stage.show();
-
-		parent.requestFocus();
-		
-		// Initialise data in a new thread for GUI responsiveness
-		ThreadRunner.run(() -> {
-			try {
-				searchManager.initialise();
-				settingsManager.loadSettings();
-				
-				mainPanelController.closeMessageWindow();
-
-				EventManager.getInstance().fireEvent(Event.APPLICATION_INITIALISED);
-				isInitialised = true;
-			} catch (Exception e) {
-				log.error("Error initialising data", e);
-			}
-		});
-	}
-	
-	@Override
-	public void stop() throws Exception {
-		log.info("Stopping application");
-
-		mediaManager.cleanUpResources();
-
-		if (isInitialised) {
-			settingsManager.saveWindowSettings(stage);
-			settingsManager.saveSettings();
-		}
-
-		jettyServer.stop();
-
-		super.stop();
-		
-		System.exit(0);
-	}
-	
-	public static void main(String [] args) {
-		try {
-			launch(args);
-		} catch (Exception e) {
-			log.error("Error starting RPM Jukebox", e);
+	private static class RpmJukeboxSplash extends SplashScreen {
+		@Override
+		public boolean visible() {
+			return false;
 		}
 	}
 }

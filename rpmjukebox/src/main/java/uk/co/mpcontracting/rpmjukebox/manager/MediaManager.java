@@ -1,5 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
@@ -7,9 +11,6 @@ import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
@@ -18,14 +19,14 @@ import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
-@Component
+//@Component
 public class MediaManager extends EventAwareObject implements InitializingBean, Constants {
 
 	@Autowired
-	private SettingsManager settingsManager;
-	
-	@Autowired
 	private CacheManager cacheManager;
+	
+	@Value("${default.volume}")
+	@Getter private double volume;
 	
 	private MediaPlayer currentPlayer;
 	private Track currentTrack;
@@ -33,14 +34,12 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	private Duration currentDuration;
 	@Getter private Equalizer equalizer;
 	@Getter private boolean muted;
-	@Getter private double volume;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising MediaManager");
 		
 		muted = false;
-		volume = settingsManager.getPropertyDouble(PROP_DEFAULT_VOLUME);
 		equalizer = new Equalizer(10);
 	}
 

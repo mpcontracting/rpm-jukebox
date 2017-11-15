@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -20,9 +23,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.RpmJukeboxInitialiser;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableCell;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableModel;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
@@ -33,7 +34,7 @@ import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
-@Component
+//@Component
 public class ExportController implements Constants {
 
 	@FXML
@@ -49,7 +50,7 @@ public class ExportController implements Constants {
 	private Button cancelButton;
 
 	@Autowired
-	private RpmJukebox rpmJukebox;
+	private RpmJukeboxInitialiser rpmJukebox;
 	
 	@Autowired
 	private MessageManager messageManager;
@@ -62,6 +63,9 @@ public class ExportController implements Constants {
 	
 	@Autowired
 	private MainPanelController mainPanelController;
+	
+	@Value("${playlist.file.extension}")
+	private String playlistFileExtension;
 	
 	private ObservableList<PlaylistTableModel> observablePlaylists;
 	private Set<Integer> playlistsToExport;
@@ -102,7 +106,7 @@ public class ExportController implements Constants {
 		selectColumn.setEditable(true);
 
 		playlistsToExport = new HashSet<Integer>();
-		playlistExtensionFilter = "*." + settingsManager.getPropertyString(PROP_PLAYLIST_FILE_EXTENSION);
+		playlistExtensionFilter = "*." + playlistFileExtension;
 	}
 	
 	public void bindPlaylists() {

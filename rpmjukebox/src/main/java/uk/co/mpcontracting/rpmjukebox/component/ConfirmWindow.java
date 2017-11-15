@@ -1,8 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
 import javafx.stage.Stage;
-import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
+import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 public class ConfirmWindow extends MessageWindow {
 
@@ -11,7 +11,7 @@ public class ConfirmWindow extends MessageWindow {
 	public ConfirmWindow(Stage stage, String fxmlFile) {
 		super(stage, fxmlFile);
 		
-		confirmController = ApplicationContext.getBean(ConfirmController.class);
+		confirmController = FxmlContext.getBean(ConfirmController.class);
 	}
 	
 	public void setRunnables(Runnable okRunnable, Runnable cancelRunnable) {

@@ -49,12 +49,12 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.BytesRef;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import lombok.Getter;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
@@ -68,7 +68,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.DataParser;
 
 @Slf4j
-@Component
+//@Component
 public class SearchManager extends EventAwareObject implements Constants {
 
 	@Autowired
@@ -79,6 +79,15 @@ public class SearchManager extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private MainPanelController mainPanelController;
+	
+	@Value("${directory.artist.index}")
+	private String directoryArtistIndex;
+	
+	@Value("${directory.track.index}")
+	private String directoryTrackIndex;
+	
+	@Value("${max.search.hits}")
+	private int maxSearchHits;
     
     @Getter private List<String> genreList;
     @Getter private List<String> yearList;
@@ -95,7 +104,6 @@ public class SearchManager extends EventAwareObject implements Constants {
     private SearcherManager trackManager;
     
     private SecureRandom random;
-    private int maxSearchHits;
     
     private ExecutorService executorService;
 
@@ -110,21 +118,19 @@ public class SearchManager extends EventAwareObject implements Constants {
     		analyzer = new WhitespaceAnalyzer();
     		BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
 
-    		artistDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(settingsManager.getPropertyString(PROP_DIRECTORY_ARTIST_INDEX)).toPath());
+    		artistDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(directoryArtistIndex).toPath());
     		IndexWriterConfig artistWriterConfig = new IndexWriterConfig(analyzer);
     		artistWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             artistWriter = new IndexWriter(artistDirectory, artistWriterConfig);
     		artistManager = new SearcherManager(artistWriter, null);
 
-    		trackDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(settingsManager.getPropertyString(PROP_DIRECTORY_TRACK_INDEX)).toPath());
+    		trackDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(directoryTrackIndex).toPath());
             IndexWriterConfig trackWriterConfig = new IndexWriterConfig(analyzer);
     		trackWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             trackWriter = new IndexWriter(trackDirectory, trackWriterConfig);
             trackManager = new SearcherManager(trackWriter, null);
             
             random = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
-            
-            maxSearchHits = settingsManager.getPropertyInteger(PROP_MAX_SEARCH_HITS);
 
         	// See if we already have valid indexes, if not, build them
         	if (settingsManager.hasDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {

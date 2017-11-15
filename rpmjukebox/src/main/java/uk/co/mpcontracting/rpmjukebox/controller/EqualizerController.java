@@ -1,20 +1,21 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 
 @Slf4j
-@Component
+//@Component
 public class EqualizerController extends EventAwareObject {
 	
 	@FXML

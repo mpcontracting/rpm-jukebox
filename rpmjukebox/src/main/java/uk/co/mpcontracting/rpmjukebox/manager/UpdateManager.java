@@ -5,11 +5,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
 import com.igormaznitsa.commons.version.Version;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
@@ -17,14 +18,17 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
-@Component
+//@Component
 public class UpdateManager extends EventAwareObject implements Constants {
 
 	@Autowired
 	private SettingsManager settingsManager;
+
+	@Value("${version.url}")
+	private String versionUrl;
 	
-	@Autowired
-	private RpmJukebox rpmJukebox;
+	@Value("${website.url}")
+	private String websiteUrl;
 	
 	private Version newVersion;
 	
@@ -33,7 +37,7 @@ public class UpdateManager extends EventAwareObject implements Constants {
 
 		ThreadRunner.run(() -> {
 			try {
-				URL url = new URL(settingsManager.getPropertyString(PROP_VERSION_URL));
+				URL url = new URL(versionUrl);
 				
 				log.debug("Version url - " + url);
 				
@@ -76,7 +80,7 @@ public class UpdateManager extends EventAwareObject implements Constants {
 		log.debug("Downloading new version - " + newVersion);
 
 		ThreadRunner.run(() -> {
-			rpmJukebox.getHostServices().showDocument(settingsManager.getPropertyString(PROP_WEBSITE_URL));
+			RpmJukebox.getAppHostServices().showDocument(websiteUrl);
 		});
 	}
 	

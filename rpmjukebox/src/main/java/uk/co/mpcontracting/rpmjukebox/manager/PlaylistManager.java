@@ -6,11 +6,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.controller.TrackTableController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
@@ -20,15 +21,12 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
-@Component
+//@Component
 public class PlaylistManager extends EventAwareObject implements InitializingBean, Constants {
 	
 	@Autowired
 	private MessageManager messageManager;
-	
-	@Autowired
-	private SettingsManager settingsManager;
-	
+
 	@Autowired
 	private SearchManager searchManager;
 	
@@ -37,6 +35,9 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	
 	@Autowired
 	private TrackTableController trackTableController;
+	
+	@Value("${max.playlist.size}")
+	private int maxPlaylistSize;
 
 	private Map<Integer, Playlist> playlistMap;
 	
@@ -49,14 +50,10 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	
 	@Getter private Track selectedTrack;
 	
-	private int maxPlaylistSize;
-	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising PlaylistManager");
-		
-		maxPlaylistSize = settingsManager.getPropertyInteger(PROP_MAX_PLAYLIST_SIZE);
-		
+
 		playlistMap = new LinkedHashMap<Integer, Playlist>();
 		playlistMap.put(PLAYLIST_ID_SEARCH, new Playlist(PLAYLIST_ID_SEARCH, messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH), maxPlaylistSize));
 		playlistMap.put(PLAYLIST_ID_FAVOURITES, new Playlist(PLAYLIST_ID_FAVOURITES, messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES), maxPlaylistSize));

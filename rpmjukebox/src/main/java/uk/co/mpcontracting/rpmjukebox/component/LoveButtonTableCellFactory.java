@@ -4,19 +4,19 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.input.MouseButton;
 import javafx.util.Callback;
-import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 public class LoveButtonTableCellFactory<S, T> extends EventAwareObject implements Callback<TableColumn<TrackTableModel, String>, TableCell<TrackTableModel, String>>, Constants {
 
 	private PlaylistManager playlistManager;
 
 	public LoveButtonTableCellFactory() {
-		playlistManager = ApplicationContext.getBean(PlaylistManager.class);
+		playlistManager = FxmlContext.getBean(PlaylistManager.class);
 	}
 	
 	@Override

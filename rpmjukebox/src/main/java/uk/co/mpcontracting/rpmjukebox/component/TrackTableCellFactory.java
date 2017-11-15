@@ -10,7 +10,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
-import uk.co.mpcontracting.ioc.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
@@ -18,6 +17,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
 public class TrackTableCellFactory<S, T> extends EventAwareObject implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>>, Constants {
@@ -28,9 +28,9 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 	private Image dragNDrop;
 
 	public TrackTableCellFactory() {
-		settingsManager = ApplicationContext.getBean(SettingsManager.class);
-		messageManager = ApplicationContext.getBean(MessageManager.class);
-		playlistManager = ApplicationContext.getBean(PlaylistManager.class);
+		settingsManager = FxmlContext.getBean(SettingsManager.class);
+		messageManager = FxmlContext.getBean(MessageManager.class);
+		playlistManager = FxmlContext.getBean(PlaylistManager.class);
 		dragNDrop = new Image(IMAGE_DRAG_N_DROP);
 	}
 	

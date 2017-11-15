@@ -12,7 +12,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,10 +27,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.ioc.annotation.Resource;
-import uk.co.mpcontracting.ioc.factory.InitializingBean;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
@@ -40,31 +41,47 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
 @Slf4j
-@Component(priority = 1)
+@Component
 public class SettingsManager implements InitializingBean, Constants {
 
-	@Autowired
+	//@Autowired
 	private MessageManager messageManager;
 	
-	@Autowired
+	//@Autowired
 	private SearchManager searchManager;
 
-	@Autowired
+	//@Autowired
 	private PlaylistManager playlistManager;
 	
-	@Autowired
+	//@Autowired
 	private MediaManager mediaManager;
 	
 	@Autowired
 	private MainPanelController mainPanelController;
 
-	@Resource(location = "classpath:/rpm-jukebox.properties")
-	private Properties properties;
+	@Value("${version}")
+	private String versionString;
+	
+	@Value("${datafile.url}")
+	private String dataFileUrl;
+	
+	@Value("${file.last.indexed}")
+	private String fileLastIndexed;
+	
+	@Value("${file.window.settings}")
+	private String fileWindowSettings;
+	
+	@Value("${file.settings}")
+	private String fileSettings;
+	
+	@Value("${max.playlist.size}")
+	private int maxPlaylistSize;
+	
+	@Value("${cache.size.mb}")
+	private int cacheSizeMb;
 
 	@Getter private OsType osType;
 	@Getter private Version version;
-	
-	private File configDirectory;
 	@Getter private URL dataFile;
 	@Getter private SystemSettings systemSettings;
 	
@@ -94,58 +111,16 @@ public class SettingsManager implements InitializingBean, Constants {
 		log.info("Initialising SettingsManager");
 
 		// Get the application version
-		version = new Version(getPropertyString(PROP_VERSION));
-		
-		// Look for the config directory and create it if it isn't there
-		File homeDir = new File(System.getProperty("user.home"));
-		
-		// See if we have a command line override
-		if (System.getProperty(PROP_DIRECTORY_CONFIG) != null) {
-			log.info("Using system property config directory - " + System.getProperty(PROP_DIRECTORY_CONFIG));
-			
-			configDirectory = new File(homeDir, System.getProperty(PROP_DIRECTORY_CONFIG));
-		} else {
-			configDirectory = new File(homeDir, getPropertyString(PROP_DIRECTORY_CONFIG));
-		}
-
-		if (!configDirectory.exists()) {
-			if (!configDirectory.mkdirs()) {
-				throw new RuntimeException("Unable to create config directory - " + configDirectory.getAbsolutePath());
-			}
-		}
+		version = new Version(versionString);
 		
 		// Get the data file location
-		dataFile = new URL(getPropertyString(PROP_DATAFILE_URL));
+		dataFile = new URL(dataFileUrl);
 
 		settingsLoaded = false;
 	}
-	
-	public String getPropertyString(String key) {
-		return properties.getProperty(key);
-	}
-	
-	public Integer getPropertyInteger(String key) {
-		String value = getPropertyString(key);
-		
-		if (value != null) {
-			return Integer.valueOf(value);
-		}
-		
-		return null;
-	}
-	
-	public Double getPropertyDouble(String key) {
-		String value = getPropertyString(key);
-		
-		if (value != null) {
-			return Double.valueOf(value);
-		}
-		
-		return null;
-	}
 
 	public File getFileFromConfigDirectory(String relativePath) {
-		return new File(configDirectory, relativePath);
+		return new File(RpmJukebox.getConfigDirectory(), relativePath);
 	}
 	
 	public boolean hasDataFileExpired() {
@@ -192,7 +167,7 @@ public class SettingsManager implements InitializingBean, Constants {
 
 	public LocalDateTime getLastIndexedDate() {
 		LocalDateTime lastIndexed = null;
-		File lastIndexedFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_LAST_INDEXED));
+		File lastIndexedFile = getFileFromConfigDirectory(fileLastIndexed);
 		
 		if (lastIndexedFile.exists()) {
 			try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
@@ -210,7 +185,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	}
 	
 	public void setLastIndexedDate(LocalDateTime localDateTime) {
-		File lastIndexedFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_LAST_INDEXED));
+		File lastIndexedFile = getFileFromConfigDirectory(fileLastIndexed);
 		
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
 			writer.write(Long.toString(localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
@@ -223,7 +198,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	public void loadWindowSettings(Stage stage) {
 		log.debug("Loading window settings");
 		
-		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_WINDOW_SETTINGS));
+		File settingsFile = getFileFromConfigDirectory(fileWindowSettings);
 		Window window = null;
 		
 		if (settingsFile.exists()) {
@@ -266,7 +241,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		);
 
 		// Write the file
-		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_WINDOW_SETTINGS));
+		File settingsFile = getFileFromConfigDirectory(fileWindowSettings);
 		
 		try (FileWriter fileWriter = new FileWriter(settingsFile)) {
 			fileWriter.write(gson.toJson(window));
@@ -278,7 +253,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	public void loadSettings() {
 		log.debug("Loading settings");
 
-		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_SETTINGS));
+		File settingsFile = getFileFromConfigDirectory(fileSettings);
 		
 		if (!settingsFile.exists()) {
 			initialiseDefaultSystemSettings();
@@ -322,8 +297,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		
 		if (settings.getPlaylists() != null) {
 			for (PlaylistSettings playlistSettings : settings.getPlaylists()) {
-				Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), 
-					getPropertyInteger(PROP_MAX_PLAYLIST_SIZE));
+				Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), maxPlaylistSize);
 				
 				// Override the name of the search results and favourites playlists
 				if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
@@ -392,7 +366,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		settings.setPlaylists(playlists);
 
 		// Write the file
-		File settingsFile = getFileFromConfigDirectory(getPropertyString(PROP_FILE_SETTINGS));
+		File settingsFile = getFileFromConfigDirectory(fileSettings);
 		
 		try (FileWriter fileWriter = new FileWriter(settingsFile)) {
 			fileWriter.write(gson.toJson(settings));
@@ -403,6 +377,6 @@ public class SettingsManager implements InitializingBean, Constants {
 	
 	private void initialiseDefaultSystemSettings() {
 		systemSettings = new SystemSettings();
-		systemSettings.setCacheSizeMb(getPropertyInteger(PROP_CACHE_SIZE_MB));
+		systemSettings.setCacheSizeMb(cacheSizeMb);
 	}
 }

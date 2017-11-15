@@ -7,20 +7,18 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.ioc.factory.InitializingBean;
-import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
-@Component
+//@Component
 public class JettyServer implements InitializingBean, Constants {
-	
-	@Autowired
-	private SettingsManager settingsManager;
+
+	@Value("${internal.jetty.port}")
+	private int internalJettyPort;
 	
 	private Server server;
 	
@@ -31,7 +29,7 @@ public class JettyServer implements InitializingBean, Constants {
 		server = new Server();
 
         ServerConnector connector = new ServerConnector(server);
-        connector.setPort(settingsManager.getPropertyInteger(PROP_INTERNAL_JETTY_PORT));
+        connector.setPort(internalJettyPort);
         
         server.setConnectors(new Connector[] {connector});
         

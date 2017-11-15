@@ -3,10 +3,9 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
-import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
-@Component
+//@Component
 public class MessageManager implements Constants {
 
 	private ResourceBundle messageBundle;

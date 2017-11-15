@@ -1,14 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.effect.BoxBlur;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 
 public class ModalWindow extends Stage {
 
@@ -20,7 +16,7 @@ public class ModalWindow extends Stage {
 		initModality(Modality.WINDOW_MODAL);
 		initOwner(stage);
 
-		setScene(new Scene((Parent)FxmlContext.loadFxml(fxmlFile), Color.TRANSPARENT));
+		//setScene(new Scene((Parent)FxmlContext.loadFxml(fxmlFile), Color.TRANSPARENT));
 		
 		addEventHandler(WindowEvent.WINDOW_SHOWN, event -> {
 			setX((getOwner().getX() + getOwner().getWidth() / 2) - getWidth() / 2);

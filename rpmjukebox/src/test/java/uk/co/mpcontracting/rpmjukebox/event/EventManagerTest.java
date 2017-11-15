@@ -1,26 +1,23 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.testfx.framework.junit.ApplicationTest;
 
-import javafx.stage.Stage;
-
-public class EventManagerTest extends ApplicationTest {
+public class EventManagerTest /*extends ApplicationTest*/ {
 
 	private CountDownLatch latch;
 	private Event receivedEvent;
 	
-	@Override
+	/*@Override
 	public void start(Stage stage) throws Exception {
 
-	}
+	}*/
 	
 	@Before
 	public void setup() {

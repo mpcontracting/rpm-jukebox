@@ -1,5 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -7,8 +10,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.input.KeyCode;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
 import uk.co.mpcontracting.rpmjukebox.component.LoveButtonTableCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableModel;
@@ -19,7 +20,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 
 @Slf4j
-@Component
+//@Component
 public class TrackTableController extends EventAwareObject {
 
 	@FXML

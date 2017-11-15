@@ -10,25 +10,31 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.ioc.annotation.Autowired;
-import uk.co.mpcontracting.ioc.annotation.Component;
-import uk.co.mpcontracting.ioc.factory.InitializingBean;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
 @Slf4j
-@Component
+//@Component
 public class CacheManager implements InitializingBean, Constants {
 
 	@Autowired
 	private SettingsManager settingsManager;
 	
-	private File cacheDirectory;
+	@Value("${directory.cache}")
+	private String directoryCache;
+	
+	@Value("${internal.jetty.port}")
 	private int internalJettyPort;
+	
+	private File cacheDirectory;
 
 	private Comparator<File> timestampComparator;
 	
@@ -37,25 +43,20 @@ public class CacheManager implements InitializingBean, Constants {
 		log.info("Initialising CacheManager");
 		
 		// Look for the cache directory and create it if it isn't there
-		cacheDirectory = settingsManager.getFileFromConfigDirectory(settingsManager.getPropertyString(PROP_DIRECTORY_CACHE));
+		cacheDirectory = settingsManager.getFileFromConfigDirectory(directoryCache);
 
 		if (!cacheDirectory.exists()) {
 			if (!cacheDirectory.mkdirs()) {
 				throw new RuntimeException("Unable to create cache directory - " + cacheDirectory.getAbsolutePath());
 			}
 		}
-		
-		internalJettyPort = settingsManager.getPropertyInteger(PROP_INTERNAL_JETTY_PORT);
 
-		timestampComparator = new Comparator<File>() {
-			@Override
-			public int compare(File file1, File file2) {
-				if (file1.lastModified() == file2.lastModified()) {
-					return 0;
-				}
-				
-				return (file1.lastModified() > file2.lastModified() ? 1 : -1);
+		timestampComparator = (file1, file2) -> {
+			if (file1.lastModified() == file2.lastModified()) {
+				return 0;
 			}
+			
+			return (file1.lastModified() > file2.lastModified() ? 1 : -1);
 		};
 	}
 	
