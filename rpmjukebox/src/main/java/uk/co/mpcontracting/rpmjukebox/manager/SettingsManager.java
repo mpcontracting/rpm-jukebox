@@ -53,7 +53,7 @@ public class SettingsManager implements InitializingBean, Constants {
 	@Autowired
 	private PlaylistManager playlistManager;
 	
-	//@Autowired
+	@Autowired
 	private MediaManager mediaManager;
 	
 	@Autowired

@@ -3,6 +3,7 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -19,10 +20,10 @@ import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
-//@Component
+@Component
 public class MediaManager extends EventAwareObject implements InitializingBean, Constants {
 
-	@Autowired
+	//@Autowired
 	private CacheManager cacheManager;
 	
 	@Value("${default.volume}")

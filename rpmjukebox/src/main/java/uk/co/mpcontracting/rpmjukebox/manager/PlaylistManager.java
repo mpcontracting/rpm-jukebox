@@ -31,7 +31,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	@Autowired
 	private SearchManager searchManager;
 	
-	//@Autowired
+	@Autowired
 	private MediaManager mediaManager;
 	
 	//@Autowired
