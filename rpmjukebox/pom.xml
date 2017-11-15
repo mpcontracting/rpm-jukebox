@@ -132,7 +132,7 @@
 					</jvmArgs>
 					<!--<verbose>true</verbose> -->
 					<bundleArguments>
-						<copyright>©2016 Matt Parker</copyright>
+						<copyright>©2017 Matt Parker</copyright>
 						<systemWide>true</systemWide>
 						<win.menuGroup>RPM Jukebox</win.menuGroup>
 						<win.msi.productVersion>1.0.0</win.msi.productVersion>
