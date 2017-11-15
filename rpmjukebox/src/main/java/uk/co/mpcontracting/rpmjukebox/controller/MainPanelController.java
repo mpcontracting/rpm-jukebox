@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javafx.event.ActionEvent;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.component.ModalWindow;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.YearFilter;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
@@ -103,10 +105,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	//@Autowired
 	//private RpmJukeboxInitialiser rpmJukebox;
 	
-	/*@Autowired
+	@Autowired
 	private MessageManager messageManager;
 	
-	@Autowired
+	/*@Autowired
 	private SettingsManager settingsManager;
 	
 	@Autowired

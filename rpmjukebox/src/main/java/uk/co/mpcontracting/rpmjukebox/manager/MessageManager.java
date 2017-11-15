@@ -3,9 +3,11 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
+import org.springframework.stereotype.Component;
+
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
-//@Component
+@Component
 public class MessageManager implements Constants {
 
 	private ResourceBundle messageBundle;

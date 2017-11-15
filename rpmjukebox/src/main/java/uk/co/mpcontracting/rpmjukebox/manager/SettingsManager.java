@@ -44,7 +44,7 @@ import uk.co.mpcontracting.rpmjukebox.support.OsType;
 @Component
 public class SettingsManager implements InitializingBean, Constants {
 
-	//@Autowired
+	@Autowired
 	private MessageManager messageManager;
 	
 	//@Autowired
