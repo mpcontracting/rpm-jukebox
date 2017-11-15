@@ -13,6 +13,7 @@ import java.util.List;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import lombok.SneakyThrows;
 import lombok.Synchronized;
@@ -22,7 +23,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
 @Slf4j
-//@Component
+@Component
 public class CacheManager implements InitializingBean, Constants {
 
 	@Autowired

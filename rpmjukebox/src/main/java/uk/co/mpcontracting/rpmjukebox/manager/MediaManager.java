@@ -23,7 +23,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 @Component
 public class MediaManager extends EventAwareObject implements InitializingBean, Constants {
 
-	//@Autowired
+	@Autowired
 	private CacheManager cacheManager;
 	
 	@Value("${default.volume}")
