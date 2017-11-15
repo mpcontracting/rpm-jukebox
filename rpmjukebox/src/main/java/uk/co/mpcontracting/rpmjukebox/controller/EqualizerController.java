@@ -15,7 +15,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 
 @Slf4j
-//@Component
+@Component
 public class EqualizerController extends EventAwareObject {
 	
 	@FXML

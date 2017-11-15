@@ -20,7 +20,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 
 @Slf4j
-//@Component
+@Component
 public class TrackTableController extends EventAwareObject {
 
 	@FXML

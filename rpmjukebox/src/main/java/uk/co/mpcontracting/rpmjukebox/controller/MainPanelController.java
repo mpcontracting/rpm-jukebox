@@ -136,14 +136,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@Autowired
 	private UpdateManager updateManager;
 	
-	/*@Autowired
+	@Autowired
 	private EqualizerController equalizerController;
 	
 	@Autowired
 	private SettingsController settingsController;
 	
 	@Autowired
-	private ExportController exportController;*/
+	private ExportController exportController;
 
 	@Getter private ModalWindow equalizerWindow;
 	@Getter private ModalWindow settingsWindow;

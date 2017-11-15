@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,7 +24,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.rpmjukebox.RpmJukeboxInitialiser;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableCell;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableModel;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
@@ -34,7 +35,7 @@ import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
-//@Component
+@Component
 public class ExportController implements Constants {
 
 	@FXML
@@ -49,9 +50,6 @@ public class ExportController implements Constants {
 	@FXML
 	private Button cancelButton;
 
-	@Autowired
-	private RpmJukeboxInitialiser rpmJukebox;
-	
 	@Autowired
 	private MessageManager messageManager;
 	
@@ -150,7 +148,7 @@ public class ExportController implements Constants {
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter), 
 				playlistExtensionFilter));
 			
-			File file = fileChooser.showSaveDialog(rpmJukebox.getStage());
+			File file = fileChooser.showSaveDialog(RpmJukebox.getStage());
 			
 			if (file != null) {
 				List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();

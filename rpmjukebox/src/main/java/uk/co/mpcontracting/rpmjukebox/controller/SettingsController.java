@@ -19,7 +19,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
-//@Component
+@Component
 public class SettingsController extends EventAwareObject implements Constants {
 
 	@FXML

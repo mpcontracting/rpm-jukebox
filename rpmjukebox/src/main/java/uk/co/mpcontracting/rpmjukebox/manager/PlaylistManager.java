@@ -34,7 +34,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	@Autowired
 	private MediaManager mediaManager;
 	
-	//@Autowired
+	@Autowired
 	private TrackTableController trackTableController;
 	
 	@Value("${max.playlist.size}")
