@@ -51,6 +51,7 @@ import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import lombok.Getter;
 import lombok.Synchronized;
@@ -68,7 +69,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.DataParser;
 
 @Slf4j
-//@Component
+@Component
 public class SearchManager extends EventAwareObject implements Constants {
 
 	@Autowired
