@@ -378,8 +378,8 @@ public class SearchManager extends EventAwareObject implements Constants {
     }
     
     @Synchronized
-    public List<Track> getRandomPlaylist(int playlistSize, String yearFilter) {
-    	log.debug("Getting random playlist size - " + playlistSize + " - " + yearFilter);
+    public List<Track> getShuffledPlaylist(int playlistSize, String yearFilter) {
+    	log.debug("Getting shuffled playlist size - " + playlistSize + " - " + yearFilter);
     	
     	long startTime = System.currentTimeMillis();
         
@@ -450,7 +450,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         	
         	return playlist;
         } catch (Exception e) {
-        	log.error("Unable to get random playlist", e);
+        	log.error("Unable to get shuffled playlist", e);
             
             return Collections.emptyList();
         } finally {
@@ -463,7 +463,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         	trackSearcher = null;
             long queryTime = (System.currentTimeMillis() - startTime);
             
-            log.debug("Random playlist query time - " + queryTime + " milliseconds");
+            log.debug("Shuffled playlist query time - " + queryTime + " milliseconds");
         }
     }
     

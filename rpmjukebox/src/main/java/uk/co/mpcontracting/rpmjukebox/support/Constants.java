@@ -8,23 +8,6 @@ public interface Constants {
 	public static final String UNSPECIFIED_GENRE 										= "Unspecified";
     public static final DataFormat DND_TRACK_DATA_FORMAT    							= new DataFormat("dyn.dnd.track.data.format");
     
-    // Property keys
-    /*public static final String PROP_VERSION_URL											= "version.url";
-    public static final String PROP_WEBSITE_URL											= "website.url";
-    public static final String PROP_DIRECTORY_CONFIG									= "directory.config";
-    public static final String PROP_DIRECTORY_LOG										= "directory.log";
-    public static final String PROP_DIRECTORY_ARTIST_INDEX								= "directory.artist.index";
-    public static final String PROP_DIRECTORY_TRACK_INDEX								= "directory.track.index";
-    public static final String PROP_DIRECTORY_CACHE										= "directory.cache";
-    public static final String PROP_INTERNAL_JETTY_PORT									= "internal.jetty.port";
-    public static final String PROP_DEFAULT_VOLUME										= "default.volume";
-    public static final String PROP_MAX_SEARCH_HITS										= "max.search.hits";
-    public static final String PROP_MAX_PLAYLIST_SIZE									= "max.playlist.size";
-    public static final String PROP_RANDOM_PLAYLIST_SIZE								= "random.playlist.size";
-    public static final String PROP_PREVIOUS_SECONDS_CUTOFF								= "previous.seconds.cutoff";
-    public static final String PROP_PLAYLIST_FILE_EXTENSION								= "playlist.file.extension";
-    public static final String PROP_CACHE_SIZE_MB										= "cache.size.mb";*/
-    
     // Message bundle keys
     public static final String MESSAGE_CHECKING_DATA									= "message.checkingData";
     public static final String MESSAGE_DOWNLOAD_INDEX									= "message.downloadIndex";

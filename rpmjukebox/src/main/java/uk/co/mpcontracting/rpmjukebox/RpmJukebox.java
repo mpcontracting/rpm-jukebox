@@ -39,12 +39,24 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
 	public void beforeInitialView(Stage stage, ConfigurableApplicationContext context) {
 		this.context = context;
 		
-		context.getBean(ApplicationManager.class).start(stage);
+		if (context != null) {
+			ApplicationManager applicationManager = context.getBean(ApplicationManager.class);
+			
+			if (applicationManager != null) {
+				applicationManager.start(stage);
+			}
+		}
 	}
 	
 	@Override
 	public void stop() throws Exception {
-		context.getBean(ApplicationManager.class).stop();
+		if (context != null) {
+			ApplicationManager applicationManager = context.getBean(ApplicationManager.class);
+			
+			if (applicationManager != null) {
+				applicationManager.stop();
+			}
+		}
 		
 		super.stop();
 		

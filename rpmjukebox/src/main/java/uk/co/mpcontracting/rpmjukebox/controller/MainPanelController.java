@@ -1,22 +1,46 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import com.google.gson.reflect.TypeToken;
+import com.igormaznitsa.commons.version.Version;
 
 import de.felixroske.jfxsupport.FXMLController;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.BoxBlur;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.util.Duration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.component.ConfirmWindow;
+import uk.co.mpcontracting.rpmjukebox.component.MessageWindow;
 import uk.co.mpcontracting.rpmjukebox.component.ModalWindow;
+import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
+import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
@@ -27,8 +51,17 @@ import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.manager.UpdateManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Repeat;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.model.YearFilter;
+import uk.co.mpcontracting.rpmjukebox.search.TrackFilter;
+import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
+import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
+import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @FXMLController
@@ -109,9 +142,6 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@FXML
 	private Button randomButton;
 
-	//@Autowired
-	//private RpmJukeboxInitialiser rpmJukebox;
-	
 	@Autowired
 	private MessageManager messageManager;
 	
@@ -144,24 +174,34 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private ExportController exportController;
+	
+	@Value("${previous.seconds.cutoff}")
+	private int previousSecondsCutoff;
+	
+	@Value("${max.playlist.size}")
+	private int maxPlaylistSize;
+	
+	@Value("${shuffled.playlist.size}")
+	private int shuffledPlaylistSize;
+	
+	@Value("${playlist.file.extension}")
+	private String playlistFileExtension;
 
 	@Getter private ModalWindow equalizerWindow;
 	@Getter private ModalWindow settingsWindow;
 	@Getter private ModalWindow exportWindow;
-	/*private MessageWindow messageWindow;
+	private MessageWindow messageWindow;
 	private ConfirmWindow confirmWindow;
 	private ObservableList<Playlist> observablePlaylists;
-	
-	private int previousSecondsCutoff;
-	private int randomPlaylistSize;
+
 	private String playlistExtensionFilter;
-	private int currentSelectedPlaylistId;*/
+	private int currentSelectedPlaylistId;
 
 	@FXML
 	public void initialize() {
 		log.info("Initialising MainPanelController");
-		
-		/*yearFilterComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+
+		yearFilterComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
 			searchParametersUpdated(searchTextField.getText(), yearFilterComboBox.getSelectionModel().getSelectedItem(), false);
 		});
 		
@@ -230,49 +270,47 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		});
 		
 		// Track table view
-		//mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
-		
-		previousSecondsCutoff = settingsManager.getPropertyInteger(PROP_PREVIOUS_SECONDS_CUTOFF);
-		randomPlaylistSize = settingsManager.getPropertyInteger(PROP_RANDOM_PLAYLIST_SIZE);
-		playlistExtensionFilter = "*." + settingsManager.getPropertyString(PROP_PLAYLIST_FILE_EXTENSION);
-		currentSelectedPlaylistId = -999;*/
+		mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
+
+		playlistExtensionFilter = "*." + playlistFileExtension;
+		currentSelectedPlaylistId = -999;
 	}
 
 	public void showMessageWindow(String message, boolean blurBackground) {
-		/*ThreadRunner.runOnGui(() -> {
+		ThreadRunner.runOnGui(() -> {
 			messageWindow.setMessage(message);
 			
 			if (!messageWindow.isShowing()) {
 				messageWindow.display(blurBackground);
 			}
-		});*/
+		});
 	}
 	
 	public void closeMessageWindow() {
-		/*ThreadRunner.runOnGui(() -> {
+		ThreadRunner.runOnGui(() -> {
 			messageWindow.close();
-		});*/
+		});
 	}
 	
 	public void showConfirmWindow(String message, boolean blurBackground, Runnable okRunnable, Runnable cancelRunnable) {
-		/*ThreadRunner.runOnGui(() -> {
+		ThreadRunner.runOnGui(() -> {
 			confirmWindow.setMessage(message);
 			confirmWindow.setRunnables(okRunnable, cancelRunnable);
 			
 			if (!confirmWindow.isShowing()) {
 				confirmWindow.display(blurBackground);
 			}
-		});*/
+		});
 	}
 	
 	public void closeConfirmWindow() {
-		//confirmWindow.close();
+		confirmWindow.close();
 	}
 
 	private void searchParametersUpdated(String searchText, YearFilter yearFilter, boolean searchTextUpdated) {
 		log.debug("Search parameters updated - '" + searchText + "'" + " - " + yearFilter);
 
-		/*if (searchText != null && searchText.trim().length() > 0) {
+		if (searchText != null && searchText.trim().length() > 0) {
 			TrackFilter trackFilter = null;
 			TrackSearch trackSearch = null;
 			
@@ -295,13 +333,13 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		if (searchTextUpdated) {
 			fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
-		}*/
+		}
 	}
 	
 	private void updateYearFilter() {
-		//log.debug("Updating year filter - " + searchManager.getYearList());
+		log.debug("Updating year filter - " + searchManager.getYearList());
 		
-		/*List<YearFilter> yearFilters = new ArrayList<YearFilter>();
+		List<YearFilter> yearFilters = new ArrayList<YearFilter>();
 		yearFilters.add(new YearFilter("None", null));
 		
 		for (String year : searchManager.getYearList()) {
@@ -310,33 +348,33 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		
 		yearFilterComboBox.getItems().clear();
 		yearFilterComboBox.getItems().addAll(yearFilters);
-		yearFilterComboBox.getSelectionModel().selectFirst();*/
+		yearFilterComboBox.getSelectionModel().selectFirst();
 	}
 	
 	private void updateObservablePlaylists() {
 		log.debug("Updating observable playlists");
 
-		//observablePlaylists.setAll(playlistManager.getPlaylists());
+		observablePlaylists.setAll(playlistManager.getPlaylists());
 	}
 	
 	private void setVolumeButtonImage() {
-		/*if (mediaManager.isMuted()) {
+		if (mediaManager.isMuted()) {
 			volumeButton.setStyle("-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')");
 		} else {
 			volumeButton.setStyle("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')");
-		}*/
+		}
 	}
 	
 	private void setShuffleButtonImage() {
-		/*if (playlistManager.isShuffle()) {
+		if (playlistManager.isShuffle()) {
 			shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')");
 		} else {
 			shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
-		}*/
+		}
 	}
 	
 	private void setRepeatButtonImage() {
-		/*switch (playlistManager.getRepeat()) {
+		switch (playlistManager.getRepeat()) {
 			case OFF: {
 				repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
 				break;
@@ -349,28 +387,28 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_ONE + "')");
 				break;
 			}
-		}*/
+		}
 	}
 	
 	@FXML
 	protected void handleNewVersionButtonAction(ActionEvent event) {
 		log.debug("New version button pressed");
 
-		//updateManager.downloadNewVersion();
+		updateManager.downloadNewVersion();
 	}
 	
 	@FXML
 	protected void handleAddPlaylistButtonAction(ActionEvent event) {
 		log.debug("Add playlist button pressed");
 		
-		//playlistManager.createPlaylist();
+		playlistManager.createPlaylist();
 	}
 	
 	@FXML
 	protected void handleDeletePlaylistButtonAction(ActionEvent event) {
 		log.debug("Delete playlist button pressed");
 		
-		/*Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
+		Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
 		
 		if (playlist != null && playlist.getPlaylistId() > 0) {
 			showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
@@ -380,14 +418,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				},
 				null
 			);
-		}*/
+		}
 	}
 	
 	@FXML
 	protected void handleImportPlaylistButtonAction(ActionEvent event) {
 		log.debug("Import playlist button pressed");
 		
-		/*FileChooser fileChooser = new FileChooser();
+		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle(messageManager.getMessage(MESSAGE_EXPORT_PLAYLIST_TITLE));
 		fileChooser.getExtensionFilters().add(new ExtensionFilter(messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter), 
 			playlistExtensionFilter));
@@ -406,8 +444,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				
 				if (playlists != null) {
 					for (PlaylistSettings playlistSettings : playlists) {
-						Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), 
-							settingsManager.getPropertyInteger(PROP_MAX_PLAYLIST_SIZE));
+						Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), maxPlaylistSize);
 
 						for (String trackId : playlistSettings.getTracks()) {
 							Track track = searchManager.getTrackById(trackId);
@@ -435,41 +472,41 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			}
 		}
 		
-		RpmJukebox.getStage().getScene().getRoot().setEffect(null);*/
+		RpmJukebox.getStage().getScene().getRoot().setEffect(null);
 	}
 	
 	@FXML
 	protected void handleExportPlaylistButtonAction(ActionEvent event) {
 		log.debug("Export playlist button pressed");
 		
-		/*exportController.bindPlaylists();
-		exportWindow.display(true);*/
+		exportController.bindPlaylists();
+		exportWindow.display(true);
 	}
 	
 	@FXML
 	protected void handleSettingsButtonAction(ActionEvent event) {
 		log.debug("Settings button pressed");
 		
-		/*settingsController.bindSystemSettings();
-		settingsWindow.display(true);*/
+		settingsController.bindSystemSettings();
+		settingsWindow.display(true);
 	}
 	
 	@FXML
 	protected void handlePreviousButtonAction(ActionEvent event) {
 		log.debug("Previous button pressed");
 		
-		/*if (mediaManager.getPlayingTimeSeconds() > previousSecondsCutoff) {
+		if (mediaManager.getPlayingTimeSeconds() > previousSecondsCutoff) {
 			mediaManager.setSeekPositionPercent(0);
 		} else {
 			playlistManager.playPreviousTrack(true);
-		}*/
+		}
 	}
 	
 	@FXML
 	protected void handlePlayPauseButtonAction(ActionEvent event) {
 		log.debug("Play/pause button pressed");
 
-		/*if (mediaManager.isPlaying()) {
+		if (mediaManager.isPlaying()) {
 			playlistManager.pauseCurrentTrack();
 		} else if (mediaManager.isPaused()) {
 			playlistManager.resumeCurrentTrack();
@@ -478,62 +515,62 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			playlistManager.playPlaylist(currentSelectedPlaylistId);
 		} else {
 			playlistManager.playCurrentTrack(true);
-		}*/
+		}
 	}
 	
 	@FXML
 	protected void handleNextButtonAction(ActionEvent event) {
 		log.debug("Next button pressed");
 		
-		//playlistManager.playNextTrack(true);
+		playlistManager.playNextTrack(true);
 	}
 	
 	@FXML
 	protected void handleVolumeButtonAction(ActionEvent event) {
 		log.debug("Volume button pressed");
 		
-		/*mediaManager.setMuted();
+		mediaManager.setMuted();
 		
-		setVolumeButtonImage();*/
+		setVolumeButtonImage();
 	}
 	
 	@FXML
 	protected void handleShuffleButtonAction(ActionEvent event) {
 		log.debug("Shuffle button pressed");
 		
-		/*playlistManager.setShuffle(!playlistManager.isShuffle(), false);
+		playlistManager.setShuffle(!playlistManager.isShuffle(), false);
 		
-		setShuffleButtonImage();*/
+		setShuffleButtonImage();
 	}
 	
 	@FXML
 	protected void handleRepeatButtonAction(ActionEvent event) {
 		log.debug("Repeat button pressed");
 
-		/*playlistManager.updateRepeat();
+		playlistManager.updateRepeat();
 		
-		setRepeatButtonImage();*/
+		setRepeatButtonImage();
 	}
 
 	@FXML
 	protected void handleEqButtonAction(ActionEvent event) {
 		log.debug("EQ button pressed");
 
-		/*equalizerController.updateSliderValues();
-		equalizerWindow.display(true);*/
+		equalizerController.updateSliderValues();
+		equalizerWindow.display(true);
 	}
 	
 	@FXML
 	protected void handleRandomButtonAction(ActionEvent event) {
 		log.debug("Random button pressed");
 
-		/*YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
+		YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
 		
-		playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getRandomPlaylist(randomPlaylistSize, (yearFilter != null ? yearFilter.getYear() : null)));
-		playlistManager.playPlaylist(PLAYLIST_ID_SEARCH);*/
+		playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getShuffledPlaylist(shuffledPlaylistSize, (yearFilter != null ? yearFilter.getYear() : null)));
+		playlistManager.playPlaylist(PLAYLIST_ID_SEARCH);
 	}
 
-	/*@Override
+	@Override
 	public void eventReceived(Event event, Object... payload) {
 		switch (event) {
 			case APPLICATION_INITIALISED: {
@@ -732,5 +769,5 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				// Nothing
 			}
 		}
-	}*/
+	}
 }
