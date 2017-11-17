@@ -9,12 +9,13 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
-//@Component
+@Component
 public class JettyServer implements InitializingBean, Constants {
 
 	@Value("${internal.jetty.port}")
@@ -41,7 +42,6 @@ public class JettyServer implements InitializingBean, Constants {
         handlers.setHandlers(new Handler[] {context, new DefaultHandler()});
         
         server.setHandler(handlers);
-
         server.start();
 	}
 	
