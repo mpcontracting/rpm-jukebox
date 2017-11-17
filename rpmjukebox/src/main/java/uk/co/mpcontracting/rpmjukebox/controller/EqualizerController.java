@@ -1,8 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
+import de.felixroske.jfxsupport.FXMLController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -15,7 +15,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 
 @Slf4j
-@Component
+@FXMLController
 public class EqualizerController extends EventAwareObject {
 	
 	@FXML

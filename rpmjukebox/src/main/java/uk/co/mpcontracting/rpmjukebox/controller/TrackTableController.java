@@ -1,8 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
+import de.felixroske.jfxsupport.FXMLController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -20,7 +20,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 
 @Slf4j
-@Component
+@FXMLController
 public class TrackTableController extends EventAwareObject {
 
 	@FXML

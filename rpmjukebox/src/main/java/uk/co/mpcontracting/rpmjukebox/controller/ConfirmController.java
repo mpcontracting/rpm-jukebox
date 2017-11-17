@@ -1,8 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
+import de.felixroske.jfxsupport.FXMLController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -11,7 +11,7 @@ import javafx.scene.input.KeyEvent;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
+@FXMLController
 public class ConfirmController {
 
 	@FXML
