@@ -107,12 +107,7 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
 		// Initialise the logging
 		initialiseLogging();
 
-		// Add a spacer to the logging file to separate startups
-		/*log.info("====================================================");
-		log.info("====================================================");
-		log.info("====================================================");
-		log.info("Java Version - " + System.getProperty("java.version"));*/
-		
+		// Launch the application
 		launchApp(RpmJukebox.class, MainPanelView.class, new RpmJukeboxSplash(), args);
 		
 		// Request the focus of the application
