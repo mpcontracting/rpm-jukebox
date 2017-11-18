@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox;
 
 import java.io.File;
+import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 
@@ -24,6 +25,7 @@ public abstract class AbstractTest extends GuiTest {
 		System.setProperty("directory.config", ".rpmjukeboxtest");
 		ReflectionTestUtils.setField(RpmJukebox.class, "configDirectory", 
 				new File(System.getProperty("user.home") + File.separator + ".rpmjukeboxtest"));
+		Locale.setDefault(Locale.UK);
 	}
 	
 	@PostConstruct
