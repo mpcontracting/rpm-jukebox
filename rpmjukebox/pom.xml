@@ -58,6 +58,11 @@
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 		<!-- Provided -->
 
@@ -155,10 +160,15 @@
 						<configuration>
 							<rules>
 								<rule>
-									<element>PACKAGE</element>
+									<element>CLASS</element>
 									<limits>
 										<limit>
 											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
+										</limit>
+										<limit>
+											<counter>BRANCH</counter>
 											<value>COVEREDRATIO</value>
 											<minimum>0.80</minimum>
 										</limit>

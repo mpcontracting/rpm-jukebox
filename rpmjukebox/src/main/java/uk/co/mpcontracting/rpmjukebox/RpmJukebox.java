@@ -59,13 +59,11 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
 		}
 		
 		super.stop();
-		
-		System.exit(0);
 	}
 	
 	private static void initialiseLogging() {
 		try {
-			// Copy the logging.properties file if it doesn't already exist
+			// Copy the logback file if it doesn't already exist
 			File loggingFile = new File(configDirectory, "logback.xml");
 
 			if (!loggingFile.exists()) {
@@ -92,7 +90,7 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
 			// Notify Spring where the logging config is
 			System.setProperty("logging.config", loggingFile.getAbsolutePath());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Unable to initialise logging", e);
 		}
 	}
 	
@@ -122,7 +120,7 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
 		launchApp(RpmJukebox.class, MainPanelView.class, new RpmJukeboxSplash(), args);
 	}
 
-	private static class RpmJukeboxSplash extends SplashScreen {
+	static class RpmJukeboxSplash extends SplashScreen {
 		@Override
 		public boolean visible() {
 			return false;
