@@ -9,6 +9,7 @@ public interface Constants {
     public static final DataFormat DND_TRACK_DATA_FORMAT    							= new DataFormat("dyn.dnd.track.data.format");
     
     // Message bundle keys
+    public static final String MESSAGE_WINDOW_TITLE										= "window.title";
     public static final String MESSAGE_CHECKING_DATA									= "message.checkingData";
     public static final String MESSAGE_DOWNLOAD_INDEX									= "message.downloadIndex";
     public static final String MESSAGE_ALREADY_RUNNING									= "message.alreadyRunning";

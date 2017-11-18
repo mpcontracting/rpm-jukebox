@@ -19,6 +19,9 @@ import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 public class ApplicationManager implements Constants {
 
 	@Autowired
+	private MessageManager messageManager;
+	
+	@Autowired
 	private SettingsManager settingsManager;
 	
 	@Autowired
@@ -41,7 +44,7 @@ public class ApplicationManager implements Constants {
 		
 		this.stage = stage;
 		
-		stage.setTitle("RPM Jukebox");
+		stage.setTitle(messageManager.getMessage(MESSAGE_WINDOW_TITLE));
 
 		// If this is Windows, add a window icon
 		if (settingsManager.getOsType() == OsType.WINDOWS) {
