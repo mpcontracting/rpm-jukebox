@@ -22,10 +22,10 @@
 		</encoder>
 	</appender>
 
-	<logger level="DEBUG" name="uk.co.mpcontracting.rpmjukebox" additivity="false">
+	<!--<logger level="DEBUG" name="uk.co.mpcontracting.rpmjukebox" additivity="false">
 		<appender-ref ref="CONSOLE"/>
 		<appender-ref ref="FILE"/>
-	</logger>
+	</logger>-->
 
 	<root level="INFO">
 		<appender-ref ref="CONSOLE"/>
