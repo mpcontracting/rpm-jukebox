@@ -342,8 +342,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		List<YearFilter> yearFilters = new ArrayList<YearFilter>();
 		yearFilters.add(new YearFilter("None", null));
 		
-		for (String year : searchManager.getYearList()) {
-			yearFilters.add(new YearFilter(year, year));
+		if (searchManager.getYearList() != null) {
+			for (String year : searchManager.getYearList()) {
+				yearFilters.add(new YearFilter(year, year));
+			}
 		}
 		
 		yearFilterComboBox.getItems().clear();

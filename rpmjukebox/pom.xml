@@ -33,18 +33,17 @@
 			<artifactId>hamcrest-all</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!--<dependency>
-			<groupId>org.testfx</groupId>
-			<artifactId>testfx-core</artifactId>
-			<version>4.0.4-alpha</version>
+		<dependency>
+			<groupId>de.roskenet</groupId>
+			<artifactId>springboot-javafx-test</artifactId>
+			<version>1.0.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.testfx</groupId>
-			<artifactId>testfx-junit</artifactId>
-			<version>4.0.4-alpha</version>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
-		</dependency>-->
+		</dependency>
 
 		<!-- Provided -->
 
@@ -117,6 +116,10 @@
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>com.zenjava</groupId>

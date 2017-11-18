@@ -103,7 +103,6 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
 		// See if we have a command line override
 		if (System.getProperty("directory.config") != null) {
 			configDirectory = new File(homeDir, System.getProperty("directory.config"));
-			
 		} else {
 			configDirectory = new File(homeDir, ".rpmjukebox");
 		}
@@ -121,9 +120,6 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
 
 		// Launch the application
 		launchApp(RpmJukebox.class, MainPanelView.class, new RpmJukeboxSplash(), args);
-		
-		// Request the focus of the application
-		getStage().getScene().getRoot().requestFocus();
 	}
 
 	private static class RpmJukeboxSplash extends SplashScreen {

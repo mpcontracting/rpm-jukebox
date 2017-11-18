@@ -1,7 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -9,15 +9,12 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
-public class EventAwareObjectTest /*extends ApplicationTest*/  {
+import uk.co.mpcontracting.rpmjukebox.AbstractTest;
+
+public class EventAwareObjectTest extends AbstractTest {
 
 	private CountDownLatch latch;
 	private Event receivedEvent;
-	
-	/*@Override
-	public void start(Stage stage) throws Exception {
-
-	}*/
 
 	@Before
 	public void setup() {
@@ -35,10 +32,10 @@ public class EventAwareObjectTest /*extends ApplicationTest*/  {
 			}
 		};
 		
-		eventAwareObject.fireEvent(Event.APPLICATION_INITIALISED);
+		eventAwareObject.fireEvent(Event.TEST_EVENT);
 		
 		latch.await(2000, TimeUnit.MILLISECONDS);
 		
-		assertThat("Received event should be " + Event.APPLICATION_INITIALISED, receivedEvent, equalTo(Event.APPLICATION_INITIALISED));
+		assertThat("Received event should be " + Event.TEST_EVENT, receivedEvent, equalTo(Event.TEST_EVENT));
 	}
 }
