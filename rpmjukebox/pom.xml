@@ -19,6 +19,19 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 	</properties>
+	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype-snapshots-repo</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<dependencies>
 
@@ -113,7 +126,8 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.7.9</version>
+				<!-- Need the snapshot version for Lombok @Generated support -->
+				<version>0.7.10-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<goals>
