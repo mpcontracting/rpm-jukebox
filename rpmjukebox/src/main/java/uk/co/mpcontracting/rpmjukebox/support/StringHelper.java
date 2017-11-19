@@ -16,9 +16,6 @@ public abstract class StringHelper {
 
 		int elapsedMinutes = intElapsed / 60;
 		int elapsedSeconds = intElapsed - elapsedMinutes * 60;
-		
-		System.out.println("Media : " + mediaDuration + ", Current - " + currentTime + ", Elapsed Hours - " + elapsedHours + ", Elapsed Mins - " + elapsedMinutes + 
-				", Elapsed Secs - " + elapsedSeconds);
 
 		if (mediaDuration.equals(Duration.ZERO) && currentTime.equals(Duration.ZERO)) {
 			return "00:00/00:00";
