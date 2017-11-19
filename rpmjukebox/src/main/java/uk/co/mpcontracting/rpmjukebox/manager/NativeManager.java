@@ -55,14 +55,14 @@ public class NativeManager implements InitializingBean {
 			ThreadRunner.run(() -> {
 				try {
 					nsUserNotificationsBridge.sendNotification(track.getTrackName(), track.getArtistName(), track.getAlbumName(), 0);
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					log.warn("Unable to send OSX notification", e);
 				}
 			});
 		}
 	}
 	
-	private interface NsUserNotificationsBridge extends Library {
+	interface NsUserNotificationsBridge extends Library {
 		public int sendNotification(String title, String subtitle, String text, int timeoffset);
 	}
 }
