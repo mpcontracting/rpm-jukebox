@@ -48,7 +48,7 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		log.debug("Playing track : " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName() + " - " + track.getLocation());
 
 		currentTrack = track;
-		currentMedia = new Media(cacheManager.constructInternalUrl(CacheType.TRACK, track.getTrackId(), track.getLocation()));
+		currentMedia = constructMedia(cacheManager.constructInternalUrl(CacheType.TRACK, track.getTrackId(), track.getLocation()));
 
 		createNewMediaPlayer();
 
@@ -176,11 +176,9 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 	private void createNewMediaPlayer() {
 		cleanUpResources();
 
-		boolean repeat = false;
-
-		currentPlayer = new MediaPlayer(currentMedia);
+		currentPlayer = constructMediaPlayer(currentMedia);
 		currentPlayer.setVolume(muted ? 0 : volume);
-		currentPlayer.setCycleCount(repeat ? MediaPlayer.INDEFINITE : 1);
+		currentPlayer.setCycleCount(1);
 
 		for (int i = 0; i < equalizer.getNumberOfBands(); i++) {
 			currentPlayer.getAudioEqualizer().getBands().get(i).setGain(equalizer.getGain(i));
@@ -227,6 +225,14 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 				fireEvent(Event.BUFFER_UPDATED, currentDuration, currentPlayer.getBufferProgressTime());
 			}
 		});
+	}
+	
+	Media constructMedia(String source) {
+		return new Media(source);
+	}
+	
+	MediaPlayer constructMediaPlayer(Media media) {
+		return new MediaPlayer(media);
 	}
 	
 	@Override

@@ -15,6 +15,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.roskenet.jfxsupport.test.GuiTest;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
@@ -32,7 +34,7 @@ public abstract class AbstractTest extends GuiTest {
 	}
 	
 	@Mock
-	private EventManager mockEventManager;
+	@Getter(AccessLevel.PROTECTED) private EventManager mockEventManager;
 	private EventManager eventManager;
 	
 	@PostConstruct
