@@ -156,6 +156,10 @@ public class SettingsManager implements InitializingBean, Constants {
 			}
 		}
 
+		if (lastModified == null) {
+			return false;
+		}
+		
 		LocalDateTime lastIndexed = getLastIndexedDate();
 		
 		log.debug("Last modified - " + lastModified);

@@ -9,9 +9,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.RandomAccessFile;
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -140,7 +137,7 @@ public class CacheManagerTest extends AbstractTest {
 		
 		writeCacheFile(cacheType, id, cacheContent);
 		File originalFile = new File(cacheDirectory, id);
-		originalFile.setLastModified(Date.from(LocalDateTime.of(1971, 1, 1, 0, 0).atZone(ZoneId.systemDefault()).toInstant()).getTime());
+		originalFile.setLastModified(getDateTimeInMillis(1971, 1, 1, 0, 0));
 		long originalModified = originalFile.lastModified();
 
 		spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());
@@ -163,7 +160,7 @@ public class CacheManagerTest extends AbstractTest {
 				randomAccessFile.setLength(1024 * 100);
 			}
 			
-			file.setLastModified(Date.from(LocalDateTime.of(1971, 1, 1, 0, 50 - i).atZone(ZoneId.systemDefault()).toInstant()).getTime());
+			file.setLastModified(getDateTimeInMillis(1971, 1, 1, 0, 50 - i));
 		}
 
 		spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());
@@ -187,7 +184,7 @@ public class CacheManagerTest extends AbstractTest {
 				randomAccessFile.setLength(1024 * 100);
 			}
 			
-			file.setLastModified(Date.from(LocalDateTime.of(1971, 1, 1, 0, 0).atZone(ZoneId.systemDefault()).toInstant()).getTime());
+			file.setLastModified(getDateTimeInMillis(1971, 1, 1, 0, 0));
 		}
 
 		spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());

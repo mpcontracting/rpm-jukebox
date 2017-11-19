@@ -1,6 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox;
 
 import java.io.File;
+import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Locale;
 
 import javax.annotation.PostConstruct;
@@ -46,6 +49,14 @@ public abstract class AbstractTest extends GuiTest {
 	public void abstractTestBefore() {
 		eventManager = EventManager.getInstance();
 		ReflectionTestUtils.setField(EventManager.class, "instance", mockEventManager);
+	}
+	
+	protected long getLocalDateTimeInMillis(LocalDateTime localDateTime) {
+		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()).getTime();
+	}
+	
+	protected long getDateTimeInMillis(int year, int month, int day, int hour, int minute) {
+		return getLocalDateTimeInMillis(LocalDateTime.of(year, month, day, hour, minute));
 	}
 
 	@After

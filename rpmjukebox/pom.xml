@@ -167,7 +167,7 @@
 									<element>CLASS</element>
 									<limits>
 										<limit>
-											<counter>LINE</counter>
+											<counter>INSTRUCTION</counter>
 											<value>COVEREDRATIO</value>
 											<minimum>0.80</minimum>
 										</limit>
@@ -180,6 +180,8 @@
 								</rule>
 							</rules>
 							<excludes>
+								<!-- Exclude MediaManager as we cannot test the MediaPlayer events -->
+								<exclude>**/MediaManager.*</exclude>
 								<!-- Exclude NativeManager as test coverage is only achievable on OSX -->
 								<exclude>**/NativeManager.*</exclude>
 							</excludes>

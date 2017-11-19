@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.felixroske.jfxsupport.GUIState;
@@ -23,6 +24,9 @@ public class UpdateManagerTest extends AbstractTest {
 
 	@Autowired
 	private UpdateManager updateManager;
+	
+	@Value("${website.url}")
+	private String websiteUrl;
 	
 	@Mock
 	private URL mockVersionUrl;
@@ -105,7 +109,7 @@ public class UpdateManagerTest extends AbstractTest {
 		
 		ReflectionTestUtils.setField(GUIState.class, "hostServices", existingHostServices);
 		
-		verify(mockHostServices, times(1)).showDocument((String)ReflectionTestUtils.getField(spyUpdateManager, "websiteUrl"));
+		verify(mockHostServices, times(1)).showDocument(websiteUrl);
 	}
 	
 	@Test

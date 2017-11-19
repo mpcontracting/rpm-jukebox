@@ -394,7 +394,7 @@ public class MediaManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldConstructConcreteMediaPlayer() {
-		MediaPlayer mediaPlayer = mediaManager.constructMediaPlayer(mediaManager.constructMedia("http://ww.example.com/example.mp3"));
+		MediaPlayer mediaPlayer = mediaManager.constructMediaPlayer(mediaManager.constructMedia("http://www.example.com/example.mp3"));
 		
 		assertThat("Media player should not be null", mediaPlayer, notNullValue());
 	}
