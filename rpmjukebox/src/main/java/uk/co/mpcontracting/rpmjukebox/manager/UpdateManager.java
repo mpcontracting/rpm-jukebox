@@ -26,55 +26,48 @@ public class UpdateManager extends EventAwareObject implements Constants {
 	private SettingsManager settingsManager;
 
 	@Value("${version.url}")
-	private String versionUrl;
+	private URL versionUrl;
 	
 	@Value("${website.url}")
 	private String websiteUrl;
 	
 	private Version newVersion;
 	
-	private void checkForUpdates() {
+	void checkForUpdates() {
 		log.debug("Checking for updates to version - " + settingsManager.getVersion());
+		log.debug("Version url - " + versionUrl);
 
-		ThreadRunner.run(() -> {
-			try {
-				URL url = new URL(versionUrl);
+		try {
+			HttpURLConnection connection = (HttpURLConnection)versionUrl.openConnection();
+			
+			if (connection.getResponseCode() == 200) {
+				StringBuilder response = new StringBuilder();
 				
-				log.debug("Version url - " + url);
-				
-				HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-				
-				if (connection.getResponseCode() == 200) {
-					StringBuilder response = new StringBuilder();
-					
-					try (BufferedReader reader = new BufferedReader(new InputStreamReader((connection.getInputStream())))) {
-						String nextLine = null;
-						
-						while ((nextLine = reader.readLine()) != null) {
-							response.append(nextLine);
-						}
-					}
-					
-					if (response.toString().length() > 0) {
-						Version foundVersion = new Version(response.toString().trim());
-						
-						log.debug("Found version - " + foundVersion);
-						
-						if (foundVersion.compareTo(settingsManager.getVersion()) > 0) {
-							log.debug("New version available");
-							
-							newVersion = foundVersion;
-							
-							fireEvent(Event.NEW_VERSION_AVAILABLE, newVersion);
-						}
-					}
-				} else {
-					log.error("Unable to check for new version : Response code - " + connection.getResponseCode());
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader((connection.getInputStream())))) {
+					reader.lines().forEach(line -> {
+						response.append(line);
+					});
 				}
-			} catch (Exception e) {
-				log.error("Error checking for new version", e);
+				
+				if (response.toString().length() > 0) {
+					Version foundVersion = new Version(response.toString().trim());
+					
+					log.debug("Found version - " + foundVersion);
+					
+					if (foundVersion.compareTo(settingsManager.getVersion()) > 0) {
+						log.debug("New version available");
+						
+						newVersion = foundVersion;
+						
+						fireEvent(Event.NEW_VERSION_AVAILABLE, newVersion);
+					}
+				}
+			} else {
+				log.error("Unable to check for new version : Response code - " + connection.getResponseCode());
 			}
-		});
+		} catch (Exception e) {
+			log.error("Error checking for new version", e);
+		}
 	}
 	
 	public void downloadNewVersion() {
@@ -89,8 +82,10 @@ public class UpdateManager extends EventAwareObject implements Constants {
 	public void eventReceived(Event event, Object... payload) {
 		switch (event) {
 			case APPLICATION_INITIALISED: {
-				checkForUpdates();
-				
+				ThreadRunner.run(() -> {
+					checkForUpdates();
+				});
+
 				break;
 			}
 			default: {
