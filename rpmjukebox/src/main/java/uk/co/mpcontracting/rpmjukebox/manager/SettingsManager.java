@@ -190,12 +190,25 @@ public class SettingsManager implements InitializingBean, Constants {
 	
 	public void setLastIndexedDate(LocalDateTime localDateTime) {
 		File lastIndexedFile = getFileFromConfigDirectory(fileLastIndexed);
+		boolean alreadyExists = lastIndexedFile.exists();
+		
+		if (alreadyExists) {
+			lastIndexedFile.renameTo(getFileFromConfigDirectory(fileLastIndexed + ".bak"));
+		}
 		
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
 			writer.write(Long.toString(localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 			writer.newLine();
 		} catch (Exception e) {
 			log.error("Unable to write last indexed file", e);
+
+			lastIndexedFile.delete();
+			
+			if (alreadyExists) {
+				getFileFromConfigDirectory(fileLastIndexed + ".bak").renameTo(lastIndexedFile);
+			}
+		} finally {
+			getFileFromConfigDirectory(fileLastIndexed + ".bak").delete();
 		}
 	}
 	
