@@ -1,6 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,6 +16,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -47,6 +50,8 @@ public abstract class AbstractTest extends GuiTest {
 	
 	@Before
 	public void abstractTestBefore() {
+		RpmJukebox.getConfigDirectory().mkdirs();
+		
 		eventManager = EventManager.getInstance();
 		ReflectionTestUtils.setField(EventManager.class, "instance", mockEventManager);
 	}
@@ -57,6 +62,23 @@ public abstract class AbstractTest extends GuiTest {
 	
 	protected long getDateTimeInMillis(int year, int month, int day, int hour, int minute) {
 		return getLocalDateTimeInMillis(LocalDateTime.of(year, month, day, hour, minute));
+	}
+	
+	protected File getTestResourceFile(String path) throws Exception {
+		return new ClassPathResource(path).getFile();
+	}
+	
+	protected String getTestResourceContent(String path) throws Exception {
+		StringBuilder builder = new StringBuilder();
+		
+		try (BufferedReader reader = new BufferedReader(new FileReader(getTestResourceFile(path)))) {
+			reader.lines().forEach(line -> {
+				builder.append(line);
+				builder.append("\r\n");
+			});
+		}
+		
+		return builder.toString();
 	}
 
 	@After

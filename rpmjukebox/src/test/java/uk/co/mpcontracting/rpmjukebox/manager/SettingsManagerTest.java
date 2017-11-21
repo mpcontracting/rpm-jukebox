@@ -146,7 +146,6 @@ public class SettingsManagerTest extends AbstractTest {
 
 	@Test
 	public void shouldShowFileSystemDataFileHasExpired() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		File lastIndexedFile = new File(RpmJukebox.getConfigDirectory(), "last-indexed");
 		lastIndexedFile.createNewFile();
 		lastIndexedFile.setLastModified(getDateTimeInMillis(1975, 1, 1, 0, 0));
@@ -171,7 +170,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldGetLastIndexedDate() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		LocalDateTime now = LocalDateTime.now();
 		File lastIndexedFile = settingsManager.getFileFromConfigDirectory(fileLastIndexed);
         
@@ -198,7 +196,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldNotGetLastIndexedDateOnFileReadError() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		File lastIndexedFile = settingsManager.getFileFromConfigDirectory(fileLastIndexed);
         
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
@@ -215,7 +212,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldSetLastIndexedDate() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		LocalDateTime now = LocalDateTime.now();
 		
 		spySettingsManager.setLastIndexedDate(now);
@@ -231,7 +227,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldSetLastIndexedDateIfAlreadyExists() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		File writeLastIndexedFile = new File(RpmJukebox.getConfigDirectory(), "last-indexed");
 		LocalDateTime originalLastIndexed = LocalDateTime.of(1971, 1, 1, 0, 0);
 
@@ -255,7 +250,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldNotSetLastIndexedDateOnExceptionIfNotAlreadyExists() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		LocalDateTime mockLocalDateTime = mock(LocalDateTime.class);
 		doThrow(new RuntimeException("SettingsManagerTest.shouldNotSetLastIndexDateOnException()")).when(mockLocalDateTime).atZone(any());
 		
@@ -268,7 +262,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldLeaveLastIndexedDateOnExceptionIfAlreadyExists() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		File writeLastIndexedFile = new File(RpmJukebox.getConfigDirectory(), "last-indexed");
 		LocalDateTime originalLastIndexed = LocalDateTime.of(1971, 1, 1, 0, 0);
 
@@ -310,7 +303,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldLoadWindowSettingsFromFile() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		File settingsFile = settingsManager.getFileFromConfigDirectory(fileWindowSettings);
 		Window window = new Window(100, 200, 300, 400);
         
@@ -329,7 +321,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldNotLoadWindowSettingsFromFileOnException() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		File settingsFile = settingsManager.getFileFromConfigDirectory(fileWindowSettings);
 		Window window = new Window(100, 200, 300, 400);
         
@@ -353,7 +344,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldSaveWindowSettings() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		Stage mockStage = mock(Stage.class);
 		when(mockStage.getX()).thenReturn(100d);
 		when(mockStage.getY()).thenReturn(200d);
@@ -377,7 +367,6 @@ public class SettingsManagerTest extends AbstractTest {
 	
 	@Test
 	public void shouldNotSaveWindowSettingsOnException() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		Stage mockStage = mock(Stage.class);
 		when(mockStage.getX()).thenReturn(100d);
 		when(mockStage.getY()).thenReturn(200d);
@@ -399,5 +388,21 @@ public class SettingsManagerTest extends AbstractTest {
 		}
 		
 		assertThat("Window should be null", window, nullValue());
+	}
+	
+	@Test
+	public void shouldLoadDefaultSettings() {
+		doNothing().when(spySettingsManager).saveSettings();
+		
+		spySettingsManager.loadSettings();
+		boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+		
+		verify(spySettingsManager, times(1)).initialiseDefaultSystemSettings();
+		assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+	}
+	
+	@Test
+	public void shouldLoadSettingsFromFile() throws Exception {
+		System.out.println(getTestResourceContent("json/rpm-jukebox.json"));
 	}
 }

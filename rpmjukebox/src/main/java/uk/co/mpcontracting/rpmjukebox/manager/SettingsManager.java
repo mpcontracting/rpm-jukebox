@@ -392,7 +392,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		}
 	}
 	
-	private void initialiseDefaultSystemSettings() {
+	void initialiseDefaultSystemSettings() {
 		systemSettings = new SystemSettings();
 		systemSettings.setCacheSizeMb(cacheSizeMb);
 	}

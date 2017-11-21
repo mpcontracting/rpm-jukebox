@@ -42,7 +42,6 @@ public class RpmJukeboxTest extends AbstractTest {
 	
 	@Test(expected = IllegalStateException.class)
 	public void shouldRunMainWhereLoggingFileAlreadyExists() throws Exception {
-		RpmJukebox.getConfigDirectory().mkdirs();
 		File loggingFile = new File(RpmJukebox.getConfigDirectory(), "logback.xml");
 		loggingFile.createNewFile();
 		
