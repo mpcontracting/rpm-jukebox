@@ -55,7 +55,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	public void afterPropertiesSet() throws Exception {
 		log.info("Initialising PlaylistManager");
 
-		playlistMap = new LinkedHashMap<Integer, Playlist>();
+		playlistMap = new LinkedHashMap<>();
 		playlistMap.put(PLAYLIST_ID_SEARCH, new Playlist(PLAYLIST_ID_SEARCH, messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH), maxPlaylistSize));
 		playlistMap.put(PLAYLIST_ID_FAVOURITES, new Playlist(PLAYLIST_ID_FAVOURITES, messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES), maxPlaylistSize));
 		currentPlaylistId = PLAYLIST_ID_SEARCH;
@@ -72,9 +72,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		log.debug("Setting playlists");
 
 		synchronized (playlistMap) {
-			for (Playlist playlist : playlists) {
-				playlistMap.put(playlist.getPlaylistId(), playlist);
-			}
+		    playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
 		}
 	}
 	
@@ -84,9 +82,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		List<Playlist> playlists = new ArrayList<Playlist>();
 
 		synchronized (playlistMap) {
-			for (Playlist playlist : playlistMap.values()) {
-				playlists.add(playlist);
-			}
+		    playlistMap.values().forEach(playlist -> playlists.add(playlist));
 		}
 
 		return Collections.unmodifiableList(playlists);
