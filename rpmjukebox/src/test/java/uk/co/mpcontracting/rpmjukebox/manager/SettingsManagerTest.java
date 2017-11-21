@@ -91,7 +91,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         File correctValue = new File(RpmJukebox.getConfigDirectory(), "test");
         File result = spySettingsManager.getFileFromConfigDirectory("test");
 
-        assertThat("Resulting file should be '" + correctValue.getAbsolutePath() + "'", result.getAbsolutePath(), equalTo(correctValue.getAbsolutePath()));
+        assertThat("Resulting file should be '" + correctValue.getAbsolutePath() + "'", result.getAbsolutePath(),
+            equalTo(correctValue.getAbsolutePath()));
     }
 
     @Test
@@ -138,7 +139,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockDataFile.getProtocol()).thenReturn("http");
         when(mockDataFile.openConnection()).thenReturn(mockConnection);
-        doThrow(new RuntimeException("SettingsManagerTest.shouldShowHttpDataFileHasNotExpiredOnLastModifiedError()")).when(mockConnection).getLastModified();
+        doThrow(new RuntimeException("SettingsManagerTest.shouldShowHttpDataFileHasNotExpiredOnLastModifiedError()")).when(mockConnection)
+            .getLastModified();
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
@@ -148,7 +150,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldShowHttpDataFileHasNotExpiredOnConnectionError() throws Exception {
         when(mockDataFile.getProtocol()).thenReturn("http");
-        doThrow(new RuntimeException("SettingsManagerTest.shouldShowHttpDataFileHasNotExpiredOnConnectionError()")).when(mockDataFile).openConnection();
+        doThrow(new RuntimeException("SettingsManagerTest.shouldShowHttpDataFileHasNotExpiredOnConnectionError()")).when(mockDataFile)
+            .openConnection();
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
@@ -172,7 +175,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldShowFileSystemDataFileHasNotExpiredOnFileReadError() throws Exception {
         when(mockDataFile.getProtocol()).thenReturn("file");
-        doThrow(new RuntimeException("SettingsManagerTest.shouldShowFileSystemDataFileHasNotExpiredOnFileReadError()")).when(mockDataFile).toURI();
+        doThrow(new RuntimeException("SettingsManagerTest.shouldShowFileSystemDataFileHasNotExpiredOnFileReadError()")).when(mockDataFile)
+            .toURI();
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
@@ -341,7 +345,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         Gson mockGson = mock(Gson.class);
         Stage mockStage = mock(Stage.class);
-        doThrow(new RuntimeException("SettingsManagerTest.shouldNotLoadWindowSettingsFromFileOnException()")).when(mockGson).fromJson(any(FileReader.class), (Class<?>) any(Class.class));
+        doThrow(new RuntimeException("SettingsManagerTest.shouldNotLoadWindowSettingsFromFileOnException()")).when(mockGson)
+            .fromJson(any(FileReader.class), (Class<?>) any(Class.class));
 
         ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
 
@@ -385,7 +390,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         when(mockStage.getHeight()).thenReturn(400d);
 
         Gson mockGson = mock(Gson.class);
-        doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveWindowSettingsOnException()")).when(mockGson).toJson(any(Window.class));
+        doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveWindowSettingsOnException()")).when(mockGson)
+            .toJson(any(Window.class));
 
         ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
 
