@@ -16,6 +16,9 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 
 import javafx.geometry.Rectangle2D;
@@ -32,9 +36,16 @@ import javafx.stage.Stage;
 import uk.co.mpcontracting.rpmjukebox.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
+import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
+import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Repeat;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
+import uk.co.mpcontracting.rpmjukebox.settings.Settings;
+import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.settings.Window;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
-public class SettingsManagerTest extends AbstractTest {
+public class SettingsManagerTest extends AbstractTest implements Constants {
 
 	@Autowired
 	private SettingsManager settingsManager;
@@ -396,13 +407,244 @@ public class SettingsManagerTest extends AbstractTest {
 		
 		spySettingsManager.loadSettings();
 		boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+		SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager, "systemSettings");
+
+		assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+		assertThat("Cache size should be 500", systemSettings.getCacheSizeMb(), equalTo(500));
 		
 		verify(spySettingsManager, times(1)).initialiseDefaultSystemSettings();
-		assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+		verify(spySettingsManager, times(1)).saveSettings();
 	}
 	
 	@Test
 	public void shouldLoadSettingsFromFile() throws Exception {
-		System.out.println(getTestResourceContent("json/rpm-jukebox.json"));
+		File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSettingsFromFile.json");
+		File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+		
+		Files.copy(testSettings, settingsFile);
+		
+		Track mockTrack = mock(Track.class);
+		when(mockSearchManager.getTrackById("92f9b8ad82601ab97c121239518730108eefa18055ead908e5cdaf369023984b")).thenReturn(mockTrack);
+		
+		spySettingsManager.loadSettings();
+		boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+		SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager, "systemSettings");
+		
+		assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+		assertThat("Cache size should be 123", systemSettings.getCacheSizeMb(), equalTo(123));
+		
+		verify(mockPlaylistManager, times(1)).setShuffle(true, true);
+		verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
+		verify(mockMediaManager, times(10)).setEqualizerGain(anyInt(), anyDouble());
+		verify(mockSearchManager, times(15)).getTrackById(anyString());
+		verify(spySettingsManager, never()).saveSettings();
+	}
+	
+	@Test
+	public void shouldLoadSettingsWithNoSystemSettingsFromFile() throws Exception {
+		File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSettingsWithNoSystemSettingsFromFile.json");
+		File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+		
+		Files.copy(testSettings, settingsFile);
+
+		spySettingsManager.loadSettings();
+		boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+		SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager, "systemSettings");
+		
+		assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+		assertThat("Cache size should be 500", systemSettings.getCacheSizeMb(), equalTo(500));
+		
+		verify(spySettingsManager, times(1)).initialiseDefaultSystemSettings();
+		verify(mockPlaylistManager, times(1)).setShuffle(true, true);
+		verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
+		verify(mockMediaManager, times(10)).setEqualizerGain(anyInt(), anyDouble());
+		verify(mockSearchManager, times(15)).getTrackById(anyString());
+		verify(spySettingsManager, never()).saveSettings();
+	}
+	
+	@Test
+	public void shouldLoadSettingsWithNoEqFromFile() throws Exception {
+		File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSettingsWithNoEqFromFile.json");
+		File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+		
+		Files.copy(testSettings, settingsFile);
+
+		spySettingsManager.loadSettings();
+		boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+		SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager, "systemSettings");
+		
+		assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+		assertThat("Cache size should be 123", systemSettings.getCacheSizeMb(), equalTo(123));
+		
+		verify(mockPlaylistManager, times(1)).setShuffle(true, true);
+		verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
+		verify(mockMediaManager, never()).setEqualizerGain(anyInt(), anyDouble());
+		verify(mockSearchManager, times(15)).getTrackById(anyString());
+		verify(spySettingsManager, never()).saveSettings();
+	}
+	
+	@Test
+	public void shouldLoadSettingsWithNoPlaylistsFromFile() throws Exception {
+		File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSettingsWithNoPlaylistsFromFile.json");
+		File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+		
+		Files.copy(testSettings, settingsFile);
+
+		spySettingsManager.loadSettings();
+		boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+		SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager, "systemSettings");
+		
+		assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+		assertThat("Cache size should be 123", systemSettings.getCacheSizeMb(), equalTo(123));
+		
+		verify(mockPlaylistManager, times(1)).setShuffle(true, true);
+		verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
+		verify(mockMediaManager, times(10)).setEqualizerGain(anyInt(), anyDouble());
+		verify(mockSearchManager, never()).getTrackById(anyString());
+		verify(spySettingsManager, never()).saveSettings();
+	}
+	
+	@Test
+	public void shouldNotLoadSettingsFromAnInvalidFile() throws Exception {
+		File testSettings = getTestResourceFile("json/settingsManager-shouldNotLoadSettingsFromAnInvalidFile.json");
+		File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+		
+		Files.copy(testSettings, settingsFile);
+
+		spySettingsManager.loadSettings();
+		boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+
+		assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(false));
+		
+		verify(spySettingsManager, never()).saveSettings();
+	}
+	
+	@Test
+	public void shouldSaveSettings() {
+		SystemSettings systemSettings = new SystemSettings();
+		systemSettings.setCacheSizeMb(123);
+		
+		ReflectionTestUtils.setField(spySettingsManager, "systemSettings", systemSettings);
+		ReflectionTestUtils.setField(spySettingsManager, "settingsLoaded", true);
+		
+		when(mockPlaylistManager.isShuffle()).thenReturn(true);
+		when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
+		
+		Equalizer mockEqualizer = mock(Equalizer.class);
+		when(mockEqualizer.getNumberOfBands()).thenReturn(5);
+		when(mockMediaManager.getEqualizer()).thenReturn(mockEqualizer);
+		
+		Playlist mockSearchPlaylist = mock(Playlist.class);
+		when(mockSearchPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
+		when(mockSearchPlaylist.iterator()).thenReturn(Collections.emptyIterator());
+		
+		Playlist mockFavouritesPlaylist = mock(Playlist.class);
+		when(mockFavouritesPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
+		when(mockFavouritesPlaylist.iterator()).thenReturn(Collections.emptyIterator());
+		
+		List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] {mockSearchPlaylist, mockFavouritesPlaylist});
+		when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
+		
+		spySettingsManager.saveSettings();
+		
+		verify(mockPlaylistManager, times(1)).isShuffle();
+		verify(mockPlaylistManager, times(1)).getRepeat();
+		verify(mockMediaManager, times(1)).getEqualizer();
+		verify(mockEqualizer, times(5)).getGain(anyInt());
+		verify(mockPlaylistManager, times(1)).getPlaylists();
+	}
+	
+	@Test
+	public void shouldNotSaveSettingsIfNotSettingsLoaded() {
+		SystemSettings systemSettings = new SystemSettings();
+		systemSettings.setCacheSizeMb(123);
+		
+		ReflectionTestUtils.setField(spySettingsManager, "systemSettings", systemSettings);
+		ReflectionTestUtils.setField(spySettingsManager, "settingsLoaded", false);
+		
+		when(mockPlaylistManager.isShuffle()).thenReturn(true);
+		
+		spySettingsManager.saveSettings();
+		
+		verify(mockPlaylistManager, never()).isShuffle();
+	}
+	
+	@Test
+	public void shouldNotSaveSettingsOnException() {
+		SystemSettings systemSettings = new SystemSettings();
+		systemSettings.setCacheSizeMb(123);
+		
+		ReflectionTestUtils.setField(spySettingsManager, "systemSettings", systemSettings);
+		ReflectionTestUtils.setField(spySettingsManager, "settingsLoaded", true);
+		
+		when(mockPlaylistManager.isShuffle()).thenReturn(true);
+		when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
+		
+		Equalizer mockEqualizer = mock(Equalizer.class);
+		when(mockEqualizer.getNumberOfBands()).thenReturn(5);
+		when(mockMediaManager.getEqualizer()).thenReturn(mockEqualizer);
+		
+		Playlist mockSearchPlaylist = mock(Playlist.class);
+		when(mockSearchPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
+		when(mockSearchPlaylist.iterator()).thenReturn(Collections.emptyIterator());
+		
+		Playlist mockFavouritesPlaylist = mock(Playlist.class);
+		when(mockFavouritesPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
+		when(mockFavouritesPlaylist.iterator()).thenReturn(Collections.emptyIterator());
+		
+		List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] {mockSearchPlaylist, mockFavouritesPlaylist});
+		when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
+		
+		Gson mockGson = mock(Gson.class);
+		doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveSettingsOnException()")).when(mockGson).toJson(any(Settings.class));
+
+		ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
+		
+		spySettingsManager.saveSettings();
+		
+		File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+		
+		assertThat("Settings file should not exist", settingsFile.exists(), equalTo(false));
+	}
+	
+	@Test
+	public void shouldNotSaveSettingsOnExceptionWhenFileAlreadyExists() throws Exception {
+		File newSettingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+		newSettingsFile.createNewFile();
+		
+		SystemSettings systemSettings = new SystemSettings();
+		systemSettings.setCacheSizeMb(123);
+		
+		ReflectionTestUtils.setField(spySettingsManager, "systemSettings", systemSettings);
+		ReflectionTestUtils.setField(spySettingsManager, "settingsLoaded", true);
+		
+		when(mockPlaylistManager.isShuffle()).thenReturn(true);
+		when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
+		
+		Equalizer mockEqualizer = mock(Equalizer.class);
+		when(mockEqualizer.getNumberOfBands()).thenReturn(5);
+		when(mockMediaManager.getEqualizer()).thenReturn(mockEqualizer);
+		
+		Playlist mockSearchPlaylist = mock(Playlist.class);
+		when(mockSearchPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
+		when(mockSearchPlaylist.iterator()).thenReturn(Collections.emptyIterator());
+		
+		Playlist mockFavouritesPlaylist = mock(Playlist.class);
+		when(mockFavouritesPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
+		when(mockFavouritesPlaylist.iterator()).thenReturn(Collections.emptyIterator());
+		
+		List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] {mockSearchPlaylist, mockFavouritesPlaylist});
+		when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
+		
+		Gson mockGson = mock(Gson.class);
+		doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveSettingsOnException()")).when(mockGson).toJson(any(Settings.class));
+
+		ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
+		
+		spySettingsManager.saveSettings();
+		
+		File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+		
+		assertThat("Settings file should exist", settingsFile.exists(), equalTo(true));
 	}
 }

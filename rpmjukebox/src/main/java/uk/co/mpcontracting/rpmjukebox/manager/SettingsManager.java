@@ -384,11 +384,24 @@ public class SettingsManager implements InitializingBean, Constants {
 
 		// Write the file
 		File settingsFile = getFileFromConfigDirectory(fileSettings);
+		boolean alreadyExists = settingsFile.exists();
+		
+		if (alreadyExists) {
+			settingsFile.renameTo(getFileFromConfigDirectory(fileSettings + ".bak"));
+		}
 		
 		try (FileWriter fileWriter = new FileWriter(settingsFile)) {
 			fileWriter.write(gson.toJson(settings));
 		} catch (Exception e) {
 			log.error("Unable to save settings file", e);
+			
+			settingsFile.delete();
+			
+			if (alreadyExists) {
+				getFileFromConfigDirectory(fileSettings + ".bak").renameTo(settingsFile);
+			}
+		} finally {
+			getFileFromConfigDirectory(fileLastIndexed + ".bak").delete();
 		}
 	}
 	
