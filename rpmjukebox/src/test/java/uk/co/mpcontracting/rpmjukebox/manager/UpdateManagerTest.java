@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.igormaznitsa.commons.version.Version;
+
 import de.felixroske.jfxsupport.GUIState;
 import javafx.application.HostServices;
 import uk.co.mpcontracting.rpmjukebox.AbstractTest;
@@ -43,6 +45,7 @@ public class UpdateManagerTest extends AbstractTest {
 	public void setup() throws Exception {
 		spyUpdateManager = spy(updateManager);
 		
+		ReflectionTestUtils.setField(spyUpdateManager, "eventManager", getMockEventManager());
 		ReflectionTestUtils.setField(spyUpdateManager, "versionUrl", mockVersionUrl);
 		ReflectionTestUtils.setField(spyUpdateManager, "newVersion", null);
 		
@@ -57,6 +60,7 @@ public class UpdateManagerTest extends AbstractTest {
 		spyUpdateManager.checkForUpdates();
 		
 		assertThat("New version should not be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"), notNullValue());
+		verify(getMockEventManager(), times(1)).fireEvent(Event.NEW_VERSION_AVAILABLE, new Version("99.99.99"));
 	}
 	
 	@Test
@@ -67,6 +71,7 @@ public class UpdateManagerTest extends AbstractTest {
 		spyUpdateManager.checkForUpdates();
 		
 		assertThat("New version should be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"), nullValue());
+		verify(getMockEventManager(), never()).fireEvent(Event.NEW_VERSION_AVAILABLE, new Version("0.0.1"));
 	}
 	
 	@Test
@@ -76,6 +81,7 @@ public class UpdateManagerTest extends AbstractTest {
 		spyUpdateManager.checkForUpdates();
 		
 		assertThat("New version should be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"), nullValue());
+		verify(getMockEventManager(), never()).fireEvent(Event.NEW_VERSION_AVAILABLE, (Version)null);
 	}
 	
 	@Test
@@ -85,6 +91,7 @@ public class UpdateManagerTest extends AbstractTest {
 		spyUpdateManager.checkForUpdates();
 		
 		assertThat("New version should be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"), nullValue());
+		verify(getMockEventManager(), never()).fireEvent(Event.NEW_VERSION_AVAILABLE, (Version)null);
 	}
 	
 	@Test
@@ -95,6 +102,7 @@ public class UpdateManagerTest extends AbstractTest {
 		spyUpdateManager.checkForUpdates();
 		
 		assertThat("New version should be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"), nullValue());
+		verify(getMockEventManager(), never()).fireEvent(Event.NEW_VERSION_AVAILABLE, (Version)null);
 	}
 	
 	@Test

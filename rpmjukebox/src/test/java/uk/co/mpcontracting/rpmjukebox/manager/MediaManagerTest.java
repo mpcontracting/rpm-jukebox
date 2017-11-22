@@ -90,6 +90,7 @@ public class MediaManagerTest extends AbstractTest {
 		
 		assertThat("Current track is the mock track", ReflectionTestUtils.getField(spyMediaManager, "currentTrack") == mockTrack, equalTo(true));
 		verify(mockMediaPlayer, times(1)).play();
+		verify(getMockEventManager(), times(1)).fireEvent(Event.TRACK_QUEUED_FOR_PLAYING, mockTrack);
 	}
 	
 	@Test

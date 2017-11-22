@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
@@ -16,7 +16,7 @@ import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
-public class ApplicationManager implements Constants {
+public class ApplicationManager extends EventAwareObject implements Constants {
 
 	@Autowired
 	private MessageManager messageManager;
@@ -65,7 +65,7 @@ public class ApplicationManager implements Constants {
 				
 				mainPanelController.closeMessageWindow();
 
-				EventManager.getInstance().fireEvent(Event.APPLICATION_INITIALISED);
+				fireEvent(Event.APPLICATION_INITIALISED);
 				isInitialised = true;
 			} catch (Exception e) {
 				log.error("Error initialising data", e);

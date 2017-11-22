@@ -140,10 +140,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 		
 		if (tracks != null && !tracks.isEmpty()) {
 			Playlist playlist = createPlaylist(track.getArtistName() + " - " + track.getAlbumName(), false);
-			
-			if (playlist != null) {
-				playlist.setTracks(tracks);
-			}
+			playlist.setTracks(tracks);
 		}
 	}
 	

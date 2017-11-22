@@ -15,6 +15,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import uk.co.mpcontracting.rpmjukebox.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
+import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
@@ -53,6 +54,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 	@Before
 	public void setup() {
 		spyApplicationManager = spy(applicationManager);
+		ReflectionTestUtils.setField(spyApplicationManager, "eventManager", getMockEventManager());
 		ReflectionTestUtils.setField(spyApplicationManager, "settingsManager", mockSettingsManager);
 		ReflectionTestUtils.setField(spyApplicationManager, "searchManager", mockSearchManager);
 		ReflectionTestUtils.setField(spyApplicationManager, "mainPanelController", mockMainPanelController);
@@ -83,6 +85,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 		verify(mockSearchManager, times(1)).initialise();
 		verify(mockSettingsManager, times(1)).loadSettings();
 		verify(mockMainPanelController, times(1)).closeMessageWindow();
+		verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
 	}
 	
 	@Test
@@ -106,6 +109,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 		verify(mockSearchManager, times(1)).initialise();
 		verify(mockSettingsManager, times(1)).loadSettings();
 		verify(mockMainPanelController, times(1)).closeMessageWindow();
+		verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
 	}
 	
 	@Test
@@ -129,6 +133,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 		verify(mockSearchManager, times(1)).initialise();
 		verify(mockSettingsManager, times(1)).loadSettings();
 		verify(mockMainPanelController, times(1)).closeMessageWindow();
+		verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
 	}
 	
 	@Test
@@ -144,6 +149,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 		Thread.sleep(500);
 
 		assertThat("Is initialised should be false", (Boolean)ReflectionTestUtils.getField(spyApplicationManager, "isInitialised"), equalTo(false));
+		verify(getMockEventManager(), never()).fireEvent(Event.APPLICATION_INITIALISED);
 	}
 	
 	@Test
