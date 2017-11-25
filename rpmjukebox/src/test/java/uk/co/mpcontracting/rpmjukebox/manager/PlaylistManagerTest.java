@@ -455,4 +455,296 @@ public class PlaylistManagerTest extends AbstractTest implements Constants {
         verify(spyPlaylistManager, times(1)).playCurrentTrack(anyBoolean());
         verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
     }
+    
+    @Test
+    public void shouldPlayTrack() {
+        doNothing().when(spyPlaylistManager).playCurrentTrack(anyBoolean());
+        
+        Track track = mock(Track.class);
+        when(track.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
+        when(track.getPlaylistIndex()).thenReturn(10);
+        
+        spyPlaylistManager.playTrack(track);
+        
+        int currentPlaylistId = spyPlaylistManager.getCurrentPlaylistId();
+        int currentPlaylistIndex = (Integer)ReflectionTestUtils.getField(spyPlaylistManager, "currentPlaylistIndex");
+        Playlist playingPlaylist = spyPlaylistManager.getPlayingPlaylist();
+        
+        assertThat("Current playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentPlaylistId, equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Current playlist index should be 10", currentPlaylistIndex, equalTo(10));
+        assertThat("Playing playlist should not be null", playingPlaylist, notNullValue());
+        assertThat("Playing playlist ID should be " + PLAYLIST_ID_FAVOURITES, playingPlaylist.getPlaylistId(), equalTo(PLAYLIST_ID_FAVOURITES));
+        
+        verify(spyPlaylistManager, times(1)).playCurrentTrack(anyBoolean());
+        verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
+    }
+    
+    @Test
+    public void shouldPlayCurrentTrackNoShuffleNoOverride() {
+        doNothing().when(mockMediaManager).playTrack(any());
+        
+        Playlist playlist = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+
+        for (int i = 0; i < 10; i++) {
+            playlist.addTrack(new Track(null, null, null, null, null, null, -1, Integer.toString(i), null, -1, null, false, null));
+        }
+        
+        Playlist spyPlaylist = spy(playlist);
+        when(spyPlaylist.clone()).thenReturn(spyPlaylist);
+
+        Map<Integer, Playlist> playlistMap = new LinkedHashMap<>();
+        playlistMap.put(PLAYLIST_ID_FAVOURITES, spyPlaylist);
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        
+        int currentPlaylistIndex = 5;
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "shuffle", false);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", PLAYLIST_ID_FAVOURITES);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", currentPlaylistIndex);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playingPlaylist", null);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentTrack", null);
+        
+        spyPlaylistManager.playCurrentTrack(false);
+        
+        Playlist playingPlaylist = spyPlaylistManager.getPlayingPlaylist();
+        Track currentTrack = (Track)ReflectionTestUtils.getField(spyPlaylistManager, "currentTrack");
+        
+        assertThat("Playing playlist should not be null", playingPlaylist, notNullValue());
+        assertThat("Playing playlist ID should be " + PLAYLIST_ID_FAVOURITES, playingPlaylist.getPlaylistId(), equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Current track should not be null", currentTrack, notNullValue());
+        assertThat("Current track ID should be 5", currentTrack.getTrackId(), equalTo(Integer.toString(currentPlaylistIndex)));
+        verify(playingPlaylist, times(1)).clone();
+        verify(playingPlaylist, times(1)).getTrackAtIndex(currentPlaylistIndex);
+        verify(mockMediaManager, times(1)).playTrack(currentTrack);
+    }
+    
+    @Test
+    public void shouldPlayCurrentTrackShuffleNoOverride() {
+        doNothing().when(mockMediaManager).playTrack(any());
+        
+        Playlist playlist = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+
+        for (int i = 0; i < 10; i++) {
+            playlist.addTrack(new Track(null, null, null, null, null, null, -1, Integer.toString(i), null, -1, null, false, null));
+        }
+        
+        Playlist spyPlaylist = spy(playlist);
+        when(spyPlaylist.clone()).thenReturn(spyPlaylist);
+
+        Map<Integer, Playlist> playlistMap = new LinkedHashMap<>();
+        playlistMap.put(PLAYLIST_ID_FAVOURITES, spyPlaylist);
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        
+        int currentPlaylistIndex = 5;
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "shuffle", true);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", PLAYLIST_ID_FAVOURITES);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", currentPlaylistIndex);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playingPlaylist", null);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentTrack", null);
+        
+        spyPlaylistManager.playCurrentTrack(false);
+        
+        Playlist playingPlaylist = spyPlaylistManager.getPlayingPlaylist();
+        Track currentTrack = (Track)ReflectionTestUtils.getField(spyPlaylistManager, "currentTrack");
+        
+        assertThat("Playing playlist should not be null", playingPlaylist, notNullValue());
+        assertThat("Playing playlist ID should be " + PLAYLIST_ID_FAVOURITES, playingPlaylist.getPlaylistId(), equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Current track should not be null", currentTrack, notNullValue());
+        verify(playingPlaylist, times(1)).clone();
+        verify(playingPlaylist, times(1)).getShuffledTrackAtIndex(currentPlaylistIndex);
+        verify(mockMediaManager, times(1)).playTrack(currentTrack);
+    }
+    
+    @Test
+    public void shouldPlayCurrentTrackNoShuffleOverride() {
+        doNothing().when(mockMediaManager).playTrack(any());
+        
+        Playlist playlist = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+
+        for (int i = 0; i < 10; i++) {
+            playlist.addTrack(new Track(null, null, null, null, null, null, -1, Integer.toString(i), null, -1, null, false, null));
+        }
+        
+        Playlist spyPlaylist = spy(playlist);
+        when(spyPlaylist.clone()).thenReturn(spyPlaylist);
+
+        Map<Integer, Playlist> playlistMap = new LinkedHashMap<>();
+        playlistMap.put(PLAYLIST_ID_FAVOURITES, spyPlaylist);
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        
+        int currentPlaylistIndex = 5;
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "shuffle", false);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", PLAYLIST_ID_FAVOURITES);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", currentPlaylistIndex);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playingPlaylist", null);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentTrack", null);
+        
+        spyPlaylistManager.playCurrentTrack(true);
+        
+        Playlist playingPlaylist = spyPlaylistManager.getPlayingPlaylist();
+        Track currentTrack = (Track)ReflectionTestUtils.getField(spyPlaylistManager, "currentTrack");
+        
+        assertThat("Playing playlist should not be null", playingPlaylist, notNullValue());
+        assertThat("Playing playlist ID should be " + PLAYLIST_ID_FAVOURITES, playingPlaylist.getPlaylistId(), equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Current track should not be null", currentTrack, notNullValue());
+        assertThat("Current track ID should be 5", currentTrack.getTrackId(), equalTo(Integer.toString(currentPlaylistIndex)));
+        verify(playingPlaylist, times(1)).clone();
+        verify(playingPlaylist, times(1)).getTrackAtIndex(currentPlaylistIndex);
+        verify(mockMediaManager, times(1)).playTrack(currentTrack);
+    }
+    
+    @Test
+    public void shouldPlayCurrentTrackShuffleOverride() {
+        doNothing().when(mockMediaManager).playTrack(any());
+        
+        Playlist playlist = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+
+        for (int i = 0; i < 10; i++) {
+            playlist.addTrack(new Track(null, null, null, null, null, null, -1, Integer.toString(i), null, -1, null, false, null));
+        }
+        
+        Playlist spyPlaylist = spy(playlist);
+        when(spyPlaylist.clone()).thenReturn(spyPlaylist);
+
+        Map<Integer, Playlist> playlistMap = new LinkedHashMap<>();
+        playlistMap.put(PLAYLIST_ID_FAVOURITES, spyPlaylist);
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        
+        int currentPlaylistIndex = 5;
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "shuffle", true);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", PLAYLIST_ID_FAVOURITES);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", currentPlaylistIndex);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playingPlaylist", null);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentTrack", null);
+        
+        spyPlaylistManager.playCurrentTrack(true);
+        
+        Playlist playingPlaylist = spyPlaylistManager.getPlayingPlaylist();
+        Track currentTrack = (Track)ReflectionTestUtils.getField(spyPlaylistManager, "currentTrack");
+        
+        assertThat("Playing playlist should not be null", playingPlaylist, notNullValue());
+        assertThat("Playing playlist ID should be " + PLAYLIST_ID_FAVOURITES, playingPlaylist.getPlaylistId(), equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Current track should not be null", currentTrack, notNullValue());
+        assertThat("Current track ID should be 5", currentTrack.getTrackId(), equalTo(Integer.toString(currentPlaylistIndex)));
+        verify(playingPlaylist, times(1)).clone();
+        verify(playingPlaylist, times(1)).getTrackAtIndex(currentPlaylistIndex);
+        verify(playingPlaylist, times(1)).setTrackAtShuffledIndex(currentTrack, currentPlaylistIndex);
+        verify(mockMediaManager, times(1)).playTrack(currentTrack);
+    }
+    
+    @Test
+    public void shouldPlayCurrentTrackNoShuffleNoOverrideExistingPlaylist() {
+        doNothing().when(mockMediaManager).playTrack(any());
+        
+        Playlist playlist = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+
+        for (int i = 0; i < 10; i++) {
+            playlist.addTrack(new Track(null, null, null, null, null, null, -1, Integer.toString(i), null, -1, null, false, null));
+        }
+        
+        Playlist spyPlaylist = spy(playlist);
+        Map<Integer, Playlist> playlistMap = new LinkedHashMap<>();
+        playlistMap.put(PLAYLIST_ID_FAVOURITES, spyPlaylist);
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        
+        int currentPlaylistIndex = 5;
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "shuffle", false);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", PLAYLIST_ID_FAVOURITES);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", currentPlaylistIndex);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playingPlaylist", spyPlaylist);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentTrack", null);
+        
+        spyPlaylistManager.playCurrentTrack(false);
+        
+        Playlist playingPlaylist = spyPlaylistManager.getPlayingPlaylist();
+        Track currentTrack = (Track)ReflectionTestUtils.getField(spyPlaylistManager, "currentTrack");
+        
+        assertThat("Playing playlist should not be null", playingPlaylist, notNullValue());
+        assertThat("Playing playlist ID should be " + PLAYLIST_ID_FAVOURITES, playingPlaylist.getPlaylistId(), equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Current track should not be null", currentTrack, notNullValue());
+        assertThat("Current track ID should be 5", currentTrack.getTrackId(), equalTo(Integer.toString(currentPlaylistIndex)));
+        verify(playingPlaylist, never()).clone();
+        verify(playingPlaylist, times(1)).getTrackAtIndex(currentPlaylistIndex);
+        verify(mockMediaManager, times(1)).playTrack(currentTrack);
+    }
+    
+    @Test
+    public void shouldNotPlayCurrentTrackNoShuffleNoOverrideEmptyPlaylist() {
+        doNothing().when(mockMediaManager).playTrack(any());
+        
+        Playlist playlist = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+        Playlist spyPlaylist = spy(playlist);
+        when(spyPlaylist.clone()).thenReturn(spyPlaylist);
+        
+        Map<Integer, Playlist> playlistMap = new LinkedHashMap<>();
+        playlistMap.put(PLAYLIST_ID_FAVOURITES, spyPlaylist);
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        
+        int currentPlaylistIndex = 5;
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "shuffle", false);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playlistMap", playlistMap);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", PLAYLIST_ID_FAVOURITES);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", currentPlaylistIndex);
+        ReflectionTestUtils.setField(spyPlaylistManager, "playingPlaylist", null);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentTrack", null);
+        
+        spyPlaylistManager.playCurrentTrack(false);
+        
+        Playlist playingPlaylist = spyPlaylistManager.getPlayingPlaylist();
+        Track currentTrack = (Track)ReflectionTestUtils.getField(spyPlaylistManager, "currentTrack");
+        
+        assertThat("Playing playlist should not be null", playingPlaylist, notNullValue());
+        assertThat("Playing playlist ID should be " + PLAYLIST_ID_FAVOURITES, playingPlaylist.getPlaylistId(), equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Current track should be null", currentTrack, nullValue());
+        verify(playingPlaylist, times(1)).clone();
+        verify(playingPlaylist, never()).getTrackAtIndex(anyInt());
+        verify(playingPlaylist, never()).getShuffledTrackAtIndex(anyInt());
+        verify(playingPlaylist, never()).setTrackAtShuffledIndex(any(), anyInt());
+        verify(mockMediaManager, never()).playTrack(any());
+    }
+    
+    @Test
+    public void shouldPauseCurrentTrack() {
+        doNothing().when(mockMediaManager).pausePlayback();
+        
+        spyPlaylistManager.pauseCurrentTrack();
+        
+        verify(mockMediaManager, times(1)).pausePlayback();
+    }
+    
+    @Test
+    public void shouldResumeCurrentTrack() {
+        doNothing().when(spyPlaylistManager).playTrack(any());
+        doNothing().when(mockMediaManager).resumePlayback();
+        
+        Track track = new Track(null, null, null, null, null, null, -1, "1", null, -1, null, false, null);
+        track.setPlaylistId(PLAYLIST_ID_FAVOURITES);
+        when(mockTrackTableController.getSelectedTrack()).thenReturn(track);
+        
+        Playlist mockPlayingPlaylist = mock(Playlist.class);
+        when(mockPlayingPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
+        
+        ReflectionTestUtils.setField(spyPlaylistManager, "playingPlaylist", mockPlayingPlaylist);
+        
+        spyPlaylistManager.resumeCurrentTrack();
+        
+        verify(spyPlaylistManager, never()).playTrack(any());
+        verify(mockMediaManager, times(1)).resumePlayback();
+    }
 }
