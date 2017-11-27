@@ -337,7 +337,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	public boolean playPreviousTrack(boolean overrideRepeatOne) {
 		log.debug("Playing previous track");
 		
-		// Repeat ONE (overridden on previous/next button press)
+		// Repeat ONE (not overridden on previous/next button press)
 		if (!overrideRepeatOne && repeat == Repeat.ONE) {
 			mediaManager.setSeekPositionPercent(0);
 			
@@ -374,7 +374,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
 	public boolean playNextTrack(boolean overrideRepeatOne) {
 		log.debug("Playing next track");
 		
-		// Repeat ONE (overridden on previous/next button press)
+		// Repeat ONE (not overridden on previous/next button press)
 		if (!overrideRepeatOne && repeat == Repeat.ONE) {
 			mediaManager.setSeekPositionPercent(0);
 			
