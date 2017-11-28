@@ -1416,4 +1416,112 @@ public class PlaylistManagerTest extends AbstractTest implements Constants {
         
         assertThat("Repeat should be OFF", repeat, equalTo(Repeat.OFF));
     }
+    
+    @Test
+    public void shouldSelectTrackOnTrackSelectedEventWhenMediaPlaying() {
+        when(mockMediaManager.isPlaying()).thenReturn(true);
+
+        ReflectionTestUtils.setField(spyPlaylistManager, "selectedTrack", null);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", 0);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", 0);
+        
+        Track mockTrack = mock(Track.class);
+        when(mockTrack.getTrackId()).thenReturn("123");
+        when(mockTrack.getPlaylistId()).thenReturn(456);
+        when(mockTrack.getPlaylistIndex()).thenReturn(5);
+        
+        spyPlaylistManager.eventReceived(Event.TRACK_SELECTED, mockTrack);
+        
+        Track selectedTrack = spyPlaylistManager.getSelectedTrack();
+        int currentPlaylistId = spyPlaylistManager.getCurrentPlaylistId();
+        int currentPlaylistIndex = (Integer)ReflectionTestUtils.getField(spyPlaylistManager, "currentPlaylistIndex");
+        
+        assertThat("Selected track should not be null", selectedTrack, notNullValue());
+        assertThat("Selected track should have a track ID of 123", selectedTrack.getTrackId(), equalTo("123"));
+        assertThat("Current playlist ID should be 0", currentPlaylistId, equalTo(0));
+        assertThat("Current playlist index should be 0", currentPlaylistIndex, equalTo(0));
+    }
+    
+    @Test
+    public void shouldSelectTrackOnTrackSelectedEventWhenNoMediaPlaying() {
+        when(mockMediaManager.isPlaying()).thenReturn(false);
+
+        ReflectionTestUtils.setField(spyPlaylistManager, "selectedTrack", null);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", 0);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", 0);
+        
+        Track mockTrack = mock(Track.class);
+        when(mockTrack.getTrackId()).thenReturn("123");
+        when(mockTrack.getPlaylistId()).thenReturn(456);
+        when(mockTrack.getPlaylistIndex()).thenReturn(5);
+        
+        spyPlaylistManager.eventReceived(Event.TRACK_SELECTED, mockTrack);
+        
+        Track selectedTrack = spyPlaylistManager.getSelectedTrack();
+        int currentPlaylistId = spyPlaylistManager.getCurrentPlaylistId();
+        int currentPlaylistIndex = (Integer)ReflectionTestUtils.getField(spyPlaylistManager, "currentPlaylistIndex");
+        
+        assertThat("Selected track should not be null", selectedTrack, notNullValue());
+        assertThat("Selected track should have a track ID of 123", selectedTrack.getTrackId(), equalTo("123"));
+        assertThat("Current playlist ID should be 456", currentPlaylistId, equalTo(456));
+        assertThat("Current playlist index should be 5", currentPlaylistIndex, equalTo(5));
+    }
+    
+    @Test
+    public void shouldNotSelectTrackOnTrackSelectedEventIfPayloadTrackIsNull() {
+        ReflectionTestUtils.setField(spyPlaylistManager, "selectedTrack", null);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", 0);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", 0);
+
+        spyPlaylistManager.eventReceived(Event.TRACK_SELECTED, (Object[])null);
+        
+        Track selectedTrack = spyPlaylistManager.getSelectedTrack();
+        int currentPlaylistId = spyPlaylistManager.getCurrentPlaylistId();
+        int currentPlaylistIndex = (Integer)ReflectionTestUtils.getField(spyPlaylistManager, "currentPlaylistIndex");
+        
+        assertThat("Selected track should be null", selectedTrack, nullValue());
+        assertThat("Current playlist ID should be 0", currentPlaylistId, equalTo(0));
+        assertThat("Current playlist index should be 0", currentPlaylistIndex, equalTo(0));
+    }
+    
+    @Test
+    public void shouldNotSelectTrackOnTrackSelectedEventIfPayloadArrayIsEmpty() {
+        ReflectionTestUtils.setField(spyPlaylistManager, "selectedTrack", null);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistId", 0);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", 0);
+
+        spyPlaylistManager.eventReceived(Event.TRACK_SELECTED, new Object[] {});
+        
+        Track selectedTrack = spyPlaylistManager.getSelectedTrack();
+        int currentPlaylistId = spyPlaylistManager.getCurrentPlaylistId();
+        int currentPlaylistIndex = (Integer)ReflectionTestUtils.getField(spyPlaylistManager, "currentPlaylistIndex");
+        
+        assertThat("Selected track should be null", selectedTrack, nullValue());
+        assertThat("Current playlist ID should be 0", currentPlaylistId, equalTo(0));
+        assertThat("Current playlist index should be 0", currentPlaylistIndex, equalTo(0));
+    }
+    
+    @Test
+    public void shouldPlayNextTrackOnEndOfMediaEvent() {
+        doReturn(true).when(spyPlaylistManager).playNextTrack(false);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", 5);
+        
+        spyPlaylistManager.eventReceived(Event.END_OF_MEDIA, (Object[])null);
+        
+        int currentPlaylistIndex = (Integer)ReflectionTestUtils.getField(spyPlaylistManager, "currentPlaylistIndex");
+        
+        assertThat("Current playlist index should be 5", currentPlaylistIndex, equalTo(5));
+    }
+    
+    @Test
+    public void shouldNotPlayNextTrackOnEndOfMediaEventIfNoTracksLeftInPlaylist() {
+        doReturn(false).when(spyPlaylistManager).playNextTrack(false);
+        ReflectionTestUtils.setField(spyPlaylistManager, "currentPlaylistIndex", 5);
+        
+        spyPlaylistManager.eventReceived(Event.END_OF_MEDIA, (Object[])null);
+        
+        int currentPlaylistIndex = (Integer)ReflectionTestUtils.getField(spyPlaylistManager, "currentPlaylistIndex");
+        
+        assertThat("Current playlist index should be 0", currentPlaylistIndex, equalTo(0));
+    }
 }

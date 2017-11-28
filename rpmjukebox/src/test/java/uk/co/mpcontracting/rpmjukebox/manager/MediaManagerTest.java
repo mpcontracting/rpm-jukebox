@@ -401,7 +401,7 @@ public class MediaManagerTest extends AbstractTest {
 	}
 	
 	@Test
-	public void shouldCheckForUpdatesOnApplicationInitialisedEvent() throws Exception {
+	public void shouldSetEqualizerGainOnEqualizerUpdatedEvent() throws Exception {
 		doNothing().when(spyMediaManager).setEqualizerGain(anyInt(), anyDouble());
 		
 		spyMediaManager.eventReceived(Event.EQUALIZER_UPDATED, 1, 1d);
