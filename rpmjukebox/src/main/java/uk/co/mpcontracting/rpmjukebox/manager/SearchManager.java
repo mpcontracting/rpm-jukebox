@@ -54,6 +54,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
@@ -174,7 +175,15 @@ public class SearchManager extends EventAwareObject implements Constants {
     	}
     }
     
-    private boolean isIndexValid(SearcherManager searcherManager) {
+    @SneakyThrows
+    public void shutdown() {
+        artistWriter.close();
+        artistDirectory.close();
+        trackWriter.close();
+        trackDirectory.close();
+    }
+    
+    boolean isIndexValid(SearcherManager searcherManager) {
     	IndexSearcher indexSearcher = null;
     	
     	try {
@@ -282,7 +291,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     }
     
     @Synchronized
-    private List<String> getDistinctTrackFieldValues(TrackField trackField) {
+    List<String> getDistinctTrackFieldValues(TrackField trackField) {
     	log.debug("Getting distinct track field values - " + trackField);
     	
     	long startTime = System.currentTimeMillis();

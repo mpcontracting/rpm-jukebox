@@ -77,6 +77,7 @@ public class ApplicationManager extends EventAwareObject implements Constants {
 		log.info("Stopping application");
 
 		mediaManager.cleanUpResources();
+		searchManager.shutdown();
 
 		if (isInitialised) {
 			settingsManager.saveWindowSettings(stage);
