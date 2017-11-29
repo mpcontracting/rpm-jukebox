@@ -67,7 +67,6 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackField;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSort;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.DataParser;
 
 @Slf4j
 @Component
@@ -78,6 +77,12 @@ public class SearchManager extends EventAwareObject implements Constants {
 	
 	@Autowired
     private SettingsManager settingsManager;
+	
+	@Autowired
+	private ApplicationManager applicationManager;
+	
+	@Autowired
+	private DataManager dataManager;
 	
 	@Autowired
 	private MainPanelController mainPanelController;
@@ -167,7 +172,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     			Thread.sleep(5000);
     		} catch (Exception e2) {};
     		
-    		System.exit(1);
+    		applicationManager.shutdown();
     	} catch (Exception e) {
     		log.error("Error initialising SearchManager", e);
     		
@@ -211,7 +216,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     public void indexData(boolean blurBackground) throws Exception {
     	mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX), blurBackground);
 
-		DataParser.parse(this, settingsManager.getDataFile());
+		dataManager.parse(settingsManager.getDataFile());
     	commitIndexes();
     	settingsManager.setLastIndexedDate(LocalDateTime.now());
     	
