@@ -1,4 +1,4 @@
-package uk.co.mpcontracting.rpmjukebox.support;
+package uk.co.mpcontracting.rpmjukebox.manager;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -9,21 +9,26 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
-public abstract class DataParser implements Constants {
+@Component
+public class DataManager implements Constants {
 
-	private DataParser() {}
-	
-	public static void parse(SearchManager searchManager, URL dataFile) throws Exception {
+    @Autowired
+    private SearchManager searchManager;
+    
+	public void parse(URL dataFile) throws Exception {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(dataFile.openStream()), Charset.forName("UTF-8")))) {
 			log.info("Loading data from - " + dataFile);
 
@@ -78,7 +83,7 @@ public abstract class DataParser implements Constants {
 		}
 	}
 	
-	private static ParserModelArtist parseArtist(String[] rowData) {
+	private ParserModelArtist parseArtist(String[] rowData) {
 		ParserModelArtist artist = new ParserModelArtist(
 			getRowData(rowData, 1),
 			getRowData(rowData, 2), 
@@ -101,7 +106,7 @@ public abstract class DataParser implements Constants {
 		return artist;
 	}
 
-	private static ParserModelAlbum parseAlbum(String[] rowData) {
+	private ParserModelAlbum parseAlbum(String[] rowData) {
 		return new ParserModelAlbum(
 			getRowData(rowData, 1),
 			getRowData(rowData, 2),
@@ -109,7 +114,7 @@ public abstract class DataParser implements Constants {
 			Integer.parseInt(getRowData(rowData, 4)));
 	}
 
-	private static ParserModelTrack parseTrack(String[] rowData) {
+	private ParserModelTrack parseTrack(String[] rowData) {
 		return new ParserModelTrack(
 			getRowData(rowData, 1),
 			getRowData(rowData, 2), 
@@ -117,7 +122,7 @@ public abstract class DataParser implements Constants {
 			Boolean.valueOf(getRowData(rowData, 4)));
 	}
 	
-	private static String getRowData(String[] rowData, int index) {
+	private String getRowData(String[] rowData, int index) {
 		if (index > (rowData.length - 1)) {
 			return null;
 		}
@@ -125,7 +130,7 @@ public abstract class DataParser implements Constants {
 		return rowData[index].trim();
 	}
 
-	private static String cleanGenre(String genre) {
+	private String cleanGenre(String genre) {
 		if (genre == null) {
 			return UNSPECIFIED_GENRE;
 		}
@@ -149,7 +154,7 @@ public abstract class DataParser implements Constants {
 		}
 	}
 
-	private static String toTitleCase(String string) {
+	private String toTitleCase(String string) {
 		StringBuilder builder = new StringBuilder();
 		StringTokenizer tokens = new StringTokenizer(string.toLowerCase());
 

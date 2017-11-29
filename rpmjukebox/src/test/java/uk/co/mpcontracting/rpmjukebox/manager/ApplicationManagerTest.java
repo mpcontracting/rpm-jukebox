@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javafx.collections.ObservableList;
@@ -44,6 +45,9 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 	private JettyServer mockJettyServer;
 	
 	@Mock
+	private ConfigurableApplicationContext mockApplicationContext;
+	
+	@Mock
 	private Stage mockStage;
 	
 	@Mock
@@ -60,6 +64,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 		ReflectionTestUtils.setField(spyApplicationManager, "mainPanelController", mockMainPanelController);
 		ReflectionTestUtils.setField(spyApplicationManager, "mediaManager", mockMediaManager);
 		ReflectionTestUtils.setField(spyApplicationManager, "jettyServer", mockJettyServer);
+		ReflectionTestUtils.setField(spyApplicationManager, "context", mockApplicationContext);
 		
 		when(mockStage.getIcons()).thenReturn(mockObservableList);
 	}
@@ -194,5 +199,12 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 		verify(mockSettingsManager, never()).saveWindowSettings(mockStage);
 		verify(mockSettingsManager, never()).saveSettings();
 		verify(mockJettyServer, times(1)).stop();
+	}
+	
+	@Test
+	public void shouldShutdownApplication() {
+	    spyApplicationManager.shutdown();
+	    
+	    verify(mockApplicationContext, times(1)).close();
 	}
 }

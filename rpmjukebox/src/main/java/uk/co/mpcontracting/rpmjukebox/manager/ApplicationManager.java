@@ -1,6 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import javafx.scene.image.Image;
@@ -16,7 +20,7 @@ import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
-public class ApplicationManager extends EventAwareObject implements Constants {
+public class ApplicationManager extends EventAwareObject implements ApplicationContextAware, Constants {
 
 	@Autowired
 	private MessageManager messageManager;
@@ -36,8 +40,14 @@ public class ApplicationManager extends EventAwareObject implements Constants {
 	@Autowired
 	private JettyServer jettyServer;
 	
+	private ApplicationContext context;
 	private Stage stage;
 	private boolean isInitialised;
+	
+	@Override
+    public void setApplicationContext(ApplicationContext context) throws BeansException {
+        this.context = context;
+    }
 	
 	public void start(Stage stage) {
 		log.info("Starting application");
@@ -89,5 +99,13 @@ public class ApplicationManager extends EventAwareObject implements Constants {
 		} catch (Exception e) {
 			log.error("Error shutting down application", e);
 		}
+	}
+	
+	public void shutdown() {
+	    log.info("Shutting down the application");
+	    
+	    SpringApplication.exit(context, () -> {
+	        return 0;
+	    });
 	}
 }
