@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -260,7 +260,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         
         // Keywords
         document.add(new TextField(TrackField.KEYWORDS.name(), 
-    		StringUtils.stripAccents(nullSafeTrim(track.getArtistName()) + " " + nullSafeTrim(track.getAlbumName()) + " " + 
+    		StringUtils.stripAccents(nullSafeTrim(track.getArtistName()).toLowerCase() + " " + nullSafeTrim(track.getAlbumName()).toLowerCase() + " " + 
     		nullSafeTrim(track.getTrackName())).toLowerCase(), Field.Store.YES));
         
         // Result data
@@ -310,7 +310,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 		try {
 			trackSearcher = trackManager.acquire();
 			
-			Set<String> fieldValues = new HashSet<String>();
+			Set<String> fieldValues = new LinkedHashSet<String>();
 			IndexReader indexReader = trackSearcher.getIndexReader();
 			
 			for (LeafReaderContext context : indexReader.leaves()) {
@@ -326,7 +326,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 				}
 			}
 
-			return new ArrayList<String>(fieldValues);
+			return new ArrayList<>(fieldValues);
 		} catch (Exception e) {
 			log.error("Unable to get distinct track field values - " + trackField, e);
 			
@@ -355,7 +355,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             throw new RuntimeException("Cannot search before track index is initialised");
         }
         
-        if (trackSearch.getKeywords() == null || trackSearch.getKeywords().trim().length() < 1) {
+        if (trackSearch == null || trackSearch.getKeywords() == null || trackSearch.getKeywords().trim().length() < 1) {
             return Collections.emptyList();
         }
 
@@ -610,7 +610,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     	);
     }
     
-    private Query buildKeywordsQuery(String keywords, Query trackFilter) {
+    Query buildKeywordsQuery(String keywords, Query trackFilter) {
     	Builder builder = new BooleanQuery.Builder();
 
     	if ("*".equals(keywords)) {
