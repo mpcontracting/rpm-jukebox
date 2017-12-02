@@ -14,12 +14,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class ApplicationManagerTest extends AbstractTest implements Constants {
 

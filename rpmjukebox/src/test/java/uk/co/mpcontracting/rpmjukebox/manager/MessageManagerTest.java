@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class MessageManagerTest extends AbstractTest {
 

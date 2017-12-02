@@ -18,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.felixroske.jfxsupport.SplashScreen;
 import javafx.scene.image.Image;
 import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class RpmJukeboxTest extends AbstractTest {
 

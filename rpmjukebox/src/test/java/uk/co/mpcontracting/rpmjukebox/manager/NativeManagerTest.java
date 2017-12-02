@@ -14,10 +14,10 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.manager.NativeManager.NsUserNotificationsBridge;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class NativeManagerTest extends AbstractTest {
 

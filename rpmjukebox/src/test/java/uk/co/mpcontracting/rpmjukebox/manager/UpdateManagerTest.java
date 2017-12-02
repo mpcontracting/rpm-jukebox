@@ -19,8 +19,8 @@ import com.igormaznitsa.commons.version.Version;
 
 import de.felixroske.jfxsupport.GUIState;
 import javafx.application.HostServices;
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class UpdateManagerTest extends AbstractTest {
 

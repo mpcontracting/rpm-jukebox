@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import javafx.util.Duration;
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class StringHelperTest extends AbstractTest {
 

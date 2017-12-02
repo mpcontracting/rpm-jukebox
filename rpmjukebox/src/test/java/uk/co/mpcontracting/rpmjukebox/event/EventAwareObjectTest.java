@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractEventTest;
+
 public class EventAwareObjectTest extends AbstractEventTest {
 
 	private CountDownLatch latch;

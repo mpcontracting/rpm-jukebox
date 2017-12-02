@@ -1,4 +1,4 @@
-package uk.co.mpcontracting.rpmjukebox.event;
+package uk.co.mpcontracting.rpmjukebox.test.support;
 
 import java.io.File;
 
@@ -7,7 +7,6 @@ import org.junit.After;
 import org.junit.Before;
 
 import lombok.SneakyThrows;
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 
 public abstract class AbstractEventTest extends AbstractTest {

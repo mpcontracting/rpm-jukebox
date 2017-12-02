@@ -1,4 +1,4 @@
-package uk.co.mpcontracting.rpmjukebox;
+package uk.co.mpcontracting.rpmjukebox.test.support;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +24,7 @@ import de.roskenet.jfxsupport.test.GuiTest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 

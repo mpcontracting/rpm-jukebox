@@ -19,13 +19,13 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.controller.TrackTableController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class PlaylistManagerTest extends AbstractTest implements Constants {
 

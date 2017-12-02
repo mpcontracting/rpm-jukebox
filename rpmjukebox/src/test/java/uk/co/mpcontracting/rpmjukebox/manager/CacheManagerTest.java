@@ -16,10 +16,10 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class CacheManagerTest extends AbstractTest {
 

@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class HashGeneratorTest extends AbstractTest {
 

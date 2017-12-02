@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class ThreadRunnerTest extends AbstractTest {
 

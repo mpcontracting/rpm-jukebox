@@ -33,7 +33,6 @@ import com.google.gson.Gson;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import uk.co.mpcontracting.rpmjukebox.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
@@ -44,6 +43,7 @@ import uk.co.mpcontracting.rpmjukebox.settings.Settings;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.settings.Window;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class SettingsManagerTest extends AbstractTest implements Constants {
 
