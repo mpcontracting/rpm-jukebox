@@ -33,6 +33,7 @@ public class UpdateManager extends EventAwareObject implements Constants {
 	
 	private Version newVersion;
 	
+	// Package level for testing purposes
 	void checkForUpdates() {
 		log.debug("Checking for updates to version - " + settingsManager.getVersion());
 		log.debug("Version url - " + versionUrl);

@@ -188,6 +188,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         trackDirectory.close();
     }
     
+    // Package level for testing purposes
     boolean isIndexValid(SearcherManager searcherManager) {
     	IndexSearcher indexSearcher = null;
     	
@@ -295,6 +296,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         }
     }
     
+    // Package level for testing purposes
     @Synchronized
     List<String> getDistinctTrackFieldValues(TrackField trackField) {
     	log.debug("Getting distinct track field values - " + trackField);
@@ -407,7 +409,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         	trackSearcher = trackManager.acquire();
         	
         	int maxSearchHits = trackSearcher.getIndexReader().maxDoc();
-        	List<Track> playlist = new ArrayList<Track>();
+        	List<Track> playlist = new ArrayList<>();
         	
         	log.debug("Max search hits - " + maxSearchHits);
         	
@@ -504,7 +506,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             return null;
         } finally {
         	try {
-	        	trackManager.release(artistSearcher);
+	        	artistManager.release(artistSearcher);
         	} catch (Exception e) {
         		log.warn("Unable to release artist searcher");
         	}
@@ -566,7 +568,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
             return tracks;
     	} catch (Exception e) {
-            log.error("Unable to run get track by id", e);
+            log.error("Unable to run get album by id", e);
             
             return null;
         } finally {
@@ -610,7 +612,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     	);
     }
     
-    Query buildKeywordsQuery(String keywords, Query trackFilter) {
+    private Query buildKeywordsQuery(String keywords, Query trackFilter) {
     	Builder builder = new BooleanQuery.Builder();
 
     	if ("*".equals(keywords)) {

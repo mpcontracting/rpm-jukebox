@@ -405,6 +405,7 @@ public class SettingsManager implements InitializingBean, Constants {
 		}
 	}
 	
+	// Package level for testing purposes
 	void initialiseDefaultSystemSettings() {
 		systemSettings = new SystemSettings();
 		systemSettings.setCacheSizeMb(cacheSizeMb);

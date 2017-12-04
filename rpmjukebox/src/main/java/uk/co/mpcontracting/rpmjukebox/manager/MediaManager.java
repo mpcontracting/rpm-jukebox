@@ -227,10 +227,12 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
 		});
 	}
 	
+	// Package level for testing purposes
 	Media constructMedia(String source) {
 		return new Media(source);
 	}
 	
+	// Package level for testing purposes
 	MediaPlayer constructMediaPlayer(Media media) {
 		return new MediaPlayer(media);
 	}

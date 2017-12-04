@@ -62,6 +62,7 @@ public class NativeManager implements InitializingBean {
 		}
 	}
 	
+	// Package level for testing purposes
 	interface NsUserNotificationsBridge extends Library {
 		public int sendNotification(String title, String subtitle, String text, int timeoffset);
 	}

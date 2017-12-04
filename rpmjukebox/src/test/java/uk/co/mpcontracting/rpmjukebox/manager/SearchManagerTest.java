@@ -10,9 +10,12 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -24,6 +27,7 @@ import org.apache.lucene.index.Terms;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.BytesRef;
@@ -599,40 +603,8 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
         ScoreDoc[] scoreDocs = {new ScoreDoc(1, 0), new ScoreDoc(2, 0)};
-        when(mockTrackSearcher.search(any(), anyInt(), any())).thenReturn(new TopFieldDocs(2, scoreDocs, null, 0));
-        
-        Document mockDocument1 = mock(Document.class);
-        when(mockDocument1.get(TrackField.ARTISTID.name())).thenReturn("1231");
-        when(mockDocument1.get(TrackField.ARTISTNAME.name())).thenReturn("Artist Name 1");
-        when(mockDocument1.get(TrackField.ARTISTIMAGE.name())).thenReturn("Artist Image 1");
-        when(mockDocument1.get(TrackField.ALBUMID.name())).thenReturn("4561");
-        when(mockDocument1.get(TrackField.ALBUMNAME.name())).thenReturn("Album Name 1");
-        when(mockDocument1.get(TrackField.ALBUMIMAGE.name())).thenReturn("Album Image 1");
-        when(mockDocument1.get(TrackField.YEAR.name())).thenReturn("2001");
-        when(mockDocument1.get(TrackField.TRACKID.name())).thenReturn("7891");
-        when(mockDocument1.get(TrackField.TRACKNAME.name())).thenReturn("Track Name 1");
-        when(mockDocument1.get(TrackField.NUMBER.name())).thenReturn("1");
-        when(mockDocument1.get(TrackField.LOCATION.name())).thenReturn("Location 1");
-        when(mockDocument1.get(TrackField.ISPREFERRED.name())).thenReturn("true");
-        when(mockDocument1.getValues(TrackField.GENRE.name())).thenReturn(new String[] {"Genre 1 1", "Genre 2 1"});
-
-        Document mockDocument2 = mock(Document.class);
-        when(mockDocument2.get(TrackField.ARTISTID.name())).thenReturn("1232");
-        when(mockDocument2.get(TrackField.ARTISTNAME.name())).thenReturn("Artist Name 2");
-        when(mockDocument2.get(TrackField.ARTISTIMAGE.name())).thenReturn("Artist Image 2");
-        when(mockDocument2.get(TrackField.ALBUMID.name())).thenReturn("4562");
-        when(mockDocument2.get(TrackField.ALBUMNAME.name())).thenReturn("Album Name 2");
-        when(mockDocument2.get(TrackField.ALBUMIMAGE.name())).thenReturn("Album Image 2");
-        when(mockDocument2.get(TrackField.YEAR.name())).thenReturn("2002");
-        when(mockDocument2.get(TrackField.TRACKID.name())).thenReturn("7892");
-        when(mockDocument2.get(TrackField.TRACKNAME.name())).thenReturn("Track Name 2");
-        when(mockDocument2.get(TrackField.NUMBER.name())).thenReturn("2");
-        when(mockDocument2.get(TrackField.LOCATION.name())).thenReturn("Location 2");
-        when(mockDocument2.get(TrackField.ISPREFERRED.name())).thenReturn("false");
-        when(mockDocument2.getValues(TrackField.GENRE.name())).thenReturn(new String[] {"Genre 1 2", "Genre 2 2"});
-        
-        when(mockTrackSearcher.doc(1)).thenReturn(mockDocument1);
-        when(mockTrackSearcher.doc(2)).thenReturn(mockDocument2);
+        when(mockTrackSearcher.search(any(), anyInt(), any())).thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
         
         List<Track> result = spySearchManager.search(new TrackSearch("keywords"));
         
@@ -721,22 +693,8 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
         ScoreDoc[] scoreDocs = {new ScoreDoc(1, 0), new ScoreDoc(2, 0)};
-        when(mockTrackSearcher.search(any(), anyInt(), any())).thenReturn(new TopFieldDocs(2, scoreDocs, null, 0));
-        
-        Document mockDocument1 = mock(Document.class);
-        when(mockDocument1.get(TrackField.YEAR.name())).thenReturn("2001");
-        when(mockDocument1.get(TrackField.NUMBER.name())).thenReturn("1");
-        when(mockDocument1.get(TrackField.ISPREFERRED.name())).thenReturn("true");
-        when(mockDocument1.getValues(TrackField.GENRE.name())).thenReturn(new String[] {});
-
-        Document mockDocument2 = mock(Document.class);
-        when(mockDocument2.get(TrackField.YEAR.name())).thenReturn("2002");
-        when(mockDocument2.get(TrackField.NUMBER.name())).thenReturn("2");
-        when(mockDocument2.get(TrackField.ISPREFERRED.name())).thenReturn("false");
-        when(mockDocument2.getValues(TrackField.GENRE.name())).thenReturn(new String[] {});
-        
-        when(mockTrackSearcher.doc(1)).thenReturn(mockDocument1);
-        when(mockTrackSearcher.doc(2)).thenReturn(mockDocument2);
+        when(mockTrackSearcher.search(any(), anyInt(), any())).thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
         
         doThrow(new RuntimeException("SearchManagerTest.shouldGetSearchResultsWhenExceptionThrownOnRelease()")).when(mockTrackManager).release(any());
         
@@ -746,7 +704,406 @@ public class SearchManagerTest extends AbstractTest implements Constants {
     }
     
     @Test
-    public void shouldGetShuffledPlaylist() {
+    public void shouldGetShuffledPlaylist() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
         
+        IndexReader mockIndexReader = mock(IndexReader.class);
+        when(mockTrackSearcher.getIndexReader()).thenReturn(mockIndexReader);
+        when(mockIndexReader.maxDoc()).thenReturn(100);
+        
+        List<ScoreDoc> scoreDocsList = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            scoreDocsList.add(new ScoreDoc(i, 0));
+        }
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        
+        when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
+        
+        ReflectionTestUtils.setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
+        ReflectionTestUtils.setField(spySearchManager, "random", new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
+        
+        List<Track> result = spySearchManager.getShuffledPlaylist(3, null);
+        
+        assertThat("Result should have 3 tracks", result, hasSize(3));
+        
+        Set<Track> uniqueResult = new HashSet<>(result);
+        
+        assertThat("Unique result should have 3 tracks", uniqueResult, hasSize(3));
+    }
+    
+    @Test
+    public void shouldGetShuffledPlaylistWithYearFilter() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        IndexReader mockIndexReader = mock(IndexReader.class);
+        when(mockTrackSearcher.getIndexReader()).thenReturn(mockIndexReader);
+        when(mockIndexReader.maxDoc()).thenReturn(100);
+        
+        List<ScoreDoc> scoreDocsList = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            scoreDocsList.add(new ScoreDoc(i, 0));
+        }
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        
+        when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
+        
+        ReflectionTestUtils.setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
+        ReflectionTestUtils.setField(spySearchManager, "random", new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
+        
+        List<Track> result = spySearchManager.getShuffledPlaylist(3, "2001");
+        
+        assertThat("Result should have 3 tracks", result, hasSize(3));
+        
+        Set<Track> uniqueResult = new HashSet<>(result);
+        
+        assertThat("Unique result should have 3 tracks", uniqueResult, hasSize(3));
+    }
+    
+    @Test
+    public void shouldGetShuffledPlaylistWhenExceptionThrownOnRelease() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        IndexReader mockIndexReader = mock(IndexReader.class);
+        when(mockTrackSearcher.getIndexReader()).thenReturn(mockIndexReader);
+        when(mockIndexReader.maxDoc()).thenReturn(100);
+        
+        List<ScoreDoc> scoreDocsList = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            scoreDocsList.add(new ScoreDoc(i, 0));
+        }
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        
+        when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
+        
+        ReflectionTestUtils.setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
+        ReflectionTestUtils.setField(spySearchManager, "random", new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
+        
+        doThrow(new RuntimeException("SearchManagerTest.shouldGetShuffledPlaylistWhenExceptionThrownOnRelease()")).when(mockTrackManager).release(any());
+        
+        List<Track> result = spySearchManager.getShuffledPlaylist(3, null);
+        
+        assertThat("Result should have 3 tracks", result, hasSize(3));
+        
+        Set<Track> uniqueResult = new HashSet<>(result);
+        
+        assertThat("Unique result should have 3 tracks", uniqueResult, hasSize(3));
+    }
+    
+    @Test
+    public void shouldGetMaxSizeShuffledPlaylistWhenPlaylistSizeGreaterOrEqualToNumberOfSearchResults() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        IndexReader mockIndexReader = mock(IndexReader.class);
+        when(mockTrackSearcher.getIndexReader()).thenReturn(mockIndexReader);
+        when(mockIndexReader.maxDoc()).thenReturn(100);
+        
+        List<ScoreDoc> scoreDocsList = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            scoreDocsList.add(new ScoreDoc(i, 0));
+        }
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        
+        when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
+
+        List<Track> result = spySearchManager.getShuffledPlaylist(9, null);
+        
+        assertThat("Result should have 9 tracks", result, hasSize(9));
+        
+        Set<Track> uniqueResult = new HashSet<>(result);
+        
+        assertThat("Unique result should have 9 tracks", uniqueResult, hasSize(9));
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void shouldFailToGetShuffledPlaylistIfTrackManagerIsNull() {
+        ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
+        
+        spySearchManager.getShuffledPlaylist(3, null);
+    }
+    
+    @Test
+    public void shouldGetEmptyShuffledPlaylistOnException() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        doThrow(new RuntimeException("SearchManagerTest.shouldGetEmptyShuffledPlaylistOnException()")).when(mockTrackSearcher).search(any(), anyInt());
+        
+        List<Track> result = spySearchManager.getShuffledPlaylist(3, null);
+        
+        assertThat("Result should be empty", result.isEmpty(), equalTo(true));
+    }
+    
+    @Test
+    public void shouldGetArtistById() throws Exception {
+        IndexSearcher mockArtistSearcher = mock(IndexSearcher.class);
+        when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
+        
+        when(mockArtistSearcher.search(any(), anyInt())).thenReturn(new TopDocs(1, new ScoreDoc[] {new ScoreDoc(1, 0)}, 0));
+        setArtistSearcherDocuments(mockArtistSearcher);
+        
+        Artist artist = spySearchManager.getArtistById("123");
+        
+        assertThat("Artist should not be null", artist, notNullValue());
+        assertThat("Artist ID should be 1231", artist.getArtistId(), equalTo("1231"));
+        assertThat("Artist name should be 'Artist Name 1'", artist.getArtistName(), equalTo("Artist Name 1"));
+        assertThat("Artist image should be 'Artist Image 1'", artist.getArtistImage(), equalTo("Artist Image 1"));
+        assertThat("Biography should be 'Biography 1'", artist.getBiography(), equalTo("Biography 1"));
+        assertThat("Members should be 'Members 1'", artist.getMembers(), equalTo("Members 1"));
+    }
+    
+    @Test
+    public void shouldGetArtistByIdWhenExceptionThrownOnRelease() throws Exception {
+        IndexSearcher mockArtistSearcher = mock(IndexSearcher.class);
+        when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
+        
+        when(mockArtistSearcher.search(any(), anyInt())).thenReturn(new TopDocs(1, new ScoreDoc[] {new ScoreDoc(1, 0)}, 0));
+        setArtistSearcherDocuments(mockArtistSearcher);
+        
+        doThrow(new RuntimeException("SearchManagerTest.shouldGetArtistByIdWhenExceptionThrownOnRelease()")).when(mockArtistManager).release(any());
+        
+        Artist artist = spySearchManager.getArtistById("123");
+        
+        assertThat("Artist should not be null", artist, notNullValue());
+        assertThat("Artist ID should be 1231", artist.getArtistId(), equalTo("1231"));
+        assertThat("Artist name should be 'Artist Name 1'", artist.getArtistName(), equalTo("Artist Name 1"));
+        assertThat("Artist image should be 'Artist Image 1'", artist.getArtistImage(), equalTo("Artist Image 1"));
+        assertThat("Biography should be 'Biography 1'", artist.getBiography(), equalTo("Biography 1"));
+        assertThat("Members should be 'Members 1'", artist.getMembers(), equalTo("Members 1"));
+    }
+    
+    @Test
+    public void shouldFailToGetArtistByIdIfNoSearchResults() throws Exception {
+        IndexSearcher mockArtistSearcher = mock(IndexSearcher.class);
+        when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
+        
+        when(mockArtistSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[] {}, 0));
+        setArtistSearcherDocuments(mockArtistSearcher);
+        
+        Artist artist = spySearchManager.getArtistById("123");
+        
+        assertThat("Artist should be null", artist, nullValue());
+    }
+    
+    @Test
+    public void shouldFailToGetArtistByIdOnException() throws Exception {
+        IndexSearcher mockArtistSearcher = mock(IndexSearcher.class);
+        when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
+        
+        doThrow(new RuntimeException("SearchManagerTest.shouldFailToGetArtistByIdOnException()")).when(mockArtistSearcher).search(any(), anyInt());
+        
+        Artist artist = spySearchManager.getArtistById("123");
+        
+        assertThat("Artist should be null", artist, nullValue());
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void shouldFailToGetArtistByIdIfArtistManagerIsNull() {
+        ReflectionTestUtils.setField(spySearchManager, "artistManager", null);
+        
+        spySearchManager.getArtistById("123");
+    }
+    
+    @Test
+    public void shouldGetTrackById() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(1, new ScoreDoc[] {new ScoreDoc(1, 0)}, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
+        
+        Track track = spySearchManager.getTrackById("123");
+        
+        assertThat("Track should not be null", track, notNullValue());
+        assertThat("Track artist ID should be 1231", track.getArtistId(), equalTo("1231"));
+        assertThat("Track artist name should be 'Artist Name 1'", track.getArtistName(), equalTo("Artist Name 1"));
+        assertThat("Track artist image should be 'Artist Image 1'", track.getArtistImage(), equalTo("Artist Image 1"));
+        assertThat("Track album ID should be 4561", track.getAlbumId(), equalTo("4561"));
+        assertThat("Track album name should be 'Album Name 1'", track.getAlbumName(), equalTo("Album Name 1"));
+        assertThat("Track album image should be 'Album Image 1'", track.getAlbumImage(), equalTo("Album Image 1"));
+        assertThat("Track year should be 2001", track.getYear(), equalTo(2001));
+        assertThat("Track ID should be 7891", track.getTrackId(), equalTo("7891"));
+        assertThat("Track name should be 'Track Name 1'", track.getTrackName(), equalTo("Track Name 1"));
+        assertThat("Track number should be 1", track.getNumber(), equalTo(1));
+        assertThat("Track location should be 'Location 1'", track.getLocation(), equalTo("Location 1"));
+        assertThat("Track is preferred should be true", track.isPreferred(), equalTo(true));
+        assertThat("Track genres should have a size of 2", track.getGenres(), hasSize(2));
+        assertThat("Track genre 0 should be 'Genre 1 1", track.getGenres().get(0), equalTo("Genre 1 1"));
+        assertThat("Track genre 1 should be 'Genre 2 1", track.getGenres().get(1), equalTo("Genre 2 1"));
+    }
+    
+    @Test
+    public void shouldGetTrackByIdWhenExceptionThrownOnRelease() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(1, new ScoreDoc[] {new ScoreDoc(1, 0)}, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
+        
+        doThrow(new RuntimeException("SearchManagerTest.shouldGetTrackByIdWhenExceptionThrownOnRelease()")).when(mockTrackManager).release(any());
+        
+        Track track = spySearchManager.getTrackById("123");
+        
+        assertThat("Track should not be null", track, notNullValue());
+        assertThat("Track artist ID should be 1231", track.getArtistId(), equalTo("1231"));
+        assertThat("Track artist name should be 'Artist Name 1'", track.getArtistName(), equalTo("Artist Name 1"));
+        assertThat("Track artist image should be 'Artist Image 1'", track.getArtistImage(), equalTo("Artist Image 1"));
+        assertThat("Track album ID should be 4561", track.getAlbumId(), equalTo("4561"));
+        assertThat("Track album name should be 'Album Name 1'", track.getAlbumName(), equalTo("Album Name 1"));
+        assertThat("Track album image should be 'Album Image 1'", track.getAlbumImage(), equalTo("Album Image 1"));
+        assertThat("Track year should be 2001", track.getYear(), equalTo(2001));
+        assertThat("Track ID should be 7891", track.getTrackId(), equalTo("7891"));
+        assertThat("Track name should be 'Track Name 1'", track.getTrackName(), equalTo("Track Name 1"));
+        assertThat("Track number should be 1", track.getNumber(), equalTo(1));
+        assertThat("Track location should be 'Location 1'", track.getLocation(), equalTo("Location 1"));
+        assertThat("Track is preferred should be true", track.isPreferred(), equalTo(true));
+        assertThat("Track genres should have a size of 2", track.getGenres(), hasSize(2));
+        assertThat("Track genre 0 should be 'Genre 1 1", track.getGenres().get(0), equalTo("Genre 1 1"));
+        assertThat("Track genre 1 should be 'Genre 2 1", track.getGenres().get(1), equalTo("Genre 2 1"));
+    }
+    
+    @Test
+    public void shouldFailToGetTrackByIdIfNoSearchResults() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[] {}, 0));
+        setArtistSearcherDocuments(mockTrackSearcher);
+        
+        Track track = spySearchManager.getTrackById("123");
+        
+        assertThat("Track should be null", track, nullValue());
+    }
+    
+    @Test
+    public void shouldFailToGetTrackByIdOnException() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        doThrow(new RuntimeException("SearchManagerTest.shouldFailToGetTrackByIdOnException()")).when(mockTrackSearcher).search(any(), anyInt());
+        
+        Track track = spySearchManager.getTrackById("123");
+        
+        assertThat("Track should be null", track, nullValue());
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void shouldFailToGetTrackByIdIfArtistManagerIsNull() {
+        ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
+        
+        spySearchManager.getTrackById("123");
+    }
+    
+    @Test
+    public void shouldGetAlbumById() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        List<ScoreDoc> scoreDocsList = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            scoreDocsList.add(new ScoreDoc(i, 0));
+        }
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        
+        when(mockTrackSearcher.search(any(), anyInt(), any())).thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
+        
+        List<Track> tracks = spySearchManager.getAlbumById("123");
+        
+        assertThat("Tracks should have a size of 9", tracks, hasSize(9));
+    }
+    
+    @Test
+    public void shouldGetAlbumByIdWhenExceptionThrownOnRelease() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        List<ScoreDoc> scoreDocsList = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            scoreDocsList.add(new ScoreDoc(i, 0));
+        }
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        
+        when(mockTrackSearcher.search(any(), anyInt(), any())).thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+        setTrackSearcherDocuments(mockTrackSearcher);
+        
+        doThrow(new RuntimeException("SearchManagerTest.shouldGetAlbumByIdWhenExceptionThrownOnRelease()")).when(mockTrackManager).release(any());
+        
+        List<Track> tracks = spySearchManager.getAlbumById("123");
+        
+        assertThat("Tracks should have a size of 9", tracks, hasSize(9));
+    }
+    
+    @Test
+    public void shouldGetEmptyAlbumByIdIfNoSearchResults() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        when(mockTrackSearcher.search(any(), anyInt(), any())).thenReturn(new TopFieldDocs(0, new ScoreDoc[] {}, null, 0));
+        setArtistSearcherDocuments(mockTrackSearcher);
+        
+        List<Track> tracks = spySearchManager.getAlbumById("123");
+        
+        assertThat("Tracks should be empty", tracks.isEmpty(), equalTo(true));
+    }
+    
+    @Test
+    public void shouldFailToGetAlbumByIdOnException() throws Exception {
+        IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
+        when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+        
+        doThrow(new RuntimeException("SearchManagerTest.shouldFailToGetAlbumByIdOnException()")).when(mockTrackSearcher).search(any(), anyInt(), any());
+        
+        List<Track> tracks = spySearchManager.getAlbumById("123");
+        
+        assertThat("Tracks should be null", tracks, nullValue());
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void shouldFailToGetAlbumByIdIfArtistManagerIsNull() {
+        ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
+        
+        spySearchManager.getAlbumById("123");
+    }
+    
+    private void setArtistSearcherDocuments(IndexSearcher mockArtistSearcher) throws Exception {
+        for (int i = 1; i < 10; i++) {
+            Document document = mock(Document.class);
+            when(document.get(ArtistField.ARTISTID.name())).thenReturn("123" + i);
+            when(document.get(ArtistField.ARTISTNAME.name())).thenReturn("Artist Name " + i);
+            when(document.get(ArtistField.ARTISTIMAGE.name())).thenReturn("Artist Image " + i);
+            when(document.get(ArtistField.BIOGRAPHY.name())).thenReturn("Biography " + i);
+            when(document.get(ArtistField.MEMBERS.name())).thenReturn("Members " + i);
+            
+            when(mockArtistSearcher.doc(i)).thenReturn(document);
+        }
+    }
+
+    private void setTrackSearcherDocuments(IndexSearcher mockTrackSearcher) throws Exception {
+        for (int i = 1; i < 10; i++) {
+            Document document = mock(Document.class);
+            when(document.get(TrackField.ARTISTID.name())).thenReturn("123" + i);
+            when(document.get(TrackField.ARTISTNAME.name())).thenReturn("Artist Name " + i);
+            when(document.get(TrackField.ARTISTIMAGE.name())).thenReturn("Artist Image " + i);
+            when(document.get(TrackField.ALBUMID.name())).thenReturn("456" + i);
+            when(document.get(TrackField.ALBUMNAME.name())).thenReturn("Album Name " + i);
+            when(document.get(TrackField.ALBUMIMAGE.name())).thenReturn("Album Image " + i);
+            when(document.get(TrackField.YEAR.name())).thenReturn("200" + i);
+            when(document.get(TrackField.TRACKID.name())).thenReturn("789" + i);
+            when(document.get(TrackField.TRACKNAME.name())).thenReturn("Track Name " + i);
+            when(document.get(TrackField.NUMBER.name())).thenReturn(Integer.toString(i));
+            when(document.get(TrackField.LOCATION.name())).thenReturn("Location " + i);
+            when(document.get(TrackField.ISPREFERRED.name())).thenReturn((i % 2 == 0) ? "false" : "true");
+            when(document.getValues(TrackField.GENRE.name())).thenReturn(new String[] {"Genre 1 " + i, "Genre 2 " + i});
+            
+            when(mockTrackSearcher.doc(i)).thenReturn(document);
+        }
     }
 }
