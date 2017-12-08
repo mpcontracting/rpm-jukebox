@@ -2,9 +2,11 @@ package uk.co.mpcontracting.rpmjukebox.jetty;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.servlet.AsyncContext;
@@ -37,10 +39,10 @@ public class CachingMediaProxyServlet extends HttpServlet {
 				response.setContentLengthLong(cachedFile.length());
 				
 				if (!request.getMethod().equals("HEAD")) {
-					openDataStream(request, response, cacheType, id, true, new FileInputStream(cachedFile));
+					openDataStream(request, response, cacheType, id, true, getFileInputStream(cachedFile));
 				}
 			} else {
-				URL location = new URL(url);
+				URL location = getURL(url);
 				HttpURLConnection connection = (HttpURLConnection)location.openConnection();
 				
 				if (connection.getResponseCode() == 200) {
@@ -59,9 +61,19 @@ public class CachingMediaProxyServlet extends HttpServlet {
 	}
 	
 	private void openDataStream(HttpServletRequest request, HttpServletResponse response, CacheType cacheType, String trackId, 
-		boolean isCached, InputStream inputStream) throws IOException {
-		AsyncContext asyncContext = request.startAsync();
-		ServletOutputStream outputStream = response.getOutputStream();
-		outputStream.setWriteListener(new CachingDataStream(cacheType, trackId, isCached, inputStream, asyncContext, outputStream));
+        boolean isCached, InputStream inputStream) throws IOException {
+        AsyncContext asyncContext = request.startAsync();
+        ServletOutputStream outputStream = response.getOutputStream();
+        outputStream.setWriteListener(new CachingDataStream(cacheType, trackId, isCached, inputStream, asyncContext, outputStream));
+    }
+	
+	// Package level for testing purposes
+    FileInputStream getFileInputStream(File file) throws FileNotFoundException {
+        return new FileInputStream(file);
+    }
+	
+	// Package level for testing purposes
+	URL getURL(String url) throws MalformedURLException {
+	    return new URL(url);
 	}
 }
