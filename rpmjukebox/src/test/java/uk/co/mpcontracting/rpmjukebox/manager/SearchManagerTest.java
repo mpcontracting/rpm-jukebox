@@ -164,7 +164,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             
             verify(spySearchManager, never()).indexData(anyBoolean());
             verify(spySearchManager, times(9)).search(any());
-            verify(mockMainPanelController, never()).showMessageWindow(anyString(), anyBoolean());
+            verify(mockMainPanelController, never()).showMessageView(anyString(), anyBoolean());
         } finally {
             spySearchManager.shutdown();
         }
@@ -217,7 +217,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             
             verify(spySearchManager, times(1)).indexData(true);
             verify(spySearchManager, times(9)).search(any());
-            verify(mockMainPanelController, never()).showMessageWindow(anyString(), anyBoolean());
+            verify(mockMainPanelController, never()).showMessageView(anyString(), anyBoolean());
         } finally {
             spySearchManager.shutdown();
         }
@@ -270,7 +270,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             
             verify(spySearchManager, times(1)).indexData(true);
             verify(spySearchManager, times(9)).search(any());
-            verify(mockMainPanelController, never()).showMessageWindow(anyString(), anyBoolean());
+            verify(mockMainPanelController, never()).showMessageView(anyString(), anyBoolean());
         } finally {
             spySearchManager.shutdown();
         }
@@ -295,7 +295,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             spySearchManager.initialise();
             spySearchManager.initialise();
             
-            verify(mockMainPanelController, times(1)).showMessageWindow(anyString(), anyBoolean());
+            verify(mockMainPanelController, times(1)).showMessageView(anyString(), anyBoolean());
             verify(mockApplicationManager, times(1)).shutdown();
         } finally {
             spySearchManager.shutdown();
@@ -387,7 +387,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
     public void shouldIndexData() throws Exception {
         spySearchManager.indexData(true);
         
-        verify(mockMainPanelController, times(1)).showMessageWindow(anyString(), anyBoolean());
+        verify(mockMainPanelController, times(1)).showMessageView(anyString(), anyBoolean());
         verify(mockDataManager, times(1)).parse(any());
         verify(mockArtistWriter, times(1)).commit();
         verify(mockTrackWriter, times(1)).commit();
@@ -403,7 +403,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         
         spySearchManager.indexData(true);
         
-        verify(mockMainPanelController, times(1)).showMessageWindow(anyString(), anyBoolean());
+        verify(mockMainPanelController, times(1)).showMessageView(anyString(), anyBoolean());
         verify(mockDataManager, times(1)).parse(any());
         verify(mockArtistWriter, times(1)).commit();
         verify(mockTrackWriter, never()).commit();

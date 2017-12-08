@@ -32,12 +32,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Duration;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.component.ConfirmWindow;
-import uk.co.mpcontracting.rpmjukebox.component.MessageWindow;
-import uk.co.mpcontracting.rpmjukebox.component.ModalWindow;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
@@ -62,6 +58,11 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
+import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
+import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
+import uk.co.mpcontracting.rpmjukebox.view.ExportView;
+import uk.co.mpcontracting.rpmjukebox.view.MessageView;
+import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
 
 @Slf4j
 @FXMLController
@@ -143,6 +144,30 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	private Button randomButton;
 
 	@Autowired
+	private EqualizerView equalizerView;
+	
+	@Autowired
+	private SettingsView settingsView;
+	
+	@Autowired
+	private ExportView exportView;
+	
+	@Autowired
+	private MessageView messageView;
+
+	@Autowired
+	private ConfirmView confirmView;
+	
+	@Autowired
+    private EqualizerController equalizerController;
+    
+    @Autowired
+    private SettingsController settingsController;
+    
+    @Autowired
+    private ExportController exportController;
+
+	@Autowired
 	private MessageManager messageManager;
 	
 	@Autowired
@@ -165,16 +190,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	
 	@Autowired
 	private UpdateManager updateManager;
-	
-	@Autowired
-	private EqualizerController equalizerController;
-	
-	@Autowired
-	private SettingsController settingsController;
-	
-	@Autowired
-	private ExportController exportController;
-	
+
 	@Value("${previous.seconds.cutoff}")
 	private int previousSecondsCutoff;
 	
@@ -187,11 +203,6 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	@Value("${playlist.file.extension}")
 	private String playlistFileExtension;
 
-	@Getter private ModalWindow equalizerWindow;
-	@Getter private ModalWindow settingsWindow;
-	@Getter private ModalWindow exportWindow;
-	private MessageWindow messageWindow;
-	private ConfirmWindow confirmWindow;
 	private ObservableList<Playlist> observablePlaylists;
 
 	private String playlistExtensionFilter;
@@ -234,21 +245,6 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 		playTimeLabel.setText(StringHelper.formatElapsedTime(Duration.ZERO, Duration.ZERO));
 		volumeSlider.setValue(mediaManager.getVolume() * 100);
-		
-		// Equalizer window
-		equalizerWindow = new ModalWindow(RpmJukebox.getStage(), "equalizer.fxml");
-		
-		// Settings window
-		settingsWindow = new ModalWindow(RpmJukebox.getStage(), "settings.fxml");
-		
-		// Export window
-		exportWindow = new ModalWindow(RpmJukebox.getStage(), "export.fxml");
-		
-		// Message window
-		messageWindow = new MessageWindow(RpmJukebox.getStage(), "message.fxml");
-		
-		// Confirm window
-		confirmWindow = new ConfirmWindow(RpmJukebox.getStage(), "confirm.fxml");
 
 		// Playlist list view
 		observablePlaylists = FXCollections.observableArrayList();
@@ -259,7 +255,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
 				Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
 				
-				showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+				showConfirmView(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
 					true,
 					() -> {
 						playlistManager.deletePlaylist(playlist.getPlaylistId());
@@ -276,36 +272,36 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		currentSelectedPlaylistId = -999;
 	}
 
-	public void showMessageWindow(String message, boolean blurBackground) {
+	public void showMessageView(String message, boolean blurBackground) {
 		ThreadRunner.runOnGui(() -> {
-			messageWindow.setMessage(message);
+			messageView.setMessage(message);
 			
-			if (!messageWindow.isShowing()) {
-				messageWindow.display(blurBackground);
+			if (!messageView.isShowing()) {
+			    messageView.show(blurBackground);
 			}
 		});
 	}
 	
-	public void closeMessageWindow() {
+	public void closeMessageView() {
 		ThreadRunner.runOnGui(() -> {
-			messageWindow.close();
+		    messageView.close();
 		});
 	}
 	
-	public void showConfirmWindow(String message, boolean blurBackground, Runnable okRunnable, Runnable cancelRunnable) {
+	public void showConfirmView(String message, boolean blurBackground, Runnable okRunnable, Runnable cancelRunnable) {
 		ThreadRunner.runOnGui(() -> {
-			confirmWindow.setMessage(message);
-			confirmWindow.setRunnables(okRunnable, cancelRunnable);
+			confirmView.setMessage(message);
+			confirmView.setRunnables(okRunnable, cancelRunnable);
 			
-			if (!confirmWindow.isShowing()) {
-				confirmWindow.display(blurBackground);
+			if (!confirmView.isShowing()) {
+			    confirmView.show(blurBackground);
 			}
 		});
 	}
 	
-	public void closeConfirmWindow() {
-		confirmWindow.close();
-	}
+	/*public void closeConfirmView() {
+	    confirmView.close();
+	}*/
 
 	private void searchParametersUpdated(String searchText, YearFilter yearFilter, boolean searchTextUpdated) {
 		log.debug("Search parameters updated - '" + searchText + "'" + " - " + yearFilter);
@@ -413,7 +409,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
 		
 		if (playlist != null && playlist.getPlaylistId() > 0) {
-			showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+			showConfirmView(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
 				true,
 				() -> {
 					playlistManager.deletePlaylist(playlist.getPlaylistId());
@@ -482,7 +478,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		log.debug("Export playlist button pressed");
 		
 		exportController.bindPlaylists();
-		exportWindow.display(true);
+		exportView.show(true);
 	}
 	
 	@FXML
@@ -490,7 +486,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		log.debug("Settings button pressed");
 		
 		settingsController.bindSystemSettings();
-		settingsWindow.display(true);
+		settingsView.show(true);
 	}
 	
 	@FXML
@@ -559,7 +555,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		log.debug("EQ button pressed");
 
 		equalizerController.updateSliderValues();
-		equalizerWindow.display(true);
+		equalizerView.show(true);
 	}
 	
 	@FXML

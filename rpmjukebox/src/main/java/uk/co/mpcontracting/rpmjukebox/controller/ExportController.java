@@ -33,6 +33,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.view.ExportView;
 
 @Slf4j
 @FXMLController
@@ -49,6 +50,9 @@ public class ExportController implements Constants {
 	
 	@FXML
 	private Button cancelButton;
+	
+	@Autowired
+	private ExportView exportView;
 
 	@Autowired
 	private MessageManager messageManager;
@@ -58,10 +62,7 @@ public class ExportController implements Constants {
 
 	@Autowired
 	private PlaylistManager playlistManager;
-	
-	@Autowired
-	private MainPanelController mainPanelController;
-	
+
 	@Value("${playlist.file.extension}")
 	private String playlistFileExtension;
 	
@@ -163,15 +164,15 @@ public class ExportController implements Constants {
 					log.error("Unable to export playlists file - " + file.getAbsolutePath(), e);
 				}
 				
-				mainPanelController.getExportWindow().close();
+				exportView.close();
 			}
 		} else {
-			mainPanelController.getExportWindow().close();
+		    exportView.close();
 		}
 	}
 	
 	@FXML
 	protected void handleCancelButtonAction(ActionEvent event) {
-		mainPanelController.getExportWindow().close();
+	    exportView.close();
 	}
 }

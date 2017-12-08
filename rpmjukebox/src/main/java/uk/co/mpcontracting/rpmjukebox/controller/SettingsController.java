@@ -17,6 +17,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
+import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
 
 @Slf4j
 @FXMLController
@@ -30,6 +31,9 @@ public class SettingsController extends EventAwareObject implements Constants {
 	
 	@FXML
 	private Button cancelButton;
+	
+	@Autowired
+	private SettingsView settingsView;
 	
 	@Autowired
 	private MessageManager messageManager;
@@ -106,7 +110,7 @@ public class SettingsController extends EventAwareObject implements Constants {
 				isReindexing = true;
 				searchManager.indexData(false);
 			} catch (Exception e) {
-				mainPanelController.closeMessageWindow();
+				mainPanelController.closeMessageView();
 				isReindexing = false;
 			}
 		});
@@ -119,15 +123,14 @@ public class SettingsController extends EventAwareObject implements Constants {
 		}
 		
 		SystemSettings systemSettings = settingsManager.getSystemSettings();
-		
 		systemSettings.setCacheSizeMb(Integer.parseInt(cacheSizeMbTextField.getText()));
 		
-		mainPanelController.getSettingsWindow().close();
+		settingsView.close();
 	}
 	
 	@FXML
 	protected void handleCancelButtonAction(ActionEvent event) {
-		mainPanelController.getSettingsWindow().close();
+		settingsView.close();
 	}
 	
 	@Override
@@ -135,7 +138,7 @@ public class SettingsController extends EventAwareObject implements Constants {
 		switch (event) {
 			case DATA_INDEXED: {
 				if (isReindexing) {
-					mainPanelController.closeMessageWindow();
+					mainPanelController.closeMessageView();
 					isReindexing = false;
 				}
 				

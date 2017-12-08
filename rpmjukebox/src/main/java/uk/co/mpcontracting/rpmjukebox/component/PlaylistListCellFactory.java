@@ -68,7 +68,7 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 		deletePlaylistItem.setOnAction(event -> {
 			Playlist playlist = listView.getSelectionModel().getSelectedItem();
 
-			FxmlContext.getBean(MainPanelController.class).showConfirmWindow(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+			FxmlContext.getBean(MainPanelController.class).showConfirmView(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
 				true,
 				() -> {
 					playlistManager.deletePlaylist(playlist.getPlaylistId());

@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
 
 @Slf4j
 @FXMLController
@@ -21,7 +22,7 @@ public class ConfirmController {
 	private Button cancelButton;
 	
 	@Autowired
-	private MainPanelController mainPanelController;
+	private ConfirmView confirmView;
 
 	private Runnable okRunnable;
 	private Runnable cancelRunnable;
@@ -54,7 +55,7 @@ public class ConfirmController {
 			okRunnable.run();
 		}
 
-		mainPanelController.closeConfirmWindow();
+		confirmView.close();
 	}
 	
 	@FXML
@@ -76,6 +77,6 @@ public class ConfirmController {
 			cancelRunnable.run();
 		}
 
-		mainPanelController.closeConfirmWindow();
+		confirmView.close();
 	}
 }

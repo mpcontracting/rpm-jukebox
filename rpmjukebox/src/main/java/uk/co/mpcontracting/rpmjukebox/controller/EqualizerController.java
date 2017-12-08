@@ -13,6 +13,7 @@ import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
+import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
 
 @Slf4j
 @FXMLController
@@ -22,10 +23,10 @@ public class EqualizerController extends EventAwareObject {
 	private HBox sliderHbox;
 	
 	@Autowired
-	private MediaManager mediaManager;
+	private EqualizerView equalizerView;
 	
 	@Autowired
-	private MainPanelController mainPanelController;
+	private MediaManager mediaManager;
 
 	@FXML
 	public void initialize() {
@@ -54,7 +55,7 @@ public class EqualizerController extends EventAwareObject {
 
 	@FXML
 	protected void handleOkButtonAction(ActionEvent event) {
-		mainPanelController.getEqualizerWindow().close();
+		equalizerView.close();
 	}
 	
 	@FXML

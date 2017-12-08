@@ -164,7 +164,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
             log.debug("SearchManager initialised");
     	} catch (LockObtainFailedException e) {
-    		mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_ALREADY_RUNNING), true);
+    		mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_ALREADY_RUNNING), true);
     		
     		// Wait at least 5 seconds so message window lasts
     		// long enough to read
@@ -215,7 +215,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     
     @Synchronized
     public void indexData(boolean blurBackground) throws Exception {
-    	mainPanelController.showMessageWindow(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX), blurBackground);
+    	mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX), blurBackground);
 
 		dataManager.parse(settingsManager.getDataFile());
     	commitIndexes();

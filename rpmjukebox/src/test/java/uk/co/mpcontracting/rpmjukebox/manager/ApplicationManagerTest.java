@@ -89,7 +89,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 		verify(mockStage, times(1)).requestFocus();
 		verify(mockSearchManager, times(1)).initialise();
 		verify(mockSettingsManager, times(1)).loadSettings();
-		verify(mockMainPanelController, times(1)).closeMessageWindow();
+		verify(mockMainPanelController, times(1)).closeMessageView();
 		verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
 	}
 	
@@ -113,7 +113,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 		verify(mockStage, times(1)).requestFocus();
 		verify(mockSearchManager, times(1)).initialise();
 		verify(mockSettingsManager, times(1)).loadSettings();
-		verify(mockMainPanelController, times(1)).closeMessageWindow();
+		verify(mockMainPanelController, times(1)).closeMessageView();
 		verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
 	}
 	
@@ -137,13 +137,13 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
 		verify(mockStage, times(1)).requestFocus();
 		verify(mockSearchManager, times(1)).initialise();
 		verify(mockSettingsManager, times(1)).loadSettings();
-		verify(mockMainPanelController, times(1)).closeMessageWindow();
+		verify(mockMainPanelController, times(1)).closeMessageView();
 		verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
 	}
 	
 	@Test
 	public void shouldNotInitialiseIfExceptionThrown() throws Exception {
-		doThrow(new RuntimeException("ApplicationManagerTest.shouldNotInitialiseIfExceptionThrown()")).when(mockMainPanelController).closeMessageWindow();
+		doThrow(new RuntimeException("ApplicationManagerTest.shouldNotInitialiseIfExceptionThrown()")).when(mockMainPanelController).closeMessageView();
 		
 		ReflectionTestUtils.setField(spyApplicationManager, "stage", null);
 		ReflectionTestUtils.setField(spyApplicationManager, "isInitialised", false);

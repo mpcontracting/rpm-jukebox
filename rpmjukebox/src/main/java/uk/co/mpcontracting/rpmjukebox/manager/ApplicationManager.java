@@ -73,7 +73,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
 				searchManager.initialise();
 				settingsManager.loadSettings();
 				
-				mainPanelController.closeMessageWindow();
+				mainPanelController.closeMessageView();
 
 				fireEvent(Event.APPLICATION_INITIALISED);
 				isInitialised = true;
