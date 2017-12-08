@@ -9,6 +9,8 @@ import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 public class MessageView extends AbstractModalView {
 
     public void setMessage(String message) {
+        checkInitialised();
+        
         FxmlContext.lookup(getView().getScene().getRoot(), "message", Label.class).setText(message);
     }
 }

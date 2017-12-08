@@ -15,6 +15,8 @@ public class ConfirmView extends AbstractModalView {
     private ConfirmController confirmController;
     
     public void setMessage(String message) {
+        checkInitialised();
+        
         FxmlContext.lookup(getView().getScene().getRoot(), "message", Label.class).setText(message);
     }
     

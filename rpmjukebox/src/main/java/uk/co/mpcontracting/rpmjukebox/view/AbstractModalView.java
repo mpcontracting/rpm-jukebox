@@ -1,10 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import de.felixroske.jfxsupport.AbstractFxmlView;
 import javafx.scene.Scene;
 import javafx.scene.effect.BoxBlur;
@@ -13,20 +8,18 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import lombok.Synchronized;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
-public abstract class AbstractModalView extends AbstractFxmlView implements InitializingBean {
+public abstract class AbstractModalView extends AbstractFxmlView {
 
     private Stage owner;
     private Stage stage;
     private boolean blurBackground;
-    
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        CountDownLatch latch = new CountDownLatch(1);
-        
-        ThreadRunner.runOnGui(() -> {
+
+    @Synchronized
+    protected void checkInitialised() {
+        if (owner == null) {
             owner = RpmJukebox.getStage();
             
             stage = new Stage(StageStyle.TRANSPARENT);
@@ -46,18 +39,18 @@ public abstract class AbstractModalView extends AbstractFxmlView implements Init
                 stage.setX((owner.getX() + owner.getWidth() / 2) - stage.getWidth() / 2);
                 stage.setY((owner.getY() + owner.getHeight() / 2) - stage.getHeight() / 2);
             });
-            
-            latch.countDown();
-        });
-        
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        }
     }
     
     public boolean isShowing() {
+        checkInitialised();
+        
         return stage.isShowing();
     }
     
     public void show(boolean blurBackground) {
+        checkInitialised();
+        
         this.blurBackground = blurBackground;
         
         if (blurBackground) {
@@ -68,6 +61,8 @@ public abstract class AbstractModalView extends AbstractFxmlView implements Init
     }
 
     public void close() {
+        checkInitialised();
+        
         if (blurBackground) {
             owner.getScene().getRoot().setEffect(null);
         }
