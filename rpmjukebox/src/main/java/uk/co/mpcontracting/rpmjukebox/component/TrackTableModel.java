@@ -32,10 +32,10 @@ public class TrackTableModel {
 			for (String genre : track.getGenres()) {
 				builder.append(genre).append(", ");
 			}
+			
+			builder.setLength(builder.length() - 2);
 		}
-		
-		builder.setLength(builder.length() - 2);
-		
+
 		genres = new SimpleStringProperty(builder.toString());
 	}
 }
