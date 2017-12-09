@@ -17,6 +17,7 @@ import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
+import uk.co.mpcontracting.rpmjukebox.view.AbstractModalView;
 
 @Slf4j
 @Component
@@ -51,6 +52,11 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
 	
 	public void start(Stage stage) {
 		log.info("Starting application");
+		
+		// Initialise views
+		context.getBeansOfType(AbstractModalView.class).forEach((name, view) -> {
+		    view.initialiseView();
+		});
 		
 		this.stage = stage;
 		

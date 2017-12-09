@@ -264,7 +264,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 				);
 			}
 		});
-		
+
 		// Track table view
 		mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
 
@@ -298,10 +298,6 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			}
 		});
 	}
-	
-	/*public void closeConfirmView() {
-	    confirmView.close();
-	}*/
 
 	private void searchParametersUpdated(String searchText, YearFilter yearFilter, boolean searchTextUpdated) {
 		log.debug("Search parameters updated - '" + searchText + "'" + " - " + yearFilter);
