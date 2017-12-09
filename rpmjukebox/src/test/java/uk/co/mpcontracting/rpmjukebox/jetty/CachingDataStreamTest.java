@@ -17,7 +17,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class CachingDataStreamTest extends AbstractTest {
@@ -52,9 +52,9 @@ public class CachingDataStreamTest extends AbstractTest {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte)255);
         
-        ApplicationContext originalContext = (ApplicationContext)ReflectionTestUtils.getField(FxmlContext.class, "applicationContext");
+        ApplicationContext originalContext = (ApplicationContext)ReflectionTestUtils.getField(ContextHelper.class, "applicationContext");
         ApplicationContext mockContext = mock(ApplicationContext.class);
-        ReflectionTestUtils.setField(FxmlContext.class, "applicationContext", mockContext);
+        ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", mockContext);
         
         CacheManager mockCacheManager = mock(CacheManager.class);
         when(mockContext.getBean(CacheManager.class)).thenReturn(mockCacheManager);
@@ -71,7 +71,7 @@ public class CachingDataStreamTest extends AbstractTest {
             verify(mockCacheManager, times(1)).writeCache(CacheType.TRACK, "123", array);
             verify(spyInputStream, times(1)).close();
         } finally {
-            ReflectionTestUtils.setField(FxmlContext.class, "applicationContext", originalContext);
+            ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", originalContext);
         }
     }
     

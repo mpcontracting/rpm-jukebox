@@ -17,7 +17,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
 public class TrackTableCellFactory<S, T> extends EventAwareObject implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>>, Constants {
@@ -28,9 +28,9 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 	private Image dragNDrop;
 
 	public TrackTableCellFactory() {
-		settingsManager = FxmlContext.getBean(SettingsManager.class);
-		messageManager = FxmlContext.getBean(MessageManager.class);
-		playlistManager = FxmlContext.getBean(PlaylistManager.class);
+		settingsManager = ContextHelper.getBean(SettingsManager.class);
+		messageManager = ContextHelper.getBean(MessageManager.class);
+		playlistManager = ContextHelper.getBean(PlaylistManager.class);
 		dragNDrop = new Image(IMAGE_DRAG_N_DROP);
 	}
 	

@@ -20,7 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class CachingMediaProxyServletTest extends AbstractTest {
@@ -45,11 +45,11 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         when(mockServletRequest.getAsyncContext()).thenReturn(mockAsyncContext);
         when(mockServletResponse.getOutputStream()).thenReturn(mockServletOutputStream);
         
-        originalContext = (ApplicationContext)ReflectionTestUtils.getField(FxmlContext.class, "applicationContext");
+        originalContext = (ApplicationContext)ReflectionTestUtils.getField(ContextHelper.class, "applicationContext");
         ApplicationContext mockContext = mock(ApplicationContext.class);
         when(mockContext.getBean(CacheManager.class)).thenReturn(mockCacheManager);
         
-        ReflectionTestUtils.setField(FxmlContext.class, "applicationContext", mockContext);
+        ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", mockContext);
         
         spyServlet = spy(new CachingMediaProxyServlet());
     }
@@ -163,6 +163,6 @@ public class CachingMediaProxyServletTest extends AbstractTest {
     
     @After
     public void cleanup() {
-        ReflectionTestUtils.setField(FxmlContext.class, "applicationContext", originalContext);
+        ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", originalContext);
     }
 }

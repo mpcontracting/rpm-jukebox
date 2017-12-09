@@ -17,7 +17,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -55,7 +54,6 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
@@ -63,6 +61,7 @@ import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
 import uk.co.mpcontracting.rpmjukebox.view.ExportView;
 import uk.co.mpcontracting.rpmjukebox.view.MessageView;
 import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
+import uk.co.mpcontracting.rpmjukebox.view.TrackTableView;
 
 @Slf4j
 @FXMLController
@@ -157,6 +156,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 	@Autowired
 	private ConfirmView confirmView;
+	
+	@Autowired
+	private TrackTableView trackTableView;
 	
 	@Autowired
     private EqualizerController equalizerController;
@@ -266,7 +268,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		});
 
 		// Track table view
-		mainPanel.setCenter((Node)FxmlContext.loadFxml("tracktable.fxml"));
+		mainPanel.setCenter(trackTableView.getView());
 
 		playlistExtensionFilter = "*." + playlistFileExtension;
 		currentSelectedPlaylistId = -999;

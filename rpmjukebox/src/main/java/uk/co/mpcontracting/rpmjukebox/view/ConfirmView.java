@@ -6,7 +6,7 @@ import de.felixroske.jfxsupport.FXMLView;
 import javafx.scene.control.Label;
 import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 
 @FXMLView(value = "/fxml/confirm.fxml", bundle = Constants.I18N_MESSAGE_BUNDLE)
 public class ConfirmView extends AbstractModalView {
@@ -15,7 +15,7 @@ public class ConfirmView extends AbstractModalView {
     private ConfirmController confirmController;
     
     public void setMessage(String message) {
-        FxmlContext.lookup(getView().getScene().getRoot(), "message", Label.class).setText(message);
+        ContextHelper.lookup(getView().getScene().getRoot(), "message", Label.class).setText(message);
     }
     
     public void setRunnables(Runnable okRunnable, Runnable cancelRunnable) {

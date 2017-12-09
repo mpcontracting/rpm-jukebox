@@ -9,14 +9,14 @@ import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 
 public class LoveButtonTableCellFactory<S, T> extends EventAwareObject implements Callback<TableColumn<TrackTableModel, String>, TableCell<TrackTableModel, String>>, Constants {
 
 	private PlaylistManager playlistManager;
 
 	public LoveButtonTableCellFactory() {
-		playlistManager = FxmlContext.getBean(PlaylistManager.class);
+		playlistManager = ContextHelper.getBean(PlaylistManager.class);
 	}
 	
 	@Override

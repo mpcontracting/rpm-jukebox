@@ -16,7 +16,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 
 public class PlaylistListCellFactory extends EventAwareObject implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
 
@@ -24,8 +24,8 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 	private PlaylistManager playlistManager;
 
 	public PlaylistListCellFactory() {
-		messageManager = FxmlContext.getBean(MessageManager.class);
-		playlistManager = FxmlContext.getBean(PlaylistManager.class);
+		messageManager = ContextHelper.getBean(MessageManager.class);
+		playlistManager = ContextHelper.getBean(PlaylistManager.class);
 	}
 	
 	@Override
@@ -68,7 +68,7 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
 		deletePlaylistItem.setOnAction(event -> {
 			Playlist playlist = listView.getSelectionModel().getSelectedItem();
 
-			FxmlContext.getBean(MainPanelController.class).showConfirmView(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
+			ContextHelper.getBean(MainPanelController.class).showConfirmView(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), 
 				true,
 				() -> {
 					playlistManager.deletePlaylist(playlist.getPlaylistId());

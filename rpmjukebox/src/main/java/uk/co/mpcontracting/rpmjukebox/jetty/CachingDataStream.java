@@ -13,7 +13,7 @@ import org.eclipse.jetty.io.EofException;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 
 @Slf4j
 public class CachingDataStream implements WriteListener {
@@ -50,7 +50,7 @@ public class CachingDataStream implements WriteListener {
 				asyncContext.complete();
 
 				if (!isCached) {
-					FxmlContext.getBean(CacheManager.class).writeCache(cacheType, id, byteStream.toByteArray());
+					ContextHelper.getBean(CacheManager.class).writeCache(cacheType, id, byteStream.toByteArray());
 				}
 				
 				cleanUpResources();

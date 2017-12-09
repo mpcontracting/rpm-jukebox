@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
-import uk.co.mpcontracting.rpmjukebox.support.FxmlContext;
+import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 
 @Slf4j
 public class CachingMediaProxyServlet extends HttpServlet {
@@ -33,7 +33,7 @@ public class CachingMediaProxyServlet extends HttpServlet {
 		try {
 			log.debug("Getting file : Cache type - " + cacheType + ", ID - " + id + ", URL " + url);
 			
-			File cachedFile = FxmlContext.getBean(CacheManager.class).readCache(cacheType, id);
+			File cachedFile = ContextHelper.getBean(CacheManager.class).readCache(cacheType, id);
 			
 			if (cachedFile != null) {
 				response.setContentLengthLong(cachedFile.length());
