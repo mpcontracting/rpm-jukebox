@@ -129,7 +129,7 @@ public class ExportController implements Constants {
 		cancelButton.requestFocus();
 	}
 	
-	public void setPlaylistToExport(int playlistId, boolean export) {
+	private void setPlaylistToExport(int playlistId, boolean export) {
 		log.debug("Setting playlist to export : ID - " + playlistId + ", Export - " + export);
 		
 		if (export) {

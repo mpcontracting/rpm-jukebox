@@ -10,7 +10,7 @@ public class PlaylistTableCell<S, T> extends TableCell<PlaylistTableModel, T> {
 		
 		setGraphic(null);
 		
-		if (empty) {
+		if (empty || value == null) {
 			setText(null);
 		} else {
 			setText(value.toString());
