@@ -21,6 +21,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import de.roskenet.jfxsupport.test.GuiTest;
+import javafx.event.EventType;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -80,6 +83,11 @@ public abstract class AbstractTest extends GuiTest {
 		}
 		
 		return builder.toString();
+	}
+	
+	protected MouseEvent getMouseEvent(EventType<MouseEvent> mouseEventType, MouseButton mouseButton, int numberOfClicks) {
+	    return new MouseEvent(mouseEventType, 0, 0, 0, 0, mouseButton, numberOfClicks, false, false, false, false, true, 
+	        false, false, false, false, true, null);
 	}
 
 	@After
