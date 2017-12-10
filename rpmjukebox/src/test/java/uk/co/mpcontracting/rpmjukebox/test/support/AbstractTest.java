@@ -22,6 +22,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.roskenet.jfxsupport.test.GuiTest;
 import javafx.event.EventType;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import lombok.AccessLevel;
@@ -85,9 +86,13 @@ public abstract class AbstractTest extends GuiTest {
 		return builder.toString();
 	}
 	
-	protected MouseEvent getMouseEvent(EventType<MouseEvent> mouseEventType, MouseButton mouseButton, int numberOfClicks) {
-	    return new MouseEvent(mouseEventType, 0, 0, 0, 0, mouseButton, numberOfClicks, false, false, false, false, true, 
+	protected MouseEvent getMouseEvent(EventType<MouseEvent> eventType, MouseButton mouseButton, int numberOfClicks) {
+	    return new MouseEvent(eventType, 0, 0, 0, 0, mouseButton, numberOfClicks, false, false, false, false, true, 
 	        false, false, false, false, true, null);
+	}
+	
+	protected ContextMenuEvent getContextMenuEvent(Object source) {
+	    return new ContextMenuEvent(source, null, ContextMenuEvent.CONTEXT_MENU_REQUESTED, 0, 0, 0, 0, false, null);
 	}
 
 	@After
