@@ -23,8 +23,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 import de.roskenet.jfxsupport.test.GuiTest;
 import javafx.event.EventType;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -93,6 +96,10 @@ public abstract class AbstractTest extends GuiTest {
 	
 	protected ContextMenuEvent getContextMenuEvent(Object source) {
 	    return new ContextMenuEvent(source, null, ContextMenuEvent.CONTEXT_MENU_REQUESTED, 0, 0, 0, 0, false, null);
+	}
+	
+	protected DragEvent getDragEvent(EventType<DragEvent> eventType, Dragboard dragboard, TransferMode transferMode, Object gestureSource) {
+	    return new DragEvent(eventType, dragboard, 0, 0, 0, 0, transferMode, gestureSource, null, null);
 	}
 
 	@After
