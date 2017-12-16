@@ -46,12 +46,12 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 			if (event.getButton() == MouseButton.PRIMARY) {
 				if (event.getClickCount() > 1) {
 					// Double click
-					if (tableCell != null && tableCell.getItem() != null) {
+					if (tableCell.getItem() != null) {
 						playlistManager.playTrack(((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 					}
 				} else {
 					// Single click
-					if (tableCell != null && tableCell.getItem() != null) {
+					if (tableCell.getItem() != null) {
 						fireEvent(Event.TRACK_SELECTED, ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 					}
 				}
@@ -66,7 +66,7 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 		
 		final MenuItem createPlaylistFromAlbumItem = new MenuItem(messageManager.getMessage(MESSAGE_TRACK_TABLE_CONTEXT_CREATE_PLAYLIST_FROM_ALBUM));
 		createPlaylistFromAlbumItem.setOnAction(event -> {
-			if (tableCell != null && tableCell.getItem() != null) {
+			if (tableCell.getItem() != null) {
 				playlistManager.createPlaylistFromAlbum(((TrackTableModel)tableCell.getTableRow().getItem()).getTrack());
 			}
 		});
@@ -74,7 +74,7 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 		
 		final MenuItem deleteTrackFromPlaylistItem = new MenuItem(messageManager.getMessage(MESSAGE_TRACK_TABLE_CONTEXT_DELETE_TRACK_FROM_PLAYLIST));
 		deleteTrackFromPlaylistItem.setOnAction(event -> {
-			if (tableCell != null && tableCell.getItem() != null) {
+			if (tableCell.getItem() != null) {
 				Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
 				
 				playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
@@ -84,7 +84,7 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 		
 		tableCell.setContextMenu(contextMenu);
 		tableCell.setOnContextMenuRequested(event -> {
-			if (tableCell != null && tableCell.getItem() != null) {
+			if (tableCell.getItem() != null) {
 				if (((TrackTableModel)tableCell.getTableRow().getItem()).getTrack().getPlaylistId() == PLAYLIST_ID_SEARCH) {
 					createPlaylistFromAlbumItem.setDisable(false);
 					deleteTrackFromPlaylistItem.setDisable(true);
@@ -117,9 +117,9 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject implements Cal
 				dragboard.setContent(clipboardContent);
 				
 				fireEvent(Event.TRACK_SELECTED, track);
-
-				event.consume();
 			}
+			
+			event.consume();
 		});
 		
 		tableCell.setOnDragOver(event -> {

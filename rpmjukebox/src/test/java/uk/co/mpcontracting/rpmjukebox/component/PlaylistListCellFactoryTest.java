@@ -228,6 +228,21 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
     }
     
     @Test
+    public void shouldNotTriggerDragOverWithSameSource() {
+        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        
+        Dragboard mockDragboard = mock(Dragboard.class);
+        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        
+        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, listCell));
+        
+        listCell.onDragOverProperty().get().handle(spyDragEvent);
+        
+        verify(spyDragEvent, never()).acceptTransferModes(TransferMode.COPY);
+        verify(spyDragEvent, times(1)).consume();
+    }
+    
+    @Test
     public void shouldNotTriggerDragOverWithNoContent() {
         ListCell<Playlist> listCell = cellFactory.call(getListView());
         
@@ -256,6 +271,23 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
         listCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
         assertThat("List cell style should not be empty", listCell.getStyle(), not(isEmptyString()));
+        verify(spyDragEvent, times(1)).consume();
+    }
+    
+    @Test
+    public void shouldNotTriggerDragEnterdWithSameSource() {
+        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        listCell.setItem(new Playlist(1, "Playlist", 10));
+        listCell.setStyle(null);
+        
+        Dragboard mockDragboard = mock(Dragboard.class);
+        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        
+        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, listCell));
+        
+        listCell.onDragEnteredProperty().get().handle(spyDragEvent);
+
+        assertThat("List cell style should be empty", listCell.getStyle(), isEmptyString());
         verify(spyDragEvent, times(1)).consume();
     }
     
