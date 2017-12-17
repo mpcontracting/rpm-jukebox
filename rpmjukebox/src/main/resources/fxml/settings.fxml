@@ -50,7 +50,7 @@
             </HBox>
             <HBox prefWidth="150.0" styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="3">
                <children>
-                  <Button mnemonicParsing="false" onAction="#handleReindexButtonAction" text="%settings.button.reindex" />
+                  <Button id="reindexButton" mnemonicParsing="false" onAction="#handleReindexButtonAction" text="%settings.button.reindex" />
                </children>
             </HBox>
             <HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="4" />
@@ -60,8 +60,8 @@
    <bottom>
       <HBox styleClass="buttonHbox" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
-            <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel" />
+            <Button id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
+            <Button id="cancelButton" fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel" />
          </children>
       </HBox>
    </bottom>
