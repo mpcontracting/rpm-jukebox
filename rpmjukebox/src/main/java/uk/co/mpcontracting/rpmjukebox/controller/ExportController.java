@@ -83,14 +83,11 @@ public class ExportController implements Constants {
 		// Hide the table header
 		playlistTableView.widthProperty().addListener((observable, oldValue, newValue) -> {
 			Pane header = (Pane)playlistTableView.lookup("TableHeaderRow");
-			
-			if (header != null && header.isVisible()) {
-				header.setMaxHeight(0);
-				header.setMinHeight(0);
-				header.setPrefHeight(0);
-				header.setVisible(false);
-				header.setManaged(false);
-			}
+			header.setMaxHeight(0);
+			header.setMinHeight(0);
+			header.setPrefHeight(0);
+			header.setVisible(false);
+			header.setManaged(false);
 		});
 
 		// Cell factories
@@ -144,7 +141,7 @@ public class ExportController implements Constants {
 		log.debug("Exporting playlists - " + playlistsToExport);
 		
 		if (!playlistsToExport.isEmpty()) {
-			FileChooser fileChooser = new FileChooser();
+			FileChooser fileChooser = constructFileChooser();
 			fileChooser.setTitle(messageManager.getMessage(MESSAGE_EXPORT_PLAYLIST_TITLE));
 			fileChooser.getExtensionFilters().add(new ExtensionFilter(messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter), 
 				playlistExtensionFilter));
@@ -158,7 +155,7 @@ public class ExportController implements Constants {
 					playlists.add(new PlaylistSettings(playlistManager.getPlaylist(playlistId)));
 				}
 				
-				try (FileWriter fileWriter = new FileWriter(file)) {
+				try (FileWriter fileWriter = constructFileWriter(file)) {
 					fileWriter.write(settingsManager.getGson().toJson(playlists));
 				} catch (Exception e) {
 					log.error("Unable to export playlists file - " + file.getAbsolutePath(), e);
@@ -172,7 +169,17 @@ public class ExportController implements Constants {
 	}
 	
 	@FXML
-	protected void handleCancelButtonAction(ActionEvent event) {
-	    exportView.close();
+    protected void handleCancelButtonAction(ActionEvent event) {
+        exportView.close();
+    }
+	
+	// Package level for testing purposes
+	FileChooser constructFileChooser() {
+	    return new FileChooser();
 	}
+	
+	// Package level for testing purposes
+    FileWriter constructFileWriter(File file) throws Exception {
+        return new FileWriter(file);
+    }
 }
