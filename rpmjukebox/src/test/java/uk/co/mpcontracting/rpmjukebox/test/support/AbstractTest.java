@@ -25,6 +25,8 @@ import javafx.event.EventType;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
@@ -87,6 +89,10 @@ public abstract class AbstractTest extends GuiTest {
 		}
 		
 		return builder.toString();
+	}
+	
+	protected KeyEvent getKeyEvent(EventType<KeyEvent> eventType, KeyCode keyCode) {
+	    return new KeyEvent(eventType, null, null, keyCode, false, false, false, false);
 	}
 	
 	protected MouseEvent getMouseEvent(EventType<MouseEvent> eventType, MouseButton mouseButton, int numberOfClicks) {

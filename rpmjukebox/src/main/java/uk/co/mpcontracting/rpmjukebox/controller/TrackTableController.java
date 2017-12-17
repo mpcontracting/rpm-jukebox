@@ -62,10 +62,8 @@ public class TrackTableController extends EventAwareObject {
 			if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
 				if (trackTableView.getSelectionModel().getSelectedItem() != null) {
 					Track track = trackTableView.getSelectionModel().getSelectedItem().getTrack();
-					
-					if (track != null) {
-						playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
-					}
+
+					playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
 				}
 			}
 		});
@@ -117,15 +115,11 @@ public class TrackTableController extends EventAwareObject {
 				if (payload != null && payload.length > 0) {
 					Integer playlistId = (Integer)payload[0];
 		
-					if (playlistId != null && playlistId.equals(visiblePlaylistId)) {
+					if (playlistId.equals(visiblePlaylistId)) {
 						updateObservableTracks(playlistId);
 						
 						if (payload.length > 1) {
-							Track track = (Track)payload[1];
-							
-							if (track != null) {
-								trackTableView.highlightTrack(track);
-							}
+							trackTableView.highlightTrack((Track)payload[1]);
 						}
 					}
 				}
@@ -138,7 +132,7 @@ public class TrackTableController extends EventAwareObject {
 				if (payload != null && payload.length > 0) {
 					Integer playlistId = (Integer)payload[0];
 
-					if (playlistId != null && !playlistId.equals(visiblePlaylistId)) {
+					if (!playlistId.equals(visiblePlaylistId)) {
 						visiblePlaylistId = playlistId;
 						updateObservableTracks(visiblePlaylistId);
 					}
