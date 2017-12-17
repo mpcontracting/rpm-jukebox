@@ -302,6 +302,13 @@
 	-fx-spacing: 5;
 }
 
+.buttonHbox .focusableButton:focused {
+	-fx-background-color: -jb-foreground-color;
+	-fx-background-insets: 0;
+    -fx-background-radius: 0;
+	-fx-text-fill: -jb-background-color;
+}
+
 .sliderHbox {
 	-fx-padding: 5 5 5 5;
 	-fx-spacing: 5;
@@ -488,11 +495,4 @@
 
 #optionsPanel #randomButton {
 	-fx-background-image: url('../images/random.png');
-}
-
-#focusableButton:focused {
-	-fx-background-color: -jb-foreground-color;
-	-fx-background-insets: 0;
-    -fx-background-radius: 0;
-	-fx-text-fill: -jb-background-color;
 }
