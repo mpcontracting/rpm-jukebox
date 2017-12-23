@@ -8,7 +8,9 @@ import org.apache.lucene.queries.TermsQuery;
 import org.apache.lucene.search.Query;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 @AllArgsConstructor
 public class TrackFilter {
     private String genre;

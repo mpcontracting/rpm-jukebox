@@ -1,7 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.search;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@EqualsAndHashCode
 public class TrackSearch {
     @Getter private String keywords;
     @Getter private TrackFilter trackFilter;

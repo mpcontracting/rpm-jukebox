@@ -22,6 +22,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import de.roskenet.jfxsupport.test.GuiTest;
 import javafx.event.EventType;
+import javafx.scene.Node;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -107,6 +108,22 @@ public abstract class AbstractTest extends GuiTest {
 	protected DragEvent getDragEvent(EventType<DragEvent> eventType, Dragboard dragboard, TransferMode transferMode, Object gestureSource) {
 	    return new DragEvent(eventType, dragboard, 0, 0, 0, 0, transferMode, gestureSource, null, null);
 	}
+	
+	protected void clickOnNode(String query) {
+        Node node = find(query);
+        boolean disabled = node.isDisabled();
+        boolean visible = node.isVisible();
+        
+        try {
+            node.setDisable(false);
+            node.setVisible(true);
+            
+            clickOn(query);
+        } finally {
+            node.setDisable(disabled);
+            node.setVisible(visible);
+        }
+    }
 
 	@After
 	@SneakyThrows
