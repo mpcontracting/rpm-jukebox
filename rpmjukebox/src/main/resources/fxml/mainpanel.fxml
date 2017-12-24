@@ -96,18 +96,18 @@
       <BorderPane id="mainPanel" fx:id="mainPanel" styleClass="border-panel" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2" />
       <BorderPane id="playingPanel" minHeight="310.0" minWidth="250.0" prefHeight="310.0" prefWidth="250.0" GridPane.rowIndex="2">
          <center>
-            <ImageView fx:id="playingImageView" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView id="playingImageView" fx:id="playingImageView" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
          </center>
          <bottom>
             <BorderPane id="playingLabelPanel" styleClass="border-panel">
                <top>
-                  <Label fx:id="playingTrackLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
+                  <Label id="playingTrackLabel" fx:id="playingTrackLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
                </top>
                <center>
-                  <Label fx:id="playingArtistLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
+                  <Label id="playingArtistLabel" fx:id="playingArtistLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
                </center>
                <bottom>
-                  <Label fx:id="playingAlbumLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
+                  <Label id="playingAlbumLabel" fx:id="playingAlbumLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
                </bottom>
             </BorderPane>
          </bottom>

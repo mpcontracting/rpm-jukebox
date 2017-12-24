@@ -348,7 +348,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		yearFilterComboBox.getSelectionModel().selectFirst();
 	}
 	
-	private void updateObservablePlaylists() {
+	// Package level for testing purposes
+	void updateObservablePlaylists() {
 		log.debug("Updating observable playlists");
 
 		observablePlaylists.setAll(playlistManager.getPlaylists());

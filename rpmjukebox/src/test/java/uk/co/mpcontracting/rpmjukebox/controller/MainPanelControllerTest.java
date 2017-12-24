@@ -43,6 +43,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -373,10 +376,8 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     
     @Test
     public void shouldClickDeletePlaylistButton() throws Exception {
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(1, "Playlist 1", 10);
-        
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(mainPanelController, "playlistPanelListView");
 
         CountDownLatch latch = new CountDownLatch(1);
         
@@ -403,10 +404,8 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     
     @Test
     public void shouldClickDeletePlaylistButtonWithReservedPlaylist() throws Exception {
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(PLAYLIST_ID_SEARCH, "Playlist 1", 10);
-        
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(mainPanelController, "playlistPanelListView");
 
         CountDownLatch latch = new CountDownLatch(1);
         
@@ -425,8 +424,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     
     @Test
     public void shouldClickDeletePlaylistButtonWithNullPlaylist() throws Exception {
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(mainPanelController, "playlistPanelListView");
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         CountDownLatch latch = new CountDownLatch(1);
         
@@ -445,9 +443,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldClickImportPlaylistButton() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         CountDownLatch latch1 = new CountDownLatch(1);
         
@@ -512,9 +508,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldClickImportPlaylistButtonWithNullTracksFromSearch() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         CountDownLatch latch = new CountDownLatch(1);
         
@@ -579,9 +573,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldClickImportPlaylistButtonWithNullPlaylistSettings() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         CountDownLatch latch = new CountDownLatch(1);
         
@@ -625,9 +617,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldClickImportPlaylistButtonWithNullFile() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         CountDownLatch latch = new CountDownLatch(1);
         
@@ -662,9 +652,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldClickImportPlaylistButtonWhenExceptionThrown() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         CountDownLatch latch = new CountDownLatch(1);
         
@@ -1478,6 +1466,670 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         assertThat("Time slider should have a value of 0", timeSlider.getSliderValue(), equalTo(0d));
         assertThat("Time slider should have a progress value of 0.99", timeSlider.getProgressValue(), equalTo(0.99d));
         assertThat("Play time label should be '00:00/00:00'", playTimeLabel.getText(), equalTo("00:00/00:00"));
+    }
+    
+    @Test
+    public void shouldReceivePlaylistSelected() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        
+        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
+        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockMediaManager.isPlaying()).thenReturn(false);
+        when(mockMediaManager.isPaused()).thenReturn(false);
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "observablePlaylists");
+        
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Button playPauseButton = find("#playPauseButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            observablePlaylists.add(search);
+            observablePlaylists.add(favourites);
+            playlistPanelListView.getSelectionModel().clearSelection();
+            playlistPanelListView.getFocusModel().focus(-1);
+            playPauseButton.setDisable(false);
+            
+            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController, "currentSelectedPlaylistId");
+        
+        verify(spyMainPanelController, never()).updateObservablePlaylists();
+        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        
+        assertThat("Selected playlist is equal to favourites", playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
+        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(), equalTo(favourites));
+        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
+        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId, equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+    }
+    
+    @Test
+    public void shouldReceivePlaylistSelectedWithNullPayload() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        
+        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
+        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockMediaManager.isPlaying()).thenReturn(false);
+        when(mockMediaManager.isPaused()).thenReturn(false);
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "observablePlaylists");
+        
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Button playPauseButton = find("#playPauseButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            observablePlaylists.add(search);
+            observablePlaylists.add(favourites);
+            playlistPanelListView.getSelectionModel().clearSelection();
+            playlistPanelListView.getFocusModel().focus(-1);
+            playPauseButton.setDisable(false);
+            
+            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, (Object[])null);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController, "currentSelectedPlaylistId");
+        
+        verify(spyMainPanelController, never()).updateObservablePlaylists();
+        verify(mockPlaylistManager, never()).clearSelectedTrack();
+        
+        assertThat("Selected playlist is equal to favourites", playlistPanelListView.getSelectionModel().getSelectedItem(), nullValue());
+        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(), nullValue());
+        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
+        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_SEARCH, currentSelectedPlaylistId, equalTo(PLAYLIST_ID_SEARCH));
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+    }
+    
+    @Test
+    public void shouldReceivePlaylistSelectedWithEmptyPayload() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        
+        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
+        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockMediaManager.isPlaying()).thenReturn(false);
+        when(mockMediaManager.isPaused()).thenReturn(false);
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "observablePlaylists");
+        
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Button playPauseButton = find("#playPauseButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            observablePlaylists.add(search);
+            observablePlaylists.add(favourites);
+            playlistPanelListView.getSelectionModel().clearSelection();
+            playlistPanelListView.getFocusModel().focus(-1);
+            playPauseButton.setDisable(false);
+            
+            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, new Object[] {});
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController, "currentSelectedPlaylistId");
+        
+        verify(spyMainPanelController, never()).updateObservablePlaylists();
+        verify(mockPlaylistManager, never()).clearSelectedTrack();
+        
+        assertThat("Selected playlist is equal to favourites", playlistPanelListView.getSelectionModel().getSelectedItem(), nullValue());
+        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(), nullValue());
+        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
+        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_SEARCH, currentSelectedPlaylistId, equalTo(PLAYLIST_ID_SEARCH));
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+    }
+    
+    @Test
+    public void shouldReceivePlaylistSelectedExistingPlaylist() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        
+        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
+        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockMediaManager.isPlaying()).thenReturn(false);
+        when(mockMediaManager.isPaused()).thenReturn(false);
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "observablePlaylists");
+        
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Button playPauseButton = find("#playPauseButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            observablePlaylists.add(search);
+            observablePlaylists.add(favourites);
+            playlistPanelListView.getSelectionModel().clearSelection();
+            playlistPanelListView.getFocusModel().focus(-1);
+            playPauseButton.setDisable(false);
+            
+            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController, "currentSelectedPlaylistId");
+        
+        verify(spyMainPanelController, never()).updateObservablePlaylists();
+        verify(mockPlaylistManager, never()).clearSelectedTrack();
+        
+        assertThat("Selected playlist is equal to favourites", playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(search));
+        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(), equalTo(search));
+        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
+        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_SEARCH, currentSelectedPlaylistId, equalTo(PLAYLIST_ID_SEARCH));
+        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+    }
+    
+    @Test
+    public void shouldReceivePlaylistSelectedPlaylistIsNotEmpty() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        
+        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
+        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+        favourites.addTrack(mock(Track.class));
+        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockMediaManager.isPlaying()).thenReturn(false);
+        when(mockMediaManager.isPaused()).thenReturn(false);
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "observablePlaylists");
+        
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Button playPauseButton = find("#playPauseButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            observablePlaylists.add(search);
+            observablePlaylists.add(favourites);
+            playlistPanelListView.getSelectionModel().clearSelection();
+            playlistPanelListView.getFocusModel().focus(-1);
+            playPauseButton.setDisable(true);
+            
+            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController, "currentSelectedPlaylistId");
+        
+        verify(spyMainPanelController, never()).updateObservablePlaylists();
+        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        
+        assertThat("Selected playlist is equal to favourites", playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
+        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(), equalTo(favourites));
+        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
+        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId, equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+    }
+    
+    @Test
+    public void shouldReceivePlaylistDeleted() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        
+        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
+        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockMediaManager.isPlaying()).thenReturn(false);
+        when(mockMediaManager.isPaused()).thenReturn(false);
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "observablePlaylists");
+        
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Button playPauseButton = find("#playPauseButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            observablePlaylists.add(search);
+            observablePlaylists.add(favourites);
+            playlistPanelListView.getSelectionModel().clearSelection();
+            playlistPanelListView.getFocusModel().focus(-1);
+            playPauseButton.setDisable(false);
+            
+            spyMainPanelController.eventReceived(Event.PLAYLIST_DELETED, PLAYLIST_ID_FAVOURITES);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController, "currentSelectedPlaylistId");
+        
+        verify(spyMainPanelController, times(1)).updateObservablePlaylists();
+        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        
+        assertThat("Selected playlist is equal to favourites", playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
+        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(), equalTo(favourites));
+        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
+        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId, equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+    }
+    
+    @Test
+    public void shouldReceivePlaylistCreatedWithEdit() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        
+        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
+        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockMediaManager.isPlaying()).thenReturn(false);
+        when(mockMediaManager.isPaused()).thenReturn(false);
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "observablePlaylists");
+        
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Button playPauseButton = find("#playPauseButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            observablePlaylists.add(search);
+            observablePlaylists.add(favourites);
+            playlistPanelListView.getSelectionModel().clearSelection();
+            playlistPanelListView.getFocusModel().focus(-1);
+            playPauseButton.setDisable(false);
+            
+            spyMainPanelController.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, true);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController, "currentSelectedPlaylistId");
+        
+        verify(spyMainPanelController, times(1)).updateObservablePlaylists();
+        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        
+        assertThat("Selected playlist is equal to favourites", playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
+        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(), equalTo(favourites));
+        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(1));
+        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId, equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+    }
+    
+    @Test
+    public void shouldReceivePlaylistCreatedWithoutEdit() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        
+        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
+        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
+        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockMediaManager.isPlaying()).thenReturn(false);
+        when(mockMediaManager.isPaused()).thenReturn(false);
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "observablePlaylists");
+        
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Button playPauseButton = find("#playPauseButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            observablePlaylists.add(search);
+            observablePlaylists.add(favourites);
+            playlistPanelListView.getSelectionModel().clearSelection();
+            playlistPanelListView.getFocusModel().focus(-1);
+            playPauseButton.setDisable(false);
+            
+            spyMainPanelController.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, false);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController, "currentSelectedPlaylistId");
+        
+        verify(spyMainPanelController, times(1)).updateObservablePlaylists();
+        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        
+        assertThat("Selected playlist is equal to favourites", playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
+        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(), equalTo(favourites));
+        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
+        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId, equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+    }
+    
+    @Test
+    public void shouldReceiveTrackSelected() throws Exception {
+        Button playPauseButton = find("#playPauseButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setDisable(true);
+            
+            mainPanelController.eventReceived(Event.TRACK_SELECTED);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+    }
+    
+    @Test
+    public void shouldReceiveTrackQueuedForPlaying() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+        
+        Button playPauseButton = find("#playPauseButton");
+        ImageView playingImageView = find("#playingImageView");
+        Label playingTrackLabel = find("#playingTrackLabel");
+        Label playingAlbumLabel = find("#playingAlbumLabel");
+        Label playingArtistLabel = find("#playingArtistLabel");
+        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789", 
+            "Track Name", 1, "Location", true, null);
+        
+        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setDisable(false);
+            playingImageView.setImage(null);
+            playingTrackLabel.setText(null);
+            playingAlbumLabel.setText(null);
+            playingArtistLabel.setText(null);
+            
+            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Playing track label should be '" + track.getTrackName() + "'", playingTrackLabel.getText(), equalTo(track.getTrackName()));
+        assertThat("Playing album label should be '" + track.getAlbumName() + "'", playingAlbumLabel.getText(), equalTo(track.getAlbumName()));
+        assertThat("Playing artist label should be '" + track.getArtistName() + "'", playingArtistLabel.getText(), equalTo(track.getArtistName()));
+        assertThat("Image should not be null", playingImageView.getImage(), notNullValue());
+        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        
+        verify(mockNativeManager, times(1)).displayNotification(track);
+    }
+    
+    @Test
+    public void shouldReceiveTrackQueuedForPlayingNoAlbumImage() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+        
+        Button playPauseButton = find("#playPauseButton");
+        ImageView playingImageView = find("#playingImageView");
+        Label playingTrackLabel = find("#playingTrackLabel");
+        Label playingAlbumLabel = find("#playingAlbumLabel");
+        Label playingArtistLabel = find("#playingArtistLabel");
+        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", null, 2000, "789", 
+            "Track Name", 1, "Location", true, null);
+        
+        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setDisable(false);
+            playingImageView.setImage(null);
+            playingTrackLabel.setText(null);
+            playingAlbumLabel.setText(null);
+            playingArtistLabel.setText(null);
+            
+            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Playing track label should be '" + track.getTrackName() + "'", playingTrackLabel.getText(), equalTo(track.getTrackName()));
+        assertThat("Playing album label should be '" + track.getAlbumName() + "'", playingAlbumLabel.getText(), equalTo(track.getAlbumName()));
+        assertThat("Playing artist label should be '" + track.getArtistName() + "'", playingArtistLabel.getText(), equalTo(track.getArtistName()));
+        assertThat("Image should not be null", playingImageView.getImage(), notNullValue());
+        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        
+        verify(mockNativeManager, times(1)).displayNotification(track);
+    }
+    
+    @Test
+    public void shouldReceiveTrackQueuedForPlayingNoImages() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+        
+        Button playPauseButton = find("#playPauseButton");
+        ImageView playingImageView = find("#playingImageView");
+        Label playingTrackLabel = find("#playingTrackLabel");
+        Label playingAlbumLabel = find("#playingAlbumLabel");
+        Label playingArtistLabel = find("#playingArtistLabel");
+        Track track = new Track("123", "Artist Name", null, "456", "Album Name", null, 2000, "789", 
+            "Track Name", 1, "Location", true, null);
+        
+        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setDisable(false);
+            playingImageView.setImage(null);
+            playingTrackLabel.setText(null);
+            playingAlbumLabel.setText(null);
+            playingArtistLabel.setText(null);
+            
+            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Playing track label should be '" + track.getTrackName() + "'", playingTrackLabel.getText(), equalTo(track.getTrackName()));
+        assertThat("Playing album label should be '" + track.getAlbumName() + "'", playingAlbumLabel.getText(), equalTo(track.getAlbumName()));
+        assertThat("Playing artist label should be '" + track.getArtistName() + "'", playingArtistLabel.getText(), equalTo(track.getArtistName()));
+        assertThat("Image should not be null", playingImageView.getImage(), notNullValue());
+        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        
+        verify(mockNativeManager, times(1)).displayNotification(track);
+    }
+    
+    @Test
+    public void shouldReceiveTrackQueuedForPlayingNullPayload() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+        
+        Button playPauseButton = find("#playPauseButton");
+        ImageView playingImageView = find("#playingImageView");
+        Label playingTrackLabel = find("#playingTrackLabel");
+        Label playingAlbumLabel = find("#playingAlbumLabel");
+        Label playingArtistLabel = find("#playingArtistLabel");
+        Track track = new Track("123", "Artist Name", null, "456", "Album Name", null, 2000, "789", 
+            "Track Name", 1, "Location", true, null);
+        
+        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setDisable(false);
+            playingImageView.setImage(null);
+            playingTrackLabel.setText(null);
+            playingAlbumLabel.setText(null);
+            playingArtistLabel.setText(null);
+            
+            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[])null);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Playing track label should be null", playingTrackLabel.getText(), nullValue());
+        assertThat("Playing album label should be null", playingAlbumLabel.getText(), nullValue());
+        assertThat("Playing artist label should be null", playingArtistLabel.getText(), nullValue());
+        assertThat("Image should be null", playingImageView.getImage(), nullValue());
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        
+        verify(mockNativeManager, never()).displayNotification(track);
+    }
+    
+    @Test
+    public void shouldReceiveTrackQueuedForPlayingEmptyPayload() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+        
+        Button playPauseButton = find("#playPauseButton");
+        ImageView playingImageView = find("#playingImageView");
+        Label playingTrackLabel = find("#playingTrackLabel");
+        Label playingAlbumLabel = find("#playingAlbumLabel");
+        Label playingArtistLabel = find("#playingArtistLabel");
+        Track track = new Track("123", "Artist Name", null, "456", "Album Name", null, 2000, "789", 
+            "Track Name", 1, "Location", true, null);
+        
+        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setDisable(false);
+            playingImageView.setImage(null);
+            playingTrackLabel.setText(null);
+            playingAlbumLabel.setText(null);
+            playingArtistLabel.setText(null);
+            
+            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, new Object[] {});
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Playing track label should be null", playingTrackLabel.getText(), nullValue());
+        assertThat("Playing album label should be null", playingAlbumLabel.getText(), nullValue());
+        assertThat("Playing artist label should be null", playingArtistLabel.getText(), nullValue());
+        assertThat("Image should be null", playingImageView.getImage(), nullValue());
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        
+        verify(mockNativeManager, never()).displayNotification(track);
+    }
+    
+    @Test
+    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithBackSpace() throws Exception {
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Playlist playlist = new Playlist(1, "Playlist 1", 10);
+
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            playlistPanelListView.getItems().add(playlist);
+            playlistPanelListView.getSelectionModel().select(0);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.BACK_SPACE));
+        
+        ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
+
+        verify(mockConfirmView, times(1)).setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
+        verify(mockConfirmView, times(1)).setRunnables(okRunnable.capture(), any());
+        verify(mockConfirmView, times(1)).show(anyBoolean());
+        
+        okRunnable.getValue().run();
+        
+        verify(mockPlaylistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
+    }
+    
+    @Test
+    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithDelete() throws Exception {
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        Playlist playlist = new Playlist(1, "Playlist 1", 10);
+
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            playlistPanelListView.getItems().add(playlist);
+            playlistPanelListView.getSelectionModel().select(0);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.DELETE));
+        
+        ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
+
+        verify(mockConfirmView, times(1)).setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
+        verify(mockConfirmView, times(1)).setRunnables(okRunnable.capture(), any());
+        verify(mockConfirmView, times(1)).show(anyBoolean());
+        
+        okRunnable.getValue().run();
+        
+        verify(mockPlaylistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
+    }
+    
+    @Test
+    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithUnknownKey() throws Exception {
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+
+        playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.A));
+
+        verify(mockConfirmView, never()).show(anyBoolean());
     }
     
     @After
