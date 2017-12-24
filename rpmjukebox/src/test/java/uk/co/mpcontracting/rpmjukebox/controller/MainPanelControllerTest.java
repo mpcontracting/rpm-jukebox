@@ -1,8 +1,16 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.io.File;
+import java.io.FileReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -10,16 +18,32 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.google.gson.Gson;
+import com.igormaznitsa.commons.version.Version;
+
+import de.felixroske.jfxsupport.GUIState;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.BoxBlur;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
@@ -30,10 +54,12 @@ import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.manager.UpdateManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.model.YearFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
+import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
@@ -55,6 +81,12 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     
     @Autowired
     private MessageManager messageManager;
+    
+    @Value("${previous.seconds.cutoff}")
+    private int previousSecondsCutoff;
+    
+    @Value("${shuffled.playlist.size}")
+    private int shuffledPlaylistSize;
     
     @Mock
     private EqualizerView mockEqualizerView;
@@ -104,6 +136,11 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Mock
     private UpdateManager mockUpdateManager;
     
+    private Stage existingStage;
+    private Stage mockStage;
+    private Scene mockScene;
+    private Parent mockRoot;
+    
     @PostConstruct
     public void constructView() throws Exception {
         init(mainPanelView);
@@ -112,6 +149,15 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Before
     @SuppressWarnings("unchecked")
     public void setup() throws Exception {
+        existingStage = GUIState.getStage();
+        
+        mockStage = mock(Stage.class);
+        mockScene = mock(Scene.class);
+        mockRoot = mock(Parent.class);
+        when(mockStage.getScene()).thenReturn(mockScene);
+        when(mockScene.getRoot()).thenReturn(mockRoot);
+        ReflectionTestUtils.setField(GUIState.class, "stage", mockStage);
+        
         ReflectionTestUtils.setField(mainPanelController, "eventManager", getMockEventManager());
         ReflectionTestUtils.setField(mainPanelController, "equalizerView", mockEqualizerView);
         ReflectionTestUtils.setField(mainPanelController, "settingsView", mockSettingsView);
@@ -391,5 +437,749 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         clickOnNode("#deletePlaylistButton");
         
         verify(mockConfirmView, never()).show(anyBoolean());
+    }
+    
+    @Test
+    public void shouldClickImportPlaylistButton() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        @SuppressWarnings("unchecked")
+        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+
+        CountDownLatch latch1 = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
+            playlistPanelListView.getSelectionModel().select(0);
+            latch1.countDown();
+        });
+        
+        latch1.await(2000, TimeUnit.MILLISECONDS);
+        
+        FileChooser mockFileChooser = mock(FileChooser.class);
+        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        
+        File mockFile = mock(File.class);
+        when(mockFileChooser.showOpenDialog(any())).thenReturn(mockFile);
+        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+        
+        FileReader mockFileReader = mock(FileReader.class);
+        doReturn(mockFileReader).when(spyMainPanelController).constructFileReader(any());
+        
+        Gson mockGson = mock(Gson.class);
+        when(mockSettingsManager.getGson()).thenReturn(mockGson);
+        
+        Playlist playlist = new Playlist(1, "Playlist", 10);
+        for (int i = 0; i < 10; i++) {
+            Track mockTrack = mock(Track.class);
+            when(mockTrack.getTrackId()).thenReturn(Integer.toString(i));
+            
+            playlist.addTrack(mockTrack);
+            when(mockSearchManager.getTrackById(Integer.toString(i))).thenReturn(mockTrack);
+        }
+
+        List<PlaylistSettings> playlistSettings = new ArrayList<>();
+        playlistSettings.add(new PlaylistSettings(playlist));
+        
+        when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
+
+        CountDownLatch latch2 = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            latch2.countDown();
+        });
+        
+        latch2.await(2000, TimeUnit.MILLISECONDS);
+        
+        ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
+        
+        verify(mockPlaylistManager, times(1)).addPlaylist(playlistCaptor.capture());
+        
+        Playlist result = playlistCaptor.getValue();
+        
+        assertThat("Playlist should be the same as the input playlist", result, equalTo(playlist));
+        assertThat("Playlist should have the same number of tracks as the input playlist", result.getTracks(), hasSize(playlist.getTracks().size()));
+        
+        verify(mockPlaylistManager, times(1)).getPlaylists();
+        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(mockRoot, times(1)).setEffect(null);
+    }
+    
+    @Test
+    public void shouldClickImportPlaylistButtonWithNullTracksFromSearch() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        @SuppressWarnings("unchecked")
+        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
+            playlistPanelListView.getSelectionModel().select(0);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        FileChooser mockFileChooser = mock(FileChooser.class);
+        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        
+        File mockFile = mock(File.class);
+        when(mockFileChooser.showOpenDialog(any())).thenReturn(mockFile);
+        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+        
+        FileReader mockFileReader = mock(FileReader.class);
+        doReturn(mockFileReader).when(spyMainPanelController).constructFileReader(any());
+        
+        Gson mockGson = mock(Gson.class);
+        when(mockSettingsManager.getGson()).thenReturn(mockGson);
+        
+        Playlist playlist = new Playlist(1, "Playlist", 10);
+        for (int i = 0; i < 10; i++) {
+            Track mockTrack = mock(Track.class);
+            when(mockTrack.getTrackId()).thenReturn(Integer.toString(i));
+            
+            playlist.addTrack(mockTrack);
+        }
+
+        List<PlaylistSettings> playlistSettings = new ArrayList<>();
+        playlistSettings.add(new PlaylistSettings(playlist));
+        
+        when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
+        when(mockSearchManager.getTrackById(any())).thenReturn(null);
+
+        CountDownLatch latch2 = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            latch2.countDown();
+        });
+        
+        latch2.await(2000, TimeUnit.MILLISECONDS);
+        
+        ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
+        
+        verify(mockPlaylistManager, times(1)).addPlaylist(playlistCaptor.capture());
+        
+        Playlist result = playlistCaptor.getValue();
+        
+        assertThat("Playlist should be the same as the input playlist", result, equalTo(playlist));
+        assertThat("Playlist should have no tracks", result.getTracks(), empty());
+        
+        verify(mockPlaylistManager, times(1)).getPlaylists();
+        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(mockRoot, times(1)).setEffect(null);
+    }
+
+    @Test
+    public void shouldClickImportPlaylistButtonWithNullPlaylistSettings() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        @SuppressWarnings("unchecked")
+        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
+            playlistPanelListView.getSelectionModel().select(0);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        FileChooser mockFileChooser = mock(FileChooser.class);
+        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        
+        File mockFile = mock(File.class);
+        when(mockFileChooser.showOpenDialog(any())).thenReturn(mockFile);
+        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+        
+        FileReader mockFileReader = mock(FileReader.class);
+        doReturn(mockFileReader).when(spyMainPanelController).constructFileReader(any());
+        
+        Gson mockGson = mock(Gson.class);
+        when(mockSettingsManager.getGson()).thenReturn(mockGson);
+        when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(null);
+
+        CountDownLatch latch2 = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            latch2.countDown();
+        });
+        
+        latch2.await(2000, TimeUnit.MILLISECONDS);
+
+        verify(mockPlaylistManager, never()).addPlaylist(any());
+        verify(mockPlaylistManager, never()).getPlaylists();
+        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(mockRoot, times(1)).setEffect(null);
+    }
+    
+    @Test
+    public void shouldClickImportPlaylistButtonWithNullFile() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        @SuppressWarnings("unchecked")
+        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
+            playlistPanelListView.getSelectionModel().select(0);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        FileChooser mockFileChooser = mock(FileChooser.class);
+        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        when(mockFileChooser.showOpenDialog(any())).thenReturn(null);
+        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+
+        CountDownLatch latch2 = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            latch2.countDown();
+        });
+        
+        latch2.await(2000, TimeUnit.MILLISECONDS);
+
+        verify(mockPlaylistManager, never()).addPlaylist(any());
+        verify(mockPlaylistManager, never()).getPlaylists();
+        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(mockRoot, times(1)).setEffect(null);
+    }
+    
+    @Test
+    public void shouldClickImportPlaylistButtonWhenExceptionThrown() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        @SuppressWarnings("unchecked")
+        ListView<Playlist> playlistPanelListView = (ListView<Playlist>)ReflectionTestUtils.getField(spyMainPanelController, "playlistPanelListView");
+
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
+            playlistPanelListView.getSelectionModel().select(0);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        FileChooser mockFileChooser = mock(FileChooser.class);
+        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        
+        File mockFile = mock(File.class);
+        when(mockFileChooser.showOpenDialog(any())).thenReturn(mockFile);
+        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+
+        doThrow(new RuntimeException("MainPanelControllerTest.shouldClickImportPlaylistButtonWhenExceptionThrown()")).when(spyMainPanelController).constructFileReader(any());
+
+        CountDownLatch latch2 = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            latch2.countDown();
+        });
+        
+        latch2.await(2000, TimeUnit.MILLISECONDS);
+
+        verify(mockPlaylistManager, never()).addPlaylist(any());
+        verify(mockPlaylistManager, never()).getPlaylists();
+        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(mockRoot, times(1)).setEffect(null);
+    }
+    
+    @Test
+    public void shouldClickExportPlaylistButton() {
+        clickOnNode("#exportPlaylistButton");
+        
+        verify(mockExportController, times(1)).bindPlaylists();
+        verify(mockExportView, times(1)).show(true);
+    }
+    
+    @Test
+    public void shouldClickSettingsButton() {
+        clickOnNode("#settingsButton");
+        
+        verify(mockSettingsController, times(1)).bindSystemSettings();
+        verify(mockSettingsView, times(1)).show(true);
+    }
+    
+    @Test
+    public void shouldClickPreviousButton() {
+        clickOnNode("#previousButton");
+        
+        verify(mockMediaManager, never()).setSeekPositionPercent(0d);
+        verify(mockPlaylistManager, times(1)).playPreviousTrack(true);
+    }
+    
+    @Test
+    public void shouldClickPreviousButtonWhenPlayingLessThanEqualCutoff() {
+        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn((double)previousSecondsCutoff);
+        
+        clickOnNode("#previousButton");
+        
+        verify(mockMediaManager, never()).setSeekPositionPercent(0d);
+        verify(mockPlaylistManager, times(1)).playPreviousTrack(true);
+    }
+    
+    @Test
+    public void shouldClickPreviousButtonWhenPlayingGreaterThanCutoff() {
+        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn(previousSecondsCutoff + 1d);
+        
+        clickOnNode("#previousButton");
+        
+        verify(mockMediaManager, times(1)).setSeekPositionPercent(0d);
+        verify(mockPlaylistManager, never()).playPreviousTrack(true);
+    }
+    
+    @Test
+    public void shouldClickPlayPauseButton() {
+        Playlist mockPlaylist = mock(Playlist.class);
+        when(mockPlaylist.isEmpty()).thenReturn(true);
+        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(mockPlaylist);
+        
+        clickOnNode("#playPauseButton");
+        
+        verify(mockPlaylistManager, never()).pauseCurrentTrack();
+        verify(mockPlaylistManager, never()).resumeCurrentTrack();
+        verify(mockPlaylistManager, never()).playPlaylist(anyInt());
+        verify(mockPlaylistManager, times(1)).playCurrentTrack(true);
+    }
+    
+    @Test
+    public void shouldClickPlayPauseButtonWhenPlaying() {
+        when(mockMediaManager.isPlaying()).thenReturn(true);
+        
+        clickOnNode("#playPauseButton");
+        
+        verify(mockPlaylistManager, times(1)).pauseCurrentTrack();
+        verify(mockPlaylistManager, never()).resumeCurrentTrack();
+        verify(mockPlaylistManager, never()).playPlaylist(anyInt());
+        verify(mockPlaylistManager, never()).playCurrentTrack(true);
+    }
+    
+    @Test
+    public void shouldClickPlayPauseButtonWhenPaused() {
+        when(mockMediaManager.isPaused()).thenReturn(true);
+        
+        clickOnNode("#playPauseButton");
+        
+        verify(mockPlaylistManager, never()).pauseCurrentTrack();
+        verify(mockPlaylistManager, times(1)).resumeCurrentTrack();
+        verify(mockPlaylistManager, never()).playPlaylist(anyInt());
+        verify(mockPlaylistManager, never()).playCurrentTrack(true);
+    }
+    
+    @Test
+    public void shouldClickPlayPauseButtonWhenPlaylistSelected() {
+        Playlist mockPlaylist = mock(Playlist.class);
+        when(mockPlaylist.isEmpty()).thenReturn(false);
+        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(mockPlaylist);
+        when(mockPlaylistManager.getSelectedTrack()).thenReturn(null);
+        
+        clickOnNode("#playPauseButton");
+        
+        verify(mockPlaylistManager, never()).pauseCurrentTrack();
+        verify(mockPlaylistManager, never()).resumeCurrentTrack();
+        verify(mockPlaylistManager, times(1)).playPlaylist(anyInt());
+        verify(mockPlaylistManager, never()).playCurrentTrack(true);
+    }
+    
+    @Test
+    public void shouldClickPlayPauseButtonWhenPlaylistAndTrackSelected() {
+        Playlist mockPlaylist = mock(Playlist.class);
+        when(mockPlaylist.isEmpty()).thenReturn(false);
+        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(mockPlaylist);
+        when(mockPlaylistManager.getSelectedTrack()).thenReturn(mock(Track.class));
+        
+        clickOnNode("#playPauseButton");
+        
+        verify(mockPlaylistManager, never()).pauseCurrentTrack();
+        verify(mockPlaylistManager, never()).resumeCurrentTrack();
+        verify(mockPlaylistManager, never()).playPlaylist(anyInt());
+        verify(mockPlaylistManager, times(1)).playCurrentTrack(true);
+    }
+    
+    @Test
+    public void shouldClickNextButton() {
+        clickOnNode("#nextButton");
+        
+        verify(mockPlaylistManager, times(1)).playNextTrack(true);
+    }
+    
+    @Test
+    public void shouldClickVolumeButtonWhenMuted() {
+        when(mockMediaManager.isMuted()).thenReturn(true);
+        
+        clickOnNode("#volumeButton");
+        
+        verify(mockMediaManager, times(1)).setMuted();
+        
+        Button volumeButton = find("#volumeButton");
+        assertThat("Volume button style should be '-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')'", volumeButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')"));
+    }
+    
+    @Test
+    public void shouldClickVolumeButtonWhenNotMuted() {
+        when(mockMediaManager.isMuted()).thenReturn(false);
+        
+        clickOnNode("#volumeButton");
+        
+        verify(mockMediaManager, times(1)).setMuted();
+        
+        Button volumeButton = find("#volumeButton");
+        assertThat("Volume button style should be '-fx-background-image: url('" + IMAGE_VOLUME_ON + "')'", volumeButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')"));
+    }
+    
+    @Test
+    public void shouldClickShuffleButtonWhenShuffled() {
+        when(mockPlaylistManager.isShuffle()).thenReturn(true);
+        
+        clickOnNode("#shuffleButton");
+        
+        verify(mockPlaylistManager, times(1)).setShuffle(false, false);
+        
+        Button shuffleButton = find("#shuffleButton");
+        assertThat("Shuffle button style should be '-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')'", shuffleButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')"));
+    }
+    
+    @Test
+    public void shouldClickShuffleButtonWhenNotShuffled() {
+        when(mockPlaylistManager.isShuffle()).thenReturn(false);
+        
+        clickOnNode("#shuffleButton");
+        
+        verify(mockPlaylistManager, times(1)).setShuffle(true, false);
+        
+        Button shuffleButton = find("#shuffleButton");
+        assertThat("Shuffle button style should be '-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')'", shuffleButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')"));
+    }
+    
+    @Test
+    public void shouldClickRepeatButtonWhenRepeatOff() {
+        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        
+        clickOnNode("#repeatButton");
+        
+        verify(mockPlaylistManager, times(1)).updateRepeat();
+        
+        Button repeatButton = find("#repeatButton");
+        assertThat("Repeat button style should be '-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')'", repeatButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')"));
+    }
+    
+    @Test
+    public void shouldClickRepeatButtonWhenRepeatOne() {
+        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ONE);
+        
+        clickOnNode("#repeatButton");
+        
+        verify(mockPlaylistManager, times(1)).updateRepeat();
+        
+        Button repeatButton = find("#repeatButton");
+        assertThat("Repeat button style should be '-fx-background-image: url('" + IMAGE_REPEAT_ONE + "')'", repeatButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_REPEAT_ONE + "')"));
+    }
+    
+    @Test
+    public void shouldClickRepeatButtonWhenRepeatAll() {
+        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
+        
+        clickOnNode("#repeatButton");
+        
+        verify(mockPlaylistManager, times(1)).updateRepeat();
+        
+        Button repeatButton = find("#repeatButton");
+        assertThat("Repeat button style should be '-fx-background-image: url('" + IMAGE_REPEAT_ALL + "')'", repeatButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_REPEAT_ALL + "')"));
+    }
+    
+    @Test
+    public void shouldClickEqButton() {
+        clickOnNode("#eqButton");
+        
+        verify(mockEqualizerController, times(1)).updateSliderValues();
+        verify(mockEqualizerView, times(1)).show(true);
+    }
+    
+    @Test
+    public void shouldClickRandomButtonWithYearFilter() throws Exception {
+        @SuppressWarnings("unchecked")
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>)ReflectionTestUtils.getField(mainPanelController, "yearFilterComboBox");
+        yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            yearFilterComboBox.getSelectionModel().select(0);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        @SuppressWarnings("unchecked")
+        List<Track> mockTracks = (List<Track>)mock(List.class);
+        
+        when(mockSearchManager.getShuffledPlaylist(anyInt(), anyString())).thenReturn(mockTracks);
+        
+        clickOnNode("#randomButton");
+        
+        verify(mockSearchManager, times(1)).getShuffledPlaylist(shuffledPlaylistSize, "2000");
+        verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, mockTracks);
+        verify(mockPlaylistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
+    }
+    
+    @Test
+    public void shouldClickRandomButtonWithNoYearFilter() throws Exception {
+        @SuppressWarnings("unchecked")
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>)ReflectionTestUtils.getField(mainPanelController, "yearFilterComboBox");
+        yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            yearFilterComboBox.getSelectionModel().clearSelection();
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        @SuppressWarnings("unchecked")
+        List<Track> mockTracks = (List<Track>)mock(List.class);
+        
+        when(mockSearchManager.getShuffledPlaylist(shuffledPlaylistSize, null)).thenReturn(mockTracks);
+        
+        clickOnNode("#randomButton");
+        
+        verify(mockSearchManager, times(1)).getShuffledPlaylist(shuffledPlaylistSize, null);
+        verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, mockTracks);
+        verify(mockPlaylistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
+    }
+    
+    @Test
+    public void shouldReceiveApplicationInitialised() throws Exception {
+        find("#yearFilterComboBox").setDisable(true);
+        find("#searchTextField").setDisable(true);
+        find("#addPlaylistButton").setDisable(true);
+        find("#deletePlaylistButton").setDisable(true);
+        find("#importPlaylistButton").setDisable(true);
+        find("#exportPlaylistButton").setDisable(true);
+        find("#settingsButton").setDisable(true);
+        find("#timeSlider").setDisable(true);
+        find("#volumeButton").setDisable(true);
+        find("#volumeSlider").setDisable(true);
+        find("#shuffleButton").setDisable(true);
+        find("#repeatButton").setDisable(true);
+        find("#eqButton").setDisable(true);
+        find("#randomButton").setDisable(true);
+
+        List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10), new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
+        when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
+        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(mockPlaylistManager.isShuffle()).thenReturn(false);
+        when(mockMediaManager.isMuted()).thenReturn(false);
+        when(mockSearchManager.getYearList()).thenReturn(null);
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
+        YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
+        assertThat("Year filters should have a size of 1", yearFilterComboBox.getItems(), hasSize(1));
+        assertThat("Selected year filter year should be null", yearFilter.getYear(), nullValue());
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(mainPanelController, "observablePlaylists");
+        assertThat("Observable playlists should have a size of 2", observablePlaylists, hasSize(2));
+        
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+        assertThat("First playlist should be selected", playlistPanelListView.getSelectionModel().getSelectedIndex(), equalTo(0));
+        assertThat("First playlist should be focussed", playlistPanelListView.getFocusModel().getFocusedIndex(), equalTo(0));
+        
+        Button volumeButton = find("#volumeButton");
+        assertThat("Volume button style should be '-fx-background-image: url('" + IMAGE_VOLUME_ON + "')'", volumeButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')"));
+        
+        Button shuffleButton = find("#shuffleButton");
+        assertThat("Shuffle button style should be '-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')'", shuffleButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')"));
+        
+        Button repeatButton = find("#repeatButton");
+        assertThat("Repeat button style should be '-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')'", repeatButton.getStyle(), 
+            equalTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')"));
+
+        assertThat("Year filter combo box should not be disabled", find("#yearFilterComboBox").isDisabled(), equalTo(false));
+        assertThat("Search text field should not be disabled", find("#searchTextField").isDisabled(), equalTo(false));
+        assertThat("Add playlist button should not be disabled", find("#addPlaylistButton").isDisabled(), equalTo(false));
+        assertThat("Delete playlist button should not be disabled", find("#deletePlaylistButton").isDisabled(), equalTo(false));
+        assertThat("Import playlist button should not be disabled", find("#importPlaylistButton").isDisabled(), equalTo(false));
+        assertThat("Export playlist button should not be disabled", find("#exportPlaylistButton").isDisabled(), equalTo(false));
+        assertThat("Settings button should not be disabled", find("#settingsButton").isDisabled(), equalTo(false));
+        assertThat("Time slider should not be disabled", find("#timeSlider").isDisabled(), equalTo(false));
+        assertThat("Volume button should not be disabled", find("#volumeButton").isDisabled(), equalTo(false));
+        assertThat("Volume slider should not be disabled", find("#volumeSlider").isDisabled(), equalTo(false));
+        assertThat("Shuffle button should not be disabled", find("#shuffleButton").isDisabled(), equalTo(false));
+        assertThat("Repeat button should not be disabled", find("#repeatButton").isDisabled(), equalTo(false));
+        assertThat("EQ button should not be disabled", find("#eqButton").isDisabled(), equalTo(false));
+        assertThat("Random button should not be disabled", find("#randomButton").isDisabled(), equalTo(false));
+    }
+    
+    @Test
+    public void shouldReceiveApplicationInitialisedWithEmptyYearList() throws Exception {
+        List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10), new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
+        when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
+        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(mockPlaylistManager.isShuffle()).thenReturn(false);
+        when(mockMediaManager.isMuted()).thenReturn(false);
+        when(mockSearchManager.getYearList()).thenReturn(Collections.emptyList());
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
+        YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
+        assertThat("Year filters should have a size of 1", yearFilterComboBox.getItems(), hasSize(1));
+        assertThat("Selected year filter year should be null", yearFilter.getYear(), nullValue());
+    }
+    
+    @Test
+    public void shouldReceiveApplicationInitialisedWithYearList() throws Exception {
+        List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10), new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
+        when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
+        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(mockPlaylistManager.isShuffle()).thenReturn(false);
+        when(mockMediaManager.isMuted()).thenReturn(false);
+        when(mockSearchManager.getYearList()).thenReturn(Arrays.asList("2000", "2001"));
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
+        YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
+        assertThat("Year filters should have a size of 3", yearFilterComboBox.getItems(), hasSize(3));
+        assertThat("Selected year filter year should be null", yearFilter.getYear(), nullValue());
+    }
+    
+    @Test
+    public void shouldReceiveApplicationInitialisedWithNoPlaylists() throws Exception {
+        when(mockPlaylistManager.getPlaylists()).thenReturn(Collections.emptyList());
+        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(mockPlaylistManager.isShuffle()).thenReturn(false);
+        when(mockMediaManager.isMuted()).thenReturn(false);
+        when(mockSearchManager.getYearList()).thenReturn(null);
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        @SuppressWarnings("unchecked")
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils.getField(mainPanelController, "observablePlaylists");
+        assertThat("Observable playlists should be empty", observablePlaylists, empty());
+    }
+    
+    @Test
+    public void shouldReceiveDataIndexed() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            spyMainPanelController.eventReceived(Event.DATA_INDEXED);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        verify(spyMainPanelController, times(1)).updateYearFilter();
+    }
+    
+    @Test
+    public void shouldReceiveNewUpdateAvailable() throws Exception {
+        Button newVersionButton = find("#newVersionButton");
+        
+        CountDownLatch latch1 = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            newVersionButton.setText(null);
+            newVersionButton.setDisable(true);
+            newVersionButton.setVisible(false);
+            latch1.countDown();
+        });
+        
+        latch1.await(2000, TimeUnit.MILLISECONDS);
+
+        Version version = new Version("99.99.99");
+        
+        CountDownLatch latch2 = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            mainPanelController.eventReceived(Event.NEW_VERSION_AVAILABLE, version);
+            latch2.countDown();
+        });
+        
+        latch2.await(2000, TimeUnit.MILLISECONDS);
+        
+        Button result = find("#newVersionButton");
+        assertThat("Version button text should be '" + messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version) + "'", result.getText(), 
+            equalTo(messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version)));
+        assertThat("Version button should not be disabled", result.isDisabled(), equalTo(false));
+        assertThat("Version button should be visible", result.isVisible(), equalTo(true));
+    }
+    
+    @Test
+    public void shouldReceiveMuteUpdate() throws Exception {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            spyMainPanelController.eventReceived(Event.MUTE_UPDATED);
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        verify(spyMainPanelController, times(1)).setVolumeButtonImage();
+    }
+    
+    @After
+    public void cleanup() {
+        ReflectionTestUtils.setField(GUIState.class, "stage", existingStage);
     }
 }

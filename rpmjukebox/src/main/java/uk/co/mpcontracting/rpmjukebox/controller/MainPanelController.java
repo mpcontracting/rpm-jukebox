@@ -330,7 +330,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		}
 	}
 	
-	private void updateYearFilter() {
+	// Package level for testing purposes
+	void updateYearFilter() {
 		log.debug("Updating year filter - " + searchManager.getYearList());
 		
 		List<YearFilter> yearFilters = new ArrayList<YearFilter>();
@@ -353,7 +354,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		observablePlaylists.setAll(playlistManager.getPlaylists());
 	}
 	
-	private void setVolumeButtonImage() {
+	// Package level for testing purposes
+	void setVolumeButtonImage() {
 		if (mediaManager.isMuted()) {
 			volumeButton.setStyle("-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')");
 		} else {
@@ -421,7 +423,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 	protected void handleImportPlaylistButtonAction(ActionEvent event) {
 		log.debug("Import playlist button pressed");
 		
-		FileChooser fileChooser = new FileChooser();
+		FileChooser fileChooser = constructFileChooser();
 		fileChooser.setTitle(messageManager.getMessage(MESSAGE_EXPORT_PLAYLIST_TITLE));
 		fileChooser.getExtensionFilters().add(new ExtensionFilter(messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter), 
 			playlistExtensionFilter));
@@ -435,7 +437,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 		if (file != null) {
 			List<PlaylistSettings> playlists = null;
 			
-			try (FileReader fileReader = new FileReader(file)) {
+			try (FileReader fileReader = constructFileReader(file)) {
 				playlists = settingsManager.getGson().fromJson(fileReader, new TypeToken<ArrayList<PlaylistSettings>>(){}.getType());
 				
 				if (playlists != null) {
@@ -464,12 +466,24 @@ public class MainPanelController extends EventAwareObject implements Constants {
 			} catch (Exception e) {
 				log.error("Unable to import playlists file - " + file.getAbsolutePath(), e);
 				
+				RpmJukebox.getStage().getScene().getRoot().setEffect(null);
+				
 				return;
 			}
 		}
 		
 		RpmJukebox.getStage().getScene().getRoot().setEffect(null);
 	}
+	
+	// Package level for testing purposes
+    FileChooser constructFileChooser() {
+        return new FileChooser();
+    }
+    
+    // Package level for testing purposes
+    FileReader constructFileReader(File file) throws Exception {
+        return new FileReader(file);
+    }
 	
 	@FXML
 	protected void handleExportPlaylistButtonAction(ActionEvent event) {

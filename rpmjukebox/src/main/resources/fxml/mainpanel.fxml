@@ -28,7 +28,7 @@
                   </HBox>
                   <HBox styleClass="buttonHbox">
                      <children>
-                        <ComboBox fx:id="yearFilterComboBox" disable="true" prefWidth="90.0">
+                        <ComboBox id="yearFilterComboBox" fx:id="yearFilterComboBox" disable="true" prefWidth="90.0">
                         	<tooltip>
                               <Tooltip text="%tooltip.yearFilter" />
                            </tooltip>
@@ -133,7 +133,7 @@
             <Label fx:id="playTimeLabel" minWidth="100.0" prefWidth="100.0" />
             <HBox id="volumeHBox">
                <children>
-                  <Button id="volumeButtonOn" fx:id="volumeButton" disable="true" minWidth="17.0" mnemonicParsing="false" onAction="#handleVolumeButtonAction" prefHeight="17.0" prefWidth="17.0" />
+                  <Button id="volumeButton" fx:id="volumeButton" disable="true" minWidth="17.0" mnemonicParsing="false" onAction="#handleVolumeButtonAction" prefHeight="17.0" prefWidth="17.0" />
                   <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" />
                </children>
             </HBox>
