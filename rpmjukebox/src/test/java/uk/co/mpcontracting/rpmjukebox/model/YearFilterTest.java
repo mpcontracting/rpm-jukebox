@@ -12,7 +12,7 @@ public class YearFilterTest extends AbstractTest {
     @Test
     public void shouldReturnDisplayFromToString() {
         YearFilter yearFilter = new YearFilter("Display", "2000");
-        
+
         assertThat("Year filter toString() should be 'Display'", yearFilter.toString(), equalTo("Display"));
     }
 }

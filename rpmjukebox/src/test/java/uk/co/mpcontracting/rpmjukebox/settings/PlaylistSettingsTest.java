@@ -18,9 +18,9 @@ public class PlaylistSettingsTest extends AbstractTest {
         for (int i = 0; i < 10; i++) {
             playlist.addTrack(mock(Track.class));
         }
-        
+
         PlaylistSettings playlistSettings = new PlaylistSettings(playlist);
-        
+
         assertThat("Playlist settings should have 10 tracks", playlistSettings.getTracks(), hasSize(10));
     }
 }

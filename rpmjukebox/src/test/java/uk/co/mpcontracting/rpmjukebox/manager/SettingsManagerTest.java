@@ -354,7 +354,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         Gson mockGson = mock(Gson.class);
         Stage mockStage = mock(Stage.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotLoadWindowSettingsFromFileOnException()"))
-            .when(mockGson).fromJson(any(FileReader.class), (Class<?>) any(Class.class));
+            .when(mockGson).fromJson(any(FileReader.class), (Class<?>)any(Class.class));
 
         ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
 
@@ -420,8 +420,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         doNothing().when(spySettingsManager).saveSettings();
 
         spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean) ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings) ReflectionTestUtils.getField(spySettingsManager,
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
             "systemSettings");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
@@ -443,8 +443,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
             .thenReturn(mockTrack);
 
         spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean) ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings) ReflectionTestUtils.getField(spySettingsManager,
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
             "systemSettings");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
@@ -466,8 +466,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean) ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings) ReflectionTestUtils.getField(spySettingsManager,
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
             "systemSettings");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
@@ -489,8 +489,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean) ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings) ReflectionTestUtils.getField(spySettingsManager,
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
             "systemSettings");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
@@ -511,8 +511,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean) ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings) ReflectionTestUtils.getField(spySettingsManager,
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
             "systemSettings");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
@@ -533,7 +533,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean) ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(false));
 

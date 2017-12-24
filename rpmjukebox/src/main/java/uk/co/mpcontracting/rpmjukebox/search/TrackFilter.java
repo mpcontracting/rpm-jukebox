@@ -24,16 +24,16 @@ public class TrackFilter {
             hasFilters = true;
             termsList.add(new Term(TrackField.GENRE.name(), genre));
         }
-        
+
         if (year != null && year.trim().length() > 0) {
             hasFilters = true;
             termsList.add(new Term(TrackField.YEAR.name(), year));
         }
-        
+
         if (hasFilters) {
             return new TermsQuery(termsList);
         }
-        
+
         return null;
     }
 }

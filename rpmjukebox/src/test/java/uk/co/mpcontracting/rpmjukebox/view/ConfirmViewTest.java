@@ -21,13 +21,13 @@ public class ConfirmViewTest extends AbstractTest {
 
     @Autowired
     private ConfirmView confirmView;
-    
+
     @Mock
     private ConfirmController mockConfirmController;
-    
+
     private Stage originalStage;
     private ConfirmView spyConfirmView;
-    
+
     @Before
     public void setup() {
         spyConfirmView = spy(confirmView);
@@ -35,42 +35,42 @@ public class ConfirmViewTest extends AbstractTest {
         ReflectionTestUtils.setField(GUIState.class, "stage", mock(Stage.class));
         ReflectionTestUtils.setField(spyConfirmView, "confirmController", mockConfirmController);
     }
-    
+
     @Test
     public void shouldSetMessage() {
         Parent mockView = mock(Parent.class);
         when(spyConfirmView.getView()).thenReturn(mockView);
-        
+
         Scene mockScene = mock(Scene.class);
         when(mockView.getScene()).thenReturn(mockScene);
-        
+
         Parent mockRoot = mock(Parent.class);
         when(mockScene.getRoot()).thenReturn(mockRoot);
 
         Label mockLabel = mock(Label.class);
         when(mockRoot.lookup("#message")).thenReturn(mockLabel);
-        
+
         spyConfirmView.setMessage("Test Message");
-        
+
         verify(mockLabel, times(1)).setText("Test Message");
     }
-    
+
     @Test
     public void shouldSetRunnables() {
         spyConfirmView.setRunnables(null, null);
-        
+
         verify(mockConfirmController, times(1)).setRunnables(any(), any());
     }
-    
+
     @Test
     public void shouldShow() {
         ReflectionTestUtils.setField(spyConfirmView, "stage", mock(Stage.class));
-        
+
         spyConfirmView.show(false);
-        
+
         verify(mockConfirmController, times(1)).setOkFocused();
     }
-    
+
     @After
     public void cleanup() {
         ReflectionTestUtils.setField(GUIState.class, "stage", originalStage);

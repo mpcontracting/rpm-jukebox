@@ -12,7 +12,7 @@ public class TrackSortTest extends AbstractTest {
     @Test
     public void shouldReturnFriendlyName() {
         String friendlyName = TrackSort.DEFAULTSORT.getFriendlyName();
-        
+
         assertThat("Friendly name should be 'Default'", friendlyName, equalTo("Default"));
     }
 }

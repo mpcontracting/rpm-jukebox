@@ -9,6 +9,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString(includeFieldNames = true)
 public class EqBand {
-	@Getter private int band;
-	@Getter private double value;
+    @Getter
+    private int band;
+    @Getter
+    private double value;
 }

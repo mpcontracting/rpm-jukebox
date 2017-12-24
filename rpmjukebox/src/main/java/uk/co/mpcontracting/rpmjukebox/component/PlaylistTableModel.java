@@ -9,14 +9,17 @@ import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 
 public class PlaylistTableModel {
 
-	@Getter Playlist playlist;
-	@Getter BooleanProperty selected;
-	@Getter StringProperty name;
-	
-	public PlaylistTableModel(Playlist playlist) {
-		this.playlist = playlist;
-		
-		selected = new SimpleBooleanProperty();
-		name = new SimpleStringProperty(playlist.getName());
-	}
+    @Getter
+    Playlist playlist;
+    @Getter
+    BooleanProperty selected;
+    @Getter
+    StringProperty name;
+
+    public PlaylistTableModel(Playlist playlist) {
+        this.playlist = playlist;
+
+        selected = new SimpleBooleanProperty();
+        name = new SimpleStringProperty(playlist.getName());
+    }
 }

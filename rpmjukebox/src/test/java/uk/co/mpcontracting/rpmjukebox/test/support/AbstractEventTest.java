@@ -11,20 +11,20 @@ import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 
 public abstract class AbstractEventTest extends AbstractTest {
 
-	@Before
-	@Override
-	public void abstractTestBefore() {
+    @Before
+    @Override
+    public void abstractTestBefore() {
 
-	}
+    }
 
-	@After
-	@Override
-	@SneakyThrows
-	public void abstractTestCleanup() {
-		File configDirectory = RpmJukebox.getConfigDirectory();
-		
-		if (configDirectory.exists()) {
-			FileUtils.deleteDirectory(RpmJukebox.getConfigDirectory());
-		}
-	}
+    @After
+    @Override
+    @SneakyThrows
+    public void abstractTestCleanup() {
+        File configDirectory = RpmJukebox.getConfigDirectory();
+
+        if (configDirectory.exists()) {
+            FileUtils.deleteDirectory(RpmJukebox.getConfigDirectory());
+        }
+    }
 }

@@ -9,8 +9,12 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString(includeFieldNames = true)
 public class Window {
-	@Getter private double x;
-	@Getter private double y;
-	@Getter private double width;
-	@Getter private double height;
+    @Getter
+    private double x;
+    @Getter
+    private double y;
+    @Getter
+    private double width;
+    @Getter
+    private double height;
 }

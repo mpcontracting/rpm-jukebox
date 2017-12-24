@@ -22,19 +22,19 @@ public abstract class AbstractModalView extends AbstractFxmlView {
         log.info("Initialising modal view - " + getClass().getName());
 
         owner = RpmJukebox.getStage();
-        
+
         stage = new Stage(StageStyle.TRANSPARENT);
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initOwner(owner);
 
         Scene scene;
-        
+
         if (getView().getScene() != null) {
             scene = getView().getScene();
         } else {
             scene = new Scene(getView(), Color.TRANSPARENT);
         }
-        
+
         stage.setScene(scene);
         stage.addEventHandler(WindowEvent.WINDOW_SHOWN, windowEvent -> {
             stage.setX((owner.getX() + owner.getWidth() / 2) - stage.getWidth() / 2);
@@ -45,14 +45,14 @@ public abstract class AbstractModalView extends AbstractFxmlView {
     public boolean isShowing() {
         return stage.isShowing();
     }
-    
+
     public void show(boolean blurBackground) {
         this.blurBackground = blurBackground;
-        
+
         if (blurBackground) {
             owner.getScene().getRoot().setEffect(new BoxBlur());
         }
-        
+
         stage.show();
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractModalView extends AbstractFxmlView {
         if (blurBackground) {
             owner.getScene().getRoot().setEffect(null);
         }
-        
+
         stage.close();
     }
 }

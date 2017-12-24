@@ -13,23 +13,23 @@ public class PlaylistTableCellTest extends AbstractTest {
     public void shouldUpdateItem() {
         PlaylistTableCell<String, String> playlistTableCell = new PlaylistTableCell<>();
         playlistTableCell.updateItem("Value", false);
-        
+
         assertThat("Text should be 'Value'", playlistTableCell.getText(), equalTo("Value"));
     }
-    
+
     @Test
     public void shouldUpdateItemAsEmpty() {
         PlaylistTableCell<String, String> playlistTableCell = new PlaylistTableCell<>();
         playlistTableCell.updateItem("Value", true);
-        
+
         assertThat("Text should be null", playlistTableCell.getText(), nullValue());
     }
-    
+
     @Test
     public void shouldUpdateItemAsNull() {
         PlaylistTableCell<String, String> playlistTableCell = new PlaylistTableCell<>();
         playlistTableCell.updateItem(null, false);
-        
+
         assertThat("Text should be null", playlistTableCell.getText(), nullValue());
     }
 }

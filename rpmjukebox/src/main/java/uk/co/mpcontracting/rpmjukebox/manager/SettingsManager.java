@@ -44,370 +44,372 @@ import uk.co.mpcontracting.rpmjukebox.support.OsType;
 @Component
 public class SettingsManager implements InitializingBean, Constants {
 
-	@Autowired
-	private MessageManager messageManager;
-	
-	@Autowired
-	private SearchManager searchManager;
+    @Autowired
+    private MessageManager messageManager;
 
-	@Autowired
-	private PlaylistManager playlistManager;
-	
-	@Autowired
-	private MediaManager mediaManager;
-	
-	@Autowired
-	private MainPanelController mainPanelController;
+    @Autowired
+    private SearchManager searchManager;
 
-	@Value("${version}")
-	private String versionString;
-	
-	@Value("${datafile.url}")
-	private String dataFileUrl;
-	
-	@Value("${file.last.indexed}")
-	private String fileLastIndexed;
-	
-	@Value("${file.window.settings}")
-	private String fileWindowSettings;
-	
-	@Value("${file.settings}")
-	private String fileSettings;
-	
-	@Value("${max.playlist.size}")
-	private int maxPlaylistSize;
-	
-	@Value("${cache.size.mb}")
-	private int cacheSizeMb;
+    @Autowired
+    private PlaylistManager playlistManager;
 
-	@Getter private OsType osType;
-	@Getter private Version version;
-	@Getter private URL dataFile;
-	@Getter private SystemSettings systemSettings;
-	
-	@Getter private Gson gson;
-	private boolean settingsLoaded;
-	
-	public SettingsManager() {
-		// Determine the OS type
-		String osName = System.getProperty("os.name").toLowerCase();
-		
-		if (osName.contains("windows")) {
-			osType = OsType.WINDOWS;
-		} else if (osName.contains("mac")) {
-			osType = OsType.OSX;
-		} else if (osName.contains("linux")) {
-			osType = OsType.LINUX;
-		} else {
-			osType = OsType.UNKNOWN;
-		}
+    @Autowired
+    private MediaManager mediaManager;
 
-		// Initialise Gson
-		gson = new GsonBuilder().setPrettyPrinting().create();
-	}
-	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		log.info("Initialising SettingsManager");
+    @Autowired
+    private MainPanelController mainPanelController;
 
-		// Get the application version
-		version = new Version(versionString);
-		
-		// Get the data file location
-		dataFile = new URL(dataFileUrl);
+    @Value("${version}")
+    private String versionString;
 
-		settingsLoaded = false;
-	}
+    @Value("${datafile.url}")
+    private String dataFileUrl;
 
-	public File getFileFromConfigDirectory(String relativePath) {
-		return new File(RpmJukebox.getConfigDirectory(), relativePath);
-	}
-	
-	public boolean hasDataFileExpired() {
-		mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_CHECKING_DATA), true);
-		
-		// Wait at least 1.5 seconds so message window lasts
-		// long enough to read
-		try {
-			Thread.sleep(1500);
-		} catch (Exception e) {};
-		
-		// Read the last modified date from the data file
-		LocalDateTime lastModified = null;
-		
-		if ("file".equals(dataFile.getProtocol())) {
-			try {
-				lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(new File(dataFile.toURI()).lastModified()), ZoneId.systemDefault());
-			} catch (Exception e) {
-				log.error("Unable to determine if local data file has expired", e);
-			}
-		} else {
-			HttpURLConnection connection = null;
-			
-			try {
-				connection = (HttpURLConnection)dataFile.openConnection();
-				lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(connection.getLastModified()), ZoneId.systemDefault());
-			} catch (Exception e) {
-				log.error("Unable to determine if data file has expired", e);
-			} finally {
-				if (connection != null) {
-					connection.disconnect();
-				}
-			}
-		}
+    @Value("${file.last.indexed}")
+    private String fileLastIndexed;
 
-		if (lastModified == null) {
-			return false;
-		}
-		
-		LocalDateTime lastIndexed = getLastIndexedDate();
-		
-		log.debug("Last modified - " + lastModified);
-		log.debug("Last indexed - " + lastIndexed);
-		
-		// If last modified is at least 1 hour old and greater than last indexed, it's invalid
-		return lastModified.plusHours(1).isBefore(LocalDateTime.now()) && lastModified.isAfter(lastIndexed);
-	}
+    @Value("${file.window.settings}")
+    private String fileWindowSettings;
 
-	public LocalDateTime getLastIndexedDate() {
-		LocalDateTime lastIndexed = null;
-		File lastIndexedFile = getFileFromConfigDirectory(fileLastIndexed);
-		
-		if (lastIndexedFile.exists()) {
-			try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
-				lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())), ZoneId.systemDefault());
-			} catch (Exception e) {
-				log.error("Unable to read last indexed file", e);
-			}
-		} else {
-			// Set last indexed to now
-			lastIndexed = LocalDateTime.now();
-			setLastIndexedDate(lastIndexed);
-		}
-		
-		return lastIndexed;
-	}
-	
-	public void setLastIndexedDate(LocalDateTime localDateTime) {
-		File lastIndexedFile = getFileFromConfigDirectory(fileLastIndexed);
-		boolean alreadyExists = lastIndexedFile.exists();
-		
-		if (alreadyExists) {
-			lastIndexedFile.renameTo(getFileFromConfigDirectory(fileLastIndexed + ".bak"));
-		}
-		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
-			writer.write(Long.toString(localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
-			writer.newLine();
-		} catch (Exception e) {
-			log.error("Unable to write last indexed file", e);
+    @Value("${file.settings}")
+    private String fileSettings;
 
-			lastIndexedFile.delete();
-			
-			if (alreadyExists) {
-				getFileFromConfigDirectory(fileLastIndexed + ".bak").renameTo(lastIndexedFile);
-			}
-		} finally {
-			getFileFromConfigDirectory(fileLastIndexed + ".bak").delete();
-		}
-	}
-	
-	public void loadWindowSettings(Stage stage) {
-		log.debug("Loading window settings");
-		
-		File settingsFile = getFileFromConfigDirectory(fileWindowSettings);
-		Window window = null;
-		
-		if (settingsFile.exists()) {
-			// Read the file
-			try (FileReader fileReader = new FileReader(settingsFile)) {
-				window = gson.fromJson(fileReader, Window.class);
-			} catch (Exception e) {
-				log.error("Unable to load window settings file", e);
-				
-				return;
-			}
-		} else {
-			// By default, set width and height to 75% of screen size
-			Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-			double width = (bounds.getWidth() / 100d) * 75d;
-			double height = (bounds.getHeight() / 100d) * 75d;
-			
-			window = new Window(
-				(bounds.getWidth() - width) / 2d,
-				(bounds.getHeight() - height) / 2d,
-				width,
-				height
-			);
-		}
+    @Value("${max.playlist.size}")
+    private int maxPlaylistSize;
 
-		stage.setX(window.getX());
-		stage.setY(window.getY());
-		stage.setWidth(window.getWidth());
-		stage.setHeight(window.getHeight());
-	}
-	
-	public void saveWindowSettings(Stage stage) {
-		log.debug("Saving window settings");
+    @Value("${cache.size.mb}")
+    private int cacheSizeMb;
 
-		Window window = new Window(
-			stage.getX(),
-			stage.getY(),
-			stage.getWidth(),
-			stage.getHeight()
-		);
+    @Getter
+    private OsType osType;
+    @Getter
+    private Version version;
+    @Getter
+    private URL dataFile;
+    @Getter
+    private SystemSettings systemSettings;
 
-		// Write the file
-		File settingsFile = getFileFromConfigDirectory(fileWindowSettings);
-		
-		try (FileWriter fileWriter = new FileWriter(settingsFile)) {
-			fileWriter.write(gson.toJson(window));
-		} catch (Exception e) {
-			log.error("Unable to save window settings file", e);
-		}
-	}
-	
-	public void loadSettings() {
-		log.debug("Loading settings");
+    @Getter
+    private Gson gson;
+    private boolean settingsLoaded;
 
-		File settingsFile = getFileFromConfigDirectory(fileSettings);
-		
-		if (!settingsFile.exists()) {
-			initialiseDefaultSystemSettings();
-			
-			settingsLoaded = true;
-			saveSettings();
-			return;
-		}
-		
-		// Read the file
-		Settings settings = null;
-		
-		try (FileReader fileReader = new FileReader(settingsFile)) {
-			settings = gson.fromJson(fileReader, Settings.class);
-		} catch (Exception e) {
-			log.error("Unable to load settings file", e);
-			
-			return;
-		}
+    public SettingsManager() {
+        // Determine the OS type
+        String osName = System.getProperty("os.name").toLowerCase();
 
-		// General settings
-		playlistManager.setShuffle(settings.isShuffle(), true);
-		playlistManager.setRepeat(settings.getRepeat());
-		
-		// System settings
-		systemSettings = settings.getSystemSettings();
-		
-		if (systemSettings == null) {
-			initialiseDefaultSystemSettings();
-		}
+        if (osName.contains("windows")) {
+            osType = OsType.WINDOWS;
+        } else if (osName.contains("mac")) {
+            osType = OsType.OSX;
+        } else if (osName.contains("linux")) {
+            osType = OsType.LINUX;
+        } else {
+            osType = OsType.UNKNOWN;
+        }
 
-		// Equalizer
-		if (settings.getEqBands() != null) {
-			for (EqBand eqBand : settings.getEqBands()) {
-				mediaManager.setEqualizerGain(eqBand.getBand(), eqBand.getValue());
-			}
-		}
-		
-		// Playlists
-		List<Playlist> playlists = new ArrayList<Playlist>();
-		
-		if (settings.getPlaylists() != null) {
-			for (PlaylistSettings playlistSettings : settings.getPlaylists()) {
-				Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), maxPlaylistSize);
-				
-				// Override the name of the search results and favourites playlists
-				if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
-					playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH));
-				} else if (playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
-					playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES));
-				}
-				
-				for (String trackId : playlistSettings.getTracks()) {
-					Track track = searchManager.getTrackById(trackId);
-					
-					if (track != null) {
-						playlist.addTrack(track);
-					}
-				}
-				
-				playlists.add(playlist);
-			}
-		}
-		
-		playlistManager.setPlaylists(playlists);
-		
-		settingsLoaded = true;
-	}
-	
-	public void saveSettings() {
-		log.debug("Saving settings");
-		
-		// Don't save settings if they weren't loaded successfully
-		// so we stop file corruption
-		if (!settingsLoaded) {
-			return;
-		}
-		
-		// Build the setting object before serializing it to disk
-		Settings settings = new Settings();
-		
-		// General settings
-		settings.setShuffle(playlistManager.isShuffle());
-		settings.setRepeat(playlistManager.getRepeat());
-		
-		// System settings
-		settings.setSystemSettings(systemSettings);
-		
-		// Equalizer
-		Equalizer equalizer = mediaManager.getEqualizer();
-		List<EqBand> eqBands = new ArrayList<EqBand>();
-		
-		for (int i = 0; i < equalizer.getNumberOfBands(); i++) {
-			eqBands.add(new EqBand(i, equalizer.getGain(i)));
-		}
-		
-		settings.setEqBands(eqBands);
-		
-		// Playlists
-		List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();
-		
-		for (Playlist playlist : playlistManager.getPlaylists()) {
-			if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
-				continue;
-			}
+        // Initialise Gson
+        gson = new GsonBuilder().setPrettyPrinting().create();
+    }
 
-			playlists.add(new PlaylistSettings(playlist));
-		}
-		
-		settings.setPlaylists(playlists);
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        log.info("Initialising SettingsManager");
 
-		// Write the file
-		File settingsFile = getFileFromConfigDirectory(fileSettings);
-		boolean alreadyExists = settingsFile.exists();
-		
-		if (alreadyExists) {
-			settingsFile.renameTo(getFileFromConfigDirectory(fileSettings + ".bak"));
-		}
-		
-		try (FileWriter fileWriter = new FileWriter(settingsFile)) {
-			fileWriter.write(gson.toJson(settings));
-		} catch (Exception e) {
-			log.error("Unable to save settings file", e);
-			
-			settingsFile.delete();
-			
-			if (alreadyExists) {
-				getFileFromConfigDirectory(fileSettings + ".bak").renameTo(settingsFile);
-			}
-		} finally {
-			getFileFromConfigDirectory(fileLastIndexed + ".bak").delete();
-		}
-	}
-	
-	// Package level for testing purposes
-	void initialiseDefaultSystemSettings() {
-		systemSettings = new SystemSettings();
-		systemSettings.setCacheSizeMb(cacheSizeMb);
-	}
+        // Get the application version
+        version = new Version(versionString);
+
+        // Get the data file location
+        dataFile = new URL(dataFileUrl);
+
+        settingsLoaded = false;
+    }
+
+    public File getFileFromConfigDirectory(String relativePath) {
+        return new File(RpmJukebox.getConfigDirectory(), relativePath);
+    }
+
+    public boolean hasDataFileExpired() {
+        mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_CHECKING_DATA), true);
+
+        // Wait at least 1.5 seconds so message window lasts
+        // long enough to read
+        try {
+            Thread.sleep(1500);
+        } catch (Exception e) {
+        }
+        ;
+
+        // Read the last modified date from the data file
+        LocalDateTime lastModified = null;
+
+        if ("file".equals(dataFile.getProtocol())) {
+            try {
+                lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(new File(dataFile.toURI()).lastModified()),
+                    ZoneId.systemDefault());
+            } catch (Exception e) {
+                log.error("Unable to determine if local data file has expired", e);
+            }
+        } else {
+            HttpURLConnection connection = null;
+
+            try {
+                connection = (HttpURLConnection)dataFile.openConnection();
+                lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(connection.getLastModified()),
+                    ZoneId.systemDefault());
+            } catch (Exception e) {
+                log.error("Unable to determine if data file has expired", e);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        }
+
+        if (lastModified == null) {
+            return false;
+        }
+
+        LocalDateTime lastIndexed = getLastIndexedDate();
+
+        log.debug("Last modified - " + lastModified);
+        log.debug("Last indexed - " + lastIndexed);
+
+        // If last modified is at least 1 hour old and greater than last
+        // indexed, it's invalid
+        return lastModified.plusHours(1).isBefore(LocalDateTime.now()) && lastModified.isAfter(lastIndexed);
+    }
+
+    public LocalDateTime getLastIndexedDate() {
+        LocalDateTime lastIndexed = null;
+        File lastIndexedFile = getFileFromConfigDirectory(fileLastIndexed);
+
+        if (lastIndexedFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
+                lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
+                    ZoneId.systemDefault());
+            } catch (Exception e) {
+                log.error("Unable to read last indexed file", e);
+            }
+        } else {
+            // Set last indexed to now
+            lastIndexed = LocalDateTime.now();
+            setLastIndexedDate(lastIndexed);
+        }
+
+        return lastIndexed;
+    }
+
+    public void setLastIndexedDate(LocalDateTime localDateTime) {
+        File lastIndexedFile = getFileFromConfigDirectory(fileLastIndexed);
+        boolean alreadyExists = lastIndexedFile.exists();
+
+        if (alreadyExists) {
+            lastIndexedFile.renameTo(getFileFromConfigDirectory(fileLastIndexed + ".bak"));
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
+            writer.write(Long.toString(localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+            writer.newLine();
+        } catch (Exception e) {
+            log.error("Unable to write last indexed file", e);
+
+            lastIndexedFile.delete();
+
+            if (alreadyExists) {
+                getFileFromConfigDirectory(fileLastIndexed + ".bak").renameTo(lastIndexedFile);
+            }
+        } finally {
+            getFileFromConfigDirectory(fileLastIndexed + ".bak").delete();
+        }
+    }
+
+    public void loadWindowSettings(Stage stage) {
+        log.debug("Loading window settings");
+
+        File settingsFile = getFileFromConfigDirectory(fileWindowSettings);
+        Window window = null;
+
+        if (settingsFile.exists()) {
+            // Read the file
+            try (FileReader fileReader = new FileReader(settingsFile)) {
+                window = gson.fromJson(fileReader, Window.class);
+            } catch (Exception e) {
+                log.error("Unable to load window settings file", e);
+
+                return;
+            }
+        } else {
+            // By default, set width and height to 75% of screen size
+            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+            double width = (bounds.getWidth() / 100d) * 75d;
+            double height = (bounds.getHeight() / 100d) * 75d;
+
+            window = new Window((bounds.getWidth() - width) / 2d, (bounds.getHeight() - height) / 2d, width, height);
+        }
+
+        stage.setX(window.getX());
+        stage.setY(window.getY());
+        stage.setWidth(window.getWidth());
+        stage.setHeight(window.getHeight());
+    }
+
+    public void saveWindowSettings(Stage stage) {
+        log.debug("Saving window settings");
+
+        Window window = new Window(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
+
+        // Write the file
+        File settingsFile = getFileFromConfigDirectory(fileWindowSettings);
+
+        try (FileWriter fileWriter = new FileWriter(settingsFile)) {
+            fileWriter.write(gson.toJson(window));
+        } catch (Exception e) {
+            log.error("Unable to save window settings file", e);
+        }
+    }
+
+    public void loadSettings() {
+        log.debug("Loading settings");
+
+        File settingsFile = getFileFromConfigDirectory(fileSettings);
+
+        if (!settingsFile.exists()) {
+            initialiseDefaultSystemSettings();
+
+            settingsLoaded = true;
+            saveSettings();
+            return;
+        }
+
+        // Read the file
+        Settings settings = null;
+
+        try (FileReader fileReader = new FileReader(settingsFile)) {
+            settings = gson.fromJson(fileReader, Settings.class);
+        } catch (Exception e) {
+            log.error("Unable to load settings file", e);
+
+            return;
+        }
+
+        // General settings
+        playlistManager.setShuffle(settings.isShuffle(), true);
+        playlistManager.setRepeat(settings.getRepeat());
+
+        // System settings
+        systemSettings = settings.getSystemSettings();
+
+        if (systemSettings == null) {
+            initialiseDefaultSystemSettings();
+        }
+
+        // Equalizer
+        if (settings.getEqBands() != null) {
+            for (EqBand eqBand : settings.getEqBands()) {
+                mediaManager.setEqualizerGain(eqBand.getBand(), eqBand.getValue());
+            }
+        }
+
+        // Playlists
+        List<Playlist> playlists = new ArrayList<Playlist>();
+
+        if (settings.getPlaylists() != null) {
+            for (PlaylistSettings playlistSettings : settings.getPlaylists()) {
+                Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), maxPlaylistSize);
+
+                // Override the name of the search results and favourites
+                // playlists
+                if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
+                    playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH));
+                } else if (playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
+                    playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES));
+                }
+
+                for (String trackId : playlistSettings.getTracks()) {
+                    Track track = searchManager.getTrackById(trackId);
+
+                    if (track != null) {
+                        playlist.addTrack(track);
+                    }
+                }
+
+                playlists.add(playlist);
+            }
+        }
+
+        playlistManager.setPlaylists(playlists);
+
+        settingsLoaded = true;
+    }
+
+    public void saveSettings() {
+        log.debug("Saving settings");
+
+        // Don't save settings if they weren't loaded successfully
+        // so we stop file corruption
+        if (!settingsLoaded) {
+            return;
+        }
+
+        // Build the setting object before serializing it to disk
+        Settings settings = new Settings();
+
+        // General settings
+        settings.setShuffle(playlistManager.isShuffle());
+        settings.setRepeat(playlistManager.getRepeat());
+
+        // System settings
+        settings.setSystemSettings(systemSettings);
+
+        // Equalizer
+        Equalizer equalizer = mediaManager.getEqualizer();
+        List<EqBand> eqBands = new ArrayList<EqBand>();
+
+        for (int i = 0; i < equalizer.getNumberOfBands(); i++) {
+            eqBands.add(new EqBand(i, equalizer.getGain(i)));
+        }
+
+        settings.setEqBands(eqBands);
+
+        // Playlists
+        List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();
+
+        for (Playlist playlist : playlistManager.getPlaylists()) {
+            if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
+                continue;
+            }
+
+            playlists.add(new PlaylistSettings(playlist));
+        }
+
+        settings.setPlaylists(playlists);
+
+        // Write the file
+        File settingsFile = getFileFromConfigDirectory(fileSettings);
+        boolean alreadyExists = settingsFile.exists();
+
+        if (alreadyExists) {
+            settingsFile.renameTo(getFileFromConfigDirectory(fileSettings + ".bak"));
+        }
+
+        try (FileWriter fileWriter = new FileWriter(settingsFile)) {
+            fileWriter.write(gson.toJson(settings));
+        } catch (Exception e) {
+            log.error("Unable to save settings file", e);
+
+            settingsFile.delete();
+
+            if (alreadyExists) {
+                getFileFromConfigDirectory(fileSettings + ".bak").renameTo(settingsFile);
+            }
+        } finally {
+            getFileFromConfigDirectory(fileLastIndexed + ".bak").delete();
+        }
+    }
+
+    // Package level for testing purposes
+    void initialiseDefaultSystemSettings() {
+        systemSettings = new SystemSettings();
+        systemSettings.setCacheSizeMb(cacheSizeMb);
+    }
 }

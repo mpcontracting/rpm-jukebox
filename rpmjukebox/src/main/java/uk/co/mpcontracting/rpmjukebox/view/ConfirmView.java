@@ -13,19 +13,19 @@ public class ConfirmView extends AbstractModalView {
 
     @Autowired
     private ConfirmController confirmController;
-    
+
     public void setMessage(String message) {
         ContextHelper.lookup(getView().getScene().getRoot(), "message", Label.class).setText(message);
     }
-    
+
     public void setRunnables(Runnable okRunnable, Runnable cancelRunnable) {
         confirmController.setRunnables(okRunnable, cancelRunnable);
     }
-    
+
     @Override
     public void show(boolean blurBackground) {
         confirmController.setOkFocused();
-        
+
         super.show(blurBackground);
     }
 }

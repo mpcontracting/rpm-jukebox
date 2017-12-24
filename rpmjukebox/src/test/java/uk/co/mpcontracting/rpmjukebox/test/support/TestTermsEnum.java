@@ -8,19 +8,19 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.util.BytesRef;
 
 public class TestTermsEnum extends TermsEnum {
-    
+
     private Iterator<BytesRef> iterator;
-    
+
     public TestTermsEnum(Iterator<BytesRef> iterator) {
         this.iterator = iterator;
     }
-    
+
     @Override
     public BytesRef next() throws IOException {
         if (iterator.hasNext()) {
             return iterator.next();
         }
-        
+
         return null;
     }
 
@@ -45,7 +45,8 @@ public class TestTermsEnum extends TermsEnum {
     }
 
     @Override
-    public void seekExact(long ord) throws IOException {}
+    public void seekExact(long ord) throws IOException {
+    }
 
     @Override
     public BytesRef term() throws IOException {

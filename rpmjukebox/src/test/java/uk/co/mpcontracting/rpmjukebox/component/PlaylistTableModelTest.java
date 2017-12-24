@@ -16,9 +16,9 @@ public class PlaylistTableModelTest extends AbstractTest {
         Playlist mockPlaylist = mock(Playlist.class);
         when(mockPlaylist.getPlaylistId()).thenReturn(1);
         when(mockPlaylist.getName()).thenReturn("Playlist");
-        
+
         PlaylistTableModel playlistTableModel = new PlaylistTableModel(mockPlaylist);
-        
+
         assertThat("Playlist should equal mock playlist", playlistTableModel.getPlaylist(), equalTo(mockPlaylist));
         assertThat("Selected should not be null", playlistTableModel.getSelected(), notNullValue());
         assertThat("Name should be 'Playlist'", playlistTableModel.getName().get(), equalTo("Playlist"));

@@ -23,95 +23,95 @@ import uk.co.mpcontracting.rpmjukebox.view.AbstractModalView;
 @Component
 public class ApplicationManager extends EventAwareObject implements ApplicationContextAware, Constants {
 
-	@Autowired
-	private MessageManager messageManager;
-	
-	@Autowired
-	private SettingsManager settingsManager;
-	
-	@Autowired
-	private SearchManager searchManager;
-	
-	@Autowired
-	private MainPanelController mainPanelController;
-	
-	@Autowired
-	private MediaManager mediaManager;
-	
-	@Autowired
-	private JettyServer jettyServer;
-	
-	private ApplicationContext context;
-	private Stage stage;
-	private boolean isInitialised;
-	
-	@Override
+    @Autowired
+    private MessageManager messageManager;
+
+    @Autowired
+    private SettingsManager settingsManager;
+
+    @Autowired
+    private SearchManager searchManager;
+
+    @Autowired
+    private MainPanelController mainPanelController;
+
+    @Autowired
+    private MediaManager mediaManager;
+
+    @Autowired
+    private JettyServer jettyServer;
+
+    private ApplicationContext context;
+    private Stage stage;
+    private boolean isInitialised;
+
+    @Override
     public void setApplicationContext(ApplicationContext context) throws BeansException {
         this.context = context;
     }
-	
-	public void start(Stage stage) {
-		log.info("Starting application");
-		
-		// Initialise views
-		context.getBeansOfType(AbstractModalView.class).forEach((name, view) -> {
-		    view.initialiseView();
-		});
-		
-		this.stage = stage;
-		
-		stage.setTitle(messageManager.getMessage(MESSAGE_WINDOW_TITLE));
 
-		// If this is Windows, add a window icon
-		if (settingsManager.getOsType() == OsType.WINDOWS) {
-			stage.getIcons().add(new Image(getClass().getResourceAsStream(IMAGE_WINDOW_ICON)));
-		}
-		
-		// Load the window settings
-		settingsManager.loadWindowSettings(stage);
+    public void start(Stage stage) {
+        log.info("Starting application");
 
-		stage.show();
-		stage.requestFocus();
+        // Initialise views
+        context.getBeansOfType(AbstractModalView.class).forEach((name, view) -> {
+            view.initialiseView();
+        });
 
-		// Initialise data in a new thread for GUI responsiveness
-		ThreadRunner.run(() -> {
-			try {
-				searchManager.initialise();
-				settingsManager.loadSettings();
-				
-				mainPanelController.closeMessageView();
+        this.stage = stage;
 
-				fireEvent(Event.APPLICATION_INITIALISED);
-				isInitialised = true;
-			} catch (Exception e) {
-				log.error("Error initialising data", e);
-			}
-		});
-	}
-	
-	public void stop() {
-		log.info("Stopping application");
+        stage.setTitle(messageManager.getMessage(MESSAGE_WINDOW_TITLE));
 
-		mediaManager.cleanUpResources();
-		searchManager.shutdown();
+        // If this is Windows, add a window icon
+        if (settingsManager.getOsType() == OsType.WINDOWS) {
+            stage.getIcons().add(new Image(getClass().getResourceAsStream(IMAGE_WINDOW_ICON)));
+        }
 
-		if (isInitialised) {
-			settingsManager.saveWindowSettings(stage);
-			settingsManager.saveSettings();
-		}
+        // Load the window settings
+        settingsManager.loadWindowSettings(stage);
 
-		try {
-			jettyServer.stop();
-		} catch (Exception e) {
-			log.error("Error shutting down application", e);
-		}
-	}
-	
-	public void shutdown() {
-	    log.info("Shutting down the application");
-	    
-	    SpringApplication.exit(context, () -> {
-	        return 0;
-	    });
-	}
+        stage.show();
+        stage.requestFocus();
+
+        // Initialise data in a new thread for GUI responsiveness
+        ThreadRunner.run(() -> {
+            try {
+                searchManager.initialise();
+                settingsManager.loadSettings();
+
+                mainPanelController.closeMessageView();
+
+                fireEvent(Event.APPLICATION_INITIALISED);
+                isInitialised = true;
+            } catch (Exception e) {
+                log.error("Error initialising data", e);
+            }
+        });
+    }
+
+    public void stop() {
+        log.info("Stopping application");
+
+        mediaManager.cleanUpResources();
+        searchManager.shutdown();
+
+        if (isInitialised) {
+            settingsManager.saveWindowSettings(stage);
+            settingsManager.saveSettings();
+        }
+
+        try {
+            jettyServer.stop();
+        } catch (Exception e) {
+            log.error("Error shutting down application", e);
+        }
+    }
+
+    public void shutdown() {
+        log.info("Shutting down the application");
+
+        SpringApplication.exit(context, () -> {
+            return 0;
+        });
+    }
 }

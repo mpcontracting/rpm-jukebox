@@ -11,16 +11,16 @@ import javafx.scene.Node;
 public class ContextHelper implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;
-    
+
     @Override
     public void setApplicationContext(ApplicationContext context) throws BeansException {
         applicationContext = context;
     }
-    
+
     public static <T> T getBean(Class<T> beanClass) {
         return applicationContext.getBean(beanClass);
     }
-    
+
     public static <T> T lookup(Node parent, String id, Class<T> clazz) {
         return clazz.cast(parent.lookup("#" + id));
     }
