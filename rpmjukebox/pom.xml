@@ -180,6 +180,8 @@
 								</rule>
 							</rules>
 							<excludes>
+								<!-- Exclude RpmJukebox as we cannot test the static initialisation fully -->
+								<exclude>**/RpmJukebox.*</exclude>
 								<!-- Exclude MediaManager as we cannot test the MediaPlayer events -->
 								<exclude>**/MediaManager.*</exclude>
 								<!-- Exclude NativeManager as test coverage is only achievable on OSX -->
