@@ -39,11 +39,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BoxBlur;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
@@ -1132,38 +1135,29 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldReceiveNewUpdateAvailable() throws Exception {
         Button newVersionButton = find("#newVersionButton");
+        Version version = new Version("99.99.99");
         
-        CountDownLatch latch1 = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
         
         ThreadRunner.runOnGui(() -> {
             newVersionButton.setText(null);
             newVersionButton.setDisable(true);
             newVersionButton.setVisible(false);
-            latch1.countDown();
-        });
-        
-        latch1.await(2000, TimeUnit.MILLISECONDS);
-
-        Version version = new Version("99.99.99");
-        
-        CountDownLatch latch2 = new CountDownLatch(1);
-        
-        ThreadRunner.runOnGui(() -> {
+            
             mainPanelController.eventReceived(Event.NEW_VERSION_AVAILABLE, version);
-            latch2.countDown();
+            latch.countDown();
         });
         
-        latch2.await(2000, TimeUnit.MILLISECONDS);
-        
-        Button result = find("#newVersionButton");
-        assertThat("Version button text should be '" + messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version) + "'", result.getText(), 
+        latch.await(2000, TimeUnit.MILLISECONDS);
+
+        assertThat("Version button text should be '" + messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version) + "'", newVersionButton.getText(), 
             equalTo(messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version)));
-        assertThat("Version button should not be disabled", result.isDisabled(), equalTo(false));
-        assertThat("Version button should be visible", result.isVisible(), equalTo(true));
+        assertThat("Version button should not be disabled", newVersionButton.isDisabled(), equalTo(false));
+        assertThat("Version button should be visible", newVersionButton.isVisible(), equalTo(true));
     }
     
     @Test
-    public void shouldReceiveMuteUpdate() throws Exception {
+    public void shouldReceiveMuteUpdated() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
         
         CountDownLatch latch = new CountDownLatch(1);
@@ -1176,6 +1170,314 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         latch.await(2000, TimeUnit.MILLISECONDS);
         
         verify(spyMainPanelController, times(1)).setVolumeButtonImage();
+    }
+    
+    @Test
+    public void shouldReceiveTimeUpdated() throws Exception {
+        Duration mediaDuration = new Duration(30000);
+        Duration currentTime = new Duration(15000);
+        SliderProgressBar timeSlider = find("#timeSlider");
+        Label playTimeLabel = find("#playTimeLabel");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            timeSlider.setDisable(true);
+            playTimeLabel.setText(null);
+            
+            mainPanelController.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        
+
+        assertThat("Time slider should not be disabled", timeSlider.isDisabled(), equalTo(false));
+        assertThat("Time slider value should be 50.0", timeSlider.getSliderValue(), equalTo(50.0d));
+        assertThat("Play time label should be '00:15/00:30'", playTimeLabel.getText(), equalTo("00:15/00:30"));
+    }
+
+    @Test
+    public void shouldReceiveTimeUpdatedMediaDurationUnknown() throws Exception {
+        Duration mediaDuration = Duration.UNKNOWN;
+        Duration currentTime = new Duration(15000);
+        SliderProgressBar timeSlider = find("#timeSlider");
+        Label playTimeLabel = find("#playTimeLabel");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            timeSlider.setDisable(false);
+            playTimeLabel.setText(null);
+            
+            mainPanelController.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+
+        assertThat("Time slider should not be disabled", timeSlider.isDisabled(), equalTo(true));
+        assertThat("Time slider value should be 0.0", timeSlider.getSliderValue(), equalTo(0.0d));
+        assertThat("Play time label should be '00:15'", playTimeLabel.getText(), equalTo("00:15"));
+    }
+    
+    @Test
+    public void shouldReceiveTimeUpdatedZeroMediaDuration() throws Exception {
+        Duration mediaDuration = Duration.ZERO;
+        Duration currentTime = new Duration(15000);
+        SliderProgressBar timeSlider = find("#timeSlider");
+        Label playTimeLabel = find("#playTimeLabel");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            timeSlider.setDisable(false);
+            playTimeLabel.setText(null);
+            
+            mainPanelController.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+
+        assertThat("Time slider should not be disabled", timeSlider.isDisabled(), equalTo(false));
+        assertThat("Time slider value should be 0.0", timeSlider.getSliderValue(), equalTo(0.0d));
+        assertThat("Play time label should be '00:15'", playTimeLabel.getText(), equalTo("00:15"));
+    }
+    
+    @Test
+    public void shouldReceiveBufferUpdated() throws Exception {
+        Duration mediaDuration = new Duration(30000);
+        Duration bufferProgressTime = new Duration(15000);
+        SliderProgressBar timeSlider = find("#timeSlider");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            timeSlider.setProgressValue(0);
+
+            mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+
+        assertThat("Time slider progress value should be 0.5", timeSlider.getProgressValue(), equalTo(0.5d));
+    }
+    
+    @Test
+    public void shouldReceiveBufferUpdatedWithNullMediaDuration() throws Exception {
+        Duration mediaDuration = null;
+        Duration bufferProgressTime = new Duration(15000);
+        SliderProgressBar timeSlider = find("#timeSlider");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            timeSlider.setProgressValue(0);
+
+            mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+
+        assertThat("Time slider progress value should be 0.0", timeSlider.getProgressValue(), equalTo(0.0d));
+    }
+    
+    @Test
+    public void shouldReceiveBufferUpdatedWithNullBufferProgressTime() throws Exception {
+        Duration mediaDuration = new Duration(30000);
+        Duration bufferProgressTime = null;
+        SliderProgressBar timeSlider = find("#timeSlider");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            timeSlider.setProgressValue(0);
+
+            mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+
+        assertThat("Time slider progress value should be 0.0", timeSlider.getProgressValue(), equalTo(0.0d));
+    }
+    
+    @Test
+    public void shouldReceiveMediaPlaying() throws Exception {
+        Button playPauseButton = find("#playPauseButton");
+        Button previousButton = find("#previousButton");
+        Button nextButton = find("#nextButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setStyle(null);
+            playPauseButton.setDisable(true);
+            previousButton.setDisable(true);
+            nextButton.setDisable(true);
+
+            mainPanelController.eventReceived(Event.MEDIA_PLAYING);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PAUSE + "')'", playPauseButton.getStyle(),
+            equalTo("-fx-background-image: url('" + IMAGE_PAUSE + "')"));
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat("Previous button should not be disabled", previousButton.isDisabled(), equalTo(false));
+        assertThat("Next button should not be disabled", nextButton.isDisabled(), equalTo(false));
+    }
+    
+    @Test
+    public void shouldReceiveMediaPaused() throws Exception {
+        Button playPauseButton = find("#playPauseButton");
+        Button previousButton = find("#previousButton");
+        Button nextButton = find("#nextButton");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setStyle(null);
+            playPauseButton.setDisable(true);
+            previousButton.setDisable(false);
+            nextButton.setDisable(false);
+
+            mainPanelController.eventReceived(Event.MEDIA_PAUSED);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PLAY + "')'", playPauseButton.getStyle(),
+            equalTo("-fx-background-image: url('" + IMAGE_PLAY + "')"));
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat("Previous button should be disabled", previousButton.isDisabled(), equalTo(true));
+        assertThat("Next button should be disabled", nextButton.isDisabled(), equalTo(true));
+    }
+    
+    @Test
+    public void shouldReceiveMediaStopped() throws Exception {
+        Button playPauseButton = find("#playPauseButton");
+        Button previousButton = find("#previousButton");
+        Button nextButton = find("#nextButton");
+        SliderProgressBar timeSlider = find("#timeSlider");
+        Label playTimeLabel = find("#playTimeLabel");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setStyle(null);
+            playPauseButton.setDisable(false);
+            previousButton.setDisable(false);
+            nextButton.setDisable(false);
+            timeSlider.setSliderValue(99);
+            timeSlider.setProgressValue(99);
+            playTimeLabel.setText(null);
+
+            mainPanelController.eventReceived(Event.MEDIA_STOPPED);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PLAY + "')'", playPauseButton.getStyle(),
+            equalTo("-fx-background-image: url('" + IMAGE_PLAY + "')"));
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat("Previous button should be disabled", previousButton.isDisabled(), equalTo(true));
+        assertThat("Next button should be disabled", nextButton.isDisabled(), equalTo(true));
+        assertThat("Time slider should have a value of 0", timeSlider.getSliderValue(), equalTo(0d));
+        assertThat("Time slider should have a progress value of 0", timeSlider.getProgressValue(), equalTo(0d));
+        assertThat("Play time label should be '00:00/00:00'", playTimeLabel.getText(), equalTo("00:00/00:00"));
+    }
+    
+    @Test
+    public void shouldReceiveEndOfMedia() throws Exception {
+        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        
+        Button playPauseButton = find("#playPauseButton");
+        Button previousButton = find("#previousButton");
+        Button nextButton = find("#nextButton");
+        SliderProgressBar timeSlider = find("#timeSlider");
+        Label playTimeLabel = find("#playTimeLabel");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setStyle(null);
+            playPauseButton.setDisable(false);
+            previousButton.setDisable(false);
+            nextButton.setDisable(false);
+            timeSlider.setSliderValue(99);
+            timeSlider.setProgressValue(99);
+            playTimeLabel.setText(null);
+
+            mainPanelController.eventReceived(Event.END_OF_MEDIA);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PLAY + "')'", playPauseButton.getStyle(),
+            equalTo("-fx-background-image: url('" + IMAGE_PLAY + "')"));
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat("Previous button should be disabled", previousButton.isDisabled(), equalTo(true));
+        assertThat("Next button should be disabled", nextButton.isDisabled(), equalTo(true));
+        assertThat("Time slider should have a value of 0", timeSlider.getSliderValue(), equalTo(0d));
+        assertThat("Time slider should have a progress value of 0", timeSlider.getProgressValue(), equalTo(0d));
+        assertThat("Play time label should be '00:00/00:00'", playTimeLabel.getText(), equalTo("00:00/00:00"));
+    }
+    
+    @Test
+    public void shouldReceiveEndOfMediaWithRepeatOne() throws Exception {
+        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ONE);
+        
+        Button playPauseButton = find("#playPauseButton");
+        Button previousButton = find("#previousButton");
+        Button nextButton = find("#nextButton");
+        SliderProgressBar timeSlider = find("#timeSlider");
+        Label playTimeLabel = find("#playTimeLabel");
+        
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ThreadRunner.runOnGui(() -> {
+            playPauseButton.setStyle(null);
+            playPauseButton.setDisable(false);
+            previousButton.setDisable(false);
+            nextButton.setDisable(false);
+            timeSlider.setSliderValue(99);
+            timeSlider.setProgressValue(99);
+            playTimeLabel.setText(null);
+
+            mainPanelController.eventReceived(Event.END_OF_MEDIA);
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        
+        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PLAY + "')'", playPauseButton.getStyle(),
+            equalTo("-fx-background-image: url('" + IMAGE_PLAY + "')"));
+        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat("Previous button should be disabled", previousButton.isDisabled(), equalTo(true));
+        assertThat("Next button should be disabled", nextButton.isDisabled(), equalTo(true));
+        assertThat("Time slider should have a value of 0", timeSlider.getSliderValue(), equalTo(0d));
+        assertThat("Time slider should have a progress value of 0.99", timeSlider.getProgressValue(), equalTo(0.99d));
+        assertThat("Play time label should be '00:00/00:00'", playTimeLabel.getText(), equalTo("00:00/00:00"));
     }
     
     @After

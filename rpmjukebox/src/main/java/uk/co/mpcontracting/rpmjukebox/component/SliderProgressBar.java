@@ -45,5 +45,9 @@ public class SliderProgressBar extends StackPane {
 	public void setProgressValue(double value) {
 		progressBar.setProgress(value / 100);
 	}
+	
+	public double getProgressValue() {
+	    return progressBar.getProgress();
+	}
 }
 

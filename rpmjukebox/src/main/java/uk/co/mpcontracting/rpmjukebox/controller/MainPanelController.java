@@ -646,6 +646,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
 				if (!timeSlider.isDisabled() && mediaDuration.greaterThan(Duration.ZERO) && !timeSlider.isSliderValueChanging()) {
 					timeSlider.setSliderValue(currentTime.divide(mediaDuration.toMillis()).toMillis() * 100.0);
+				} else if (!timeSlider.isSliderValueChanging()) {
+				    timeSlider.setSliderValue(0.0d);
 				}
 
 				playTimeLabel.setText(StringHelper.formatElapsedTime(mediaDuration, currentTime));

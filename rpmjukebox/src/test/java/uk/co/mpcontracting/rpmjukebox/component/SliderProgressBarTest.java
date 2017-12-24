@@ -4,9 +4,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import javafx.scene.control.ProgressBar;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class SliderProgressBarTest extends AbstractTest {
@@ -48,12 +46,17 @@ public class SliderProgressBarTest extends AbstractTest {
     }
     
     @Test
+    public void shouldGetProgressValue() {
+        SliderProgressBar sliderProgressBar = new SliderProgressBar();
+        
+        assertThat("Progress value should be 0.0", sliderProgressBar.getProgressValue(), equalTo(0.0d));
+    }
+    
+    @Test
     public void shouldSetProgressValue() {
         SliderProgressBar sliderProgressBar = new SliderProgressBar();
         sliderProgressBar.setProgressValue(50);
-        
-        double progress = ((ProgressBar)ReflectionTestUtils.getField(sliderProgressBar, "progressBar")).getProgress();
-        
-        assertThat("Progress value should be 0.5", progress, equalTo(0.5d));
+
+        assertThat("Progress value should be 0.5", sliderProgressBar.getProgressValue(), equalTo(0.5d));
     }
 }
