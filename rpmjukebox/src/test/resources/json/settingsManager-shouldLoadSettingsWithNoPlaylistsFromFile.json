@@ -1,0 +1,49 @@
+{
+  "shuffle": true,
+  "repeat": "ALL",
+  "systemSettings": {
+    "cacheSizeMb": 123
+  },
+  "eqBands": [
+    {
+      "band": 0,
+      "value": 0.0
+    },
+    {
+      "band": 1,
+      "value": 0.0
+    },
+    {
+      "band": 2,
+      "value": 0.0
+    },
+    {
+      "band": 3,
+      "value": 0.0
+    },
+    {
+      "band": 4,
+      "value": 0.0
+    },
+    {
+      "band": 5,
+      "value": 0.0
+    },
+    {
+      "band": 6,
+      "value": 0.0
+    },
+    {
+      "band": 7,
+      "value": 0.0
+    },
+    {
+      "band": 8,
+      "value": 0.0
+    },
+    {
+      "band": 9,
+      "value": 0.0
+    }
+  ]
+}

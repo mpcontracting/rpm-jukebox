@@ -96,8 +96,8 @@
    <bottom>
       <HBox styleClass="buttonHbox">
          <children>
-            <Button mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
-            <Button mnemonicParsing="false" onAction="#handleResetButtonAction" text="%button.reset" />
+            <Button id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
+            <Button id="resetButton" mnemonicParsing="false" onAction="#handleResetButtonAction" text="%button.reset" />
          </children>
       </HBox>
    </bottom>

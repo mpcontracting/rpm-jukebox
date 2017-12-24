@@ -12,8 +12,8 @@
    <bottom>
       <HBox styleClass="buttonHbox">
          <children>
-            <Button id="focusableButton" fx:id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" onKeyPressed="#handleOkButtonKeyPressed" text="%button.ok" />
-            <Button id="focusableButton" fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" onKeyPressed="#handleCancelButtonKeyPressed" text="%button.cancel" />
+            <Button styleClass="focusableButton" fx:id="okButton" id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" onKeyPressed="#handleOkButtonKeyPressed" text="%button.ok" />
+            <Button styleClass="focusableButton" fx:id="cancelButton" id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" onKeyPressed="#handleCancelButtonKeyPressed" text="%button.cancel" />
          </children>
       </HBox>
    </bottom>

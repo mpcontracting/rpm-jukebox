@@ -5,11 +5,13 @@ import lombok.Getter;
 
 @AllArgsConstructor
 public class YearFilter {
-	@Getter private String display;
-	@Getter private String year;
-	
-	@Override
-	public String toString() {
-		return display;
-	}
+    @Getter
+    private String display;
+    @Getter
+    private String year;
+
+    @Override
+    public String toString() {
+        return display;
+    }
 }

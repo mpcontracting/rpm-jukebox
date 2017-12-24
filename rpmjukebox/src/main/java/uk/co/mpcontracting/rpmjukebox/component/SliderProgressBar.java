@@ -7,43 +7,46 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.StackPane;
 
 public class SliderProgressBar extends StackPane {
-	
-	private ProgressBar progressBar;
-	private Slider slider;
 
-	public SliderProgressBar() {
-		progressBar = new ProgressBar(0);
-		progressBar.setMaxWidth(Double.MAX_VALUE);
+    private ProgressBar progressBar;
+    private Slider slider;
 
-		slider = new Slider();
-		slider.setMin(0);
-		slider.setMax(100);
+    public SliderProgressBar() {
+        progressBar = new ProgressBar(0);
+        progressBar.setMaxWidth(Double.MAX_VALUE);
 
-		getChildren().addAll(progressBar, slider);
-	}
+        slider = new Slider();
+        slider.setMin(0);
+        slider.setMax(100);
 
-	public DoubleProperty sliderValueProperty() {
-		return slider.valueProperty();
-	}
-	
-	public BooleanProperty sliderValueChangingProperty() {
-		return slider.valueChangingProperty();
-	}
+        getChildren().addAll(progressBar, slider);
+    }
 
-	public boolean isSliderValueChanging() {
-		return slider.isValueChanging();
-	}
+    public DoubleProperty sliderValueProperty() {
+        return slider.valueProperty();
+    }
 
-	public void setSliderValue(double value) {
-		slider.setValue(value);
-	}
+    public BooleanProperty sliderValueChangingProperty() {
+        return slider.valueChangingProperty();
+    }
 
-	public double getSliderValue() {
-		return slider.getValue();
-	}
+    public boolean isSliderValueChanging() {
+        return slider.isValueChanging();
+    }
 
-	public void setProgressValue(double value) {
-		progressBar.setProgress(value / 100);
-	}
+    public void setSliderValue(double value) {
+        slider.setValue(value);
+    }
+
+    public double getSliderValue() {
+        return slider.getValue();
+    }
+
+    public void setProgressValue(double value) {
+        progressBar.setProgress(value / 100);
+    }
+
+    public double getProgressValue() {
+        return progressBar.getProgress();
+    }
 }
-

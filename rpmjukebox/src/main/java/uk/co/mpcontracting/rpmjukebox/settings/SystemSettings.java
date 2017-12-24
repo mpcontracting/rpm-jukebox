@@ -8,5 +8,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(includeFieldNames = true)
 public class SystemSettings {
-	@Getter @Setter private int cacheSizeMb;
+    @Getter
+    @Setter
+    private int cacheSizeMb;
 }

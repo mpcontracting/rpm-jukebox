@@ -28,7 +28,7 @@
                   </HBox>
                   <HBox styleClass="buttonHbox">
                      <children>
-                        <ComboBox fx:id="yearFilterComboBox" disable="true" prefWidth="90.0">
+                        <ComboBox id="yearFilterComboBox" fx:id="yearFilterComboBox" disable="true" prefWidth="90.0">
                         	<tooltip>
                               <Tooltip text="%tooltip.yearFilter" />
                            </tooltip>
@@ -96,18 +96,18 @@
       <BorderPane id="mainPanel" fx:id="mainPanel" styleClass="border-panel" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2" />
       <BorderPane id="playingPanel" minHeight="310.0" minWidth="250.0" prefHeight="310.0" prefWidth="250.0" GridPane.rowIndex="2">
          <center>
-            <ImageView fx:id="playingImageView" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView id="playingImageView" fx:id="playingImageView" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
          </center>
          <bottom>
             <BorderPane id="playingLabelPanel" styleClass="border-panel">
                <top>
-                  <Label fx:id="playingTrackLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
+                  <Label id="playingTrackLabel" fx:id="playingTrackLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
                </top>
                <center>
-                  <Label fx:id="playingArtistLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
+                  <Label id="playingArtistLabel" fx:id="playingArtistLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
                </center>
                <bottom>
-                  <Label fx:id="playingAlbumLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
+                  <Label id="playingAlbumLabel" fx:id="playingAlbumLabel" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER" />
                </bottom>
             </BorderPane>
          </bottom>
@@ -130,10 +130,10 @@
       <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="border-panel" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
          <children>
             <SliderProgressBar id="timeSlider" fx:id="timeSlider" disable="true" minWidth="50.0" HBox.hgrow="ALWAYS" />
-            <Label fx:id="playTimeLabel" minWidth="100.0" prefWidth="100.0" />
+            <Label id="playTimeLabel" fx:id="playTimeLabel" minWidth="100.0" prefWidth="100.0" />
             <HBox id="volumeHBox">
                <children>
-                  <Button id="volumeButtonOn" fx:id="volumeButton" disable="true" minWidth="17.0" mnemonicParsing="false" onAction="#handleVolumeButtonAction" prefHeight="17.0" prefWidth="17.0" />
+                  <Button id="volumeButton" fx:id="volumeButton" disable="true" minWidth="17.0" mnemonicParsing="false" onAction="#handleVolumeButtonAction" prefHeight="17.0" prefWidth="17.0" />
                   <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" />
                </children>
             </HBox>
