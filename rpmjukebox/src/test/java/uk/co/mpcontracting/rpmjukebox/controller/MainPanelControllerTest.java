@@ -2077,13 +2077,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         ThreadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
+            
+            playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.BACK_SPACE));
+            
             latch.countDown();
         });
         
         latch.await(2000, TimeUnit.MILLISECONDS);
-        
-        playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.BACK_SPACE));
-        
+
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
         verify(mockConfirmView, times(1)).setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
@@ -2105,13 +2106,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         ThreadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
+            
+            playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.DELETE));
+            
             latch.countDown();
         });
         
         latch.await(2000, TimeUnit.MILLISECONDS);
-        
-        playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.DELETE));
-        
+
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
         verify(mockConfirmView, times(1)).setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
@@ -2126,8 +2128,16 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithUnknownKey() throws Exception {
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-
-        playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.A));
+        
+        CountDownLatch latch = new CountDownLatch(1);
+        
+        ThreadRunner.runOnGui(() -> {
+            playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.A));
+            
+            latch.countDown();
+        });
+        
+        latch.await(2000, TimeUnit.MILLISECONDS);
 
         verify(mockConfirmView, never()).show(anyBoolean());
     }
