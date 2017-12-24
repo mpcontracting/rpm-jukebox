@@ -68,6 +68,10 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
     public void shouldBindSystemSettings() throws Exception {
         SystemSettings mockSystemSettings = mock(SystemSettings.class);
         when(mockSystemSettings.getCacheSizeMb()).thenReturn(250);
+        when(mockSystemSettings.getProxyHost()).thenReturn("localhost");
+        when(mockSystemSettings.getProxyPort()).thenReturn(8080);
+        when(mockSystemSettings.getProxyUsername()).thenReturn("username");
+        when(mockSystemSettings.getProxyPassword()).thenReturn("password");
         when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
         when(mockSettingsManager.getVersion()).thenReturn(new Version("99.99.99"));
 

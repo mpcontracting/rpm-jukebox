@@ -54,6 +54,23 @@
 	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
 }
 
+.password-field {
+	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+	-fx-background-insets: 0, 1, 1;
+    -fx-background-radius: 0, 0, 0;
+	-fx-text-fill: -jb-foreground-color;
+	-fx-highlight-fill: -jb-foreground-color;
+    -fx-highlight-text-fill: -jb-background-color;
+}
+
+.password-field:focused {
+	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+}
+
+.check-box {
+	-fx-text-fill: -jb-foreground-color;
+}
+
 .check-box .box {
 	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
 	-fx-background-insets: 0, 1, 1;
