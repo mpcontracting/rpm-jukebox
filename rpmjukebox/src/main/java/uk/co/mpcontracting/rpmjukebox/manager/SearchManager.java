@@ -175,8 +175,8 @@ public class SearchManager extends EventAwareObject implements Constants {
             try {
                 Thread.sleep(5000);
             } catch (Exception e2) {
+                // Do nothing on exception
             }
-            ;
 
             applicationManager.shutdown();
         } catch (Exception e) {
