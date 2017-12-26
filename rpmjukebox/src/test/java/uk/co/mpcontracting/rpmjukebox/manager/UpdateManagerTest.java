@@ -2,10 +2,10 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.junit.Before;
@@ -19,6 +19,8 @@ import com.igormaznitsa.commons.version.Version;
 
 import de.felixroske.jfxsupport.GUIState;
 import javafx.application.HostServices;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
@@ -31,10 +33,10 @@ public class UpdateManagerTest extends AbstractTest {
     private String websiteUrl;
 
     @Mock
-    private URL mockVersionUrl;
-
+    private InternetManager mockInternetManager;
+    
     @Mock
-    private HttpURLConnection mockHttpURLConnection;
+    private URL mockVersionUrl;
 
     @Mock
     private HostServices mockHostServices;
@@ -46,16 +48,21 @@ public class UpdateManagerTest extends AbstractTest {
         spyUpdateManager = spy(updateManager);
 
         ReflectionTestUtils.setField(spyUpdateManager, "eventManager", getMockEventManager());
+        ReflectionTestUtils.setField(spyUpdateManager, "internetManager", mockInternetManager);
         ReflectionTestUtils.setField(spyUpdateManager, "versionUrl", mockVersionUrl);
         ReflectionTestUtils.setField(spyUpdateManager, "newVersion", null);
-
-        when(mockVersionUrl.openConnection()).thenReturn(mockHttpURLConnection);
     }
 
     @Test
     public void shouldFindUpdatesAvailable() throws Exception {
-        when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
-        when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("99.99.99".getBytes()));
+        ResponseBody mockResponseBody = mock(ResponseBody.class);
+        when(mockResponseBody.byteStream()).thenReturn(new ByteArrayInputStream("99.99.99".getBytes()));
+        
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.isSuccessful()).thenReturn(true);
+        when(mockResponse.body()).thenReturn(mockResponseBody);
+        
+        when(mockInternetManager.openConnection(any())).thenReturn(mockResponse);
 
         spyUpdateManager.checkForUpdates();
 
@@ -66,8 +73,14 @@ public class UpdateManagerTest extends AbstractTest {
 
     @Test
     public void shouldNotFindUpdatesAvailable() throws Exception {
-        when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
-        when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("0.0.1".getBytes()));
+        ResponseBody mockResponseBody = mock(ResponseBody.class);
+        when(mockResponseBody.byteStream()).thenReturn(new ByteArrayInputStream("0.0.1".getBytes()));
+        
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.isSuccessful()).thenReturn(true);
+        when(mockResponse.body()).thenReturn(mockResponseBody);
+        
+        when(mockInternetManager.openConnection(any())).thenReturn(mockResponse);
 
         spyUpdateManager.checkForUpdates();
 
@@ -90,7 +103,11 @@ public class UpdateManagerTest extends AbstractTest {
 
     @Test
     public void shouldNotFindUpdatesOn404() throws Exception {
-        when(mockHttpURLConnection.getResponseCode()).thenReturn(404);
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.isSuccessful()).thenReturn(false);
+        when(mockResponse.code()).thenReturn(404);
+        
+        when(mockInternetManager.openConnection(any())).thenReturn(mockResponse);
 
         spyUpdateManager.checkForUpdates();
 
@@ -101,8 +118,14 @@ public class UpdateManagerTest extends AbstractTest {
 
     @Test
     public void shouldNotFindUpdatesAvailableOnEmptyVersionString() throws Exception {
-        when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
-        when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[] {}));
+        ResponseBody mockResponseBody = mock(ResponseBody.class);
+        when(mockResponseBody.byteStream()).thenReturn(new ByteArrayInputStream(new byte[] {}));
+        
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.isSuccessful()).thenReturn(true);
+        when(mockResponse.body()).thenReturn(mockResponseBody);
+        
+        when(mockInternetManager.openConnection(any())).thenReturn(mockResponse);
 
         spyUpdateManager.checkForUpdates();
 
