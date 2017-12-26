@@ -24,7 +24,7 @@ public class UpdateManager extends EventAwareObject implements Constants {
 
     @Autowired
     private SettingsManager settingsManager;
-    
+
     @Autowired
     private InternetManager internetManager;
 
@@ -42,14 +42,15 @@ public class UpdateManager extends EventAwareObject implements Constants {
         log.debug("Version url - " + versionUrl);
 
         Response response = null;
-        
+
         try {
             response = internetManager.openConnection(versionUrl);
 
             if (response.isSuccessful()) {
                 StringBuilder builder = new StringBuilder();
 
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader((response.body().byteStream())))) {
+                try (
+                    BufferedReader reader = new BufferedReader(new InputStreamReader((response.body().byteStream())))) {
                     reader.lines().forEach(line -> {
                         builder.append(line);
                     });

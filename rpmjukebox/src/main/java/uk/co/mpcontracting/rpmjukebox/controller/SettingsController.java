@@ -182,7 +182,7 @@ public class SettingsController extends EventAwareObject implements Constants {
         systemSettings.setProxyPassword(proxyPasswordTextField.getText());
 
         fireEvent(Event.SETTINGS_UPDATED);
-        
+
         settingsView.close();
     }
 

@@ -5,11 +5,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
@@ -55,6 +57,9 @@ public class SettingsManager implements InitializingBean, Constants {
 
     @Autowired
     private MediaManager mediaManager;
+
+    @Autowired
+    private InternetManager internetManager;
 
     @Autowired
     private MainPanelController mainPanelController;
@@ -136,8 +141,8 @@ public class SettingsManager implements InitializingBean, Constants {
         try {
             Thread.sleep(1500);
         } catch (Exception e) {
+            // Do nothing
         }
-        ;
 
         // Read the last modified date from the data file
         LocalDateTime lastModified = null;
@@ -150,17 +155,17 @@ public class SettingsManager implements InitializingBean, Constants {
                 log.error("Unable to determine if local data file has expired", e);
             }
         } else {
-            HttpURLConnection connection = null;
+            Response response = null;
 
             try {
-                connection = (HttpURLConnection)dataFile.openConnection();
-                lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(connection.getLastModified()),
-                    ZoneId.systemDefault());
+                response = internetManager.openConnection(dataFile);
+                lastModified = ZonedDateTime
+                    .parse(response.header("Last-Modified"), DateTimeFormatter.RFC_1123_DATE_TIME).toLocalDateTime();
             } catch (Exception e) {
                 log.error("Unable to determine if data file has expired", e);
             } finally {
-                if (connection != null) {
-                    connection.disconnect();
+                if (response != null && response.body() != null) {
+                    response.body().close();
                 }
             }
         }

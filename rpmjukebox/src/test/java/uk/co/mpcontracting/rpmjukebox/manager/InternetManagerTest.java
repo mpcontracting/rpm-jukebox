@@ -27,7 +27,7 @@ public class InternetManagerTest extends AbstractTest {
 
     @Autowired
     private InternetManager internetManager;
-    
+
     @Value("${internal.jetty.port}")
     private int internalJettyPort;
 
@@ -53,10 +53,59 @@ public class InternetManagerTest extends AbstractTest {
     }
 
     @Test
+    public void shouldReceiveSettingsUpdatedNoProxyMissingPort() {
+        SystemSettings systemSettings = new SystemSettings();
+        systemSettings.setProxyHost("localhost");
+
+        when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
+
+        internetManager.eventReceived(Event.SETTINGS_UPDATED);
+
+        OkHttpClient httpClient = (OkHttpClient)ReflectionTestUtils.getField(internetManager, "httpClient");
+
+        assertThat("Proxy should be null", httpClient.proxy(), nullValue());
+        assertThat("Proxy authenticator should be NONE", httpClient.proxyAuthenticator(), equalTo(Authenticator.NONE));
+    }
+
+    @Test
+    public void shouldReceiveSettingsUpdatedNoProxyMissingHost() {
+        SystemSettings systemSettings = new SystemSettings();
+        systemSettings.setProxyPort(8080);
+
+        when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
+
+        internetManager.eventReceived(Event.SETTINGS_UPDATED);
+
+        OkHttpClient httpClient = (OkHttpClient)ReflectionTestUtils.getField(internetManager, "httpClient");
+
+        assertThat("Proxy should be null", httpClient.proxy(), nullValue());
+        assertThat("Proxy authenticator should be NONE", httpClient.proxyAuthenticator(), equalTo(Authenticator.NONE));
+    }
+
+    @Test
     public void shouldReceiveSettingsUpdatedUnauthenticatedProxy() {
         SystemSettings systemSettings = new SystemSettings();
         systemSettings.setProxyHost("localhost");
         systemSettings.setProxyPort(8080);
+
+        when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
+
+        internetManager.eventReceived(Event.SETTINGS_UPDATED);
+
+        OkHttpClient httpClient = (OkHttpClient)ReflectionTestUtils.getField(internetManager, "httpClient");
+        InetSocketAddress address = (InetSocketAddress)httpClient.proxy().address();
+
+        assertThat("Proxy host should be 'localhost'", address.getHostName(), equalTo("localhost"));
+        assertThat("Proxy port should be 8080", address.getPort(), equalTo(8080));
+        assertThat("Proxy authenticator should be NONE", httpClient.proxyAuthenticator(), equalTo(Authenticator.NONE));
+    }
+
+    @Test
+    public void shouldReceiveSettingsUpdatedUnauthenticatedProxyAuthenticatedFalse() {
+        SystemSettings systemSettings = new SystemSettings();
+        systemSettings.setProxyHost("localhost");
+        systemSettings.setProxyPort(8080);
+        systemSettings.setProxyRequiresAuthentication(false);
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
@@ -97,14 +146,14 @@ public class InternetManagerTest extends AbstractTest {
         assertThat("Response should have a Proxy-Authorization header", request.header("Proxy-Authorization"),
             notNullValue());
     }
-    
+
     @Test
     public void shouldGet404FromInternalJettyServer() throws Exception {
         when(mockSettingsManager.getSystemSettings()).thenReturn(new SystemSettings());
-        
+
         URL url = new URL("http://localhost:" + internalJettyPort + "/invalid");
         Response response = null;
-        
+
         try {
             response = internetManager.openConnection(url);
         } finally {
@@ -112,7 +161,7 @@ public class InternetManagerTest extends AbstractTest {
                 response.body().close();
             }
         }
-        
+
         assertThat("Response code should be 404", response.code(), equalTo(404));
     }
 }
