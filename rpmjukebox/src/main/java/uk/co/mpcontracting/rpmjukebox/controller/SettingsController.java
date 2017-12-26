@@ -19,6 +19,7 @@ import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
+import uk.co.mpcontracting.rpmjukebox.support.ValidationHelper;
 import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
 
 @Slf4j
@@ -72,48 +73,71 @@ public class SettingsController extends EventAwareObject implements Constants {
 
         isReindexing = false;
 
-        cacheSizeMbTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                validate();
-            }
-        });
+        cacheSizeMbTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
+        proxyHostTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
+        proxyPortTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
+        proxyAuthCheckBox.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
+        proxyUsernameTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
+        proxyPasswordTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
     }
 
     public void bindSystemSettings() {
         SystemSettings systemSettings = settingsManager.getSystemSettings();
 
         versionLabel.setText(messageManager.getMessage(MESSAGE_SETTINGS_COPYRIGHT_2, settingsManager.getVersion()));
-        cacheSizeMbTextField.setText(Integer.toString(systemSettings.getCacheSizeMb()));
+        cacheSizeMbTextField.setText(ValidationHelper.nullAsBlank(systemSettings.getCacheSizeMb()));
+        proxyHostTextField.setText(ValidationHelper.nullAsBlank(systemSettings.getProxyHost()));
+        proxyPortTextField.setText(ValidationHelper.nullAsBlank((systemSettings.getProxyPort())));
+        proxyAuthCheckBox.setSelected(ValidationHelper.nullAsFalse(systemSettings.getProxyRequiresAuthentication()));
+        proxyUsernameTextField.setText(ValidationHelper.nullAsBlank(systemSettings.getProxyUsername()));
+        proxyPasswordTextField.setText(ValidationHelper.nullAsBlank(systemSettings.getProxyPassword()));
         cancelButton.requestFocus();
 
+        trimFields();
         validate();
+    }
+
+    private void focusChanged(boolean newValue) {
+        if (!newValue) {
+            trimFields();
+            validate();
+        }
+    }
+    
+    private void trimFields() {
+        cacheSizeMbTextField.setText(ValidationHelper.nullAsBlank(cacheSizeMbTextField.getText()));
+        proxyHostTextField.setText(ValidationHelper.nullAsBlank(proxyHostTextField.getText()));
+        proxyPortTextField.setText(ValidationHelper.nullAsBlank(proxyPortTextField.getText()));
+        proxyUsernameTextField.setText(ValidationHelper.nullAsBlank(proxyUsernameTextField.getText()));
+        proxyPasswordTextField.setText(ValidationHelper.nullAsBlank(proxyPasswordTextField.getText()));
     }
 
     private boolean validate() {
         boolean isFormValid = true;
 
         // Cache size MB text field
-        boolean isCacheSizeMbValid = false;
-
-        try {
-            String cacheSizeMbText = cacheSizeMbTextField.getText();
-
-            if (cacheSizeMbText != null && cacheSizeMbText.trim().length() > 0) {
-                int cacheSizeMb = Integer.parseInt(cacheSizeMbTextField.getText());
-
-                if (cacheSizeMb >= 50 && cacheSizeMb <= 1000) {
-                    isCacheSizeMbValid = true;
-                }
-            }
-        } catch (Exception e) {
-            // Ignore exception
+        if (!ValidationHelper.validateIntegerField(cacheSizeMbTextField, true, 50, 1000)) {
+            isFormValid = false;
         }
 
-        if (!isCacheSizeMbValid) {
-            cacheSizeMbTextField.setStyle(STYLE_INVALID_BORDER);
+        // Proxy host field
+        if (!ValidationHelper.validateTextField(proxyHostTextField, !ValidationHelper.nullAsBlank(proxyPortTextField.getText()).isEmpty(), null, 255)) {
             isFormValid = false;
-        } else {
-            cacheSizeMbTextField.setStyle(STYLE_VALID_BORDER);
+        }
+        
+        // Proxy port field
+        if (!ValidationHelper.validateIntegerField(proxyPortTextField, !ValidationHelper.nullAsBlank(proxyHostTextField.getText()).isEmpty(), 80, 65535)) {
+            isFormValid = false;
+        }
+
+        // Proxy username field
+        if (!ValidationHelper.validateTextField(proxyUsernameTextField, ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
+            isFormValid = false;
+        }
+        
+        // Proxy password field
+        if (!ValidationHelper.validateTextField(proxyPasswordTextField, ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
+            isFormValid = false;
         }
 
         return isFormValid;
@@ -137,12 +161,19 @@ public class SettingsController extends EventAwareObject implements Constants {
 
     @FXML
     protected void handleOkButtonAction(ActionEvent event) {
+        trimFields();
+        
         if (!validate()) {
             return;
         }
 
         SystemSettings systemSettings = settingsManager.getSystemSettings();
         systemSettings.setCacheSizeMb(Integer.parseInt(cacheSizeMbTextField.getText()));
+        systemSettings.setProxyHost(proxyHostTextField.getText());
+        systemSettings.setProxyPort(Integer.parseInt(proxyPortTextField.getText()));
+        systemSettings.setProxyRequiresAuthentication(proxyAuthCheckBox.isSelected());
+        systemSettings.setProxyUsername(proxyUsernameTextField.getText());
+        systemSettings.setProxyPassword(proxyPasswordTextField.getText());
 
         settingsView.close();
     }

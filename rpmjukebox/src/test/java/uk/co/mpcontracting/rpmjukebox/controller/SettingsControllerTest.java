@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.concurrent.CountDownLatch;
@@ -9,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -17,6 +19,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.igormaznitsa.commons.version.Version;
 
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
@@ -84,57 +88,9 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        TextField cacheSizeMbTextField = (TextField)ReflectionTestUtils.getField(settingsController,
-            "cacheSizeMbTextField");
+        boolean valid = (Boolean)ReflectionTestUtils.invokeMethod(settingsController, "validate");
 
-        assertThat("Cache size border should be '" + STYLE_VALID_BORDER + "'", cacheSizeMbTextField.getStyle(),
-            equalTo(STYLE_VALID_BORDER));
-    }
-
-    @Test
-    public void shouldNotBindSystemSettingsWhenCacheSizeTooSmall() throws Exception {
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSystemSettings.getCacheSizeMb()).thenReturn(25);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
-        when(mockSettingsManager.getVersion()).thenReturn(new Version("99.99.99"));
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        ThreadRunner.runOnGui(() -> {
-            settingsController.bindSystemSettings();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
-
-        TextField cacheSizeMbTextField = (TextField)ReflectionTestUtils.getField(settingsController,
-            "cacheSizeMbTextField");
-
-        assertThat("Cache size border should be '" + STYLE_INVALID_BORDER + "'", cacheSizeMbTextField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
-    }
-
-    @Test
-    public void shouldNotBindSystemSettingsWhenCacheSizeTooLarge() throws Exception {
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSystemSettings.getCacheSizeMb()).thenReturn(2500);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
-        when(mockSettingsManager.getVersion()).thenReturn(new Version("99.99.99"));
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        ThreadRunner.runOnGui(() -> {
-            settingsController.bindSystemSettings();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
-
-        TextField cacheSizeMbTextField = (TextField)ReflectionTestUtils.getField(settingsController,
-            "cacheSizeMbTextField");
-
-        assertThat("Cache size border should be '" + STYLE_INVALID_BORDER + "'", cacheSizeMbTextField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
+        assertThat("Settings should be valid", valid, equalTo(true));
     }
 
     @Test
@@ -170,59 +126,36 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldClickOkButton() {
-        TextField cacheSizeMbTextField = (TextField)ReflectionTestUtils.getField(settingsController,
-            "cacheSizeMbTextField");
+        TextField cacheSizeMbTextField = find("#cacheSizeMbTextField");
         cacheSizeMbTextField.setText("250");
+        TextField proxyHostTextField = find("#proxyHostTextField");
+        proxyHostTextField.setText("localhost");
+        TextField proxyPortTextField = find("#proxyPortTextField");
+        proxyPortTextField.setText("8080");
+        CheckBox proxyAuthCheckBox = find("#proxyAuthCheckBox");
+        proxyAuthCheckBox.setSelected(true);
+        TextField proxyUsernameTextField = find("#proxyUsernameTextField");
+        proxyUsernameTextField.setText("username");
+        PasswordField proxyPasswordTextField = find("#proxyPasswordTextField");
+        proxyPasswordTextField.setText("password");
 
         SystemSettings mockSystemSettings = mock(SystemSettings.class);
         when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
 
         clickOn("#okButton");
 
-        assertThat("Cache size border should be '" + STYLE_VALID_BORDER + "'", cacheSizeMbTextField.getStyle(),
-            equalTo(STYLE_VALID_BORDER));
         verify(mockSystemSettings, times(1)).setCacheSizeMb(250);
+        verify(mockSystemSettings, times(1)).setProxyHost("localhost");
+        verify(mockSystemSettings, times(1)).setProxyPort(8080);
+        verify(mockSystemSettings, times(1)).setProxyRequiresAuthentication(true);
+        verify(mockSystemSettings, times(1)).setProxyUsername("username");
+        verify(mockSystemSettings, times(1)).setProxyPassword("password");
         verify(spySettingsView, times(1)).close();
     }
 
     @Test
-    public void shouldClickOkButtonWhenCacheSizeIsNull() {
-        TextField cacheSizeMbTextField = (TextField)ReflectionTestUtils.getField(settingsController,
-            "cacheSizeMbTextField");
-        cacheSizeMbTextField.setText(null);
-
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
-
-        clickOn("#okButton");
-
-        assertThat("Cache size border should be '" + STYLE_INVALID_BORDER + "'", cacheSizeMbTextField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
-        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
-        verify(spySettingsView, never()).close();
-    }
-
-    @Test
-    public void shouldClickOkButtonWhenCacheSizeIsEmpty() {
-        TextField cacheSizeMbTextField = (TextField)ReflectionTestUtils.getField(settingsController,
-            "cacheSizeMbTextField");
-        cacheSizeMbTextField.setText("");
-
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
-
-        clickOn("#okButton");
-
-        assertThat("Cache size border should be '" + STYLE_INVALID_BORDER + "'", cacheSizeMbTextField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
-        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
-        verify(spySettingsView, never()).close();
-    }
-
-    @Test
-    public void shouldClickOkButtonWhenCacheSizeIsAnInvalidInteger() {
-        TextField cacheSizeMbTextField = (TextField)ReflectionTestUtils.getField(settingsController,
-            "cacheSizeMbTextField");
+    public void shouldClickOkButtonWhenCacheSizeIsInvalid() {
+        TextField cacheSizeMbTextField = find("#cacheSizeMbTextField");
         cacheSizeMbTextField.setText("abc");
 
         SystemSettings mockSystemSettings = mock(SystemSettings.class);
@@ -230,9 +163,88 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
 
         clickOn("#okButton");
 
-        assertThat("Cache size border should be '" + STYLE_INVALID_BORDER + "'", cacheSizeMbTextField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
         verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
+        verify(mockSystemSettings, never()).setProxyHost(anyString());
+        verify(mockSystemSettings, never()).setProxyPort(anyInt());
+        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(mockSystemSettings, never()).setProxyUsername(anyString());
+        verify(mockSystemSettings, never()).setProxyPassword(anyString());
+        verify(spySettingsView, never()).close();
+    }
+    
+    @Test
+    public void shouldClickOkButtonWhenProxyHostIsInvalid() {
+        TextField proxyHostTextField = find("#proxyHostTextField");
+        proxyHostTextField.setText(StringUtils.repeat('x', 256));
+
+        SystemSettings mockSystemSettings = mock(SystemSettings.class);
+        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+
+        clickOn("#okButton");
+
+        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
+        verify(mockSystemSettings, never()).setProxyHost(anyString());
+        verify(mockSystemSettings, never()).setProxyPort(anyInt());
+        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(mockSystemSettings, never()).setProxyUsername(anyString());
+        verify(mockSystemSettings, never()).setProxyPassword(anyString());
+        verify(spySettingsView, never()).close();
+    }
+    
+    @Test
+    public void shouldClickOkButtonWhenProxyPortIsInvalid() {
+        TextField proxyPortTextField = find("#proxyPortTextField");
+        proxyPortTextField.setText("65536");
+
+        SystemSettings mockSystemSettings = mock(SystemSettings.class);
+        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+
+        clickOn("#okButton");
+
+        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
+        verify(mockSystemSettings, never()).setProxyHost(anyString());
+        verify(mockSystemSettings, never()).setProxyPort(anyInt());
+        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(mockSystemSettings, never()).setProxyUsername(anyString());
+        verify(mockSystemSettings, never()).setProxyPassword(anyString());
+        verify(spySettingsView, never()).close();
+    }
+    
+    @Test
+    public void shouldClickOkButtonWhenProxyUsernameIsInvalid() {
+        TextField proxyUsernameTextField = find("#proxyUsernameTextField");
+        proxyUsernameTextField.setText(StringUtils.repeat('x', 256));
+
+        SystemSettings mockSystemSettings = mock(SystemSettings.class);
+        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+
+        clickOn("#okButton");
+
+        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
+        verify(mockSystemSettings, never()).setProxyHost(anyString());
+        verify(mockSystemSettings, never()).setProxyPort(anyInt());
+        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(mockSystemSettings, never()).setProxyUsername(anyString());
+        verify(mockSystemSettings, never()).setProxyPassword(anyString());
+        verify(spySettingsView, never()).close();
+    }
+    
+    @Test
+    public void shouldClickOkButtonWhenProxyPasswordIsInvalid() {
+        PasswordField proxyPasswordTextField = find("#proxyPasswordTextField");
+        proxyPasswordTextField.setText(StringUtils.repeat('x', 256));
+
+        SystemSettings mockSystemSettings = mock(SystemSettings.class);
+        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+
+        clickOn("#okButton");
+
+        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
+        verify(mockSystemSettings, never()).setProxyHost(anyString());
+        verify(mockSystemSettings, never()).setProxyPort(anyInt());
+        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(mockSystemSettings, never()).setProxyUsername(anyString());
+        verify(mockSystemSettings, never()).setProxyPassword(anyString());
         verify(spySettingsView, never()).close();
     }
 
