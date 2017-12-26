@@ -176,7 +176,8 @@ public class SettingsController extends EventAwareObject implements Constants {
         SystemSettings systemSettings = settingsManager.getSystemSettings();
         systemSettings.setCacheSizeMb(Integer.parseInt(cacheSizeMbTextField.getText()));
         systemSettings.setProxyHost(proxyHostTextField.getText());
-        systemSettings.setProxyPort(Integer.parseInt(proxyPortTextField.getText()));
+        systemSettings.setProxyPort(
+            !proxyPortTextField.getText().isEmpty() ? Integer.parseInt(proxyPortTextField.getText()) : null);
         systemSettings.setProxyRequiresAuthentication(proxyAuthCheckBox.isSelected());
         systemSettings.setProxyUsername(proxyUsernameTextField.getText());
         systemSettings.setProxyPassword(proxyPasswordTextField.getText());
