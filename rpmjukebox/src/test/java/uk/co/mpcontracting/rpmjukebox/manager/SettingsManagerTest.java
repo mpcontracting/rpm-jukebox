@@ -449,6 +449,12 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
         assertThat("Cache size should be 123", systemSettings.getCacheSizeMb(), equalTo(123));
+        assertThat("Proxy host should be 'localhost'", systemSettings.getProxyHost(), equalTo("localhost"));
+        assertThat("Proxy port should be 8080", systemSettings.getProxyPort(), equalTo(8080));
+        assertThat("Proxy requires authentication should be true", systemSettings.getProxyRequiresAuthentication(),
+            equalTo(true));
+        assertThat("Proxy username should be 'username'", systemSettings.getProxyUsername(), equalTo("username"));
+        assertThat("Proxy password should be 'password'", systemSettings.getProxyPassword(), equalTo("password"));
 
         verify(mockPlaylistManager, times(1)).setShuffle(true, true);
         verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
@@ -544,6 +550,11 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     public void shouldSaveSettings() {
         SystemSettings systemSettings = new SystemSettings();
         systemSettings.setCacheSizeMb(123);
+        systemSettings.setProxyHost("localhost");
+        systemSettings.setProxyPort(8080);
+        systemSettings.setProxyRequiresAuthentication(true);
+        systemSettings.setProxyUsername("username");
+        systemSettings.setProxyPassword("password");
 
         ReflectionTestUtils.setField(spySettingsManager, "systemSettings", systemSettings);
         ReflectionTestUtils.setField(spySettingsManager, "settingsLoaded", true);

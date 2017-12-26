@@ -171,7 +171,7 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, never()).setProxyPassword(anyString());
         verify(spySettingsView, never()).close();
     }
-    
+
     @Test
     public void shouldClickOkButtonWhenProxyHostIsInvalid() {
         TextField proxyHostTextField = find("#proxyHostTextField");
@@ -190,7 +190,7 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, never()).setProxyPassword(anyString());
         verify(spySettingsView, never()).close();
     }
-    
+
     @Test
     public void shouldClickOkButtonWhenProxyPortIsInvalid() {
         TextField proxyPortTextField = find("#proxyPortTextField");
@@ -209,7 +209,7 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, never()).setProxyPassword(anyString());
         verify(spySettingsView, never()).close();
     }
-    
+
     @Test
     public void shouldClickOkButtonWhenProxyUsernameIsInvalid() {
         TextField proxyUsernameTextField = find("#proxyUsernameTextField");
@@ -228,7 +228,7 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, never()).setProxyPassword(anyString());
         verify(spySettingsView, never()).close();
     }
-    
+
     @Test
     public void shouldClickOkButtonWhenProxyPasswordIsInvalid() {
         PasswordField proxyPasswordTextField = find("#proxyPasswordTextField");

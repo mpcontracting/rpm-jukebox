@@ -31,19 +31,19 @@ public class SettingsController extends EventAwareObject implements Constants {
 
     @FXML
     private TextField cacheSizeMbTextField;
-    
+
     @FXML
     private TextField proxyHostTextField;
-    
+
     @FXML
     private TextField proxyPortTextField;
-    
+
     @FXML
     private CheckBox proxyAuthCheckBox;
-    
+
     @FXML
     private TextField proxyUsernameTextField;
-    
+
     @FXML
     private PasswordField proxyPasswordTextField;
 
@@ -77,8 +77,10 @@ public class SettingsController extends EventAwareObject implements Constants {
         proxyHostTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
         proxyPortTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
         proxyAuthCheckBox.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
-        proxyUsernameTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
-        proxyPasswordTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
+        proxyUsernameTextField.focusedProperty()
+            .addListener((observable, oldValue, newValue) -> focusChanged(newValue));
+        proxyPasswordTextField.focusedProperty()
+            .addListener((observable, oldValue, newValue) -> focusChanged(newValue));
     }
 
     public void bindSystemSettings() {
@@ -103,7 +105,7 @@ public class SettingsController extends EventAwareObject implements Constants {
             validate();
         }
     }
-    
+
     private void trimFields() {
         cacheSizeMbTextField.setText(ValidationHelper.nullAsBlank(cacheSizeMbTextField.getText()));
         proxyHostTextField.setText(ValidationHelper.nullAsBlank(proxyHostTextField.getText()));
@@ -121,22 +123,26 @@ public class SettingsController extends EventAwareObject implements Constants {
         }
 
         // Proxy host field
-        if (!ValidationHelper.validateTextField(proxyHostTextField, !ValidationHelper.nullAsBlank(proxyPortTextField.getText()).isEmpty(), null, 255)) {
+        if (!ValidationHelper.validateTextField(proxyHostTextField,
+            !ValidationHelper.nullAsBlank(proxyPortTextField.getText()).isEmpty(), null, 255)) {
             isFormValid = false;
         }
-        
+
         // Proxy port field
-        if (!ValidationHelper.validateIntegerField(proxyPortTextField, !ValidationHelper.nullAsBlank(proxyHostTextField.getText()).isEmpty(), 80, 65535)) {
+        if (!ValidationHelper.validateIntegerField(proxyPortTextField,
+            !ValidationHelper.nullAsBlank(proxyHostTextField.getText()).isEmpty(), 80, 65535)) {
             isFormValid = false;
         }
 
         // Proxy username field
-        if (!ValidationHelper.validateTextField(proxyUsernameTextField, ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
+        if (!ValidationHelper.validateTextField(proxyUsernameTextField,
+            ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
             isFormValid = false;
         }
-        
+
         // Proxy password field
-        if (!ValidationHelper.validateTextField(proxyPasswordTextField, ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
+        if (!ValidationHelper.validateTextField(proxyPasswordTextField,
+            ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
             isFormValid = false;
         }
 
@@ -162,7 +168,7 @@ public class SettingsController extends EventAwareObject implements Constants {
     @FXML
     protected void handleOkButtonAction(ActionEvent event) {
         trimFields();
-        
+
         if (!validate()) {
             return;
         }

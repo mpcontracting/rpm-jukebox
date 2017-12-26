@@ -2,7 +2,12 @@
   "shuffle": true,
   "repeat": "ALL",
   "systemSettings": {
-    "cacheSizeMb": 123
+    "cacheSizeMb": 123,
+    "proxyHost": "localhost",
+    "proxyPort": 8080,
+    "proxyRequiresAuthentication": true,
+    "proxyUsername": "username",
+    "proxyPassword": "password"
   },
   "eqBands": [
     {
