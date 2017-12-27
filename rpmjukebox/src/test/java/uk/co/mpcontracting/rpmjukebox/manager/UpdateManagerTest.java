@@ -32,6 +32,9 @@ public class UpdateManagerTest extends AbstractTest {
 
     @Mock
     private URL mockVersionUrl;
+    
+    @Mock
+    private InternetManager mockInternetManager;
 
     @Mock
     private HttpURLConnection mockHttpURLConnection;
@@ -46,10 +49,11 @@ public class UpdateManagerTest extends AbstractTest {
         spyUpdateManager = spy(updateManager);
 
         ReflectionTestUtils.setField(spyUpdateManager, "eventManager", getMockEventManager());
+        ReflectionTestUtils.setField(spyUpdateManager, "internetManager", mockInternetManager);
         ReflectionTestUtils.setField(spyUpdateManager, "versionUrl", mockVersionUrl);
         ReflectionTestUtils.setField(spyUpdateManager, "newVersion", null);
 
-        when(mockVersionUrl.openConnection()).thenReturn(mockHttpURLConnection);
+        when(mockInternetManager.openConnection(mockVersionUrl)).thenReturn(mockHttpURLConnection);
     }
 
     @Test

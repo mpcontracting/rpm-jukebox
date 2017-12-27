@@ -67,6 +67,9 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
     @Mock
     private MediaManager mockMediaManager;
+    
+    @Mock
+    private InternetManager mockInternetManager;
 
     @Mock
     private MainPanelController mockMainPanelController;
@@ -82,6 +85,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         ReflectionTestUtils.setField(spySettingsManager, "searchManager", mockSearchManager);
         ReflectionTestUtils.setField(spySettingsManager, "playlistManager", mockPlaylistManager);
         ReflectionTestUtils.setField(spySettingsManager, "mediaManager", mockMediaManager);
+        ReflectionTestUtils.setField(spySettingsManager, "internetManager", mockInternetManager);
         ReflectionTestUtils.setField(spySettingsManager, "mainPanelController", mockMainPanelController);
         ReflectionTestUtils.setField(spySettingsManager, "dataFile", mockDataFile);
     }
@@ -99,7 +103,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     public void shouldShowHttpDataFileHasExpired() throws Exception {
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockDataFile.getProtocol()).thenReturn("http");
-        when(mockDataFile.openConnection()).thenReturn(mockConnection);
+        when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
         when(mockConnection.getLastModified()).thenReturn(getDateTimeInMillis(1975, 1, 1, 0, 0));
         doReturn(LocalDateTime.of(1971, 1, 1, 0, 0)).when(spySettingsManager).getLastIndexedDate();
 
@@ -112,7 +116,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     public void shouldShowHttpDataFileHasNotExpiredAsLastModifiedNotOneHourOld() throws Exception {
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockDataFile.getProtocol()).thenReturn("http");
-        when(mockDataFile.openConnection()).thenReturn(mockConnection);
+        when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
         when(mockConnection.getLastModified())
             .thenReturn(getLocalDateTimeInMillis(LocalDateTime.now().minusMinutes(30)));
         doReturn(LocalDateTime.of(1971, 1, 1, 0, 0)).when(spySettingsManager).getLastIndexedDate();
@@ -126,7 +130,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     public void shouldShowHttpDataFileHasNotExpiredAsLastModifiedBeforeLastIndexed() throws Exception {
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockDataFile.getProtocol()).thenReturn("http");
-        when(mockDataFile.openConnection()).thenReturn(mockConnection);
+        when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
         when(mockConnection.getLastModified()).thenReturn(getDateTimeInMillis(1971, 1, 1, 0, 0));
         doReturn(LocalDateTime.of(1975, 1, 1, 0, 0)).when(spySettingsManager).getLastIndexedDate();
 
@@ -139,7 +143,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     public void shouldShowHttpDataFileHasNotExpiredOnLastModifiedError() throws Exception {
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockDataFile.getProtocol()).thenReturn("http");
-        when(mockDataFile.openConnection()).thenReturn(mockConnection);
+        when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
         doThrow(new RuntimeException("SettingsManagerTest.shouldShowHttpDataFileHasNotExpiredOnLastModifiedError()"))
             .when(mockConnection).getLastModified();
 
@@ -152,7 +156,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     public void shouldShowHttpDataFileHasNotExpiredOnConnectionError() throws Exception {
         when(mockDataFile.getProtocol()).thenReturn("http");
         doThrow(new RuntimeException("SettingsManagerTest.shouldShowHttpDataFileHasNotExpiredOnConnectionError()"))
-            .when(mockDataFile).openConnection();
+            .when(mockInternetManager).openConnection(mockDataFile);
 
         boolean result = spySettingsManager.hasDataFileExpired();
 

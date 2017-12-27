@@ -156,7 +156,7 @@ public class SettingsManager implements InitializingBean, Constants {
             HttpURLConnection connection = null;
 
             try {
-                connection = (HttpURLConnection)dataFile.openConnection();
+                connection = internetManager.openConnection(dataFile);
                 lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(connection.getLastModified()),
                     ZoneId.systemDefault());
             } catch (Exception e) {
