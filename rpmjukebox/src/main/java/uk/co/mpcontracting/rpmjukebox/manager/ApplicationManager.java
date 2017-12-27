@@ -77,7 +77,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
         ThreadRunner.run(() -> {
             try {
                 searchManager.initialise();
-                settingsManager.loadSettings();
+                settingsManager.loadUserSettings();
 
                 mainPanelController.closeMessageView();
 
@@ -97,7 +97,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
 
         if (isInitialised) {
             settingsManager.saveWindowSettings(stage);
-            settingsManager.saveSettings();
+            settingsManager.saveUserSettings();
         }
 
         try {

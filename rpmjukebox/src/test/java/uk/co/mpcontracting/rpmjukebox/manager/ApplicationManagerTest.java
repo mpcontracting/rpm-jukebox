@@ -89,7 +89,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
         verify(mockStage, times(1)).show();
         verify(mockStage, times(1)).requestFocus();
         verify(mockSearchManager, times(1)).initialise();
-        verify(mockSettingsManager, times(1)).loadSettings();
+        verify(mockSettingsManager, times(1)).loadUserSettings();
         verify(mockMainPanelController, times(1)).closeMessageView();
         verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
@@ -114,7 +114,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
         verify(mockStage, times(1)).show();
         verify(mockStage, times(1)).requestFocus();
         verify(mockSearchManager, times(1)).initialise();
-        verify(mockSettingsManager, times(1)).loadSettings();
+        verify(mockSettingsManager, times(1)).loadUserSettings();
         verify(mockMainPanelController, times(1)).closeMessageView();
         verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
@@ -139,7 +139,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
         verify(mockStage, times(1)).show();
         verify(mockStage, times(1)).requestFocus();
         verify(mockSearchManager, times(1)).initialise();
-        verify(mockSettingsManager, times(1)).loadSettings();
+        verify(mockSettingsManager, times(1)).loadUserSettings();
         verify(mockMainPanelController, times(1)).closeMessageView();
         verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
@@ -172,7 +172,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
         verify(mockMediaManager, times(1)).cleanUpResources();
         verify(mockSearchManager, times(1)).shutdown();
         verify(mockSettingsManager, times(1)).saveWindowSettings(mockStage);
-        verify(mockSettingsManager, times(1)).saveSettings();
+        verify(mockSettingsManager, times(1)).saveUserSettings();
         verify(mockJettyServer, times(1)).stop();
     }
 
@@ -186,7 +186,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
         verify(mockMediaManager, times(1)).cleanUpResources();
         verify(mockSearchManager, times(1)).shutdown();
         verify(mockSettingsManager, never()).saveWindowSettings(mockStage);
-        verify(mockSettingsManager, never()).saveSettings();
+        verify(mockSettingsManager, never()).saveUserSettings();
         verify(mockJettyServer, times(1)).stop();
     }
 
@@ -203,7 +203,7 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
         verify(mockMediaManager, times(1)).cleanUpResources();
         verify(mockSearchManager, times(1)).shutdown();
         verify(mockSettingsManager, never()).saveWindowSettings(mockStage);
-        verify(mockSettingsManager, never()).saveSettings();
+        verify(mockSettingsManager, never()).saveUserSettings();
         verify(mockJettyServer, times(1)).stop();
     }
 

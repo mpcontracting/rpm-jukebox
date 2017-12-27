@@ -74,8 +74,11 @@ public class SettingsManager implements InitializingBean, Constants {
     @Value("${file.window.settings}")
     private String fileWindowSettings;
 
-    @Value("${file.settings}")
-    private String fileSettings;
+    @Value("${file.system.settings}")
+    private String fileSystemSettings;
+
+    @Value("${file.user.settings}")
+    private String fileUserSettings;
 
     @Value("${max.playlist.size}")
     private int maxPlaylistSize;
@@ -94,7 +97,7 @@ public class SettingsManager implements InitializingBean, Constants {
 
     @Getter
     private Gson gson;
-    private boolean settingsLoaded;
+    private boolean userSettingsLoaded;
 
     public SettingsManager() {
         // Determine the OS type
@@ -124,7 +127,10 @@ public class SettingsManager implements InitializingBean, Constants {
         // Get the data file location
         dataFile = new URL(dataFileUrl);
 
-        settingsLoaded = false;
+        // Load the system settings
+        loadSystemSettings();
+
+        userSettingsLoaded = false;
     }
 
     public File getFileFromConfigDirectory(String relativePath) {
@@ -271,26 +277,66 @@ public class SettingsManager implements InitializingBean, Constants {
         }
     }
 
-    public void loadSettings() {
-        log.debug("Loading settings");
+    public void loadSystemSettings() {
+        log.debug("Loading system settings");
 
-        File settingsFile = getFileFromConfigDirectory(fileSettings);
+        File systemSettingsFile = getFileFromConfigDirectory(fileSystemSettings);
 
-        if (!settingsFile.exists()) {
-            initialiseDefaultSystemSettings();
+        if (!systemSettingsFile.exists()) {
+            systemSettings = new SystemSettings();
+            systemSettings.setCacheSizeMb(cacheSizeMb);
 
-            settingsLoaded = true;
-            saveSettings();
+            saveSystemSettings();
+
+            return;
+        }
+
+        // Read the file
+        try (FileReader fileReader = new FileReader(systemSettingsFile)) {
+            systemSettings = gson.fromJson(fileReader, SystemSettings.class);
+        } catch (Exception e) {
+            log.error("Unable to load system settings file", e);
+
+            systemSettings = new SystemSettings();
+            systemSettings.setCacheSizeMb(cacheSizeMb);
+
+            saveSystemSettings();
+
+            return;
+        }
+    }
+
+    public void saveSystemSettings() {
+        log.debug("Saving system settings");
+
+        // Write the file
+        File systemSettingsFile = getFileFromConfigDirectory(fileSystemSettings);
+
+        try (FileWriter fileWriter = new FileWriter(systemSettingsFile)) {
+            fileWriter.write(gson.toJson(systemSettings));
+        } catch (Exception e) {
+            log.error("Unable to save system settings file", e);
+        }
+    }
+
+    public void loadUserSettings() {
+        log.debug("Loading user settings");
+
+        File userSettingsFile = getFileFromConfigDirectory(fileUserSettings);
+
+        if (!userSettingsFile.exists()) {
+            userSettingsLoaded = true;
+            saveUserSettings();
             return;
         }
 
         // Read the file
         Settings settings = null;
 
-        try (FileReader fileReader = new FileReader(settingsFile)) {
+        try (FileReader fileReader = new FileReader(userSettingsFile)) {
             settings = gson.fromJson(fileReader, Settings.class);
         } catch (Exception e) {
-            log.error("Unable to load settings file", e);
+            log.error("Unable to load user settings file", e);
 
             return;
         }
@@ -298,13 +344,6 @@ public class SettingsManager implements InitializingBean, Constants {
         // General settings
         playlistManager.setShuffle(settings.isShuffle(), true);
         playlistManager.setRepeat(settings.getRepeat());
-
-        // System settings
-        systemSettings = settings.getSystemSettings();
-
-        if (systemSettings == null) {
-            initialiseDefaultSystemSettings();
-        }
 
         // Equalizer
         if (settings.getEqBands() != null) {
@@ -342,15 +381,15 @@ public class SettingsManager implements InitializingBean, Constants {
 
         playlistManager.setPlaylists(playlists);
 
-        settingsLoaded = true;
+        userSettingsLoaded = true;
     }
 
-    public void saveSettings() {
-        log.debug("Saving settings");
+    public void saveUserSettings() {
+        log.debug("Saving user settings");
 
         // Don't save settings if they weren't loaded successfully
         // so we stop file corruption
-        if (!settingsLoaded) {
+        if (!userSettingsLoaded) {
             return;
         }
 
@@ -360,9 +399,6 @@ public class SettingsManager implements InitializingBean, Constants {
         // General settings
         settings.setShuffle(playlistManager.isShuffle());
         settings.setRepeat(playlistManager.getRepeat());
-
-        // System settings
-        settings.setSystemSettings(systemSettings);
 
         // Equalizer
         Equalizer equalizer = mediaManager.getEqualizer();
@@ -388,31 +424,25 @@ public class SettingsManager implements InitializingBean, Constants {
         settings.setPlaylists(playlists);
 
         // Write the file
-        File settingsFile = getFileFromConfigDirectory(fileSettings);
-        boolean alreadyExists = settingsFile.exists();
+        File userSettingsFile = getFileFromConfigDirectory(fileUserSettings);
+        boolean alreadyExists = userSettingsFile.exists();
 
         if (alreadyExists) {
-            settingsFile.renameTo(getFileFromConfigDirectory(fileSettings + ".bak"));
+            userSettingsFile.renameTo(getFileFromConfigDirectory(fileUserSettings + ".bak"));
         }
 
-        try (FileWriter fileWriter = new FileWriter(settingsFile)) {
+        try (FileWriter fileWriter = new FileWriter(userSettingsFile)) {
             fileWriter.write(gson.toJson(settings));
         } catch (Exception e) {
-            log.error("Unable to save settings file", e);
+            log.error("Unable to save user settings file", e);
 
-            settingsFile.delete();
+            userSettingsFile.delete();
 
             if (alreadyExists) {
-                getFileFromConfigDirectory(fileSettings + ".bak").renameTo(settingsFile);
+                getFileFromConfigDirectory(fileUserSettings + ".bak").renameTo(userSettingsFile);
             }
         } finally {
             getFileFromConfigDirectory(fileLastIndexed + ".bak").delete();
         }
-    }
-
-    // Package level for testing purposes
-    void initialiseDefaultSystemSettings() {
-        systemSettings = new SystemSettings();
-        systemSettings.setCacheSizeMb(cacheSizeMb);
     }
 }

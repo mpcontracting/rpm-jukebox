@@ -1,0 +1,8 @@
+{
+  "cacheSizeMb": 123,
+  "proxyHost": "localhost",
+  "proxyPort": 8080,
+  "proxyRequiresAuthentication": true,
+  "proxyUsername": "username",
+  "proxyPassword": "password"
+}

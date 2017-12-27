@@ -182,6 +182,8 @@ public class SettingsController extends EventAwareObject implements Constants {
         systemSettings.setProxyUsername(proxyUsernameTextField.getText());
         systemSettings.setProxyPassword(proxyPasswordTextField.getText());
 
+        settingsManager.saveSystemSettings();
+
         settingsView.close();
     }
 
