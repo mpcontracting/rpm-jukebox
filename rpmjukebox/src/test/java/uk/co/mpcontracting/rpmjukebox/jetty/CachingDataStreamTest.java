@@ -63,6 +63,7 @@ public class CachingDataStreamTest extends AbstractTest {
 
         try {
             ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
+
             CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", false, spyInputStream,
                 mockAsyncContext, mockServletOutputStream);
             when(mockServletOutputStream.isReady()).thenReturn(true);

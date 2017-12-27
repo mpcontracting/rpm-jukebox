@@ -150,7 +150,6 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, times(1)).setProxyRequiresAuthentication(true);
         verify(mockSystemSettings, times(1)).setProxyUsername("username");
         verify(mockSystemSettings, times(1)).setProxyPassword("password");
-        verify(getMockEventManager(), times(1)).fireEvent(Event.SETTINGS_UPDATED);
         verify(spySettingsView, times(1)).close();
     }
 
@@ -170,7 +169,6 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
         verify(mockSystemSettings, never()).setProxyUsername(anyString());
         verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(getMockEventManager(), never()).fireEvent(Event.SETTINGS_UPDATED);
         verify(spySettingsView, never()).close();
     }
 
@@ -190,7 +188,6 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
         verify(mockSystemSettings, never()).setProxyUsername(anyString());
         verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(getMockEventManager(), never()).fireEvent(Event.SETTINGS_UPDATED);
         verify(spySettingsView, never()).close();
     }
 
@@ -210,7 +207,6 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
         verify(mockSystemSettings, never()).setProxyUsername(anyString());
         verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(getMockEventManager(), never()).fireEvent(Event.SETTINGS_UPDATED);
         verify(spySettingsView, never()).close();
     }
 
@@ -230,7 +226,6 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
         verify(mockSystemSettings, never()).setProxyUsername(anyString());
         verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(getMockEventManager(), never()).fireEvent(Event.SETTINGS_UPDATED);
         verify(spySettingsView, never()).close();
     }
 
@@ -250,7 +245,6 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
         verify(mockSystemSettings, never()).setProxyUsername(anyString());
         verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(getMockEventManager(), never()).fireEvent(Event.SETTINGS_UPDATED);
         verify(spySettingsView, never()).close();
     }
 

@@ -5,6 +5,8 @@ import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletOutputStream;
@@ -17,10 +19,7 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
-import uk.co.mpcontracting.rpmjukebox.manager.InternetManager;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
@@ -29,7 +28,6 @@ public class CachingMediaProxyServletTest extends AbstractTest {
     private HttpServletRequest mockServletRequest;
     private HttpServletResponse mockServletResponse;
     private CacheManager mockCacheManager;
-    private InternetManager mockInternetManager;
     private AsyncContext mockAsyncContext;
     private ServletOutputStream mockServletOutputStream;
 
@@ -41,7 +39,6 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         mockServletRequest = mock(HttpServletRequest.class);
         mockServletResponse = mock(HttpServletResponse.class);
         mockCacheManager = mock(CacheManager.class);
-        mockInternetManager = mock(InternetManager.class);
         mockAsyncContext = mock(AsyncContext.class);
         mockServletOutputStream = mock(ServletOutputStream.class);
 
@@ -51,7 +48,6 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         originalContext = (ApplicationContext)ReflectionTestUtils.getField(ContextHelper.class, "applicationContext");
         ApplicationContext mockContext = mock(ApplicationContext.class);
         when(mockContext.getBean(CacheManager.class)).thenReturn(mockCacheManager);
-        when(mockContext.getBean(InternetManager.class)).thenReturn(mockInternetManager);
 
         ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", mockContext);
 
@@ -104,19 +100,17 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         when(mockServletRequest.getMethod()).thenReturn("GET");
         when(mockCacheManager.readCache(any(), anyString())).thenReturn(null);
 
-        ResponseBody mockResponseBody = mock(ResponseBody.class);
-        when(mockResponseBody.contentLength()).thenReturn(1000l);
+        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+        when(mockConnection.getResponseCode()).thenReturn(200);
+        when(mockConnection.getContentLength()).thenReturn(1000);
 
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.isSuccessful()).thenReturn(true);
-        when(mockResponse.code()).thenReturn(200);
-        when(mockResponse.body()).thenReturn(mockResponseBody);
-
-        when(mockInternetManager.openConnection(any())).thenReturn(mockResponse);
+        URL mockURL = mock(URL.class);
+        doReturn(mockURL).when(spyServlet).getURL(anyString());
+        when(mockURL.openConnection()).thenReturn(mockConnection);
 
         spyServlet.doGet(mockServletRequest, mockServletResponse);
 
-        verify(mockServletResponse, times(1)).setContentLengthLong(1000l);
+        verify(mockServletResponse, times(1)).setContentLength(1000);
         verify(mockServletResponse, never()).setStatus(anyInt());
         verify(mockServletOutputStream, times(1)).setWriteListener(any());
     }
@@ -129,19 +123,17 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         when(mockServletRequest.getMethod()).thenReturn("HEAD");
         when(mockCacheManager.readCache(any(), anyString())).thenReturn(null);
 
-        ResponseBody mockResponseBody = mock(ResponseBody.class);
-        when(mockResponseBody.contentLength()).thenReturn(1000l);
+        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+        when(mockConnection.getResponseCode()).thenReturn(200);
+        when(mockConnection.getContentLength()).thenReturn(1000);
 
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.isSuccessful()).thenReturn(true);
-        when(mockResponse.code()).thenReturn(200);
-        when(mockResponse.body()).thenReturn(mockResponseBody);
-
-        when(mockInternetManager.openConnection(any())).thenReturn(mockResponse);
+        URL mockURL = mock(URL.class);
+        doReturn(mockURL).when(spyServlet).getURL(anyString());
+        when(mockURL.openConnection()).thenReturn(mockConnection);
 
         spyServlet.doGet(mockServletRequest, mockServletResponse);
 
-        verify(mockServletResponse, times(1)).setContentLengthLong(1000l);
+        verify(mockServletResponse, times(1)).setContentLength(1000);
         verify(mockServletResponse, never()).setStatus(anyInt());
         verify(mockServletOutputStream, never()).setWriteListener(any());
     }
@@ -154,19 +146,17 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         when(mockServletRequest.getMethod()).thenReturn("GET");
         when(mockCacheManager.readCache(any(), anyString())).thenReturn(null);
 
-        ResponseBody mockResponseBody = mock(ResponseBody.class);
-        when(mockResponseBody.contentLength()).thenReturn(1000l);
+        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+        when(mockConnection.getResponseCode()).thenReturn(404);
+        when(mockConnection.getContentLength()).thenReturn(1000);
 
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.isSuccessful()).thenReturn(false);
-        when(mockResponse.code()).thenReturn(404);
-        when(mockResponse.body()).thenReturn(mockResponseBody);
-
-        when(mockInternetManager.openConnection(any())).thenReturn(mockResponse);
+        URL mockURL = mock(URL.class);
+        doReturn(mockURL).when(spyServlet).getURL(anyString());
+        when(mockURL.openConnection()).thenReturn(mockConnection);
 
         spyServlet.doGet(mockServletRequest, mockServletResponse);
 
-        verify(mockServletResponse, never()).setContentLengthLong(anyLong());
+        verify(mockServletResponse, never()).setContentLength(anyInt());
         verify(mockServletResponse, times(1)).setStatus(404);
         verify(mockServletOutputStream, never()).setWriteListener(any());
     }

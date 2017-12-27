@@ -80,7 +80,7 @@ public class CachingDataStream implements WriteListener {
     }
 
     private void cleanUpResources() {
-        log.debug("Cleaning up resources");
+        log.debug("Cleaning up resources : Type - " + cacheType + ", ID - " + id);
 
         // Make sure the byte array is disposed of
         if (byteStream != null) {

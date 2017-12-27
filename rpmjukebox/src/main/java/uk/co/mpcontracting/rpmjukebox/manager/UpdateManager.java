@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component;
 import com.igormaznitsa.commons.version.Version;
 
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
@@ -41,23 +41,20 @@ public class UpdateManager extends EventAwareObject implements Constants {
         log.debug("Checking for updates to version - " + settingsManager.getVersion());
         log.debug("Version url - " + versionUrl);
 
-        Response response = null;
-
         try {
-            response = internetManager.openConnection(versionUrl);
+            HttpURLConnection connection = (HttpURLConnection)versionUrl.openConnection();
 
-            if (response.isSuccessful()) {
-                StringBuilder builder = new StringBuilder();
+            if (connection.getResponseCode() == 200) {
+                StringBuilder response = new StringBuilder();
 
-                try (
-                    BufferedReader reader = new BufferedReader(new InputStreamReader((response.body().byteStream())))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader((connection.getInputStream())))) {
                     reader.lines().forEach(line -> {
-                        builder.append(line);
+                        response.append(line);
                     });
                 }
 
-                if (builder.toString().length() > 0) {
-                    Version foundVersion = new Version(builder.toString().trim());
+                if (response.toString().length() > 0) {
+                    Version foundVersion = new Version(response.toString().trim());
 
                     log.debug("Found version - " + foundVersion);
 
@@ -70,14 +67,10 @@ public class UpdateManager extends EventAwareObject implements Constants {
                     }
                 }
             } else {
-                log.error("Unable to check for new version : Response code - " + response.code());
+                log.error("Unable to check for new version : Response code - " + connection.getResponseCode());
             }
         } catch (Exception e) {
             log.error("Error checking for new version", e);
-        } finally {
-            if (response != null && response.body() != null) {
-                response.body().close();
-            }
         }
     }
 

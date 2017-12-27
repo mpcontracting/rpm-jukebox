@@ -5,12 +5,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
@@ -155,17 +153,17 @@ public class SettingsManager implements InitializingBean, Constants {
                 log.error("Unable to determine if local data file has expired", e);
             }
         } else {
-            Response response = null;
+            HttpURLConnection connection = null;
 
             try {
-                response = internetManager.openConnection(dataFile);
-                lastModified = ZonedDateTime
-                    .parse(response.header("Last-Modified"), DateTimeFormatter.RFC_1123_DATE_TIME).toLocalDateTime();
+                connection = (HttpURLConnection)dataFile.openConnection();
+                lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(connection.getLastModified()),
+                    ZoneId.systemDefault());
             } catch (Exception e) {
                 log.error("Unable to determine if data file has expired", e);
             } finally {
-                if (response != null && response.body() != null) {
-                    response.body().close();
+                if (connection != null) {
+                    connection.disconnect();
                 }
             }
         }

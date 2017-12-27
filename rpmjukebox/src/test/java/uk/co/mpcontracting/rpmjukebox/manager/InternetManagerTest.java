@@ -2,9 +2,10 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import java.net.InetSocketAddress;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.junit.Before;
@@ -14,12 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import okhttp3.Authenticator;
-import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
@@ -41,67 +36,77 @@ public class InternetManagerTest extends AbstractTest {
     }
 
     @Test
-    public void shouldReceiveSettingsUpdatedNoProxy() {
+    public void shouldOpenConnectionNoProxy() throws Exception {
         when(mockSettingsManager.getSystemSettings()).thenReturn(new SystemSettings());
-
-        internetManager.eventReceived(Event.SETTINGS_UPDATED);
-
-        OkHttpClient httpClient = (OkHttpClient)ReflectionTestUtils.getField(internetManager, "httpClient");
-
-        assertThat("Proxy should be null", httpClient.proxy(), nullValue());
-        assertThat("Proxy authenticator should be NONE", httpClient.proxyAuthenticator(), equalTo(Authenticator.NONE));
+        
+        URL mockUrl = mock(URL.class);
+        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+        when(mockUrl.openConnection()).thenReturn(mockConnection);
+        
+        internetManager.openConnection(mockUrl);
+        
+        verify(mockUrl, times(1)).openConnection();
+        verify(mockUrl, never()).openConnection(any());
+        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
-    public void shouldReceiveSettingsUpdatedNoProxyMissingPort() {
+    public void shouldOpenConnectionNoProxyMissingPort() throws Exception {
         SystemSettings systemSettings = new SystemSettings();
         systemSettings.setProxyHost("localhost");
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        internetManager.eventReceived(Event.SETTINGS_UPDATED);
-
-        OkHttpClient httpClient = (OkHttpClient)ReflectionTestUtils.getField(internetManager, "httpClient");
-
-        assertThat("Proxy should be null", httpClient.proxy(), nullValue());
-        assertThat("Proxy authenticator should be NONE", httpClient.proxyAuthenticator(), equalTo(Authenticator.NONE));
+        URL mockUrl = mock(URL.class);
+        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+        when(mockUrl.openConnection()).thenReturn(mockConnection);
+        
+        internetManager.openConnection(mockUrl);
+        
+        verify(mockUrl, times(1)).openConnection();
+        verify(mockUrl, never()).openConnection(any());
+        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
-    public void shouldReceiveSettingsUpdatedNoProxyMissingHost() {
+    public void shouldOpenConnectionNoProxyMissingHost() throws Exception {
         SystemSettings systemSettings = new SystemSettings();
         systemSettings.setProxyPort(8080);
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        internetManager.eventReceived(Event.SETTINGS_UPDATED);
-
-        OkHttpClient httpClient = (OkHttpClient)ReflectionTestUtils.getField(internetManager, "httpClient");
-
-        assertThat("Proxy should be null", httpClient.proxy(), nullValue());
-        assertThat("Proxy authenticator should be NONE", httpClient.proxyAuthenticator(), equalTo(Authenticator.NONE));
+        URL mockUrl = mock(URL.class);
+        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+        when(mockUrl.openConnection()).thenReturn(mockConnection);
+        
+        internetManager.openConnection(mockUrl);
+        
+        verify(mockUrl, times(1)).openConnection();
+        verify(mockUrl, never()).openConnection(any());
+        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
-    public void shouldReceiveSettingsUpdatedUnauthenticatedProxy() {
+    public void shouldOpenConnectionUnauthenticatedProxy() throws Exception {
         SystemSettings systemSettings = new SystemSettings();
         systemSettings.setProxyHost("localhost");
         systemSettings.setProxyPort(8080);
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        internetManager.eventReceived(Event.SETTINGS_UPDATED);
-
-        OkHttpClient httpClient = (OkHttpClient)ReflectionTestUtils.getField(internetManager, "httpClient");
-        InetSocketAddress address = (InetSocketAddress)httpClient.proxy().address();
-
-        assertThat("Proxy host should be 'localhost'", address.getHostName(), equalTo("localhost"));
-        assertThat("Proxy port should be 8080", address.getPort(), equalTo(8080));
-        assertThat("Proxy authenticator should be NONE", httpClient.proxyAuthenticator(), equalTo(Authenticator.NONE));
+        URL mockUrl = mock(URL.class);
+        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+        when(mockUrl.openConnection(any())).thenReturn(mockConnection);
+        
+        internetManager.openConnection(mockUrl);
+        
+        verify(mockUrl, never()).openConnection();
+        verify(mockUrl, times(1)).openConnection(any());
+        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
-    public void shouldReceiveSettingsUpdatedUnauthenticatedProxyAuthenticatedFalse() {
+    public void shouldOpenConnectionUnauthenticatedProxyAuthenticatedFalse() throws Exception {
         SystemSettings systemSettings = new SystemSettings();
         systemSettings.setProxyHost("localhost");
         systemSettings.setProxyPort(8080);
@@ -109,18 +114,19 @@ public class InternetManagerTest extends AbstractTest {
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        internetManager.eventReceived(Event.SETTINGS_UPDATED);
-
-        OkHttpClient httpClient = (OkHttpClient)ReflectionTestUtils.getField(internetManager, "httpClient");
-        InetSocketAddress address = (InetSocketAddress)httpClient.proxy().address();
-
-        assertThat("Proxy host should be 'localhost'", address.getHostName(), equalTo("localhost"));
-        assertThat("Proxy port should be 8080", address.getPort(), equalTo(8080));
-        assertThat("Proxy authenticator should be NONE", httpClient.proxyAuthenticator(), equalTo(Authenticator.NONE));
+        URL mockUrl = mock(URL.class);
+        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+        when(mockUrl.openConnection(any())).thenReturn(mockConnection);
+        
+        internetManager.openConnection(mockUrl);
+        
+        verify(mockUrl, never()).openConnection();
+        verify(mockUrl, times(1)).openConnection(any());
+        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
-    public void shouldReceiveSettingsUpdatedAuthenticatedProxy() throws Exception {
+    public void shouldOpenConnectionAuthenticatedProxy() throws Exception {
         SystemSettings systemSettings = new SystemSettings();
         systemSettings.setProxyHost("localhost");
         systemSettings.setProxyPort(8080);
@@ -130,21 +136,15 @@ public class InternetManagerTest extends AbstractTest {
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        internetManager.eventReceived(Event.SETTINGS_UPDATED);
-
-        OkHttpClient httpClient = (OkHttpClient)ReflectionTestUtils.getField(internetManager, "httpClient");
-        InetSocketAddress address = (InetSocketAddress)httpClient.proxy().address();
-        Authenticator authenticator = httpClient.proxyAuthenticator();
-        Response response = new Response.Builder().request(new Request.Builder().url("http://www.example.com").build())
-            .protocol(Protocol.HTTP_1_1).code(200).build();
-        Request request = authenticator.authenticate(null, response);
-
-        assertThat("Proxy host should be 'localhost'", address.getHostName(), equalTo("localhost"));
-        assertThat("Proxy port should be 8080", address.getPort(), equalTo(8080));
-        assertThat("Proxy authenticator should not be NONE", httpClient.proxyAuthenticator(),
-            not(equalTo(Authenticator.NONE)));
-        assertThat("Response should have a Proxy-Authorization header", request.header("Proxy-Authorization"),
-            notNullValue());
+        URL mockUrl = mock(URL.class);
+        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+        when(mockUrl.openConnection(any())).thenReturn(mockConnection);
+        
+        internetManager.openConnection(mockUrl);
+        
+        verify(mockUrl, never()).openConnection();
+        verify(mockUrl, times(1)).openConnection(any());
+        verify(mockConnection, times(1)).setRequestProperty(anyString(), anyString());
     }
 
     @Test
@@ -152,16 +152,16 @@ public class InternetManagerTest extends AbstractTest {
         when(mockSettingsManager.getSystemSettings()).thenReturn(new SystemSettings());
 
         URL url = new URL("http://localhost:" + internalJettyPort + "/invalid");
-        Response response = null;
-
+        HttpURLConnection connection = null;
+        
         try {
-            response = internetManager.openConnection(url);
+            connection = internetManager.openConnection(url);
+            
+            assertThat("Response code should be 404", connection.getResponseCode(), equalTo(404));
         } finally {
-            if (response != null && response.body() != null) {
-                response.body().close();
+            if (connection != null) {
+                connection.disconnect();
             }
         }
-
-        assertThat("Response code should be 404", response.code(), equalTo(404));
     }
 }
