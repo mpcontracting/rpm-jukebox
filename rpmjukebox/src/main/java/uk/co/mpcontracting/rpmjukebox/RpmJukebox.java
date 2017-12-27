@@ -75,8 +75,8 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
                     new InputStreamReader(RpmJukebox.class.getResourceAsStream("/logback-config.xml")))) {
                     reader.lines().forEach(line -> {
                         if (line.contains("${}")) {
-                            builder.append(
-                                StringUtils.replace(line, "${}", new File(configDirectory, "log").getAbsolutePath()));
+                            builder.append(StringUtils.replace(line, "${}",
+                                StringUtils.replace(new File(configDirectory, "log").getAbsolutePath(), "\\", "/")));
                         } else {
                             builder.append(line);
                         }
