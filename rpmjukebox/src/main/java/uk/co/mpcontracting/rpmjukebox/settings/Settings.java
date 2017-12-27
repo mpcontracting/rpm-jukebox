@@ -17,9 +17,6 @@ public class Settings {
     private Repeat repeat;
     @Getter
     @Setter
-    private SystemSettings systemSettings;
-    @Getter
-    @Setter
     private List<EqBand> eqBands;
     @Getter
     @Setter

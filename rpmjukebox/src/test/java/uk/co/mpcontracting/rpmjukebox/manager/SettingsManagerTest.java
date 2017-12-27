@@ -56,8 +56,14 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     @Value("${file.window.settings}")
     private String fileWindowSettings;
 
-    @Value("${file.settings}")
-    private String fileSettings;
+    @Value("${file.system.settings}")
+    private String fileSystemSettings;
+
+    @Value("${file.user.settings}")
+    private String fileUserSettings;
+
+    @Value("${cache.size.mb}")
+    private int cacheSizeMb;
 
     @Mock
     private SearchManager mockSearchManager;
@@ -420,25 +426,127 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     }
 
     @Test
-    public void shouldLoadDefaultSettings() {
-        doNothing().when(spySettingsManager).saveSettings();
+    public void shouldLoadSystemSettingsFromDefault() throws Exception {
+        doNothing().when(spySettingsManager).saveSystemSettings();
 
-        spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
-            "systemSettings");
+        spySettingsManager.loadSystemSettings();
 
-        assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
-        assertThat("Cache size should be 500", systemSettings.getCacheSizeMb(), equalTo(500));
+        SystemSettings systemSettings = spySettingsManager.getSystemSettings();
 
-        verify(spySettingsManager, times(1)).initialiseDefaultSystemSettings();
-        verify(spySettingsManager, times(1)).saveSettings();
+        assertThat("Cache size should be " + cacheSizeMb, systemSettings.getCacheSizeMb(), equalTo(cacheSizeMb));
+        assertThat("Proxy host should be null", systemSettings.getProxyHost(), nullValue());
+        assertThat("Proxy port should be null", systemSettings.getProxyPort(), nullValue());
+        assertThat("Proxy requires authentication should be null", systemSettings.getProxyRequiresAuthentication(),
+            nullValue());
+        assertThat("Proxy username should be null", systemSettings.getProxyUsername(), nullValue());
+        assertThat("Proxy password should be null", systemSettings.getProxyPassword(), nullValue());
+
+        verify(spySettingsManager, times(1)).saveSystemSettings();
     }
 
     @Test
-    public void shouldLoadSettingsFromFile() throws Exception {
-        File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSettingsFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+    public void shouldLoadSystemSettingsFromFile() throws Exception {
+        doNothing().when(spySettingsManager).saveSystemSettings();
+
+        File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSystemSettingsFromFile.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+
+        Files.copy(testSettings, settingsFile);
+
+        spySettingsManager.loadSystemSettings();
+
+        SystemSettings systemSettings = spySettingsManager.getSystemSettings();
+
+        assertThat("Cache size should be 123", systemSettings.getCacheSizeMb(), equalTo(123));
+        assertThat("Proxy host should be 'localhost'", systemSettings.getProxyHost(), equalTo("localhost"));
+        assertThat("Proxy port should be 8080", systemSettings.getProxyPort(), equalTo(8080));
+        assertThat("Proxy requires authentication should be true", systemSettings.getProxyRequiresAuthentication(),
+            equalTo(true));
+        assertThat("Proxy username should be 'username'", systemSettings.getProxyUsername(), equalTo("username"));
+        assertThat("Proxy password should be 'password'", systemSettings.getProxyPassword(), equalTo("password"));
+
+        verify(spySettingsManager, never()).saveSystemSettings();
+    }
+
+    @Test
+    public void shouldNotLoadSystemSettingsFromAnInvalidFile() throws Exception {
+        doNothing().when(spySettingsManager).saveSystemSettings();
+
+        File testSettings = getTestResourceFile(
+            "json/settingsManager-shouldNotLoadSystemSettingsFromAnInvalidFile.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+
+        Files.copy(testSettings, settingsFile);
+
+        spySettingsManager.loadSystemSettings();
+
+        SystemSettings systemSettings = spySettingsManager.getSystemSettings();
+
+        assertThat("Cache size should be " + cacheSizeMb, systemSettings.getCacheSizeMb(), equalTo(cacheSizeMb));
+        assertThat("Proxy host should be null", systemSettings.getProxyHost(), nullValue());
+        assertThat("Proxy port should be null", systemSettings.getProxyPort(), nullValue());
+        assertThat("Proxy requires authentication should be null", systemSettings.getProxyRequiresAuthentication(),
+            nullValue());
+        assertThat("Proxy username should be null", systemSettings.getProxyUsername(), nullValue());
+        assertThat("Proxy password should be null", systemSettings.getProxyPassword(), nullValue());
+
+        verify(spySettingsManager, times(1)).saveSystemSettings();
+    }
+
+    @Test
+    public void shouldSaveSystemSettings() throws Exception {
+        SystemSettings systemSettings = spySettingsManager.getSystemSettings();
+        systemSettings.setCacheSizeMb(123);
+        systemSettings.setProxyHost("localhost");
+        systemSettings.setProxyPort(8080);
+        systemSettings.setProxyRequiresAuthentication(true);
+        systemSettings.setProxyUsername("username");
+        systemSettings.setProxyPassword("password");
+
+        spySettingsManager.saveSystemSettings();
+
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+        SystemSettings result = null;
+
+        try (FileReader fileReader = new FileReader(settingsFile)) {
+            result = new Gson().fromJson(fileReader, SystemSettings.class);
+        }
+
+        assertThat("Cache size should be 123", result.getCacheSizeMb(), equalTo(123));
+        assertThat("Proxy host should be 'localhost'", result.getProxyHost(), equalTo("localhost"));
+        assertThat("Proxy port should be 8080", result.getProxyPort(), equalTo(8080));
+        assertThat("Proxy requires authentication should be true", result.getProxyRequiresAuthentication(),
+            equalTo(true));
+        assertThat("Proxy username should be 'username'", result.getProxyUsername(), equalTo("username"));
+        assertThat("Proxy password should be 'password'", result.getProxyPassword(), equalTo("password"));
+    }
+
+    @Test
+    public void shouldNotSaveSystemSettingsOnException() throws Exception {
+        Gson mockGson = mock(Gson.class);
+        doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveSystemSettingsOnException()")).when(mockGson)
+            .toJson(any(SystemSettings.class));
+
+        ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
+
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+        settingsFile.delete();
+
+        spySettingsManager.saveSystemSettings();
+
+        SystemSettings result = null;
+
+        try (FileReader fileReader = new FileReader(settingsFile)) {
+            result = new Gson().fromJson(fileReader, SystemSettings.class);
+        }
+
+        assertThat("System settings should be null", result, nullValue());
+    }
+
+    @Test
+    public void shouldLoadUserSettingsFromFile() throws Exception {
+        File testSettings = getTestResourceFile("json/settingsManager-shouldLoadUserSettingsFromFile.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
 
         Files.copy(testSettings, settingsFile);
 
@@ -446,111 +554,87 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         when(mockSearchManager.getTrackById("92f9b8ad82601ab97c121239518730108eefa18055ead908e5cdaf369023984b"))
             .thenReturn(mockTrack);
 
-        spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
-            "systemSettings");
+        spySettingsManager.loadUserSettings();
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
-        assertThat("Cache size should be 123", systemSettings.getCacheSizeMb(), equalTo(123));
 
         verify(mockPlaylistManager, times(1)).setShuffle(true, true);
         verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
         verify(mockMediaManager, times(10)).setEqualizerGain(anyInt(), anyDouble());
         verify(mockSearchManager, times(15)).getTrackById(anyString());
-        verify(spySettingsManager, never()).saveSettings();
+        verify(spySettingsManager, never()).saveUserSettings();
     }
 
     @Test
-    public void shouldLoadSettingsWithNoSystemSettingsFromFile() throws Exception {
-        File testSettings = getTestResourceFile(
-            "json/settingsManager-shouldLoadSettingsWithNoSystemSettingsFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+    public void shouldLoadUserSettingsWithNoExistingFile() {
+        doNothing().when(spySettingsManager).saveUserSettings();
 
-        Files.copy(testSettings, settingsFile);
-
-        spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
-            "systemSettings");
+        spySettingsManager.loadUserSettings();
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
-        assertThat("Cache size should be 500", systemSettings.getCacheSizeMb(), equalTo(500));
 
-        verify(spySettingsManager, times(1)).initialiseDefaultSystemSettings();
-        verify(mockPlaylistManager, times(1)).setShuffle(true, true);
-        verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
-        verify(mockMediaManager, times(10)).setEqualizerGain(anyInt(), anyDouble());
-        verify(mockSearchManager, times(15)).getTrackById(anyString());
-        verify(spySettingsManager, never()).saveSettings();
+        verify(spySettingsManager, times(1)).saveUserSettings();
     }
 
     @Test
-    public void shouldLoadSettingsWithNoEqFromFile() throws Exception {
-        File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSettingsWithNoEqFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+    public void shouldLoadUserSettingsWithNoEqFromFile() throws Exception {
+        File testSettings = getTestResourceFile("json/settingsManager-shouldLoadUserSettingsWithNoEqFromFile.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
 
         Files.copy(testSettings, settingsFile);
 
-        spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
-            "systemSettings");
+        spySettingsManager.loadUserSettings();
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
-        assertThat("Cache size should be 123", systemSettings.getCacheSizeMb(), equalTo(123));
 
         verify(mockPlaylistManager, times(1)).setShuffle(true, true);
         verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
         verify(mockMediaManager, never()).setEqualizerGain(anyInt(), anyDouble());
         verify(mockSearchManager, times(15)).getTrackById(anyString());
-        verify(spySettingsManager, never()).saveSettings();
+        verify(spySettingsManager, never()).saveUserSettings();
     }
 
     @Test
-    public void shouldLoadSettingsWithNoPlaylistsFromFile() throws Exception {
-        File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSettingsWithNoPlaylistsFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+    public void shouldLoadUserSettingsWithNoPlaylistsFromFile() throws Exception {
+        File testSettings = getTestResourceFile(
+            "json/settingsManager-shouldLoadUserSettingsWithNoPlaylistsFromFile.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
 
         Files.copy(testSettings, settingsFile);
 
-        spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
-        SystemSettings systemSettings = (SystemSettings)ReflectionTestUtils.getField(spySettingsManager,
-            "systemSettings");
+        spySettingsManager.loadUserSettings();
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
-        assertThat("Cache size should be 123", systemSettings.getCacheSizeMb(), equalTo(123));
 
         verify(mockPlaylistManager, times(1)).setShuffle(true, true);
         verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
         verify(mockMediaManager, times(10)).setEqualizerGain(anyInt(), anyDouble());
         verify(mockSearchManager, never()).getTrackById(anyString());
-        verify(spySettingsManager, never()).saveSettings();
+        verify(spySettingsManager, never()).saveUserSettings();
     }
 
     @Test
-    public void shouldNotLoadSettingsFromAnInvalidFile() throws Exception {
-        File testSettings = getTestResourceFile("json/settingsManager-shouldNotLoadSettingsFromAnInvalidFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+    public void shouldNotLoadUserSettingsFromAnInvalidFile() throws Exception {
+        File testSettings = getTestResourceFile("json/settingsManager-shouldNotLoadUserSettingsFromAnInvalidFile.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
 
         Files.copy(testSettings, settingsFile);
 
-        spySettingsManager.loadSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "settingsLoaded");
+        spySettingsManager.loadUserSettings();
+        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
 
         assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(false));
 
-        verify(spySettingsManager, never()).saveSettings();
+        verify(spySettingsManager, never()).saveUserSettings();
     }
 
     @Test
-    public void shouldSaveSettings() {
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.setCacheSizeMb(123);
-
-        ReflectionTestUtils.setField(spySettingsManager, "systemSettings", systemSettings);
-        ReflectionTestUtils.setField(spySettingsManager, "settingsLoaded", true);
+    public void shouldSaveUserSettings() {
+        ReflectionTestUtils.setField(spySettingsManager, "userSettingsLoaded", true);
 
         when(mockPlaylistManager.isShuffle()).thenReturn(true);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
@@ -570,7 +654,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] { mockSearchPlaylist, mockFavouritesPlaylist });
         when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
 
-        spySettingsManager.saveSettings();
+        spySettingsManager.saveUserSettings();
 
         verify(mockPlaylistManager, times(1)).isShuffle();
         verify(mockPlaylistManager, times(1)).getRepeat();
@@ -580,27 +664,19 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     }
 
     @Test
-    public void shouldNotSaveSettingsIfNotSettingsLoaded() {
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.setCacheSizeMb(123);
-
-        ReflectionTestUtils.setField(spySettingsManager, "systemSettings", systemSettings);
-        ReflectionTestUtils.setField(spySettingsManager, "settingsLoaded", false);
+    public void shouldNotSaveUserSettingsIfNotUserSettingsLoaded() {
+        ReflectionTestUtils.setField(spySettingsManager, "userSettingsLoaded", false);
 
         when(mockPlaylistManager.isShuffle()).thenReturn(true);
 
-        spySettingsManager.saveSettings();
+        spySettingsManager.saveUserSettings();
 
         verify(mockPlaylistManager, never()).isShuffle();
     }
 
     @Test
-    public void shouldNotSaveSettingsOnException() {
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.setCacheSizeMb(123);
-
-        ReflectionTestUtils.setField(spySettingsManager, "systemSettings", systemSettings);
-        ReflectionTestUtils.setField(spySettingsManager, "settingsLoaded", true);
+    public void shouldNotSaveUserSettingsOnException() {
+        ReflectionTestUtils.setField(spySettingsManager, "userSettingsLoaded", true);
 
         when(mockPlaylistManager.isShuffle()).thenReturn(true);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
@@ -621,28 +697,24 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
 
         Gson mockGson = mock(Gson.class);
-        doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveSettingsOnException()")).when(mockGson)
+        doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveUserSettingsOnException()")).when(mockGson)
             .toJson(any(Settings.class));
 
         ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
 
-        spySettingsManager.saveSettings();
+        spySettingsManager.saveUserSettings();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
 
         assertThat("Settings file should not exist", settingsFile.exists(), equalTo(false));
     }
 
     @Test
-    public void shouldNotSaveSettingsOnExceptionWhenFileAlreadyExists() throws Exception {
-        File newSettingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+    public void shouldNotSaveUserSettingsOnExceptionWhenFileAlreadyExists() throws Exception {
+        File newSettingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
         newSettingsFile.createNewFile();
 
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.setCacheSizeMb(123);
-
-        ReflectionTestUtils.setField(spySettingsManager, "systemSettings", systemSettings);
-        ReflectionTestUtils.setField(spySettingsManager, "settingsLoaded", true);
+        ReflectionTestUtils.setField(spySettingsManager, "userSettingsLoaded", true);
 
         when(mockPlaylistManager.isShuffle()).thenReturn(true);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
@@ -668,9 +740,9 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
 
-        spySettingsManager.saveSettings();
+        spySettingsManager.saveUserSettings();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory("rpm-jukebox.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
 
         assertThat("Settings file should exist", settingsFile.exists(), equalTo(true));
     }

@@ -1,9 +1,6 @@
 {
   "shuffle": true,
   "repeat": "ALL",
-  "systemSettings": {
-    "cacheSizeMb": 123
-  },
   "playlists": [
     {
       "id": -1,
