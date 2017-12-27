@@ -175,7 +175,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         lastIndexedFile.createNewFile();
         lastIndexedFile.setLastModified(getDateTimeInMillis(1975, 1, 1, 0, 0));
         when(mockDataFile.getProtocol()).thenReturn("file");
-        when(mockDataFile.toURI()).thenReturn(new URL("file://" + lastIndexedFile.getAbsolutePath()).toURI());
+        when(mockDataFile.toURI()).thenReturn(new File(lastIndexedFile.getAbsolutePath()).toURI());
         doReturn(LocalDateTime.of(1971, 1, 1, 0, 0)).when(spySettingsManager).getLastIndexedDate();
 
         boolean result = spySettingsManager.hasDataFileExpired();

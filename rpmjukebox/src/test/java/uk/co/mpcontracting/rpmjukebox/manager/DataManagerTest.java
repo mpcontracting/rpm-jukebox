@@ -30,7 +30,7 @@ public class DataManagerTest extends AbstractTest {
 
     @Test
     public void shouldParseDataFile() throws Exception {
-        URL dataFile = new URL("file://" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath());
+        URL dataFile = new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath());
 
         spyDataManager.parse(dataFile);
 
