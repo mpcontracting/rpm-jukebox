@@ -67,7 +67,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
     @Mock
     private MediaManager mockMediaManager;
-    
+
     @Mock
     private InternetManager mockInternetManager;
 

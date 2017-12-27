@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.servlet.AsyncContext;
@@ -17,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
+import uk.co.mpcontracting.rpmjukebox.manager.InternetManager;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 
@@ -31,7 +31,8 @@ public class CachingMediaProxyServlet extends HttpServlet {
         String url = request.getParameter("url");
 
         try {
-            log.debug("Getting file : Cache type - " + cacheType + ", ID - " + id + ", HTTP - " + request.getMethod() + ", URL - " + url);
+            log.debug("Getting file : Cache type - " + cacheType + ", ID - " + id + ", HTTP - " + request.getMethod()
+                + ", URL - " + url);
 
             File cachedFile = ContextHelper.getBean(CacheManager.class).readCache(cacheType, id);
 
@@ -42,8 +43,8 @@ public class CachingMediaProxyServlet extends HttpServlet {
                     openDataStream(request, response, cacheType, id, true, getFileInputStream(cachedFile));
                 }
             } else {
-                URL location = getURL(url);
-                HttpURLConnection connection = (HttpURLConnection)location.openConnection();
+                URL location = new URL(url);
+                HttpURLConnection connection = ContextHelper.getBean(InternetManager.class).openConnection(location);
 
                 if (connection.getResponseCode() == 200) {
                     response.setContentLength(connection.getContentLength());
@@ -71,10 +72,5 @@ public class CachingMediaProxyServlet extends HttpServlet {
     // Package level for testing purposes
     FileInputStream getFileInputStream(File file) throws FileNotFoundException {
         return new FileInputStream(file);
-    }
-
-    // Package level for testing purposes
-    URL getURL(String url) throws MalformedURLException {
-        return new URL(url);
     }
 }

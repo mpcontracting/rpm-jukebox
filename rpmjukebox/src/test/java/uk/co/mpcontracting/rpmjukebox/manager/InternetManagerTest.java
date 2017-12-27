@@ -38,13 +38,13 @@ public class InternetManagerTest extends AbstractTest {
     @Test
     public void shouldOpenConnectionNoProxy() throws Exception {
         when(mockSettingsManager.getSystemSettings()).thenReturn(new SystemSettings());
-        
+
         URL mockUrl = mock(URL.class);
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockUrl.openConnection()).thenReturn(mockConnection);
-        
+
         internetManager.openConnection(mockUrl);
-        
+
         verify(mockUrl, times(1)).openConnection();
         verify(mockUrl, never()).openConnection(any());
         verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
@@ -60,9 +60,9 @@ public class InternetManagerTest extends AbstractTest {
         URL mockUrl = mock(URL.class);
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockUrl.openConnection()).thenReturn(mockConnection);
-        
+
         internetManager.openConnection(mockUrl);
-        
+
         verify(mockUrl, times(1)).openConnection();
         verify(mockUrl, never()).openConnection(any());
         verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
@@ -78,9 +78,9 @@ public class InternetManagerTest extends AbstractTest {
         URL mockUrl = mock(URL.class);
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockUrl.openConnection()).thenReturn(mockConnection);
-        
+
         internetManager.openConnection(mockUrl);
-        
+
         verify(mockUrl, times(1)).openConnection();
         verify(mockUrl, never()).openConnection(any());
         verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
@@ -97,9 +97,9 @@ public class InternetManagerTest extends AbstractTest {
         URL mockUrl = mock(URL.class);
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockUrl.openConnection(any())).thenReturn(mockConnection);
-        
+
         internetManager.openConnection(mockUrl);
-        
+
         verify(mockUrl, never()).openConnection();
         verify(mockUrl, times(1)).openConnection(any());
         verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
@@ -117,9 +117,9 @@ public class InternetManagerTest extends AbstractTest {
         URL mockUrl = mock(URL.class);
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockUrl.openConnection(any())).thenReturn(mockConnection);
-        
+
         internetManager.openConnection(mockUrl);
-        
+
         verify(mockUrl, never()).openConnection();
         verify(mockUrl, times(1)).openConnection(any());
         verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
@@ -139,9 +139,9 @@ public class InternetManagerTest extends AbstractTest {
         URL mockUrl = mock(URL.class);
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockUrl.openConnection(any())).thenReturn(mockConnection);
-        
+
         internetManager.openConnection(mockUrl);
-        
+
         verify(mockUrl, never()).openConnection();
         verify(mockUrl, times(1)).openConnection(any());
         verify(mockConnection, times(1)).setRequestProperty(anyString(), anyString());
@@ -153,10 +153,10 @@ public class InternetManagerTest extends AbstractTest {
 
         URL url = new URL("http://localhost:" + internalJettyPort + "/invalid");
         HttpURLConnection connection = null;
-        
+
         try {
             connection = internetManager.openConnection(url);
-            
+
             assertThat("Response code should be 404", connection.getResponseCode(), equalTo(404));
         } finally {
             if (connection != null) {

@@ -32,7 +32,7 @@ public class UpdateManagerTest extends AbstractTest {
 
     @Mock
     private URL mockVersionUrl;
-    
+
     @Mock
     private InternetManager mockInternetManager;
 

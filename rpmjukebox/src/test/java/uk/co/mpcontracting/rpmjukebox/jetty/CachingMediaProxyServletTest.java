@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletOutputStream;
@@ -20,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
+import uk.co.mpcontracting.rpmjukebox.manager.InternetManager;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
@@ -28,6 +28,7 @@ public class CachingMediaProxyServletTest extends AbstractTest {
     private HttpServletRequest mockServletRequest;
     private HttpServletResponse mockServletResponse;
     private CacheManager mockCacheManager;
+    private InternetManager mockInternetManager;
     private AsyncContext mockAsyncContext;
     private ServletOutputStream mockServletOutputStream;
 
@@ -39,6 +40,7 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         mockServletRequest = mock(HttpServletRequest.class);
         mockServletResponse = mock(HttpServletResponse.class);
         mockCacheManager = mock(CacheManager.class);
+        mockInternetManager = mock(InternetManager.class);
         mockAsyncContext = mock(AsyncContext.class);
         mockServletOutputStream = mock(ServletOutputStream.class);
 
@@ -48,6 +50,7 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         originalContext = (ApplicationContext)ReflectionTestUtils.getField(ContextHelper.class, "applicationContext");
         ApplicationContext mockContext = mock(ApplicationContext.class);
         when(mockContext.getBean(CacheManager.class)).thenReturn(mockCacheManager);
+        when(mockContext.getBean(InternetManager.class)).thenReturn(mockInternetManager);
 
         ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", mockContext);
 
@@ -104,9 +107,7 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         when(mockConnection.getResponseCode()).thenReturn(200);
         when(mockConnection.getContentLength()).thenReturn(1000);
 
-        URL mockURL = mock(URL.class);
-        doReturn(mockURL).when(spyServlet).getURL(anyString());
-        when(mockURL.openConnection()).thenReturn(mockConnection);
+        when(mockInternetManager.openConnection(any())).thenReturn(mockConnection);
 
         spyServlet.doGet(mockServletRequest, mockServletResponse);
 
@@ -127,9 +128,7 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         when(mockConnection.getResponseCode()).thenReturn(200);
         when(mockConnection.getContentLength()).thenReturn(1000);
 
-        URL mockURL = mock(URL.class);
-        doReturn(mockURL).when(spyServlet).getURL(anyString());
-        when(mockURL.openConnection()).thenReturn(mockConnection);
+        when(mockInternetManager.openConnection(any())).thenReturn(mockConnection);
 
         spyServlet.doGet(mockServletRequest, mockServletResponse);
 
@@ -150,9 +149,7 @@ public class CachingMediaProxyServletTest extends AbstractTest {
         when(mockConnection.getResponseCode()).thenReturn(404);
         when(mockConnection.getContentLength()).thenReturn(1000);
 
-        URL mockURL = mock(URL.class);
-        doReturn(mockURL).when(spyServlet).getURL(anyString());
-        when(mockURL.openConnection()).thenReturn(mockConnection);
+        when(mockInternetManager.openConnection(any())).thenReturn(mockConnection);
 
         spyServlet.doGet(mockServletRequest, mockServletResponse);
 
