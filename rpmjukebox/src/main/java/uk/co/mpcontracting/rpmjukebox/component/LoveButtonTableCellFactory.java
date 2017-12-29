@@ -22,8 +22,7 @@ public class LoveButtonTableCellFactory<S, T> extends EventAwareObject
 
     @Override
     public TableCell<TrackTableModel, String> call(TableColumn<TrackTableModel, String> tableColumn) {
-        final LoveButtonTableCell<TrackTableModel, String> tableCell = new LoveButtonTableCell<>(
-            playlistManager);
+        final LoveButtonTableCell<TrackTableModel, String> tableCell = new LoveButtonTableCell<>(playlistManager);
 
         //////////////////
         // Mouse Events //

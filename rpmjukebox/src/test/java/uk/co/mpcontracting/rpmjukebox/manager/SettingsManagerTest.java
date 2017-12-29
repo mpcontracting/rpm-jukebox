@@ -661,17 +661,18 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         verify(mockMediaManager, times(1)).getEqualizer();
         verify(mockEqualizer, times(5)).getGain(anyInt());
         verify(mockPlaylistManager, times(1)).getPlaylists();
-        
+
         File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
-        
+
         Settings settings = null;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
             settings = new Gson().fromJson(fileReader, Settings.class);
         }
-        
+
         assertThat("Playlists should have a size of 1", settings.getPlaylists(), hasSize(1));
-        assertThat("Playlist should have an ID of " + PLAYLIST_ID_FAVOURITES, settings.getPlaylists().get(0).getId(), equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat("Playlist should have an ID of " + PLAYLIST_ID_FAVOURITES, settings.getPlaylists().get(0).getId(),
+            equalTo(PLAYLIST_ID_FAVOURITES));
     }
 
     @Test
