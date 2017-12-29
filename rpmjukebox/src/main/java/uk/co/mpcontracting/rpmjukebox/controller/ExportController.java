@@ -93,7 +93,7 @@ public class ExportController implements Constants {
         // Cell factories
         selectColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectColumn));
         playlistColumn.setCellFactory(tableColumn -> {
-            return new PlaylistTableCell<PlaylistTableModel, String>();
+            return new PlaylistTableCell<>();
         });
 
         // Cell value factories
@@ -103,7 +103,7 @@ public class ExportController implements Constants {
         // Set the select column to be editable
         selectColumn.setEditable(true);
 
-        playlistsToExport = new HashSet<Integer>();
+        playlistsToExport = new HashSet<>();
         playlistExtensionFilter = "*." + playlistFileExtension;
     }
 
@@ -113,7 +113,7 @@ public class ExportController implements Constants {
 
         List<Playlist> playlists = playlistManager.getPlaylists();
 
-        for (Playlist playlist : playlists) {
+        playlists.forEach(playlist -> {
             if (playlist.getPlaylistId() > 0 || playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
                 PlaylistTableModel tableModel = new PlaylistTableModel(playlist);
 
@@ -123,7 +123,7 @@ public class ExportController implements Constants {
 
                 observablePlaylists.add(tableModel);
             }
-        }
+        });
 
         cancelButton.requestFocus();
     }
@@ -153,11 +153,10 @@ public class ExportController implements Constants {
             File file = fileChooser.showSaveDialog(RpmJukebox.getStage());
 
             if (file != null) {
-                List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();
+                List<PlaylistSettings> playlists = new ArrayList<>();
 
-                for (Integer playlistId : playlistsToExport) {
-                    playlists.add(new PlaylistSettings(playlistManager.getPlaylist(playlistId)));
-                }
+                playlistsToExport.forEach(
+                    playlistId -> playlists.add(new PlaylistSettings(playlistManager.getPlaylist(playlistId))));
 
                 try (FileWriter fileWriter = constructFileWriter(file)) {
                     fileWriter.write(settingsManager.getGson().toJson(playlists));

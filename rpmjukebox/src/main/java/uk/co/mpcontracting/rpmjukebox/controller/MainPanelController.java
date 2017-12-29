@@ -333,13 +333,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
     void updateYearFilter() {
         log.debug("Updating year filter - " + searchManager.getYearList());
 
-        List<YearFilter> yearFilters = new ArrayList<YearFilter>();
+        List<YearFilter> yearFilters = new ArrayList<>();
         yearFilters.add(new YearFilter("None", null));
 
         if (searchManager.getYearList() != null) {
-            for (String year : searchManager.getYearList()) {
-                yearFilters.add(new YearFilter(year, year));
-            }
+            searchManager.getYearList().forEach(year -> yearFilters.add(new YearFilter(year, year)));
         }
 
         yearFilterComboBox.getItems().clear();
@@ -442,20 +440,20 @@ public class MainPanelController extends EventAwareObject implements Constants {
                     }.getType());
 
                 if (playlists != null) {
-                    for (PlaylistSettings playlistSettings : playlists) {
+                    playlists.forEach(playlistSettings -> {
                         Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(),
                             maxPlaylistSize);
 
-                        for (String trackId : playlistSettings.getTracks()) {
+                        playlistSettings.getTracks().forEach(trackId -> {
                             Track track = searchManager.getTrackById(trackId);
 
                             if (track != null) {
                                 playlist.addTrack(track);
                             }
-                        }
+                        });
 
                         playlistManager.addPlaylist(playlist);
-                    }
+                    });
 
                     // Update the observable lists
                     updateObservablePlaylists();

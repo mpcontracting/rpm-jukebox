@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +31,7 @@ public class EqualizerController extends EventAwareObject {
     public void initialize() {
         log.info("Initialising EqualizerController");
 
-        for (Node node : sliderHbox.getChildren()) {
+        sliderHbox.getChildren().forEach(node -> {
             final Slider slider = (Slider)node;
 
             slider.valueProperty().addListener(observable -> {
@@ -41,17 +40,17 @@ public class EqualizerController extends EventAwareObject {
                         slider.getValue());
                 }
             });
-        }
+        });
     }
 
     public void updateSliderValues() {
         Equalizer equalizer = mediaManager.getEqualizer();
 
-        for (Node node : sliderHbox.getChildren()) {
+        sliderHbox.getChildren().forEach(node -> {
             final Slider slider = (Slider)node;
 
             slider.setValue(equalizer.getGain(Integer.parseInt(slider.getId().substring(2))));
-        }
+        });
     }
 
     @FXML
@@ -61,12 +60,12 @@ public class EqualizerController extends EventAwareObject {
 
     @FXML
     protected void handleResetButtonAction(ActionEvent event) {
-        for (Node node : sliderHbox.getChildren()) {
+        sliderHbox.getChildren().forEach(node -> {
             final Slider slider = (Slider)node;
 
             slider.setValue(0);
 
             fireEvent(Event.EQUALIZER_UPDATED, Integer.parseInt(slider.getId().substring(2)), slider.getValue());
-        }
+        });
     }
 }

@@ -69,12 +69,12 @@ public class TrackTableController extends EventAwareObject {
         });
 
         // Cell factories
-        loveColumn.setCellFactory(new LoveButtonTableCellFactory<TrackTableModel, String>());
-        trackNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>());
-        artistNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>());
-        albumYearColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, Number>());
-        albumNameColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>());
-        genresColumn.setCellFactory(new TrackTableCellFactory<TrackTableModel, String>());
+        loveColumn.setCellFactory(new LoveButtonTableCellFactory<>());
+        trackNameColumn.setCellFactory(new TrackTableCellFactory<>());
+        artistNameColumn.setCellFactory(new TrackTableCellFactory<>());
+        albumYearColumn.setCellFactory(new TrackTableCellFactory<>());
+        albumNameColumn.setCellFactory(new TrackTableCellFactory<>());
+        genresColumn.setCellFactory(new TrackTableCellFactory<>());
 
         // Cell value factories
         loveColumn.setCellValueFactory(cellData -> cellData.getValue().getTrackId());
@@ -93,9 +93,7 @@ public class TrackTableController extends EventAwareObject {
 
         observableTracks.clear();
 
-        for (Track track : playlistManager.getPlaylist(playlistId)) {
-            observableTracks.add(new TrackTableModel(track));
-        }
+        playlistManager.getPlaylist(playlistId).forEach(track -> observableTracks.add(new TrackTableModel(track)));
     }
 
     public Track getSelectedTrack() {
