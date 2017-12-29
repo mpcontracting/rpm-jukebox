@@ -93,7 +93,7 @@ public class PlaylistManagerTest extends AbstractTest implements Constants {
 
         assertThat("Playlist map should have 4 entries", result, hasSize(4));
         assertThat("Playlist map should be unmodifiable",
-            result.getClass().isInstance(Collections.unmodifiableList(new ArrayList<Playlist>())), equalTo(true));
+            result.getClass().isInstance(Collections.unmodifiableList(new ArrayList<>())), equalTo(true));
     }
 
     @Test
@@ -163,7 +163,7 @@ public class PlaylistManagerTest extends AbstractTest implements Constants {
         when(mockTrack.getArtistName()).thenReturn("Artist");
         when(mockTrack.getAlbumName()).thenReturn("Album");
 
-        List<Track> mockAlbum = new ArrayList<Track>();
+        List<Track> mockAlbum = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             mockAlbum.add(mock(Track.class));
         }
@@ -290,7 +290,7 @@ public class PlaylistManagerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldSetPlaylistTracks() {
-        List<Track> tracks = new ArrayList<Track>();
+        List<Track> tracks = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             tracks.add(mock(Track.class));
         }
@@ -321,7 +321,7 @@ public class PlaylistManagerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldRemoveTrackFromPlaylist() {
-        List<Track> tracks = new ArrayList<Track>();
+        List<Track> tracks = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             tracks.add(
                 new Track(null, null, null, null, null, null, -1, Integer.toString(i), null, -1, null, false, null));
@@ -429,7 +429,7 @@ public class PlaylistManagerTest extends AbstractTest implements Constants {
     public void shouldPlayPlaylist() {
         doNothing().when(spyPlaylistManager).playCurrentTrack(anyBoolean());
 
-        List<Track> tracks = new ArrayList<Track>();
+        List<Track> tracks = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             tracks.add(mock(Track.class));
         }

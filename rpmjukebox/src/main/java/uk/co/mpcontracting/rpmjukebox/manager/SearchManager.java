@@ -330,7 +330,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         try {
             trackSearcher = trackManager.acquire();
 
-            Set<String> fieldValues = new LinkedHashSet<String>();
+            Set<String> fieldValues = new LinkedHashSet<>();
             IndexReader indexReader = trackSearcher.getIndexReader();
 
             for (LeafReaderContext context : indexReader.leaves()) {

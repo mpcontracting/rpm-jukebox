@@ -239,7 +239,7 @@ public class ExportControllerTest extends AbstractTest {
 
     @Test
     public void shouldClickOkButtonWithEmptyPlaylistsToExport() {
-        ReflectionTestUtils.setField(spyExportController, "playlistsToExport", new HashSet<Integer>());
+        ReflectionTestUtils.setField(spyExportController, "playlistsToExport", new HashSet<>());
 
         spyExportController.handleOkButtonAction(new ActionEvent());
 

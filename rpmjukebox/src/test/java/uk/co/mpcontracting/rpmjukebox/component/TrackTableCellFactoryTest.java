@@ -51,7 +51,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldSinglePrimaryClickOnCell() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -63,7 +63,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldDoublePrimaryClickOnCell() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -75,7 +75,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldSinglePrimaryClickOnCellItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -88,7 +88,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldDoublePrimaryClickOnCellItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -101,7 +101,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldClickCreatePlaylistFromAlbumItem() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -114,7 +114,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldClickCreatePlaylistFromAlbumItemItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -128,7 +128,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldClickDeleteTrackFromPlaylistItem() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -141,7 +141,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldClickDeleteTrackFromPlaylistItemItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -155,7 +155,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldOpenContextMenuOnSearchPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         track.setPlaylistId(PLAYLIST_ID_SEARCH);
         updateTableCell(tableCell, track);
@@ -173,7 +173,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldOpenContextMenuOnNonSearchPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -190,7 +190,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldOpenContextMenuWhenItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -206,33 +206,9 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
             equalTo(true));
     }
 
-    // Can't work out how to trigger onDragDetected
-    /*
-     * @Test public void shouldTriggerDragDetected() throws Exception {
-     * TableCell<TrackTableModel, String> tableCell = cellFactory.call(new
-     * TableColumn<TrackTableModel, String>()); Track track = getTrack();
-     * updateTableCell(tableCell, track);
-     * 
-     * HBox root = new HBox(); Scene scene = new Scene(root);
-     * root.getChildren().add(tableCell);
-     * 
-     * tableCell.setOnMouseDragged(event -> { event.consume(); });
-     * 
-     * tableCell.onMouseDraggedProperty().get().handle(getMouseEvent(MouseEvent.
-     * MOUSE_DRAGGED, MouseButton.PRIMARY, 1));
-     * 
-     * CountDownLatch latch = new CountDownLatch(1);
-     * 
-     * ThreadRunner.runOnGui(() -> {
-     * tableCell.onDragDetectedProperty().get().handle(getMouseEvent(MouseEvent.
-     * DRAG_DETECTED, MouseButton.PRIMARY, 1)); latch.countDown(); });
-     * 
-     * latch.await(2000, TimeUnit.MILLISECONDS); }
-     */
-
     @Test
     public void shouldTriggerDragOver() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -249,7 +225,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldNotTriggerDragOverWithSameSource() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -266,7 +242,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldNotTriggerDragOverWithNoContent() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -284,7 +260,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
     @Test
     @SuppressWarnings("unchecked")
     public void shouldNotTriggerDragOverWithNoTrackTableModel() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
         tableCell.getTableRow().setItem(null);
@@ -302,7 +278,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldNotTriggerDragOverWithSearchPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         track.setPlaylistId(PLAYLIST_ID_SEARCH);
         updateTableCell(tableCell, track);
@@ -320,7 +296,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldTriggerDragEntered() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -338,7 +314,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldNotTriggerDragEnteredWithSameSource() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -355,7 +331,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldNotTriggerDragEnteredWithNoContent() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
 
@@ -374,7 +350,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
     @Test
     @SuppressWarnings("unchecked")
     public void shouldNotTriggerDragEnteredWithNoTrackTableModel() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
         tableCell.getTableRow().setItem(null);
@@ -393,7 +369,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldNotTriggerDragEnteredWithSearchPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         track.setPlaylistId(PLAYLIST_ID_SEARCH);
         updateTableCell(tableCell, track);
@@ -412,7 +388,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldTriggerDragExited() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTrack();
         updateTableCell(tableCell, track);
         tableCell.getTableRow().setStyle("some-style");
@@ -431,7 +407,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldTriggerDragDropped() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track target = getTrack();
         updateTableCell(tableCell, target);
 
@@ -455,7 +431,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldNotTriggerDragDroppedWithNoContent() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track target = getTrack();
         updateTableCell(tableCell, target);
 
@@ -478,7 +454,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
     @Test
     public void shouldTriggerDragDone() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track target = getTrack();
         updateTableCell(tableCell, target);
 

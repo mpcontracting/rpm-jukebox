@@ -38,7 +38,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractTest implements Cons
 
     @Test
     public void shouldSinglePrimaryClickOnCellTrackInPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem("trackId");
 
         Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
@@ -64,7 +64,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractTest implements Cons
 
     @Test
     public void shouldSinglePrimaryClickOnCellTrackNotInPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem("trackId");
 
         Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
@@ -90,7 +90,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractTest implements Cons
 
     @Test
     public void shouldSinglePrimaryClickOnCellNullItem() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem(null);
 
         Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
@@ -107,7 +107,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractTest implements Cons
 
     @Test
     public void shouldDoublePrimaryClickOnCell() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem(null);
 
         Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
@@ -124,7 +124,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractTest implements Cons
 
     @Test
     public void shouldSingleSecondaryClickOnCell() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<TrackTableModel, String>());
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem(null);
 
         Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
