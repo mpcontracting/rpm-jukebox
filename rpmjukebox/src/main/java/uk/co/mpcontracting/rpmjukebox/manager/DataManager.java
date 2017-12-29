@@ -33,7 +33,6 @@ public class DataManager implements Constants {
             new InputStreamReader(new GZIPInputStream(dataFile.openStream()), Charset.forName("UTF-8")))) {
             log.info("Loading data from - " + dataFile);
 
-            // Ignore first line as its a record count
             String nextLine = null;
             ParserModelArtist currentArtist = null;
             ParserModelAlbum currentAlbum = null;
@@ -195,7 +194,7 @@ public class DataManager implements Constants {
             this.biography = biography;
             this.members = members;
 
-            genres = new ArrayList<String>(1);
+            genres = new ArrayList<>(1);
         }
 
         public void addGenre(String genre) {

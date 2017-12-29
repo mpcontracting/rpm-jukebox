@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -346,17 +347,14 @@ public class SettingsManager implements InitializingBean, Constants {
         playlistManager.setRepeat(settings.getRepeat());
 
         // Equalizer
-        if (settings.getEqBands() != null) {
-            for (EqBand eqBand : settings.getEqBands()) {
-                mediaManager.setEqualizerGain(eqBand.getBand(), eqBand.getValue());
-            }
-        }
+        Optional.ofNullable(settings.getEqBands()).ifPresent(
+            eqBands -> eqBands.forEach(eqBand -> mediaManager.setEqualizerGain(eqBand.getBand(), eqBand.getValue())));
 
         // Playlists
-        List<Playlist> playlists = new ArrayList<Playlist>();
+        List<Playlist> playlists = new ArrayList<>();
 
-        if (settings.getPlaylists() != null) {
-            for (PlaylistSettings playlistSettings : settings.getPlaylists()) {
+        Optional.ofNullable(settings.getPlaylists())
+            .ifPresent(playlistSettingsList -> playlistSettingsList.forEach(playlistSettings -> {
                 Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), maxPlaylistSize);
 
                 // Override the name of the search results and favourites
@@ -367,17 +365,16 @@ public class SettingsManager implements InitializingBean, Constants {
                     playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES));
                 }
 
-                for (String trackId : playlistSettings.getTracks()) {
+                playlistSettings.getTracks().forEach(trackId -> {
                     Track track = searchManager.getTrackById(trackId);
 
                     if (track != null) {
                         playlist.addTrack(track);
                     }
-                }
+                });
 
                 playlists.add(playlist);
-            }
-        }
+            }));
 
         playlistManager.setPlaylists(playlists);
 
@@ -402,7 +399,7 @@ public class SettingsManager implements InitializingBean, Constants {
 
         // Equalizer
         Equalizer equalizer = mediaManager.getEqualizer();
-        List<EqBand> eqBands = new ArrayList<EqBand>();
+        List<EqBand> eqBands = new ArrayList<>();
 
         for (int i = 0; i < equalizer.getNumberOfBands(); i++) {
             eqBands.add(new EqBand(i, equalizer.getGain(i)));
@@ -411,15 +408,10 @@ public class SettingsManager implements InitializingBean, Constants {
         settings.setEqBands(eqBands);
 
         // Playlists
-        List<PlaylistSettings> playlists = new ArrayList<PlaylistSettings>();
+        List<PlaylistSettings> playlists = new ArrayList<>();
 
-        for (Playlist playlist : playlistManager.getPlaylists()) {
-            if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
-                continue;
-            }
-
-            playlists.add(new PlaylistSettings(playlist));
-        }
+        playlistManager.getPlaylists().stream().filter(playlist -> playlist.getPlaylistId() != PLAYLIST_ID_SEARCH)
+            .forEach(playlist -> playlists.add(new PlaylistSettings(playlist)));
 
         settings.setPlaylists(playlists);
 

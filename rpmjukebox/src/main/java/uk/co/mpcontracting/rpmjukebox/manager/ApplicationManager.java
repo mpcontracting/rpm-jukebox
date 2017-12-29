@@ -84,7 +84,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
                 fireEvent(Event.APPLICATION_INITIALISED);
                 isInitialised = true;
             } catch (Exception e) {
-                log.error("Error initialising data", e);
+                log.error("Error initialising application", e);
             }
         });
     }

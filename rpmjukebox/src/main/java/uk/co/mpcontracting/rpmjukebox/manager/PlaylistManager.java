@@ -86,7 +86,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
     public List<Playlist> getPlaylists() {
         log.debug("Getting playlists");
 
-        List<Playlist> playlists = new ArrayList<Playlist>();
+        List<Playlist> playlists = new ArrayList<>();
 
         synchronized (playlistMap) {
             playlistMap.values().forEach(playlist -> playlists.add(playlist));
@@ -323,8 +323,7 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
         log.debug("Resuming current track");
 
         // If the selected track is a different track, or is in a different
-        // playlist
-        // then play that instead of resuming the current track
+        // playlist then play that instead of resuming the current track
         Track selectedTrack = trackTableController.getSelectedTrack();
 
         if (selectedTrack != null) {
@@ -452,16 +451,14 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
                 playlist.shuffle();
 
                 // If we're playing or pausing a track, make sure that track is
-                // placed
-                // in the current position in the shuffled stack
+                // placed in the current position in the shuffled stack
                 if (currentTrack != null && (mediaManager.isPlaying() || mediaManager.isPaused())) {
                     playlist.setTrackAtShuffledIndex(currentTrack, currentPlaylistIndex);
                     playingPlaylist = playlist.clone();
                 }
             } else if (!shuffle && !ignorePlaylist) {
                 // If we're playing or pausing a track, we need to reset our
-                // position
-                // in the current playlist
+                // position in the current playlist
                 if (currentTrack != null && (mediaManager.isPlaying() || mediaManager.isPaused())) {
                     currentPlaylistIndex = currentTrack.getPlaylistIndex();
                 }

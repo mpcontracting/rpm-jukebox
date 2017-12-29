@@ -149,7 +149,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             }
 
             // Initialise the filters and sorts
-            genreList = new ArrayList<String>();
+            genreList = new ArrayList<>();
             genreList.add(UNSPECIFIED_GENRE);
             genreList.addAll(getDistinctTrackFieldValues(TrackField.GENRE));
             Collections.sort(genreList);
@@ -359,7 +359,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             }
 
             trackSearcher = null;
-            long queryTime = (System.currentTimeMillis() - startTime);
+            long queryTime = System.currentTimeMillis() - startTime;
 
             log.debug("Distinct track field values query time - " + queryTime + " milliseconds");
         }
@@ -390,7 +390,7 @@ public class SearchManager extends EventAwareObject implements Constants {
                     trackSearch.getTrackFilter().getFilter()),
                 maxSearchHits, new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
             ScoreDoc[] scoreDocs = results.scoreDocs;
-            List<Track> tracks = new ArrayList<Track>();
+            List<Track> tracks = new ArrayList<>();
 
             for (ScoreDoc scoreDoc : scoreDocs) {
                 tracks.add(getTrackByDocId(trackSearcher, scoreDoc.doc));
@@ -409,7 +409,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             }
 
             trackSearcher = null;
-            long queryTime = (System.currentTimeMillis() - startTime);
+            long queryTime = System.currentTimeMillis() - startTime;
 
             log.debug("Search query time - " + queryTime + " milliseconds");
         }
@@ -500,7 +500,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             }
 
             trackSearcher = null;
-            long queryTime = (System.currentTimeMillis() - startTime);
+            long queryTime = System.currentTimeMillis() - startTime;
 
             log.debug("Shuffled playlist query time - " + queryTime + " milliseconds");
         }
@@ -583,7 +583,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.ALBUMID.name(), albumId)),
                 maxSearchHits, new Sort(new SortField(TrackSort.DEFAULTSORT.name(), SortField.Type.STRING)));
             ScoreDoc[] scoreDocs = results.scoreDocs;
-            List<Track> tracks = new ArrayList<Track>();
+            List<Track> tracks = new ArrayList<>();
 
             for (ScoreDoc scoreDoc : scoreDocs) {
                 tracks.add(getTrackByDocId(trackSearcher, scoreDoc.doc));

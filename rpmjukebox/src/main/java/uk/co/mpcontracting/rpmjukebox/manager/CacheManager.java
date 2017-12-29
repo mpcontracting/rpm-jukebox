@@ -57,7 +57,7 @@ public class CacheManager implements InitializingBean, Constants {
                 return 0;
             }
 
-            return (file1.lastModified() > file2.lastModified() ? 1 : -1);
+            return file1.lastModified() > file2.lastModified() ? 1 : -1;
         };
     }
 
@@ -118,7 +118,7 @@ public class CacheManager implements InitializingBean, Constants {
 
         log.debug("Trimming the cache to " + cacheSizeMb + "Mb");
 
-        List<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
 
         for (File file : cacheDirectory.listFiles()) {
             files.add(file);
