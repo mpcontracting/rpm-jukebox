@@ -6,7 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
 @Component
-public class PlaylistManager extends EventAwareObject implements InitializingBean, Constants {
+public class PlaylistManager extends EventAwareObject implements Constants {
 
     @Autowired
     private MessageManager messageManager;
@@ -56,8 +57,8 @@ public class PlaylistManager extends EventAwareObject implements InitializingBea
     @Getter
     private Track selectedTrack;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    @PostConstruct
+    public void initialise() {
         log.info("Initialising PlaylistManager");
 
         playlistMap = new LinkedHashMap<>();

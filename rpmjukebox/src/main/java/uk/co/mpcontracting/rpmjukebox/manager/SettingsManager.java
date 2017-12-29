@@ -15,7 +15,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
@@ -44,7 +46,7 @@ import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
 @Slf4j
 @Component
-public class SettingsManager implements InitializingBean, Constants {
+public class SettingsManager implements Constants {
 
     @Autowired
     private MessageManager messageManager;
@@ -119,8 +121,9 @@ public class SettingsManager implements InitializingBean, Constants {
         gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    @SneakyThrows
+    @PostConstruct
+    public void initialise() {
         log.info("Initialising SettingsManager");
 
         // Get the application version

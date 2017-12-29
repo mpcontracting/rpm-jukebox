@@ -10,7 +10,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
 @Slf4j
 @Component
-public class CacheManager implements InitializingBean, Constants {
+public class CacheManager implements Constants {
 
     @Autowired
     private SettingsManager settingsManager;
@@ -39,8 +40,8 @@ public class CacheManager implements InitializingBean, Constants {
 
     private Comparator<File> timestampComparator;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    @PostConstruct
+    public void initialise() {
         log.info("Initialising CacheManager");
 
         // Look for the cache directory and create it if it isn't there

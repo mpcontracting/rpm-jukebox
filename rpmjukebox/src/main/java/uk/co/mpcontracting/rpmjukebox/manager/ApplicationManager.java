@@ -55,7 +55,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
 
         // Initialise views
         context.getBeansOfType(AbstractModalView.class).forEach((name, view) -> {
-            view.initialiseView();
+            view.initialise();
         });
 
         this.stage = stage;

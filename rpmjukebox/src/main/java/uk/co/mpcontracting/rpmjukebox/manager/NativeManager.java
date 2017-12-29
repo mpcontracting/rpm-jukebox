@@ -4,7 +4,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,15 +19,15 @@ import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
-public class NativeManager implements InitializingBean {
+public class NativeManager {
 
     @Autowired
     private SettingsManager settingsManager;
 
     private NsUserNotificationsBridge nsUserNotificationsBridge;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    @PostConstruct
+    public void initialise() {
         log.info("Initialising NativeManager");
 
         // Make sure the native directory exists

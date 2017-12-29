@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import org.springframework.beans.factory.InitializingBean;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
 @Component
-public class MediaManager extends EventAwareObject implements InitializingBean, Constants {
+public class MediaManager extends EventAwareObject implements Constants {
 
     @Autowired
     private CacheManager cacheManager;
@@ -39,8 +40,8 @@ public class MediaManager extends EventAwareObject implements InitializingBean, 
     @Getter
     private boolean muted;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    @PostConstruct
+    public void initialise() {
         log.info("Initialising MediaManager");
 
         muted = false;

@@ -47,7 +47,7 @@ public class NativeManagerTest extends AbstractTest {
             when(spySettingsManager.getOsType()).thenReturn(OsType.OSX);
 
             ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", null);
-            spyNativeManager.afterPropertiesSet();
+            spyNativeManager.initialise();
             NsUserNotificationsBridge result = (NsUserNotificationsBridge)ReflectionTestUtils.getField(spyNativeManager,
                 "nsUserNotificationsBridge");
 
@@ -64,7 +64,7 @@ public class NativeManagerTest extends AbstractTest {
             when(spySettingsManager.getOsType()).thenReturn(OsType.OSX);
 
             ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", null);
-            spyNativeManager.afterPropertiesSet();
+            spyNativeManager.initialise();
             NsUserNotificationsBridge result = (NsUserNotificationsBridge)ReflectionTestUtils.getField(spyNativeManager,
                 "nsUserNotificationsBridge");
 
@@ -77,7 +77,7 @@ public class NativeManagerTest extends AbstractTest {
         when(spySettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
 
         ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", null);
-        spyNativeManager.afterPropertiesSet();
+        spyNativeManager.initialise();
         NsUserNotificationsBridge result = (NsUserNotificationsBridge)ReflectionTestUtils.getField(spyNativeManager,
             "nsUserNotificationsBridge");
 
@@ -89,7 +89,7 @@ public class NativeManagerTest extends AbstractTest {
         when(spySettingsManager.getOsType()).thenReturn(OsType.LINUX);
 
         ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", null);
-        spyNativeManager.afterPropertiesSet();
+        spyNativeManager.initialise();
         NsUserNotificationsBridge result = (NsUserNotificationsBridge)ReflectionTestUtils.getField(spyNativeManager,
             "nsUserNotificationsBridge");
 

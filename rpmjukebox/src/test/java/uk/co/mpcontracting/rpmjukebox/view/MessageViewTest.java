@@ -47,7 +47,7 @@ public class MessageViewTest extends AbstractTest {
         CountDownLatch latch1 = new CountDownLatch(1);
 
         ThreadRunner.runOnGui(() -> {
-            spyMessageView.initialiseView();
+            spyMessageView.initialise();
             latch1.countDown();
         });
 
@@ -88,7 +88,7 @@ public class MessageViewTest extends AbstractTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         ThreadRunner.runOnGui(() -> {
-            spyMessageView.initialiseView();
+            spyMessageView.initialise();
             latch.countDown();
         });
 
