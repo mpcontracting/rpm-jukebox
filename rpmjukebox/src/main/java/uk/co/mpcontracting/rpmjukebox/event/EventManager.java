@@ -12,7 +12,7 @@ public class EventManager {
     private List<EventListener> eventListeners;
 
     private EventManager() {
-        eventListeners = new ArrayList<EventListener>();
+        eventListeners = new ArrayList<>();
     }
 
     public static EventManager getInstance() {
@@ -36,9 +36,7 @@ public class EventManager {
 
     public void fireEvent(final Event event, final Object... payload) {
         ThreadRunner.runOnGui(() -> {
-            for (EventListener eventListener : eventListeners) {
-                eventListener.eventReceived(event, payload);
-            }
+            eventListeners.forEach(eventListener -> eventListener.eventReceived(event, payload));
         });
     }
 }
