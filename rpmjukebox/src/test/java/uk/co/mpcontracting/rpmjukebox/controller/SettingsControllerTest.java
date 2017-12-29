@@ -103,14 +103,15 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         boolean isReindexing = (boolean)ReflectionTestUtils.getField(settingsController, "isReindexing");
 
         assertThat("Reindexing should be true", isReindexing, equalTo(true));
-        verify(mockSearchManager, times(1)).indexData(false);
+        verify(mockMainPanelController, times(1)).showMessageView(anyString(), eq(false));
+        verify(mockSearchManager, times(1)).indexData();
         verify(mockMainPanelController, never()).closeMessageView();
     }
 
     @Test
     public void shouldClickReindexButtonAndThrowExceptionOnIndexData() throws Exception {
         doThrow(new RuntimeException("SettingsControllerTest.shouldClickReindexButtonAndThrowExceptionOnIndexData()"))
-            .when(mockSearchManager).indexData(anyBoolean());
+            .when(mockSearchManager).indexData();
 
         clickOn("#reindexButton");
 
@@ -120,7 +121,8 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         boolean isReindexing = (boolean)ReflectionTestUtils.getField(settingsController, "isReindexing");
 
         assertThat("Reindexing should be false", isReindexing, equalTo(false));
-        verify(mockSearchManager, times(1)).indexData(false);
+        verify(mockMainPanelController, times(1)).showMessageView(anyString(), eq(false));
+        verify(mockSearchManager, times(1)).indexData();
         verify(mockMainPanelController, times(1)).closeMessageView();
     }
 

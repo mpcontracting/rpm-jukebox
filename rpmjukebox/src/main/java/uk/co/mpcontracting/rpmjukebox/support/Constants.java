@@ -10,10 +10,9 @@ public interface Constants {
 
     // Message bundle keys
     public static final String MESSAGE_WINDOW_TITLE = "window.title";
-    public static final String MESSAGE_CHECKING_DATA = "message.checkingData";
-    public static final String MESSAGE_DOWNLOAD_INDEX = "message.downloadIndex";
-    public static final String MESSAGE_ALREADY_RUNNING = "message.alreadyRunning";
-    public static final String MESSAGE_NEW_VERSION_AVAILABLE = "message.newVersionAvailable";
+    public static final String MESSAGE_SPLASH_CHECKING_DATA = "splash.checkingData";
+    public static final String MESSAGE_SPLASH_DOWNLOAD_INDEX = "splash.downloadIndex";
+    public static final String MESSAGE_SPLASH_ALREADY_RUNNING = "splash.alreadyRunning";
     public static final String MESSAGE_PLAYLIST_DEFAULT = "playlist.default";
     public static final String MESSAGE_PLAYLIST_SEARCH = "playlist.searchResults";
     public static final String MESSAGE_PLAYLIST_FAVOURITES = "playlist.favourites";
@@ -22,6 +21,8 @@ public interface Constants {
     public static final String MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE = "playlist.delete.areYouSure";
     public static final String MESSAGE_TRACK_TABLE_CONTEXT_CREATE_PLAYLIST_FROM_ALBUM = "trackTable.context.createPlaylistFromAlbum";
     public static final String MESSAGE_TRACK_TABLE_CONTEXT_DELETE_TRACK_FROM_PLAYLIST = "trackTable.context.deleteTrackFromPlaylist";
+    public static final String MESSAGE_DOWNLOAD_INDEX = "message.downloadIndex";
+    public static final String MESSAGE_NEW_VERSION_AVAILABLE = "message.newVersionAvailable";
     public static final String MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER = "file.chooser.playlist.filter";
     public static final String MESSAGE_IMPORT_PLAYLIST_TITLE = "import.playlist.title";
     public static final String MESSAGE_EXPORT_PLAYLIST_TITLE = "export.playlist.title";

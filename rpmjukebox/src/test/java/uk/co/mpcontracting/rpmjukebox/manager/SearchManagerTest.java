@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
@@ -75,9 +74,6 @@ public class SearchManagerTest extends AbstractTest implements Constants {
     private DataManager mockDataManager;
 
     @Mock
-    private MainPanelController mockMainPanelController;
-
-    @Mock
     private Directory mockArtistDirectory;
 
     @Mock
@@ -104,7 +100,6 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         ReflectionTestUtils.setField(spySearchManager, "settingsManager", mockSettingsManager);
         ReflectionTestUtils.setField(spySearchManager, "applicationManager", mockApplicationManager);
         ReflectionTestUtils.setField(spySearchManager, "dataManager", mockDataManager);
-        ReflectionTestUtils.setField(spySearchManager, "mainPanelController", mockMainPanelController);
 
         when(mockSettingsManager.getFileFromConfigDirectory(directoryArtistIndex))
             .thenReturn(settingsManager.getFileFromConfigDirectory(directoryArtistIndex));
@@ -122,7 +117,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldInitialise() throws Exception {
         try {
-            doNothing().when(spySearchManager).indexData(anyBoolean());
+            doNothing().when(spySearchManager).indexData();
             doReturn(true).when(spySearchManager).isIndexValid(any());
             doReturn(Collections.emptyList()).when(spySearchManager).search(any());
             doReturn(Collections.emptyList()).when(spySearchManager).getDistinctTrackFieldValues(any());
@@ -167,9 +162,8 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             assertThat("Year list should be empty", yearList.isEmpty(), equalTo(true));
             assertThat("Track sort list should have a size of 4", trackSortList, hasSize(4));
 
-            verify(spySearchManager, never()).indexData(anyBoolean());
+            verify(spySearchManager, never()).indexData();
             verify(spySearchManager, times(9)).search(any());
-            verify(mockMainPanelController, never()).showMessageView(anyString(), anyBoolean());
         } finally {
             spySearchManager.shutdown();
         }
@@ -178,7 +172,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldInitialiseAndIndexWhenDataFileHasExpired() throws Exception {
         try {
-            doNothing().when(spySearchManager).indexData(anyBoolean());
+            doNothing().when(spySearchManager).indexData();
             doReturn(true).when(spySearchManager).isIndexValid(any());
             doReturn(Collections.emptyList()).when(spySearchManager).search(any());
             doReturn(Collections.emptyList()).when(spySearchManager).getDistinctTrackFieldValues(any());
@@ -223,9 +217,8 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             assertThat("Year list should be empty", yearList.isEmpty(), equalTo(true));
             assertThat("Track sort list should have a size of 4", trackSortList, hasSize(4));
 
-            verify(spySearchManager, times(1)).indexData(true);
+            verify(spySearchManager, times(1)).indexData();
             verify(spySearchManager, times(9)).search(any());
-            verify(mockMainPanelController, never()).showMessageView(anyString(), anyBoolean());
         } finally {
             spySearchManager.shutdown();
         }
@@ -234,7 +227,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldInitialiseAndIndexWhenIndexIsInvalid() throws Exception {
         try {
-            doNothing().when(spySearchManager).indexData(anyBoolean());
+            doNothing().when(spySearchManager).indexData();
             doReturn(false).when(spySearchManager).isIndexValid(any());
             doReturn(Collections.emptyList()).when(spySearchManager).search(any());
             doReturn(Collections.emptyList()).when(spySearchManager).getDistinctTrackFieldValues(any());
@@ -279,9 +272,8 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             assertThat("Year list should be empty", yearList.isEmpty(), equalTo(true));
             assertThat("Track sort list should have a size of 4", trackSortList, hasSize(4));
 
-            verify(spySearchManager, times(1)).indexData(true);
+            verify(spySearchManager, times(1)).indexData();
             verify(spySearchManager, times(9)).search(any());
-            verify(mockMainPanelController, never()).showMessageView(anyString(), anyBoolean());
         } finally {
             spySearchManager.shutdown();
         }
@@ -290,7 +282,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldNotInitialiseIfAlreadyInitialised() throws Exception {
         try {
-            doNothing().when(spySearchManager).indexData(anyBoolean());
+            doNothing().when(spySearchManager).indexData();
             doReturn(false).when(spySearchManager).isIndexValid(any());
             doReturn(Collections.emptyList()).when(spySearchManager).search(any());
             doReturn(Collections.emptyList()).when(spySearchManager).getDistinctTrackFieldValues(any());
@@ -316,7 +308,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
     public void shouldThrowExceptionOnInitialise() throws Exception {
         try {
             doThrow(new RuntimeException("SearchManagerTest.shouldThrowExceptionOnInitialise()")).when(spySearchManager)
-                .indexData(anyBoolean());
+                .indexData();
             doReturn(false).when(spySearchManager).isIndexValid(any());
 
             spySearchManager.initialise();
@@ -398,9 +390,8 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldIndexData() throws Exception {
-        spySearchManager.indexData(true);
+        spySearchManager.indexData();
 
-        verify(mockMainPanelController, times(1)).showMessageView(anyString(), anyBoolean());
         verify(mockDataManager, times(1)).parse(any());
         verify(mockArtistWriter, times(1)).commit();
         verify(mockTrackWriter, times(1)).commit();
@@ -415,9 +406,8 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldIndexDataButNotCommitOnException()"))
             .when(mockArtistWriter).commit();
 
-        spySearchManager.indexData(true);
+        spySearchManager.indexData();
 
-        verify(mockMainPanelController, times(1)).showMessageView(anyString(), anyBoolean());
         verify(mockDataManager, times(1)).parse(any());
         verify(mockArtistWriter, times(1)).commit();
         verify(mockTrackWriter, never()).commit();

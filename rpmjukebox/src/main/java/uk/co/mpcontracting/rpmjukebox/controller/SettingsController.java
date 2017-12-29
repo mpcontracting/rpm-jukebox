@@ -156,8 +156,9 @@ public class SettingsController extends EventAwareObject implements Constants {
         // Don't run this on the GUI thread
         ThreadRunner.run(() -> {
             try {
+                mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX), false);
                 isReindexing = true;
-                searchManager.indexData(false);
+                searchManager.indexData();
             } catch (Exception e) {
                 mainPanelController.closeMessageView();
                 isReindexing = false;

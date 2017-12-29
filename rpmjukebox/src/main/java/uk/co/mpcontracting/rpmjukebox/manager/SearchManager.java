@@ -57,7 +57,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
@@ -73,9 +72,6 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 public class SearchManager extends EventAwareObject implements Constants {
 
     @Autowired
-    private MessageManager messageManager;
-
-    @Autowired
     private SettingsManager settingsManager;
 
     @Autowired
@@ -83,9 +79,6 @@ public class SearchManager extends EventAwareObject implements Constants {
 
     @Autowired
     private DataManager dataManager;
-
-    @Autowired
-    private MainPanelController mainPanelController;
 
     @Value("${directory.artist.index}")
     private String directoryArtistIndex;
@@ -145,7 +138,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
             // See if we already have valid indexes, if not, build them
             if (settingsManager.hasDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
-                indexData(true);
+                indexData();
             }
 
             // Initialise the filters and sorts
@@ -218,9 +211,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     }
 
     @Synchronized
-    public void indexData(boolean blurBackground) throws Exception {
-        mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX), blurBackground);
-
+    public void indexData() throws Exception {
         dataManager.parse(settingsManager.getDataFile());
         commitIndexes();
         settingsManager.setLastIndexedDate(LocalDateTime.now());
