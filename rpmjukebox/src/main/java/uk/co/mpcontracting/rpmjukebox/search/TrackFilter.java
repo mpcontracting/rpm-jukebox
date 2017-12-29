@@ -18,16 +18,16 @@ public class TrackFilter {
 
     public Query getFilter() {
         boolean hasFilters = false;
-        List<Term> termsList = new ArrayList<Term>();
+        List<Term> termsList = new ArrayList<>();
 
         if (genre != null && genre.trim().length() > 0) {
             hasFilters = true;
-            termsList.add(new Term(TrackField.GENRE.name(), genre));
+            termsList.add(new Term(TrackField.GENRE.name(), genre.trim()));
         }
 
         if (year != null && year.trim().length() > 0) {
             hasFilters = true;
-            termsList.add(new Term(TrackField.YEAR.name(), year));
+            termsList.add(new Term(TrackField.YEAR.name(), year.trim()));
         }
 
         if (hasFilters) {
