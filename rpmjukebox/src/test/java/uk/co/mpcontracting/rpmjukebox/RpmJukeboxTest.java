@@ -2,7 +2,7 @@ package uk.co.mpcontracting.rpmjukebox;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.File;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import de.felixroske.jfxsupport.SplashScreen;
 import javafx.scene.image.Image;
 import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
@@ -103,12 +102,5 @@ public class RpmJukeboxTest extends AbstractTest {
         rpmJukebox.stop();
 
         verify(mockApplicationManager, never()).stop();
-    }
-
-    @Test
-    public void shouldReturnFalseForSplashScreenVisibility() {
-        SplashScreen splashScreen = new RpmJukebox.RpmJukeboxSplash();
-
-        assertThat("Visibility should be false", splashScreen.visible(), equalTo(false));
     }
 }

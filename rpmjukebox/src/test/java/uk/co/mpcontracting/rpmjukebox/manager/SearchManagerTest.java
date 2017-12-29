@@ -306,7 +306,6 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             spySearchManager.initialise();
             spySearchManager.initialise();
 
-            verify(mockMainPanelController, times(1)).showMessageView(anyString(), anyBoolean());
             verify(mockApplicationManager, times(1)).shutdown();
         } finally {
             spySearchManager.shutdown();

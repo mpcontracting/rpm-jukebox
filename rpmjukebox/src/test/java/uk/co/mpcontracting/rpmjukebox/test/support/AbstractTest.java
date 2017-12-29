@@ -45,6 +45,7 @@ public abstract class AbstractTest extends GuiTest {
     static {
         System.setProperty("JAVAFX_HEADLESS", "true");
         System.setProperty("directory.config", ".rpmjukeboxtest");
+        System.setProperty("spring.profiles.active", "test");
         ReflectionTestUtils.setField(RpmJukebox.class, "configDirectory",
             new File(System.getProperty("user.home") + File.separator + ".rpmjukeboxtest"));
         Locale.setDefault(Locale.UK);

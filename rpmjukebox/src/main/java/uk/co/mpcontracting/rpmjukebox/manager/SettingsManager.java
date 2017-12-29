@@ -32,7 +32,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
@@ -62,9 +61,6 @@ public class SettingsManager implements Constants {
 
     @Autowired
     private InternetManager internetManager;
-
-    @Autowired
-    private MainPanelController mainPanelController;
 
     @Value("${version}")
     private String versionString;
@@ -143,15 +139,14 @@ public class SettingsManager implements Constants {
     }
 
     public boolean hasDataFileExpired() {
-        mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_CHECKING_DATA), true);
-
-        // Wait at least 1.5 seconds so message window lasts
-        // long enough to read
-        try {
-            Thread.sleep(1500);
-        } catch (Exception e) {
-            // Do nothing
-        }
+        /*
+         * mainPanelController.showMessageView(messageManager.getMessage(
+         * MESSAGE_CHECKING_DATA), true);
+         * 
+         * // Wait at least 1.5 seconds so message window lasts // long enough
+         * to read try { Thread.sleep(1500); } catch (Exception e) { // Do
+         * nothing }
+         */
 
         // Read the last modified date from the data file
         LocalDateTime lastModified = null;

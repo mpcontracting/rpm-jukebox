@@ -168,15 +168,15 @@ public class SearchManager extends EventAwareObject implements Constants {
 
             log.debug("SearchManager initialised");
         } catch (LockObtainFailedException e) {
-            mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_ALREADY_RUNNING), true);
+            // mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_ALREADY_RUNNING),
+            // true);
 
             // Wait at least 5 seconds so message window lasts
             // long enough to read
-            try {
-                Thread.sleep(5000);
-            } catch (Exception e2) {
-                // Do nothing on exception
-            }
+            /*
+             * try { Thread.sleep(5000); } catch (Exception e2) { // Do nothing
+             * on exception }
+             */
 
             applicationManager.shutdown();
         } catch (Exception e) {

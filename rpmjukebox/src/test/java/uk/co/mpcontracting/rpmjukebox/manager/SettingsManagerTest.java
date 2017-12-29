@@ -34,7 +34,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
@@ -78,9 +77,6 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     private InternetManager mockInternetManager;
 
     @Mock
-    private MainPanelController mockMainPanelController;
-
-    @Mock
     private URL mockDataFile;
 
     private SettingsManager spySettingsManager;
@@ -92,7 +88,6 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         ReflectionTestUtils.setField(spySettingsManager, "playlistManager", mockPlaylistManager);
         ReflectionTestUtils.setField(spySettingsManager, "mediaManager", mockMediaManager);
         ReflectionTestUtils.setField(spySettingsManager, "internetManager", mockInternetManager);
-        ReflectionTestUtils.setField(spySettingsManager, "mainPanelController", mockMainPanelController);
         ReflectionTestUtils.setField(spySettingsManager, "dataFile", mockDataFile);
     }
 

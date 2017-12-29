@@ -13,11 +13,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import de.felixroske.jfxsupport.AbstractJavaFxApplicationSupport;
-import de.felixroske.jfxsupport.SplashScreen;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
 import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
@@ -28,6 +28,9 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
 
     @Getter
     private static File configDirectory;
+
+    @Getter
+    private static ProgressSplashScreen splashScreen;
 
     private ApplicationContext context;
 
@@ -119,14 +122,10 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
         // Initialise the logging
         initialiseLogging();
 
-        // Launch the application
-        launchApp(RpmJukebox.class, MainPanelView.class, new RpmJukeboxSplash(), args);
-    }
+        // Initialise the splash screen
+        splashScreen = new ProgressSplashScreen();
 
-    static class RpmJukeboxSplash extends SplashScreen {
-        @Override
-        public boolean visible() {
-            return false;
-        }
+        // Launch the application
+        launchApp(RpmJukebox.class, MainPanelView.class, splashScreen, args);
     }
 }
