@@ -1,5 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import static java.util.Optional.*;
+
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -32,15 +34,16 @@ public class InternetManager extends EventAwareObject {
             HttpURLConnection connection = (HttpURLConnection)url.openConnection(new Proxy(Proxy.Type.HTTP,
                 new InetSocketAddress(systemSettings.getProxyHost(), systemSettings.getProxyPort())));
 
-            if (systemSettings.getProxyRequiresAuthentication() != null
-                && systemSettings.getProxyRequiresAuthentication()) {
-                log.debug("Using proxy authentication for user - " + systemSettings.getProxyUsername());
+            ofNullable(systemSettings.getProxyRequiresAuthentication()).ifPresent(requiresAuthentication -> {
+                if (requiresAuthentication) {
+                    log.debug("Using proxy authentication for user - " + systemSettings.getProxyUsername());
 
-                String authorization = systemSettings.getProxyUsername() + ":" + systemSettings.getProxyPassword();
-                String authToken = Base64.getEncoder().encodeToString(authorization.getBytes());
+                    String authorization = systemSettings.getProxyUsername() + ":" + systemSettings.getProxyPassword();
+                    String authToken = Base64.getEncoder().encodeToString(authorization.getBytes());
 
-                connection.setRequestProperty("Proxy-Authorization", "Basic " + authToken);
-            }
+                    connection.setRequestProperty("Proxy-Authorization", "Basic " + authToken);
+                }
+            });
 
             return connection;
         }

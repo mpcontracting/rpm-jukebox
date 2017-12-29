@@ -201,9 +201,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         try {
             indexSearcher = searcherManager.acquire();
 
-            List<Track> tracks = search(new TrackSearch("*"));
-
-            return tracks != null && !tracks.isEmpty();
+            return !search(new TrackSearch("*")).isEmpty();
         } catch (Exception e) {
             log.error("Unable to check if index is valid", e);
 

@@ -1,5 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import static java.util.Optional.*;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -347,13 +348,13 @@ public class SettingsManager implements InitializingBean, Constants {
         playlistManager.setRepeat(settings.getRepeat());
 
         // Equalizer
-        Optional.ofNullable(settings.getEqBands()).ifPresent(
+        ofNullable(settings.getEqBands()).ifPresent(
             eqBands -> eqBands.forEach(eqBand -> mediaManager.setEqualizerGain(eqBand.getBand(), eqBand.getValue())));
 
         // Playlists
         List<Playlist> playlists = new ArrayList<>();
 
-        Optional.ofNullable(settings.getPlaylists())
+        ofNullable(settings.getPlaylists())
             .ifPresent(playlistSettingsList -> playlistSettingsList.forEach(playlistSettings -> {
                 Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), maxPlaylistSize);
 

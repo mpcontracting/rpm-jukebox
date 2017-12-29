@@ -1,5 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import static java.util.Optional.*;
+
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -336,9 +338,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
         List<YearFilter> yearFilters = new ArrayList<>();
         yearFilters.add(new YearFilter("None", null));
 
-        if (searchManager.getYearList() != null) {
-            searchManager.getYearList().forEach(year -> yearFilters.add(new YearFilter(year, year)));
-        }
+        ofNullable(searchManager.getYearList())
+            .ifPresent(years -> years.forEach(year -> yearFilters.add(new YearFilter(year, year))));
 
         yearFilterComboBox.getItems().clear();
         yearFilterComboBox.getItems().addAll(yearFilters);
