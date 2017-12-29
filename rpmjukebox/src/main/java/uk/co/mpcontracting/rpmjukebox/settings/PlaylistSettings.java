@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.model.Track;
 
 @NoArgsConstructor
 @ToString(includeFieldNames = true)
@@ -23,10 +22,8 @@ public class PlaylistSettings {
         this.id = playlist.getPlaylistId();
         this.name = playlist.getName();
 
-        tracks = new ArrayList<String>();
+        tracks = new ArrayList<>();
 
-        for (Track track : playlist) {
-            tracks.add(track.getTrackId());
-        }
+        playlist.forEach(track -> tracks.add(track.getTrackId()));
     }
 }
