@@ -114,7 +114,7 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
             }
         }
 
-        log.info("Config directory - " + configDirectory);
+        log.info("Config directory - {}", configDirectory);
 
         // Initialise the logging
         initialiseLogging();

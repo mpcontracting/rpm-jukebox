@@ -302,7 +302,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     private void searchParametersUpdated(String searchText, YearFilter yearFilter, boolean searchTextUpdated) {
-        log.debug("Search parameters updated - '" + searchText + "'" + " - " + yearFilter);
+        log.debug("Search parameters updated - '{}' - {}", searchText, yearFilter);
 
         if (searchText != null && searchText.trim().length() > 0) {
             TrackFilter trackFilter = null;
@@ -333,7 +333,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
     // Package level for testing purposes
     void updateYearFilter() {
-        log.debug("Updating year filter - " + searchManager.getYearList());
+        log.debug("Updating year filter - {}", searchManager.getYearList());
 
         List<YearFilter> yearFilters = new ArrayList<>();
         yearFilters.add(new YearFilter("None", null));
@@ -464,7 +464,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                     playlistPanelListView.getFocusModel().focus(currentPlaylistSelection);
                 }
             } catch (Exception e) {
-                log.error("Unable to import playlists file - " + file.getAbsolutePath(), e);
+                log.error("Unable to import playlists file - {}", file.getAbsolutePath(), e);
 
                 RpmJukebox.getStage().getScene().getRoot().setEffect(null);
 

@@ -185,8 +185,8 @@ public class SettingsManager implements Constants {
 
         LocalDateTime lastIndexed = getLastIndexedDate();
 
-        log.debug("Last modified - " + lastModified);
-        log.debug("Last indexed - " + lastIndexed);
+        log.debug("Last modified - {}", lastModified);
+        log.debug("Last indexed - {}", lastIndexed);
 
         // If last modified is at least 1 hour old and greater than last
         // indexed, it's invalid

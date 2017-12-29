@@ -48,7 +48,7 @@ public class NativeManager {
                 nsUserNotificationsBridge = (NsUserNotificationsBridge)Native
                     .loadLibrary(userNotificationsFile.getAbsolutePath(), NsUserNotificationsBridge.class);
             } catch (Throwable t) {
-                log.error("Error", t);
+                log.error("Error loading native notifications bridge", t);
             }
         }
     }

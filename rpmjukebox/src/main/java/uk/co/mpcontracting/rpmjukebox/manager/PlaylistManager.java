@@ -97,7 +97,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void addPlaylist(Playlist playlist) {
-        log.debug("Adding playlist - " + playlist);
+        log.debug("Adding playlist - {}", playlist);
 
         int playlistId = 1;
 
@@ -119,7 +119,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     private Playlist createPlaylist(String name, boolean autoEdit) {
-        log.debug("Creating playlist - " + name);
+        log.debug("Creating playlist - {}", name);
 
         int playlistId = 1;
         Playlist playlist = null;
@@ -142,8 +142,8 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void createPlaylistFromAlbum(Track track) {
-        log.debug("Creating playlist from album : Track - " + track.getArtistName() + " - " + track.getAlbumName()
-            + " - " + track.getTrackName());
+        log.debug("Creating playlist from album : Track - {} - {} - {}", track.getArtistName(), track.getAlbumName(),
+            track.getTrackName());
 
         List<Track> tracks = searchManager.getAlbumById(track.getAlbumId());
 
@@ -154,7 +154,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public Playlist getPlaylist(int playlistId) {
-        log.debug("Getting playlist - " + playlistId);
+        log.debug("Getting playlist - {}", playlistId);
 
         synchronized (playlistMap) {
             return playlistMap.get(playlistId);
@@ -162,7 +162,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void deletePlaylist(int playlistId) {
-        log.debug("Deleting playlist - " + playlistId);
+        log.debug("Deleting playlist - {}", playlistId);
 
         if (playlistId < 0) {
             return;
@@ -193,7 +193,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void setPlaylistTracks(int playlistId, List<Track> tracks) {
-        log.debug("Setting playlist tracks - " + playlistId);
+        log.debug("Setting playlist tracks - {}", playlistId);
 
         synchronized (playlistMap) {
             playlistMap.get(playlistId).setTracks(tracks);
@@ -203,8 +203,8 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void addTrackToPlaylist(int playlistId, Track track) {
-        log.debug("Adding track : Playlist - " + playlistId + ", Track - " + track.getArtistName() + " - "
-            + track.getAlbumName() + " - " + track.getTrackName());
+        log.debug("Adding track : Playlist - {}, Track - {} - {} - {}", playlistId, track.getArtistName(),
+            track.getAlbumName(), track.getTrackName());
 
         synchronized (playlistMap) {
             playlistMap.get(playlistId).addTrack(track);
@@ -214,8 +214,8 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void removeTrackFromPlaylist(int playlistId, Track track) {
-        log.debug("Removing track : Playlist - " + playlistId + ", Track - " + track.getArtistName() + " - "
-            + track.getAlbumName() + " - " + track.getTrackName());
+        log.debug("Removing track : Playlist - {}, Track - {} - {} - {}", playlistId, track.getArtistName(),
+            track.getAlbumName(), track.getTrackName());
 
         synchronized (playlistMap) {
             playlistMap.get(playlistId).removeTrack(track);
@@ -227,8 +227,8 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void moveTracksInPlaylist(int playlistId, Track source, Track target) {
-        log.debug("Moving tracks : Playist - " + playlistId + ", Source - " + source.getTrackName() + ", Target - "
-            + target.getTrackName());
+        log.debug("Moving tracks : Playist - {}, Source - {}, Target {}", playlistId, source.getTrackName(),
+            target.getTrackName());
 
         synchronized (playlistMap) {
             Playlist playlist = playlistMap.get(playlistId);
@@ -257,7 +257,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void playPlaylist(int playlistId) {
-        log.debug("Playing playlist - " + playlistId);
+        log.debug("Playing playlist - {}", playlistId);
 
         synchronized (playlistMap) {
             currentPlaylistId = playlistId;
@@ -271,8 +271,8 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void playTrack(Track track) {
-        log.debug("Playing track : Playlist - " + track.getPlaylistId() + ", Index - " + track.getPlaylistIndex()
-            + ", Track - " + track.getArtistName() + " - " + track.getAlbumName() + " - " + track.getTrackName());
+        log.debug("Playing track : Playlist - {}, Index - {}, Track - {} - {} - {}", track.getPlaylistId(),
+            track.getPlaylistIndex(), track.getArtistName(), track.getAlbumName(), track.getTrackName());
 
         synchronized (playlistMap) {
             currentPlaylistId = track.getPlaylistId();
@@ -328,8 +328,8 @@ public class PlaylistManager extends EventAwareObject implements Constants {
         Track selectedTrack = trackTableController.getSelectedTrack();
 
         if (selectedTrack != null) {
-            log.debug("Playing playlist - " + playingPlaylist.getPlaylistId() + ", Track playlist - "
-                + selectedTrack.getPlaylistId() + ", Track - " + selectedTrack.getTrackName());
+            log.debug("Playing playlist - {}, Track playlist - {}, Track - {}", playingPlaylist.getPlaylistId(),
+                selectedTrack.getPlaylistId(), selectedTrack.getTrackName());
 
             if (playingPlaylist.getPlaylistId() != selectedTrack.getPlaylistId()
                 || (currentTrack != null && !currentTrack.equals(selectedTrack))) {
@@ -446,7 +446,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
             this.shuffle = shuffle;
 
             if (shuffle && !ignorePlaylist) {
-                log.debug("Shuffling current playlist - " + currentPlaylistId);
+                log.debug("Shuffling current playlist - {}", currentPlaylistId);
 
                 Playlist playlist = playlistMap.get(currentPlaylistId);
                 playlist.shuffle();
@@ -468,7 +468,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void setRepeat(Repeat repeat) {
-        log.debug("Setting repeat - " + repeat);
+        log.debug("Setting repeat - {}", repeat);
 
         synchronized (playlistMap) {
             this.repeat = repeat;
@@ -476,7 +476,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     }
 
     public void updateRepeat() {
-        log.debug("Updating repeat from - " + repeat);
+        log.debug("Updating repeat from - {}", repeat);
 
         switch (repeat) {
             case OFF: {
@@ -493,7 +493,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
             }
         }
 
-        log.debug("Updated to - " + repeat);
+        log.debug("Updated to - {}", repeat);
     }
 
     @Override

@@ -19,7 +19,7 @@ public abstract class AbstractModalView extends AbstractFxmlView {
     private boolean blurBackground;
 
     public void initialise() {
-        log.info("Initialising modal view - " + getClass().getName());
+        log.info("Initialising modal view - {}", getClass().getName());
 
         owner = RpmJukebox.getStage();
 

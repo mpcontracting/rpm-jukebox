@@ -89,7 +89,7 @@ public class TrackTableController extends EventAwareObject {
     }
 
     private void updateObservableTracks(int playlistId) {
-        log.debug("Updating observable tracks - " + playlistId);
+        log.debug("Updating observable tracks - {}", playlistId);
 
         observableTracks.clear();
 

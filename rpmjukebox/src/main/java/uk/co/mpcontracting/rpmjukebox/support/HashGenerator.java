@@ -12,7 +12,7 @@ public abstract class HashGenerator {
     }
 
     public static final String generateHash(Object... objects) throws Exception {
-        log.debug("Generating hash for - " + objects);
+        log.debug("Generating hash for - {}", objectsAsString(objects));
 
         if (objects == null || objects.length == 0) {
             throw new IllegalArgumentException("Objects for hash generation must have at least one value");
@@ -39,8 +39,32 @@ public abstract class HashGenerator {
 
             return toHex(digest.digest());
         } catch (Exception e) {
-            throw new Exception("Error generating hash for - " + objects, e);
+            throw new Exception("Error generating hash for - " + objectsAsString(objects), e);
         }
+    }
+
+    private static String objectsAsString(Object... objects) {
+        StringBuilder builder = new StringBuilder();
+
+        if (objects != null) {
+            for (Object object : objects) {
+                if (object == null) {
+                    builder.append("null");
+                } else {
+                    builder.append(object.toString());
+                }
+
+                builder.append(", ");
+            }
+
+            if (builder.length() > 0) {
+                builder.setLength(builder.length() - 2);
+            }
+        } else {
+            builder.append("null");
+        }
+
+        return builder.toString();
     }
 
     private static String toHex(byte[] bytes) {

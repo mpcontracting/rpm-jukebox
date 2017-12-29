@@ -258,7 +258,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         try {
             artistWriter.addDocument(document);
         } catch (Exception e) {
-            log.error("Unable to index artist - " + artist.getArtistId());
+            log.error("Unable to index artist - {}", artist.getArtistId());
         }
     }
 
@@ -308,14 +308,14 @@ public class SearchManager extends EventAwareObject implements Constants {
         try {
             trackWriter.addDocument(document);
         } catch (Exception e) {
-            log.error("Unable to index track - " + track.getTrackId());
+            log.error("Unable to index track - {}", track.getTrackId());
         }
     }
 
     // Package level for testing purposes
     @Synchronized
     List<String> getDistinctTrackFieldValues(TrackField trackField) {
-        log.debug("Getting distinct track field values - " + trackField);
+        log.debug("Getting distinct track field values - {}", trackField);
 
         long startTime = System.currentTimeMillis();
 
@@ -346,7 +346,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
             return new ArrayList<>(fieldValues);
         } catch (Exception e) {
-            log.error("Unable to get distinct track field values - " + trackField, e);
+            log.error("Unable to get distinct track field values - {}", trackField, e);
 
             return Collections.emptyList();
         } finally {
@@ -359,7 +359,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             trackSearcher = null;
             long queryTime = System.currentTimeMillis() - startTime;
 
-            log.debug("Distinct track field values query time - " + queryTime + " milliseconds");
+            log.debug("Distinct track field values query time - {} milliseconds", queryTime);
         }
     }
 
@@ -409,13 +409,13 @@ public class SearchManager extends EventAwareObject implements Constants {
             trackSearcher = null;
             long queryTime = System.currentTimeMillis() - startTime;
 
-            log.debug("Search query time - " + queryTime + " milliseconds");
+            log.debug("Search query time - {} milliseconds", queryTime);
         }
     }
 
     @Synchronized
     public List<Track> getShuffledPlaylist(int playlistSize, String yearFilter) {
-        log.debug("Getting shuffled playlist size - " + playlistSize + " - " + yearFilter);
+        log.debug("Getting shuffled playlist size - {} - {}", playlistSize, yearFilter);
 
         long startTime = System.currentTimeMillis();
 
@@ -431,7 +431,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             int maxSearchHits = trackSearcher.getIndexReader().maxDoc();
             List<Track> playlist = new ArrayList<>();
 
-            log.debug("Max search hits - " + maxSearchHits);
+            log.debug("Max search hits - {}", maxSearchHits);
 
             Query query = null;
 
@@ -445,8 +445,8 @@ public class SearchManager extends EventAwareObject implements Constants {
             TopDocs results = trackSearcher.search(query, maxSearchHits);
             ScoreDoc[] scoreDocs = results.scoreDocs;
 
-            log.debug("Hits - " + results.totalHits);
-            log.debug("Score docs - " + scoreDocs.length);
+            log.debug("Hits - {}", results.totalHits);
+            log.debug("Score docs - {}", scoreDocs.length);
 
             if (playlistSize < results.totalHits) {
                 final IndexSearcher finalSearcher = trackSearcher;
@@ -500,7 +500,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             trackSearcher = null;
             long queryTime = System.currentTimeMillis() - startTime;
 
-            log.debug("Shuffled playlist query time - " + queryTime + " milliseconds");
+            log.debug("Shuffled playlist query time - {} milliseconds", queryTime);
         }
     }
 

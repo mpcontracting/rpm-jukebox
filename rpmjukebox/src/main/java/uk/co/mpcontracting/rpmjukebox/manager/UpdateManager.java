@@ -38,8 +38,8 @@ public class UpdateManager extends EventAwareObject implements Constants {
 
     // Package level for testing purposes
     void checkForUpdates() {
-        log.debug("Checking for updates to version - " + settingsManager.getVersion());
-        log.debug("Version url - " + versionUrl);
+        log.debug("Checking for updates to version - {}", settingsManager.getVersion());
+        log.debug("Version url - {}", versionUrl);
 
         try {
             HttpURLConnection connection = internetManager.openConnection(versionUrl);
@@ -56,7 +56,7 @@ public class UpdateManager extends EventAwareObject implements Constants {
                 if (response.toString().length() > 0) {
                     Version foundVersion = new Version(response.toString().trim());
 
-                    log.debug("Found version - " + foundVersion);
+                    log.debug("Found version - {}", foundVersion);
 
                     if (foundVersion.compareTo(settingsManager.getVersion()) > 0) {
                         log.debug("New version available");
@@ -67,7 +67,7 @@ public class UpdateManager extends EventAwareObject implements Constants {
                     }
                 }
             } else {
-                log.error("Unable to check for new version : Response code - " + connection.getResponseCode());
+                log.error("Unable to check for new version : Response code - {}", connection.getResponseCode());
             }
         } catch (Exception e) {
             log.error("Error checking for new version", e);
@@ -75,7 +75,7 @@ public class UpdateManager extends EventAwareObject implements Constants {
     }
 
     public void downloadNewVersion() {
-        log.debug("Downloading new version - " + newVersion);
+        log.debug("Downloading new version - {}", newVersion);
 
         ThreadRunner.run(() -> {
             RpmJukebox.getAppHostServices().showDocument(websiteUrl);

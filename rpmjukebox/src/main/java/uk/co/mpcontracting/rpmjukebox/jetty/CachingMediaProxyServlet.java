@@ -31,8 +31,8 @@ public class CachingMediaProxyServlet extends HttpServlet {
         String url = request.getParameter("url");
 
         try {
-            log.debug("Getting file : Cache type - " + cacheType + ", ID - " + id + ", HTTP - " + request.getMethod()
-                + ", URL - " + url);
+            log.debug("Getting file : Cache type - {}, ID - {}, HTTP - {}, URL - {}", cacheType, id,
+                request.getMethod(), url);
 
             File cachedFile = ContextHelper.getBean(CacheManager.class).readCache(cacheType, id);
 
@@ -57,7 +57,8 @@ public class CachingMediaProxyServlet extends HttpServlet {
                 }
             }
         } catch (Exception e) {
-            log.error("Error getting file : ID - " + id + ", URL " + url);
+            log.error("Error getting file : Cache type - {}, ID - {}, HTTP - {}, URL - {}", cacheType, id,
+                request.getMethod(), url);
         }
     }
 

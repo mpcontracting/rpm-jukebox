@@ -70,22 +70,22 @@ public class CacheManager implements Constants {
 
     @Synchronized
     public File readCache(CacheType cacheType, String id) {
-        log.debug("Reading cache : Cache type - " + cacheType + ", ID - " + id);
+        log.debug("Reading cache : Cache type - {}, ID - {}", cacheType, id);
 
         try {
             File file = new File(cacheDirectory, (cacheType == CacheType.TRACK ? id : HashGenerator.generateHash(id)));
 
             if (file.exists()) {
-                log.debug("Found cached file : Cache type - " + cacheType + ", ID - " + id);
+                log.debug("Found cached file : Cache type - {}, ID - {}", cacheType, id);
 
                 file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 
                 return file;
             }
 
-            log.debug("Cached file not found : Cache type - " + cacheType + ", ID - " + id);
+            log.debug("Cached file not found : Cache type - {}, ID - {}", cacheType, id);
         } catch (Exception e) {
-            log.error("Unable to read cache : Cache type - " + cacheType + ", ID - " + id, e);
+            log.error("Unable to read cache : Cache type - {}, ID - {}", cacheType, id, e);
         }
 
         return null;
@@ -93,7 +93,7 @@ public class CacheManager implements Constants {
 
     @Synchronized
     public void writeCache(CacheType cacheType, String id, byte[] fileContent) {
-        log.debug("Writing cache : Cache type - " + cacheType + ", ID - " + id);
+        log.debug("Writing cache : Cache type - {}, ID - {}", cacheType, id);
 
         try {
             File file = new File(cacheDirectory, (cacheType == CacheType.TRACK ? id : HashGenerator.generateHash(id)));
@@ -105,19 +105,19 @@ public class CacheManager implements Constants {
             try (FileOutputStream outputStream = new FileOutputStream(file)) {
                 outputStream.write(fileContent);
             } catch (Exception e) {
-                log.error("Unable to write cache : Cache type - " + cacheType + ", ID - " + id, e);
+                log.error("Unable to write cache : Cache type - {}, ID - {}", cacheType, id, e);
             }
 
             trimCache();
         } catch (Exception e) {
-            log.error("Unable to write cache : Cache type - " + cacheType + ", ID - " + id, e);
+            log.error("Unable to write cache : Cache type - {}, ID - {}", cacheType, id, e);
         }
     }
 
     private void trimCache() {
         int cacheSizeMb = settingsManager.getSystemSettings().getCacheSizeMb();
 
-        log.debug("Trimming the cache to " + cacheSizeMb + "Mb");
+        log.debug("Trimming the cache to {}Mb", cacheSizeMb);
 
         List<File> files = new ArrayList<>();
 
@@ -131,7 +131,7 @@ public class CacheManager implements Constants {
             File file = files.get(0);
 
             if (!file.delete()) {
-                log.warn("Unable to delete file - " + file.getAbsolutePath());
+                log.warn("Unable to delete file - {}", file.getAbsolutePath());
 
                 break;
             }

@@ -49,8 +49,8 @@ public class MediaManager extends EventAwareObject implements Constants {
     }
 
     public void playTrack(Track track) {
-        log.debug("Playing track : " + track.getArtistName() + " - " + track.getAlbumName() + " - "
-            + track.getTrackName() + " - " + track.getLocation());
+        log.debug("Playing track : {} - {} - {} - {}", track.getArtistName(), track.getAlbumName(),
+            track.getTrackName(), track.getLocation());
 
         currentTrack = track;
         currentMedia = constructMedia(
@@ -138,7 +138,7 @@ public class MediaManager extends EventAwareObject implements Constants {
     }
 
     public void setEqualizerGain(int band, double value) {
-        log.debug("Setting EQ gain : Band - " + band + ", Value - " + value);
+        log.debug("Setting EQ gain : Band - {}, Value - {}", band, value);
 
         equalizer.setGain(band, value);
 

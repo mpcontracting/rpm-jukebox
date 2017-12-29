@@ -9,7 +9,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 public class TrackTableView<T> extends TableView<TrackTableModel> {
 
     public void highlightTrack(Track track) {
-        log.debug("Highlighting track - " + track);
+        log.debug("Highlighting track - {}", track);
 
         if (track != null) {
             ObservableList<TrackTableModel> observableTracks = getItems();

@@ -129,7 +129,7 @@ public class ExportController implements Constants {
     }
 
     private void setPlaylistToExport(int playlistId, boolean export) {
-        log.debug("Setting playlist to export : ID - " + playlistId + ", Export - " + export);
+        log.debug("Setting playlist to export : ID - {}, Export - {}", playlistId, export);
 
         if (export) {
             playlistsToExport.add(playlistId);
@@ -140,7 +140,7 @@ public class ExportController implements Constants {
 
     @FXML
     protected void handleOkButtonAction(ActionEvent event) {
-        log.debug("Exporting playlists - " + playlistsToExport);
+        log.debug("Exporting playlists - {}", playlistsToExport);
 
         if (!playlistsToExport.isEmpty()) {
             FileChooser fileChooser = constructFileChooser();
@@ -161,7 +161,7 @@ public class ExportController implements Constants {
                 try (FileWriter fileWriter = constructFileWriter(file)) {
                     fileWriter.write(settingsManager.getGson().toJson(playlists));
                 } catch (Exception e) {
-                    log.error("Unable to export playlists file - " + file.getAbsolutePath(), e);
+                    log.error("Unable to export playlists file - {}", file.getAbsolutePath(), e);
                 }
 
                 exportView.close();

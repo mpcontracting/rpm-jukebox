@@ -28,7 +28,7 @@ public class JettyServer implements Constants {
     @SneakyThrows
     @PostConstruct
     public void initialise() {
-        log.info("Initialising JettyServer");
+        log.info("Initialising JettyServer on port - {}", internalJettyPort);
 
         server = new Server();
 

@@ -31,7 +31,7 @@ public class DataManager implements Constants {
     public void parse(URL dataFile) throws Exception {
         try (BufferedReader reader = new BufferedReader(
             new InputStreamReader(new GZIPInputStream(dataFile.openStream()), Charset.forName("UTF-8")))) {
-            log.info("Loading data from - " + dataFile);
+            log.info("Loading data from - {}", dataFile);
 
             String nextLine = null;
             ParserModelArtist currentArtist = null;
@@ -62,8 +62,8 @@ public class DataManager implements Constants {
                             currentTrack.isPreferred(), currentArtist.getGenres()));
                     }
                 } catch (Exception e) {
-                    log.warn("Error parsing line record - " + e.getMessage() + " - ignoring", e);
-                    log.warn("Record - " + nextLine);
+                    log.warn("Error parsing line record - {} - ignoring", e.getMessage(), e);
+                    log.warn("Record - {}", nextLine);
                 }
             }
         }
