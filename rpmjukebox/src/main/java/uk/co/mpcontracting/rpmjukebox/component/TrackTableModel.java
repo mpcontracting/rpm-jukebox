@@ -36,9 +36,7 @@ public class TrackTableModel {
         StringBuilder builder = new StringBuilder();
 
         if (track.getGenres() != null) {
-            for (String genre : track.getGenres()) {
-                builder.append(genre).append(", ");
-            }
+            track.getGenres().forEach(genre -> builder.append(genre).append(", "));
 
             builder.setLength(builder.length() - 2);
         }

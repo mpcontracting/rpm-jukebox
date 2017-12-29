@@ -37,7 +37,7 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject
 
     @Override
     public TableCell<TrackTableModel, T> call(TableColumn<TrackTableModel, T> tableColumn) {
-        final TrackTableCell<TrackTableModel, T> tableCell = new TrackTableCell<TrackTableModel, T>();
+        final TrackTableCell<TrackTableModel, T> tableCell = new TrackTableCell<>();
 
         //////////////////
         // Mouse Events //
