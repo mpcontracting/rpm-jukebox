@@ -36,8 +36,8 @@ public class Playlist implements Cloneable, Iterable<Track>, Constants {
         this.name = name;
         this.maxPlaylistSize = maxPlaylistSize;
 
-        tracks = new ArrayList<Track>();
-        shuffledTracks = new ArrayList<Track>();
+        tracks = new ArrayList<>();
+        shuffledTracks = new ArrayList<>();
 
         random = new SecureRandom();
         random.setSeed(System.currentTimeMillis());
@@ -47,13 +47,8 @@ public class Playlist implements Cloneable, Iterable<Track>, Constants {
     public void setPlaylistId(int playlistId) {
         this.playlistId = playlistId;
 
-        for (Track track : tracks) {
-            track.setPlaylistId(playlistId);
-        }
-
-        for (Track track : shuffledTracks) {
-            track.setPlaylistId(playlistId);
-        }
+        tracks.forEach(track -> track.setPlaylistId(playlistId));
+        shuffledTracks.forEach(track -> track.setPlaylistId(playlistId));
     }
 
     @Synchronized
@@ -115,9 +110,7 @@ public class Playlist implements Cloneable, Iterable<Track>, Constants {
     public void setTracks(List<Track> tracks) {
         clear();
 
-        for (Track track : tracks) {
-            addTrack(track);
-        }
+        tracks.forEach(track -> addTrack(track));
     }
 
     @Synchronized
@@ -189,17 +182,11 @@ public class Playlist implements Cloneable, Iterable<Track>, Constants {
         clone.name = name;
         clone.maxPlaylistSize = maxPlaylistSize;
 
-        clone.tracks = new ArrayList<Track>();
+        clone.tracks = new ArrayList<>();
+        tracks.forEach(track -> clone.tracks.add(track.clone()));
 
-        for (Track track : tracks) {
-            clone.tracks.add(track.clone());
-        }
-
-        clone.shuffledTracks = new ArrayList<Track>();
-
-        for (Track track : shuffledTracks) {
-            clone.shuffledTracks.add(track.clone());
-        }
+        clone.shuffledTracks = new ArrayList<>();
+        shuffledTracks.forEach(track -> clone.shuffledTracks.add(track.clone()));
 
         clone.random = new SecureRandom();
         clone.random.setSeed(System.currentTimeMillis());
