@@ -341,9 +341,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
         ofNullable(searchManager.getYearList())
             .ifPresent(years -> years.forEach(year -> yearFilters.add(new YearFilter(year, year))));
 
-        yearFilterComboBox.getItems().clear();
-        yearFilterComboBox.getItems().addAll(yearFilters);
-        yearFilterComboBox.getSelectionModel().selectFirst();
+        ofNullable(yearFilterComboBox).ifPresent(comboBox -> {
+            comboBox.getItems().clear();
+            comboBox.getItems().addAll(yearFilters);
+            comboBox.getSelectionModel().selectFirst();
+        });
     }
 
     // Package level for testing purposes
