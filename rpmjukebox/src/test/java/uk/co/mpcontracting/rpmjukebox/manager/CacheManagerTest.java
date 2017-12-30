@@ -81,7 +81,7 @@ public class CacheManagerTest extends AbstractTest {
 
         assertThat("Cache content should be '" + cacheContent + "'", result, equalTo(cacheContent));
     }
-    
+
     @Test
     public void shouldFailToReadImageCacheOnException() throws Exception {
         CacheType cacheType = CacheType.IMAGE;
@@ -91,7 +91,7 @@ public class CacheManagerTest extends AbstractTest {
         writeCacheFile(cacheType, id, cacheContent);
 
         ReflectionTestUtils.setField(spyCacheManager, "cacheDirectory", mock(File.class));
-        
+
         File file = spyCacheManager.readCache(cacheType, id);
 
         assertThat("Cache file should be null", file, nullValue());
@@ -124,7 +124,7 @@ public class CacheManagerTest extends AbstractTest {
 
         assertThat("Cache content should be '" + cacheContent + "'", result, equalTo(cacheContent));
     }
-    
+
     @Test
     public void shouldFailToWriteImageCacheOnException() throws Exception {
         CacheType cacheType = CacheType.IMAGE;
@@ -132,7 +132,7 @@ public class CacheManagerTest extends AbstractTest {
         String cacheContent = "CacheManagerTest.shouldFailToWriteImageCacheOnException()";
 
         ReflectionTestUtils.setField(spyCacheManager, "cacheDirectory", mock(File.class));
-        
+
         spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
         File file = new File(cacheDirectory, HashGenerator.generateHash(id));
