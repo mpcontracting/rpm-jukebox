@@ -47,10 +47,8 @@ public class CacheManager implements Constants {
         // Look for the cache directory and create it if it isn't there
         cacheDirectory = settingsManager.getFileFromConfigDirectory(directoryCache);
 
-        if (!cacheDirectory.exists()) {
-            if (!cacheDirectory.mkdirs()) {
-                throw new RuntimeException("Unable to create cache directory - " + cacheDirectory.getAbsolutePath());
-            }
+        if (!cacheDirectory.exists() && !cacheDirectory.mkdirs()) {
+            throw new RuntimeException("Unable to create cache directory - " + cacheDirectory.getAbsolutePath());
         }
 
         timestampComparator = (file1, file2) -> {

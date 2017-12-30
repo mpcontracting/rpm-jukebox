@@ -25,9 +25,7 @@ public class EventManager {
 
     @Synchronized
     private static void initialise() {
-        if (instance == null) {
-            instance = new EventManager();
-        }
+        instance = new EventManager();
     }
 
     public void addEventListener(EventListener eventListener) {
