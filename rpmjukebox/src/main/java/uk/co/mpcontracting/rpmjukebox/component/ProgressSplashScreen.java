@@ -1,5 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import de.felixroske.jfxsupport.SplashScreen;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
@@ -17,15 +20,28 @@ public class ProgressSplashScreen extends SplashScreen implements Constants {
     public Parent getParent() {
         ImageView imageView = new ImageView(getClass().getResource(IMAGE_SPLASH_SCREEN).toExternalForm());
         progressLabel = new Label();
-        progressLabel.setStyle(
-            "-fx-background-color: white; -fx-text-fill: black; -fx-padding: 0 0 0 3; -fx-border-color: -black; -fx-border-style: solid; -fx-border-width: 0 1 1 1;");
+        progressLabel.setStyle(loadStyle());
         progressLabel.setPrefWidth(imageView.getImage().getWidth());
+        progressLabel.setPrefHeight(22);
         progressLabel.setText(null);
 
         VBox vbox = new VBox();
         vbox.getChildren().addAll(imageView, progressLabel);
 
         return vbox;
+    }
+
+    private String loadStyle() {
+        StringBuilder builder = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(
+            new InputStreamReader(getClass().getResourceAsStream("/css/splash-screen.style")))) {
+            reader.lines().forEach(line -> builder.append(line).append(' '));
+        } catch (Exception e) {
+            log.error("Unable to load splash screen CSS", e);
+        }
+
+        return builder.toString();
     }
 
     public void updateProgress(String message) {
