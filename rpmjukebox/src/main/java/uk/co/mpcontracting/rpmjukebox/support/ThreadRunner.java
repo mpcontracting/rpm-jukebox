@@ -1,7 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
 import javafx.application.Platform;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class ThreadRunner {
 
     private ThreadRunner() {
@@ -12,6 +14,10 @@ public abstract class ThreadRunner {
     }
 
     public static void runOnGui(Runnable runnable) {
-        Platform.runLater(runnable);
+        try {
+            Platform.runLater(runnable);
+        } catch (IllegalStateException e) {
+            log.warn("JavaFX toolkit not initialized");
+        }
     }
 }

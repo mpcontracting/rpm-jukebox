@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
 import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
 @Slf4j
@@ -29,7 +31,6 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
     @Getter
     private static File configDirectory;
 
-    @Getter
     private static ProgressSplashScreen splashScreen;
 
     private ApplicationContext context;
@@ -63,6 +64,12 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
         }
 
         super.stop();
+    }
+
+    public void updateSplashProgress(String message) {
+        ThreadRunner.runOnGui(() -> {
+            Optional.ofNullable(splashScreen).ifPresent(splashScreen -> splashScreen.updateProgress(message));
+        });
     }
 
     private static void initialiseLogging() {

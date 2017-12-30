@@ -48,6 +48,9 @@ import uk.co.mpcontracting.rpmjukebox.support.OsType;
 public class SettingsManager implements Constants {
 
     @Autowired
+    private RpmJukebox rpmJukebox;
+
+    @Autowired
     private MessageManager messageManager;
 
     @Autowired
@@ -139,14 +142,7 @@ public class SettingsManager implements Constants {
     }
 
     public boolean hasDataFileExpired() {
-        /*
-         * mainPanelController.showMessageView(messageManager.getMessage(
-         * MESSAGE_CHECKING_DATA), true);
-         * 
-         * // Wait at least 1.5 seconds so message window lasts // long enough
-         * to read try { Thread.sleep(1500); } catch (Exception e) { // Do
-         * nothing }
-         */
+        rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_CHECKING_DATA));
 
         // Read the last modified date from the data file
         LocalDateTime lastModified = null;
@@ -279,6 +275,8 @@ public class SettingsManager implements Constants {
 
     public void loadSystemSettings() {
         log.debug("Loading system settings");
+
+        rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_LOADING_SYSTEM_SETTINGS));
 
         File systemSettingsFile = getFileFromConfigDirectory(fileSystemSettings);
 

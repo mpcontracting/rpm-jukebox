@@ -57,6 +57,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
@@ -70,6 +71,12 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 @Slf4j
 @Component
 public class SearchManager extends EventAwareObject implements Constants {
+
+    @Autowired
+    private RpmJukebox rpmJukebox;
+
+    @Autowired
+    private MessageManager messageManager;
 
     @Autowired
     private SettingsManager settingsManager;
@@ -141,6 +148,8 @@ public class SearchManager extends EventAwareObject implements Constants {
                 indexData();
             }
 
+            rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_INITIALISING_SEARCH));
+
             // Initialise the filters and sorts
             genreList = new ArrayList<>();
             genreList.add(UNSPECIFIED_GENRE);
@@ -161,15 +170,13 @@ public class SearchManager extends EventAwareObject implements Constants {
 
             log.debug("SearchManager initialised");
         } catch (LockObtainFailedException e) {
-            // mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_ALREADY_RUNNING),
-            // true);
+            rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_ALREADY_RUNNING));
 
-            // Wait at least 5 seconds so message window lasts
-            // long enough to read
-            /*
-             * try { Thread.sleep(5000); } catch (Exception e2) { // Do nothing
-             * on exception }
-             */
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e2) {
+                // Do nothing
+            }
 
             applicationManager.shutdown();
         } catch (Exception e) {
@@ -212,6 +219,8 @@ public class SearchManager extends EventAwareObject implements Constants {
 
     @Synchronized
     public void indexData() throws Exception {
+        rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_DOWNLOAD_INDEX));
+
         dataManager.parse(settingsManager.getDataFile());
         commitIndexes();
         settingsManager.setLastIndexedDate(LocalDateTime.now());

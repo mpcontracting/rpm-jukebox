@@ -16,6 +16,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javafx.scene.image.Image;
+import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
 import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
@@ -23,6 +24,9 @@ public class RpmJukeboxTest extends AbstractTest {
 
     @Autowired
     private RpmJukebox rpmJukebox;
+
+    @Mock
+    private ProgressSplashScreen mockSplashScreen;
 
     @Mock
     private ConfigurableApplicationContext mockContext;
@@ -102,5 +106,17 @@ public class RpmJukeboxTest extends AbstractTest {
         rpmJukebox.stop();
 
         verify(mockApplicationManager, never()).stop();
+    }
+
+    @Test
+    public void shouldUpdateSplashProgress() throws Exception {
+        ReflectionTestUtils.setField(rpmJukebox, "splashScreen", mockSplashScreen);
+
+        rpmJukebox.updateSplashProgress("Test message");
+
+        // Wait for UI thread
+        Thread.sleep(250);
+
+        verify(mockSplashScreen, times(1)).updateProgress("Test message");
     }
 }

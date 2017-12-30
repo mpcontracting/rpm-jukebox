@@ -10,8 +10,13 @@ public interface Constants {
 
     // Message bundle keys
     public static final String MESSAGE_WINDOW_TITLE = "window.title";
+    public static final String MESSAGE_SPLASH_INITIALISING_CACHE = "splash.initialisingCache";
     public static final String MESSAGE_SPLASH_CHECKING_DATA = "splash.checkingData";
     public static final String MESSAGE_SPLASH_DOWNLOAD_INDEX = "splash.downloadIndex";
+    public static final String MESSAGE_SPLASH_LOADING_SYSTEM_SETTINGS = "splash.loadingSystemSettings";
+    public static final String MESSAGE_SPLASH_INITIALISING_SEARCH = "splash.initialisingSearch";
+    public static final String MESSAGE_SPLASH_LOADING_USER_SETTINGS = "splash.loadingUserSettings";
+    public static final String MESSAGE_SPLASH_INITIALISING_VIEWS = "splash.initialisingViews";
     public static final String MESSAGE_SPLASH_ALREADY_RUNNING = "splash.alreadyRunning";
     public static final String MESSAGE_PLAYLIST_DEFAULT = "playlist.default";
     public static final String MESSAGE_PLAYLIST_SEARCH = "playlist.searchResults";
@@ -35,6 +40,7 @@ public interface Constants {
     public static final String STYLE_INVALID_BORDER = "-fx-border-color: -jb-error-color";
 
     // Images
+    public static final String IMAGE_SPLASH_SCREEN = "/images/splash-screen.png";
     public static final String IMAGE_WINDOW_ICON = "/images/window-icon.png";
     public static final String IMAGE_NO_ARTWORK = "/images/no-artwork.png";
     public static final String IMAGE_DRAG_N_DROP = "/images/drag-n-drop.png";

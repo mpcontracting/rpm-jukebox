@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
@@ -28,6 +29,9 @@ import uk.co.mpcontracting.rpmjukebox.view.AbstractModalView;
 @Slf4j
 @Component
 public class ApplicationManager extends EventAwareObject implements ApplicationContextAware, Constants {
+
+    @Autowired
+    private RpmJukebox rpmJukebox;
 
     @Autowired
     private MessageManager messageManager;
@@ -61,9 +65,13 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
     public void initialise() {
         if (Arrays.stream(environment.getActiveProfiles()).noneMatch(env -> "test".equals(env))) {
             searchManager.initialise();
+
+            rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_LOADING_USER_SETTINGS));
+
             settingsManager.loadUserSettings();
 
             // Initialise views on UI thread
+            rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_INITIALISING_VIEWS));
             CountDownLatch latch = new CountDownLatch(1);
 
             ThreadRunner.runOnGui(() -> {

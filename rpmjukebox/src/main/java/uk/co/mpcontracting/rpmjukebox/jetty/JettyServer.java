@@ -9,16 +9,25 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 @Slf4j
 @Component
 public class JettyServer implements Constants {
+
+    @Autowired
+    private RpmJukebox rpmJukebox;
+
+    @Autowired
+    private MessageManager messageManager;
 
     @Value("${internal.jetty.port}")
     private int internalJettyPort;
@@ -29,6 +38,8 @@ public class JettyServer implements Constants {
     @PostConstruct
     public void initialise() {
         log.info("Initialising JettyServer on port - {}", internalJettyPort);
+
+        rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_INITIALISING_CACHE));
 
         server = new Server();
 
