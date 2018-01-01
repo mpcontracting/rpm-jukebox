@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javafx.scene.control.ListView;
@@ -61,8 +62,11 @@ public class PlaylistListCellTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldStartEditAndCommit() {
-        PlaylistListCell spyPlaylistListCell = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
-        TextField spyTextField = spy(new TextField("Playlist"));
+        PlaylistStringConverter<Playlist> converter = new PlaylistStringConverter<>();
+        converter.setPlaylist(new Playlist(1, "Playlist", 10));
+
+        PlaylistListCell spyPlaylistListCell = spy(new PlaylistListCell(converter));
+        TextField spyTextField = spy(new TextField("Playlist Updated"));
         ReflectionTestUtils.invokeMethod(spyTextField, "setFocused", true);
         when(spyPlaylistListCell.getGraphic()).thenReturn(spyTextField);
 
@@ -75,7 +79,11 @@ public class PlaylistListCellTest extends AbstractTest implements Constants {
 
         ReflectionTestUtils.invokeMethod(spyTextField, "setFocused", false);
 
-        verify(spyPlaylistListCell, times(1)).commitEdit(any());
+        ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
+
+        verify(spyPlaylistListCell, times(1)).commitEdit(playlistCaptor.capture());
+        assertThat("Playlist name should be updated to 'Playlist Updated'", playlistCaptor.getValue().getName(),
+            equalTo("Playlist Updated"));
     }
 
     @Test
