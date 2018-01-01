@@ -215,7 +215,7 @@
 					<jvmArgs>
 						<jvmArg>-Xmx128m</jvmArg>
 					</jvmArgs>
-					<!--<verbose>true</verbose> -->
+					<!--<verbose>true</verbose>-->
 					<bundleArguments>
 						<copyright>©2017 Matt Parker</copyright>
 						<systemWide>true</systemWide>
