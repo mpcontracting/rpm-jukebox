@@ -129,8 +129,12 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
     public void shutdown() {
         log.info("Shutting down the application");
 
-        SpringApplication.exit(context, () -> {
-            return 0;
-        });
+        if (context != null) {
+            SpringApplication.exit(context, () -> {
+                return 0;
+            });
+        } else {
+            System.exit(0);
+        }
     }
 }

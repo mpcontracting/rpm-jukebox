@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class JettyServerTest extends AbstractTest {
@@ -17,6 +18,9 @@ public class JettyServerTest extends AbstractTest {
     private JettyServer jettyServer;
 
     @Mock
+    private ApplicationManager mockApplicationManager;
+    
+    @Mock
     private Server mockServer;
 
     private JettyServer spyJettyServer;
@@ -24,6 +28,7 @@ public class JettyServerTest extends AbstractTest {
     @Before
     public void setup() {
         spyJettyServer = spy(jettyServer);
+        ReflectionTestUtils.setField(spyJettyServer, "applicationManager", mockApplicationManager);
         ReflectionTestUtils.setField(spyJettyServer, "server", mockServer);
     }
 
@@ -40,5 +45,12 @@ public class JettyServerTest extends AbstractTest {
         ReflectionTestUtils.setField(spyJettyServer, "server", null);
 
         spyJettyServer.stop();
+    }
+    
+    @Test
+    public void shouldNotInitialiseIfAlreadyInitialised() {
+        spyJettyServer.initialise();
+        
+        verify(mockApplicationManager, times(1)).shutdown();
     }
 }

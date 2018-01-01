@@ -1,5 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
+import java.net.BindException;
+
 import javax.annotation.PostConstruct;
 
 import org.eclipse.jetty.server.Connector;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
@@ -26,6 +29,9 @@ public class JettyServer implements Constants {
     @Autowired
     private RpmJukebox rpmJukebox;
 
+    @Autowired
+    private ApplicationManager applicationManager;
+    
     @Autowired
     private MessageManager messageManager;
 
@@ -56,7 +62,24 @@ public class JettyServer implements Constants {
         handlers.setHandlers(new Handler[] { context, new DefaultHandler() });
 
         server.setHandler(handlers);
-        server.start();
+        
+        try {
+            server.start();
+        } catch (Exception e) {
+            if (e instanceof BindException) {
+                rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_ALREADY_RUNNING));
+
+                try {
+                    Thread.sleep(5000);
+                } catch (Exception e2) {
+                    // Do nothing
+                }
+
+                applicationManager.shutdown();
+            } else {
+                throw e;
+            }
+        }
     }
 
     public void stop() throws Exception {
