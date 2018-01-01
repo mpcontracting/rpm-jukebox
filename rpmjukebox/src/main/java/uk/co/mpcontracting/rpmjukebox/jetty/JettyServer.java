@@ -31,7 +31,7 @@ public class JettyServer implements Constants {
 
     @Autowired
     private ApplicationManager applicationManager;
-    
+
     @Autowired
     private MessageManager messageManager;
 
@@ -47,7 +47,7 @@ public class JettyServer implements Constants {
 
         rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_INITIALISING_CACHE));
 
-        server = new Server();
+        server = constructServer();
 
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(internalJettyPort);
@@ -62,7 +62,7 @@ public class JettyServer implements Constants {
         handlers.setHandlers(new Handler[] { context, new DefaultHandler() });
 
         server.setHandler(handlers);
-        
+
         try {
             server.start();
         } catch (Exception e) {
@@ -80,6 +80,11 @@ public class JettyServer implements Constants {
                 throw e;
             }
         }
+    }
+
+    // Package level for testing purposes
+    Server constructServer() {
+        return new Server();
     }
 
     public void stop() throws Exception {
