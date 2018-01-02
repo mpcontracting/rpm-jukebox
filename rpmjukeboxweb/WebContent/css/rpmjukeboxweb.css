@@ -16,23 +16,26 @@ h1, h2 {
 	text-align: center;
 }
 
-table.downloads {
-	width: 95%;
-	margin-left: auto; 
-    margin-right: auto;
-}
-
-table.downloads td {
-	vertical-align: top;
-}
-
-table.downloads td ul {
-    list-style-position: inside;
-    padding-left:0;
-}
-
-td.center {
+.download {
 	text-align: center;
+}
+
+.download img {
+	padding: 0 15px 0 15px;
+}
+
+.pointer {
+	cursor: pointer;
+}
+
+.linux {
+	display: none;
+	padding: 15px;
+	text-align: center;
+}
+
+.linux a {
+	padding: 15px;
 }
 
 .disclaimer {

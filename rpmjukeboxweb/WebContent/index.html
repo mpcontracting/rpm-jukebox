@@ -4,23 +4,45 @@
 	<head>
 		<title>RPM Jukebox</title>
 		<link rel="stylesheet" type="text/css" href="./css/rpmjukeboxweb.css">
+		<script type="text/javascript">
+			function toggleLinuxDownload() {
+				var element = document.getElementById('linux-download');
+				var currentValue = window.getComputedStyle(element, null).getPropertyValue('display');
+
+				if (currentValue == 'none') {
+					element.style.display = 'block';
+				} else {
+					element.style.display = 'none';
+				}
+			}
+		</script>
 	</head>
 	<body>
 		<div class="content">
 			<h1>RPM Jukebox</h1>
 			<p>
 				Long ago in a galaxy far, far away there existed a Flash based Jukebox hosting all the songs submitted to
-				the RPM Challenge up until that point. It made it possible to take a random journey through the body
-				of collected work and store any favourites in a playlist. Unfortunately it was buggy and the original
-				maintainer stopped work on it, so it was pulled and we are left with the browser based version we have
-				today - which while functional, does not provide the same means to discover the great music hidden
-				beneath. 
+				the <a href="http://www.rpmchallenge.com">RPM Challenge</a> up until that point. It made it possible to 
+				take a random journey through the body of collected work and store any favourites in a playlist. Unfortunately 
+				it was buggy and the original maintainer stopped work on it, so it was pulled and we are left with the browser 
+				based version we have today - which while functional, does not provide the same means to discover the great 
+				music hidden beneath. 
 			</p>
 			<p>
 				So with that in mind, I've taken it upon myself to restore the same kind of easy access in a 
 				new RPM Jukebox...
 			</p>
 			<div class="center"><img src="./images/jukebox.png"/></div>
+			<div class="download">
+				<a href="./releases/rpm-jukebox-2.0.1.dmg"><img src="./images/download-mac.png"/></a>
+				<a href="./releases/rpm-jukebox-2.0.1.exe"><img src="./images/download-windows.png"/></a>
+				<a onClick="toggleLinuxDownload();"><img class="pointer" src="./images/download-linux.png"/></a>
+			</div>
+			<div class="linux" id="linux-download">
+				<a href="./releases/rpm-jukebox-2.0.1.deb">.deb (Ubuntu, Mint etc)</a>
+				<a href="./releases/rpm-jukebox-2.0.1.rpm">.rpm (Fedora etc)</a>
+				<a href="./releases/rpm-jukebox-2.0.1.tar.gz">.tar.gz (Manual install)</a>
+			</div>
 			<p>
 				Functionality includes:-
 			</p>
@@ -33,106 +55,14 @@
 				<li>File caching to take the load off the RPM servers</li>
 				<li>Shuffle/repeat play</li>
 				<li>Graphic equalizer</li>
-				<li>Mac OSX and Windows versions</li>
 			</ul>
 			<p>
 				Source code available on <a href="https://github.com/mpcontracting/rpmjukebox">GitHub</a> - pull requests welcome.
-			</p>
-			<h2 id="downloads">Downloads</h2>
-			<table class="downloads">
-				<tr>
-					<td>RPM Jukebox v2.0.1</td>
-					<td>
-						Changes in this release:-
-						<ul>
-							<li>Added Linux support - currently in Beta</li>
-							<li>Added a splash screen</li>
-							<li>Updated bundled Java version</li>
-							<li>General bug fixes</li>
-						</ul>
-					</td>
-					<td class="center"><a href="./releases/rpm-jukebox-2.0.1.dmg">Mac OSX</a></td>
-					<td class="center"><a href="./releases/rpm-jukebox-2.0.1.exe">Windows</a></td>
-					<td class="center">Linux (Beta)<br/>
-						<a href="./releases/rpm-jukebox-2.0.1.deb">Deb (Ubuntu, Mint etc)</a><br/>
-						<a href="./releases/rpm-jukebox-2.0.1.rpm">RPM (Fedora etc)</a><br/>
-						<a href="./releases/rpm-jukebox-2.0.1.tar.gz">tar.gz (Manual install)</a>
-					</td>
-				</tr>
-				<tr>
-					<td>RPM Jukebox v2.0.0</td>
-					<td>
-						Changes in this release:-
-						<ul>
-							<li>Added proxy support</li>
-							<li>Refactored the codebase to make it more robust</li>
-						</ul>
-					</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-				</tr>
-				<tr>
-					<td>RPM Jukebox v1.0.3</td>
-					<td>
-						Changes in this release:-
-						<ul>
-							<li>Added a year filter to the search and random playlist function</li>
-						</ul>
-					</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-				</tr>
-				<tr>
-					<td>RPM Jukebox v1.0.2</td>
-					<td>
-						Changes in this release:-
-						<ul>
-							<li>Search index now stores accented characters correctly</li>
-							<li>General bug fixes</li>
-						</ul>
-					</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-				</tr>
-				<tr>
-					<td>RPM Jukebox v1.0.1</td>
-					<td>
-						Changes in this release:-
-						<ul>
-							<li>Added an alert if a new version is released</li>
-							<li>OSX notification center integration</li>
-							<li>Track slider is now more accurate</li>
-							<li>General bug fixes</li>
-						</ul>
-					</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-				</tr>
-				<tr>
-					<td>RPM Jukebox v1.0.0</td>
-					<td>
-						Changes in this release:-
-						<ul>
-							<li>Playlists can now be re-ordered</li>
-							<li>Fixed some memory issues</li>
-							<li>General bug fixes</li>
-						</ul>
-					</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-					<td class="center">&nbsp;</td>
-				</tr>
-			</table>
-			<p class="center">
 				Please report any issues you discover on the <a href="https://github.com/mpcontracting/rpmjukebox/issues">GitHub issues page</a>.
 			</p>
 			<h2>Notes</h2>
 			<p>
-				On Windows you may see a firewall warning pop-up like that shown below. This is due to the way the file caching works and you can safely leave
+				On Windows you may see a firewall warning pop-up like the screenshot below. This is due to the way the file caching works and you can safely leave
 				the jukebox blocked by hitting cancel, it doesn't need the external access, it's just Windows being dumb.
 			</p>
 			<div class="center"><img src="./images/windows-firewall.png"/></div>
