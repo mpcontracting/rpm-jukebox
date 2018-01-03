@@ -3,6 +3,10 @@ A player for the RPM Challenge jukebox written in JavaFX
 
 ## Release Notes
 
+### v2.0.2
+
+* Fixed MP3 format detection
+
 ### v2.0.1
 
 * Added Linux support
