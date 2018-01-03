@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -29,6 +30,12 @@ public class MediaManagerTest extends AbstractTest {
 
     @Autowired
     private MediaManager mediaManager;
+
+    @Autowired
+    private CacheManager cacheManager;
+
+    @Value("${internal.jetty.port}")
+    private int internalJettyPort;
 
     @Mock
     private CacheManager mockCacheManager;
@@ -74,7 +81,6 @@ public class MediaManagerTest extends AbstractTest {
         ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", mockMediaPlayer);
         ReflectionTestUtils.setField(spyMediaManager, "currentDuration", mockCurrentDuration);
 
-        doReturn(mockMedia).when(spyMediaManager).constructMedia(any());
         doReturn(mockMediaPlayer).when(spyMediaManager).constructMediaPlayer(any());
 
         when(mockMediaPlayer.currentTimeProperty()).thenReturn(mockCurrentTimeProperty);
@@ -86,8 +92,18 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldPlayTrack() {
+        ReflectionTestUtils.setField(spyMediaManager, "cacheManager", cacheManager);
+
+        when(mockTrack.getTrackId()).thenReturn("trackId");
+        when(mockTrack.getLocation()).thenReturn("http://www.example.com/media%2Emp3");
+
         spyMediaManager.playTrack(mockTrack);
 
+        String source = "http://localhost:" + internalJettyPort
+            + "/cache?cacheType=TRACK&id=trackId&url=http%3A%2F%2Fwww.example.com%2Fmedia.mp3";
+        Media currentMedia = (Media)ReflectionTestUtils.getField(spyMediaManager, "currentMedia");
+
+        assertThat("Current media has a URI of '" + source + "'", currentMedia.getSource(), equalTo(source));
         assertThat("Current track is the mock track",
             ReflectionTestUtils.getField(spyMediaManager, "currentTrack") == mockTrack, equalTo(true));
         verify(mockMediaPlayer, times(1)).play();
@@ -408,8 +424,7 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldConstructConcreteMediaPlayer() {
-        MediaPlayer mediaPlayer = mediaManager
-            .constructMediaPlayer(mediaManager.constructMedia("http://www.example.com/example.mp3"));
+        MediaPlayer mediaPlayer = mediaManager.constructMediaPlayer(new Media("http://www.example.com/example.mp3"));
 
         assertThat("Media player should not be null", mediaPlayer, notNullValue());
     }

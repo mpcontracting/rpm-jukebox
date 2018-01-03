@@ -53,8 +53,8 @@ public class MediaManager extends EventAwareObject implements Constants {
             track.getTrackName(), track.getLocation());
 
         currentTrack = track;
-        currentMedia = constructMedia(
-            cacheManager.constructInternalUrl(CacheType.TRACK, track.getTrackId(), track.getLocation()));
+        currentMedia = new Media(cacheManager.constructInternalUrl(CacheType.TRACK, track.getTrackId(),
+            track.getLocation().replace("%2Emp3", ".mp3")));
 
         createNewMediaPlayer();
 
@@ -231,11 +231,6 @@ public class MediaManager extends EventAwareObject implements Constants {
                 fireEvent(Event.BUFFER_UPDATED, currentDuration, currentPlayer.getBufferProgressTime());
             }
         });
-    }
-
-    // Package level for testing purposes
-    Media constructMedia(String source) {
-        return new Media(source);
     }
 
     // Package level for testing purposes
