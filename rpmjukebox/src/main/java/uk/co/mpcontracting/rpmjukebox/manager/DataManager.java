@@ -28,9 +28,13 @@ public class DataManager implements Constants {
     @Autowired
     private SearchManager searchManager;
 
-    public void parse(URL dataFile) throws Exception {
+    @Autowired
+    private InternetManager internetManager;
+
+    public void parse(URL dataFile) {
         try (BufferedReader reader = new BufferedReader(
-            new InputStreamReader(new GZIPInputStream(dataFile.openStream()), Charset.forName("UTF-8")))) {
+            new InputStreamReader(new GZIPInputStream(internetManager.openConnection(dataFile).getInputStream()),
+                Charset.forName("UTF-8")))) {
             log.info("Loading data from - {}", dataFile);
 
             String nextLine = null;
@@ -66,6 +70,8 @@ public class DataManager implements Constants {
                     log.warn("Record - {}", nextLine);
                 }
             }
+        } catch (Exception e) {
+            log.error("Unable to open connection to data file {}", dataFile, e);
         }
     }
 

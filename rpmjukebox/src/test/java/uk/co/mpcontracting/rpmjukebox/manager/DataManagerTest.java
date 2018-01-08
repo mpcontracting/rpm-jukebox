@@ -17,15 +17,21 @@ public class DataManagerTest extends AbstractTest {
     @Autowired
     private DataManager dataManager;
 
+    @Autowired
+    private InternetManager internetManager;
+
     @Mock
     private SearchManager mockSearchManager;
 
     private DataManager spyDataManager;
+    private InternetManager spyInternetManager;
 
     @Before
     public void setup() {
         spyDataManager = spy(dataManager);
+        spyInternetManager = spy(internetManager);
         ReflectionTestUtils.setField(spyDataManager, "searchManager", mockSearchManager);
+        ReflectionTestUtils.setField(spyDataManager, "internetManager", spyInternetManager);
     }
 
     @Test
@@ -36,5 +42,18 @@ public class DataManagerTest extends AbstractTest {
 
         verify(mockSearchManager, times(4)).addArtist(any());
         verify(mockSearchManager, times(5)).addTrack(any());
+    }
+
+    @Test
+    public void shouldNotParseDataFileOnException() throws Exception {
+        doThrow(new RuntimeException("DataManagerTest.shouldNotParseDataFileOnException()")).when(spyInternetManager)
+            .openConnection(any());
+
+        URL dataFile = new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath());
+
+        spyDataManager.parse(dataFile);
+
+        verify(mockSearchManager, never()).addArtist(any());
+        verify(mockSearchManager, never()).addTrack(any());
     }
 }

@@ -158,7 +158,7 @@ public class SettingsManager implements Constants {
             HttpURLConnection connection = null;
 
             try {
-                connection = internetManager.openConnection(dataFile);
+                connection = (HttpURLConnection)internetManager.openConnection(dataFile);
                 lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(connection.getLastModified()),
                     ZoneId.systemDefault());
             } catch (Exception e) {

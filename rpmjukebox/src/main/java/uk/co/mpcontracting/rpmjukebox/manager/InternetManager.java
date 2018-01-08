@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,32 +23,35 @@ public class InternetManager extends EventAwareObject {
     @Autowired
     private SettingsManager settingsManager;
 
-    public HttpURLConnection openConnection(URL url) throws Exception {
+    public URLConnection openConnection(URL url) throws Exception {
         log.debug("Opening connection to - {}", url);
 
-        SystemSettings systemSettings = settingsManager.getSystemSettings();
+        if (!"file".equals(url.getProtocol())) {
+            SystemSettings systemSettings = settingsManager.getSystemSettings();
 
-        if (systemSettings.getProxyHost() != null && systemSettings.getProxyPort() != null) {
-            log.debug("Using proxy : Host - {}, Port - {}", systemSettings.getProxyHost(),
-                systemSettings.getProxyPort());
+            if (systemSettings.getProxyHost() != null && systemSettings.getProxyPort() != null) {
+                log.debug("Using proxy : Host - {}, Port - {}", systemSettings.getProxyHost(),
+                    systemSettings.getProxyPort());
 
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection(new Proxy(Proxy.Type.HTTP,
-                new InetSocketAddress(systemSettings.getProxyHost(), systemSettings.getProxyPort())));
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection(new Proxy(Proxy.Type.HTTP,
+                    new InetSocketAddress(systemSettings.getProxyHost(), systemSettings.getProxyPort())));
 
-            ofNullable(systemSettings.getProxyRequiresAuthentication()).ifPresent(requiresAuthentication -> {
-                if (requiresAuthentication) {
-                    log.debug("Using proxy authentication for user - {}", systemSettings.getProxyUsername());
+                ofNullable(systemSettings.getProxyRequiresAuthentication()).ifPresent(requiresAuthentication -> {
+                    if (requiresAuthentication) {
+                        log.debug("Using proxy authentication for user - {}", systemSettings.getProxyUsername());
 
-                    String authorization = systemSettings.getProxyUsername() + ":" + systemSettings.getProxyPassword();
-                    String authToken = Base64.getEncoder().encodeToString(authorization.getBytes());
+                        String authorization = systemSettings.getProxyUsername() + ":"
+                            + systemSettings.getProxyPassword();
+                        String authToken = Base64.getEncoder().encodeToString(authorization.getBytes());
 
-                    connection.setRequestProperty("Proxy-Authorization", "Basic " + authToken);
-                }
-            });
+                        connection.setRequestProperty("Proxy-Authorization", "Basic " + authToken);
+                    }
+                });
 
-            return connection;
+                return connection;
+            }
         }
 
-        return (HttpURLConnection)url.openConnection();
+        return url.openConnection();
     }
 }

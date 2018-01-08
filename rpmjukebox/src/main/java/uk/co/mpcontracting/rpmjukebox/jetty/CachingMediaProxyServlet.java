@@ -44,7 +44,8 @@ public class CachingMediaProxyServlet extends HttpServlet {
                 }
             } else {
                 URL location = new URL(url);
-                HttpURLConnection connection = ContextHelper.getBean(InternetManager.class).openConnection(location);
+                HttpURLConnection connection = (HttpURLConnection)ContextHelper.getBean(InternetManager.class)
+                    .openConnection(location);
 
                 if (connection.getResponseCode() == 200) {
                     response.setContentLength(connection.getContentLength());

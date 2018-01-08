@@ -3,6 +3,7 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.net.HttpURLConnection;
@@ -33,6 +34,16 @@ public class InternetManagerTest extends AbstractTest {
     public void setup() {
         ReflectionTestUtils.setField(internetManager, "eventManager", getMockEventManager());
         ReflectionTestUtils.setField(internetManager, "settingsManager", mockSettingsManager);
+    }
+
+    @Test
+    public void shouldOpenConnectionToFile() throws Exception {
+        URL spyDataFile = spy(new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath()));
+
+        internetManager.openConnection(spyDataFile);
+
+        verify(mockSettingsManager, never()).getSystemSettings();
+        verify(spyDataFile, times(1)).openConnection();
     }
 
     @Test
@@ -155,7 +166,7 @@ public class InternetManagerTest extends AbstractTest {
         HttpURLConnection connection = null;
 
         try {
-            connection = internetManager.openConnection(url);
+            connection = (HttpURLConnection)internetManager.openConnection(url);
 
             assertThat("Response code should be 404", connection.getResponseCode(), equalTo(404));
         } finally {
