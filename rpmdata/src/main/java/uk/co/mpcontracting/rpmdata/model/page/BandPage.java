@@ -41,11 +41,13 @@ public class BandPage extends AbstractPage {
 				String albumName = null;
 				String albumImage = null;
 				int albumYear = -1;
+				
+				Element albumBoxParent = findParentOfAlbumBox(mainContent);
 
-				for (Element nextChild : mainContent.children()) {
+				for (Element nextChild : albumBoxParent.children()) {
 					if ("h2".equals(nextChild.tagName())) {
 						String ownText = nextChild.ownText();
-						
+
 						int startYear = ownText.lastIndexOf('(');
 						int endYear = ownText.lastIndexOf(')');
 						
@@ -65,7 +67,7 @@ public class BandPage extends AbstractPage {
 							albumImage = "http://jukebox.rpmchallenge.com" + albumImageElement.attr("src");
 						}
 					}
-					
+
 					if ("tracksbox".equals(nextChild.className())) {
 						String preferredTrackName = null;
 						
@@ -116,7 +118,7 @@ public class BandPage extends AbstractPage {
 				dataProcessor.writeBand();
 			}
 		} catch (Exception e) {
-			if (e instanceof HttpStatusException) {
+			if (e instanceof HttpStatusException && ((HttpStatusException)e).getStatusCode() >= 500) {
 				log.warn("Unable to fetch url - " + url + " - " + ((HttpStatusException)e).getStatusCode());
 				
 				throw e;
@@ -126,6 +128,26 @@ public class BandPage extends AbstractPage {
 		}
 	}
 	
+	private Element findParentOfAlbumBox(Node node) {
+	    for (int i = 0; i < node.childNodeSize(); i++) {
+	        Node nextChild = node.childNode(i);
+
+            if ("#comment".equals(nextChild.nodeName())) {
+                if ("<!-- div albumbox -->".equals(nextChild.toString().trim()) && nextChild.parent() instanceof Element) {
+                    return (Element)nextChild.parent();
+                }
+            }
+            
+            Element parent = findParentOfAlbumBox(nextChild);
+            
+            if (parent != null) {
+                return parent;
+            }
+	    }
+
+	    return null;
+	}
+
 	private Element format(Element element) {
 		for (Element child : element.children()) {
 			if (child.tagName().equals("strong") || child.tagName().equals("img")) {

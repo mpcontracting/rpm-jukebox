@@ -31,7 +31,7 @@ public class BandListPage extends AbstractPage {
 				bandPage.parse(element.attr("href"), dataProcessor);
 			}
 		} catch (Exception e) {
-			if (e instanceof HttpStatusException) {
+			if (e instanceof HttpStatusException && ((HttpStatusException)e).getStatusCode() >= 500) {
 				log.warn("Unable to fetch url - " + url + " - " + ((HttpStatusException)e).getStatusCode());
 				
 				throw e;
