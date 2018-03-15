@@ -3,6 +3,10 @@ A player for the RPM Challenge jukebox written in JavaFX
 
 ## Release Notes
 
+### v2.0.4
+
+* Minor fixes for the new 2018 data format
+
 ### v2.0.3
 
 * Fixed issue where the jukebox couldn't download the data file if behind a proxy
