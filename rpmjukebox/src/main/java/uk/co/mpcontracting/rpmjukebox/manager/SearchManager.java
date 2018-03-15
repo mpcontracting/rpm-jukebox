@@ -221,6 +221,9 @@ public class SearchManager extends EventAwareObject implements Constants {
     public void indexData() throws Exception {
         rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_DOWNLOAD_INDEX));
 
+        artistWriter.deleteAll();
+        trackWriter.deleteAll();
+        
         dataManager.parse(settingsManager.getDataFile());
         commitIndexes();
         settingsManager.setLastIndexedDate(LocalDateTime.now());

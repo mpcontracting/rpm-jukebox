@@ -117,7 +117,7 @@ public class DataManager implements Constants {
             return UNSPECIFIED_GENRE;
         }
 
-        if (genre.equalsIgnoreCase("Unknown") || genre.equalsIgnoreCase("None") || genre.equalsIgnoreCase("Other")) {
+        if (genre.equalsIgnoreCase("Unknown") || genre.equalsIgnoreCase("None") || genre.equalsIgnoreCase("Other") || genre.equalsIgnoreCase("0")) {
             return UNSPECIFIED_GENRE;
         }
 
