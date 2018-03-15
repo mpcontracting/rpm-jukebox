@@ -223,7 +223,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
         artistWriter.deleteAll();
         trackWriter.deleteAll();
-        
+
         dataManager.parse(settingsManager.getDataFile());
         commitIndexes();
         settingsManager.setLastIndexedDate(LocalDateTime.now());
