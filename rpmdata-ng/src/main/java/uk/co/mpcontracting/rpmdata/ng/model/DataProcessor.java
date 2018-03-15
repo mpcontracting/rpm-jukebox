@@ -51,8 +51,8 @@ public class DataProcessor {
         band.addAlbum(album);
     }
     
-    public void processTrackInfo(String bandId, String albumName, String trackName, String location) throws Exception {
-        LocationData locationData = new LocationData(bandId, location);
+    public void processTrackInfo(String bandId, String albumId, String albumName, String trackName, String location) throws Exception {
+        LocationData locationData = new LocationData(bandId, albumId, location);
         
         if (!locationData.isValid()) {
             throw new Exception("Unable to parse IDs from locaiton - " + location);

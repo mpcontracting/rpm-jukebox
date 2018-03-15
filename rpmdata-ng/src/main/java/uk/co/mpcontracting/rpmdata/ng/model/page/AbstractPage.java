@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmdata.ng.model.page;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -9,12 +10,13 @@ import org.jsoup.nodes.Element;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmdata.ng.model.DataProcessor;
+import uk.co.mpcontracting.rpmdata.ng.model.json.JsonTrack;
 
 @Slf4j
 public abstract class AbstractPage {
     public static final int TIMEOUT_MILLIS = 60000;
     
-    public abstract void parse(String url, DataProcessor dataProcessor) throws Exception;
+    public abstract void parse(String url, DataProcessor dataProcessor, Map<Integer, List<JsonTrack>> artistTracksMap) throws Exception;
     
     protected Map<String, String> parseQueryString(String url, String token) {
         Map<String, String> queryStringMap = new HashMap<>();

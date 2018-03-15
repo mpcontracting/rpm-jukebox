@@ -8,17 +8,16 @@ public class LocationData {
     @Getter private String albumId;
     @Getter private String trackId;
     
-    public LocationData(String bandId, String location) throws Exception {
+    public LocationData(String bandId, String albumId, String location) throws Exception {
         if (location == null) {
             throw new IllegalArgumentException("Cannot process IDs from a null location");
         }
         
-        int trackSlash = location.lastIndexOf('/');
-        int albumSlash = location.lastIndexOf('/', trackSlash - 1);
+        int trackSlash = location.lastIndexOf('/') + 1;
 
         this.bandId = bandId;
-        albumId = HashGenerator.generateHash(location.substring(albumSlash + 1, trackSlash));
-        trackId = HashGenerator.generateHash(this.bandId + "/" + location.substring(albumSlash + 1));
+        this.albumId = albumId;
+        trackId = HashGenerator.generateHash(location.substring(trackSlash));
     }
 
     public boolean isValid() {
