@@ -83,32 +83,6 @@ public class RpmJukeboxTest extends AbstractTest {
     }
 
     @Test
-    public void shouldCallStopOnApplicationManagerInStop() throws Exception {
-        ReflectionTestUtils.setField(rpmJukebox, "context", mockContext);
-        rpmJukebox.stop();
-
-        verify(mockApplicationManager, times(1)).stop();
-    }
-
-    @Test
-    public void shouldNotCallStopOnApplicationManagerInStopNullContext() throws Exception {
-        ReflectionTestUtils.setField(rpmJukebox, "context", null);
-        rpmJukebox.stop();
-
-        verify(mockApplicationManager, never()).stop();
-    }
-
-    @Test
-    public void shouldNotCallStopOnApplicationManagerInStopWithNullApplicationManager() throws Exception {
-        reset(mockContext);
-        ReflectionTestUtils.setField(rpmJukebox, "context", mockContext);
-
-        rpmJukebox.stop();
-
-        verify(mockApplicationManager, never()).stop();
-    }
-
-    @Test
     public void shouldUpdateSplashProgress() throws Exception {
         ReflectionTestUtils.setField(rpmJukebox, "splashScreen", mockSplashScreen);
 
