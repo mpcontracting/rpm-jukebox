@@ -10,6 +10,10 @@ import lombok.ToString;
 public class SystemSettings {
     @Getter
     @Setter
+    private String version;
+
+    @Getter
+    @Setter
     private int cacheSizeMb;
 
     @Getter

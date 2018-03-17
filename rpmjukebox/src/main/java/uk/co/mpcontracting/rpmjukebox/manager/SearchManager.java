@@ -144,7 +144,8 @@ public class SearchManager extends EventAwareObject implements Constants {
             random = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
 
             // See if we already have valid indexes, if not, build them
-            if (settingsManager.hasDataFileExpired() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
+            if (settingsManager.hasDataFileExpired() || settingsManager.isNewVersion() || !isIndexValid(artistManager)
+                || !isIndexValid(trackManager)) {
                 indexData();
             }
 

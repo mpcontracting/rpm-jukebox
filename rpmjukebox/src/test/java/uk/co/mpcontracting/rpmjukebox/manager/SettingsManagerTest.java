@@ -29,6 +29,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.google.common.io.Files;
 import com.google.gson.Gson;
+import com.igormaznitsa.commons.version.Version;
 
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
@@ -536,6 +537,57 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         }
 
         assertThat("System settings should be null", result, nullValue());
+    }
+
+    @Test
+    public void shouldReturnNewVersionWhenSystemVersionIsNull() throws Exception {
+        doNothing().when(spySettingsManager).saveSystemSettings();
+
+        File testSettings = getTestResourceFile(
+            "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsNull.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+
+        Files.copy(testSettings, settingsFile);
+
+        spySettingsManager.loadSystemSettings();
+
+        ReflectionTestUtils.setField(spySettingsManager, "version", new Version("1.1.1"));
+
+        assertThat("New version should be true", spySettingsManager.isNewVersion(), equalTo(true));
+    }
+
+    @Test
+    public void shouldReturnNewVersionWhenSystemVersionIsLower() throws Exception {
+        doNothing().when(spySettingsManager).saveSystemSettings();
+
+        File testSettings = getTestResourceFile(
+            "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsLower.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+
+        Files.copy(testSettings, settingsFile);
+
+        spySettingsManager.loadSystemSettings();
+
+        ReflectionTestUtils.setField(spySettingsManager, "version", new Version("1.1.1"));
+
+        assertThat("New version should be true", spySettingsManager.isNewVersion(), equalTo(true));
+    }
+
+    @Test
+    public void shouldNotReturnNewVersionWhenSystemVersionIsEqual() throws Exception {
+        doNothing().when(spySettingsManager).saveSystemSettings();
+
+        File testSettings = getTestResourceFile(
+            "json/settingsManager-shouldNotReturnNewVersionWhenSystemVersionIsEqual.json");
+        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+
+        Files.copy(testSettings, settingsFile);
+
+        spySettingsManager.loadSystemSettings();
+
+        ReflectionTestUtils.setField(spySettingsManager, "version", new Version("1.1.1"));
+
+        assertThat("New version should be true", spySettingsManager.isNewVersion(), equalTo(false));
     }
 
     @Test

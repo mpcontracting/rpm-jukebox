@@ -307,6 +307,9 @@ public class SettingsManager implements Constants {
     public void saveSystemSettings() {
         log.debug("Saving system settings");
 
+        // Update the version
+        systemSettings.setVersion(versionString);
+
         // Write the file
         File systemSettingsFile = getFileFromConfigDirectory(fileSystemSettings);
 
@@ -315,6 +318,14 @@ public class SettingsManager implements Constants {
         } catch (Exception e) {
             log.error("Unable to save system settings file", e);
         }
+    }
+
+    public boolean isNewVersion() {
+        boolean isNewVersion = version.compareTo(new Version(systemSettings.getVersion())) > 0;
+
+        log.debug("Is new version - {}", isNewVersion);
+
+        return isNewVersion;
     }
 
     public void loadUserSettings() {

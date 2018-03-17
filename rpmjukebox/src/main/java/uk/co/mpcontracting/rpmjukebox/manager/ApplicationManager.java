@@ -117,6 +117,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
         if (isInitialised) {
             settingsManager.saveWindowSettings(stage);
             settingsManager.saveUserSettings();
+            settingsManager.saveSystemSettings();
         }
 
         try {
