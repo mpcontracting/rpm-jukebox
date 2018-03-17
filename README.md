@@ -3,6 +3,10 @@ A player for the RPM Challenge jukebox written in JavaFX
 
 ## Release Notes
 
+### v2.0.5
+
+* Automatically re-index data with a new version
+
 ### v2.0.4
 
 * Minor fixes for the new 2018 data format
