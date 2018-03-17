@@ -64,6 +64,10 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
         }
 
         super.stop();
+
+        log.debug("Shutting down the JVM");
+
+        System.exit(0);
     }
 
     public void updateSplashProgress(String message) {
