@@ -11,7 +11,7 @@ public abstract class HashGenerator {
     private HashGenerator() {
     }
 
-    public static final String generateHash(Object... objects) throws Exception {
+    public static String generateHash(Object... objects) throws Exception {
         log.debug("Generating hash for - {}", objectsAsString(objects));
 
         if (objects == null || objects.length == 0) {

@@ -1,21 +1,16 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.mockito.Mockito.*;
-
-import java.net.URL;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
-public class DataManagerTest extends AbstractTest {
+import java.net.URL;
 
-    @Autowired
-    private DataManager dataManager;
+import static org.mockito.Mockito.*;
+
+public class DataManagerTest extends AbstractTest {
 
     @Autowired
     private InternetManager internetManager;
@@ -28,10 +23,9 @@ public class DataManagerTest extends AbstractTest {
 
     @Before
     public void setup() {
-        spyDataManager = spy(dataManager);
         spyInternetManager = spy(internetManager);
-        ReflectionTestUtils.setField(spyDataManager, "searchManager", mockSearchManager);
-        ReflectionTestUtils.setField(spyDataManager, "internetManager", spyInternetManager);
+        spyDataManager = spy(new DataManager(mockSearchManager, spyInternetManager));
+        spyDataManager.setup();
     }
 
     @Test

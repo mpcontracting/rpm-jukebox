@@ -1,0 +1,15 @@
+B|@|10001|@|Test Artist 1|@||@|Test Biography 1|@|Test Members 1|@|electronica
+A|@|20001|@|Invalid Album Year|@||@|abcd|@|Invalid Album Year
+A|@|20001|@|Test Album 1|@||@|2000|@|Test Album 1
+T|@|TestTrackId1|@|Test Track Name 1|@|Test Track Location 1|@|false
+B|@|10002|@|Test Artist 2|@||@|Test Biography 2|@|Test Members 2|@|
+A|@|20002|@|Test Album 2|@||@|2000|@|Test Album 2
+T|@|TestTrackId2|@|Test Track Name 2|@|Test Track Location 2|@|false
+X|@|UnknownRowType|@|Unknown Row Type|@|Unknown Row Type|@|false
+T|@|TestTrackId3|@|Test Track Name 3|@|Test Track Location 3|@|false
+B|@|10003|@|Test Artist 3|@||@|Test Biography 3|@|Test Members 3|@|Unknown,,None,Other,
+A|@|20003|@|Test Album 3|@||@|2000|@|Test Album 3
+T|@|TestTrackId4|@|Test Track Name 4|@|Test Track Location 4|@|false
+B|@|10004|@|Test Artist 4|@||@|Test Biography 4|@|Test Members 4|@|RPM,Children
+A|@|20004|@|Test Album 4|@||@|2000|@|Test Album 4
+T|@|TestTrackId5|@|Test Track Name 5|@|Test Track Location 5|@|false

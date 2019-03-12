@@ -1,107 +1,170 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import uk.co.mpcontracting.rpmjukebox.model.Artist;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
+
+import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.rpmjukebox.model.Artist;
-import uk.co.mpcontracting.rpmjukebox.model.Track;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class DataManager implements Constants {
 
-    @Autowired
-    private SearchManager searchManager;
+    private final SearchManager searchManager;
+    private final InternetManager internetManager;
 
-    @Autowired
-    private InternetManager internetManager;
+    @org.springframework.beans.factory.annotation.Value("${s3.bucket.url}")
+    private String s3BucketUrl;
 
-    public void parse(URL dataFile) {
-        try (BufferedReader reader = new BufferedReader(
-            new InputStreamReader(new GZIPInputStream(internetManager.openConnection(dataFile).getInputStream()),
-                Charset.forName("UTF-8")))) {
-            log.info("Loading data from - {}", dataFile);
+    private Map<String, Integer> artistIndexMap;
+    private AtomicInteger artistIndex;
 
-            String nextLine = null;
-            ParserModelArtist currentArtist = null;
-            ParserModelAlbum currentAlbum = null;
-            int trackNumber = 1;
+    private Map<String, Integer> albumIndexMap;
+    private AtomicInteger albumIndex;
 
-            while ((nextLine = reader.readLine()) != null) {
-                try {
-                    // Split the string into row data
-                    String[] rowData = nextLine.split("\\|@\\|");
+    private AtomicInteger trackIndex;
 
-                    // B = Band, A = Album, T = Track
-                    if ("B".equals(getRowData(rowData, 0))) {
-                        currentArtist = parseArtist(rowData);
+    @PostConstruct
+    public void setup() {
+        artistIndexMap = new HashMap<>();
+        artistIndex = new AtomicInteger(1);
 
-                        searchManager.addArtist(new Artist(currentArtist.getArtistId(), currentArtist.getArtistName(),
-                            currentArtist.getArtistImage(), currentArtist.getBiography(), currentArtist.getMembers()));
-                    } else if ("A".equals(getRowData(rowData, 0))) {
-                        currentAlbum = parseAlbum(rowData);
-                        trackNumber = 1;
-                    } else if ("T".equals(getRowData(rowData, 0))) {
-                        ParserModelTrack currentTrack = parseTrack(rowData);
+        albumIndexMap = new HashMap<>();
+        albumIndex = new AtomicInteger(1);
 
-                        searchManager.addTrack(new Track(currentArtist.getArtistId(), currentArtist.getArtistName(),
-                            currentArtist.getArtistImage(), currentAlbum.getAlbumId(), currentAlbum.getAlbumName(),
-                            currentAlbum.getAlbumImage(), currentAlbum.getYear(), currentTrack.getTrackId(),
-                            currentTrack.getTrackName(), trackNumber++, currentTrack.getLocation(),
-                            currentTrack.isPreferred(), currentArtist.getGenres()));
+        trackIndex = new AtomicInteger(1);
+    }
+
+    void parse(URL dataFile) {
+        log.info("Loading data from - {}", dataFile);
+
+        try {
+            ParserModelData parserModelData = new ParserModelData();
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(
+                    internetManager.openConnection(dataFile).getInputStream()), Charset.forName("UTF-8")))) {
+                reader.lines().forEach(line -> {
+                    try {
+                        // Split the string into row data
+                        String[] rowData = line.split("\\|@\\|");
+
+                        // B = Band, A = Album, T = Track
+                        if ("B".equals(getRowData(rowData, 0))) {
+                            ParserModelArtist parserModelArtist = parseArtist(rowData);
+                            parserModelData.setArtist(parserModelArtist);
+                            trackIndex.set(1);
+
+                            searchManager.addArtist(new Artist(Integer.toString(parserModelArtist.getArtistId()),
+                                    parserModelArtist.getArtistName(), parserModelArtist.getArtistImage(),
+                                    parserModelArtist.getBiography(), parserModelArtist.getMembers()));
+                        } else if ("A".equals(getRowData(rowData, 0))) {
+                            parserModelData.setAlbum(parseAlbum(rowData));
+                            trackIndex.set(1);
+                        } else if ("T".equals(getRowData(rowData, 0))) {
+                            ParserModelArtist parserModelArtist = parserModelData.getArtist();
+                            ParserModelAlbum parserModelAlbum = parserModelData.getAlbum();
+                            ParserModelTrack parserModelTrack = parseTrack(rowData);
+                            String trackKey = getTrackKey(parserModelArtist, parserModelAlbum, parserModelTrack);
+
+                            searchManager.addTrack(new Track(Integer.toString(parserModelArtist.getArtistId()),
+                                    parserModelArtist.getArtistName(), parserModelArtist.getArtistImage(),
+                                    Integer.toString(parserModelAlbum.getAlbumId()), parserModelAlbum.getAlbumName(),
+                                    parserModelAlbum.getAlbumImage(), parserModelAlbum.getYear(),
+                                    HashGenerator.generateHash(trackKey), parserModelTrack.getTrackName(),
+                                    parserModelTrack.getNumber(), s3BucketUrl + trackKey,
+                                    parserModelTrack.isPreferred(), parserModelArtist.getGenres()));
+                        }
+                    } catch (Exception e) {
+                        log.warn("Error parsing line record - {} - ignoring", e.getMessage(), e);
+                        log.warn("Record - {}", line);
                     }
-                } catch (Exception e) {
-                    log.warn("Error parsing line record - {} - ignoring", e.getMessage(), e);
-                    log.warn("Record - {}", nextLine);
-                }
+                });
             }
         } catch (Exception e) {
             log.error("Unable to open connection to data file {}", dataFile, e);
         }
     }
 
+    private String getTrackKey(ParserModelArtist parserModelArtist, ParserModelAlbum parserModelAlbum,
+                               ParserModelTrack parserModelTrack) {
+        return "music/" +
+                parserModelAlbum.getYear() + "/" +
+                parserModelArtist.getArtistId() + "/" +
+                parserModelAlbum.getAlbumId() + "/" +
+                formatNumber(parserModelTrack.getNumber());
+    }
+
+    private String formatNumber(int index) {
+        String string = "000" + index;
+
+        return string.substring(string.length() - 3);
+    }
+
     private ParserModelArtist parseArtist(String[] rowData) {
-        ParserModelArtist artist = new ParserModelArtist(getRowData(rowData, 1), getRowData(rowData, 2),
-            getRowData(rowData, 3), getRowData(rowData, 4), getRowData(rowData, 5));
+        return ParserModelArtist.builder()
+                .artistId(ofNullable(artistIndexMap.get(getRowData(rowData, 1))).orElseGet(() -> {
+                    int nextIndex = artistIndex.getAndIncrement();
+                    artistIndexMap.put(getRowData(rowData, 1), nextIndex);
 
-        String genres = getRowData(rowData, 6);
-
-        if (genres != null) {
-            for (String genre : genres.split(",")) {
-                if (genre.trim().length() > 0) {
-                    artist.addGenre(cleanGenre(genre.trim()));
-                }
-            }
-        } else {
-            artist.addGenre(UNSPECIFIED_GENRE);
-        }
-
-        return artist;
+                    return nextIndex;
+                }))
+                .artistName(getRowData(rowData, 2))
+                .artistImage(getRowData(rowData, 3))
+                .biography(getRowData(rowData, 4))
+                .members(getRowData(rowData, 5))
+                .genres(ofNullable(getRowData(rowData, 6))
+                        .map(genres -> stream(genres.split(","))
+                                .filter(genre -> genre.trim().length() > 0)
+                                .map(this::cleanGenre)
+                                .collect(toList())
+                        )
+                        .orElse(singletonList(UNSPECIFIED_GENRE)))
+                .build();
     }
 
     private ParserModelAlbum parseAlbum(String[] rowData) {
-        return new ParserModelAlbum(getRowData(rowData, 1), getRowData(rowData, 2), getRowData(rowData, 3),
-            Integer.parseInt(getRowData(rowData, 4)));
+        return ParserModelAlbum.builder()
+                .albumId(ofNullable(albumIndexMap.get(getRowData(rowData, 1))).orElseGet(() -> {
+                    int nextIndex = albumIndex.getAndIncrement();
+                    albumIndexMap.put(getRowData(rowData, 1), nextIndex);
+
+                    return nextIndex;
+                }))
+                .albumName(getRowData(rowData, 2))
+                .albumImage(getRowData(rowData, 3))
+                .year(ofNullable(getRowData(rowData, 4)).map(Integer::valueOf).orElse(null))
+                .build();
     }
 
     private ParserModelTrack parseTrack(String[] rowData) {
-        return new ParserModelTrack(getRowData(rowData, 1), getRowData(rowData, 2), getRowData(rowData, 3),
-            Boolean.valueOf(getRowData(rowData, 4)));
+        return ParserModelTrack.builder()
+                .number(trackIndex.getAndIncrement())
+                .trackName(getRowData(rowData, 2))
+                .isPreferred(Boolean.valueOf(getRowData(rowData, 4)))
+                .build();
     }
 
     private String getRowData(String[] rowData, int index) {
@@ -118,7 +181,7 @@ public class DataManager implements Constants {
         }
 
         if (genre.equalsIgnoreCase("Unknown") || genre.equalsIgnoreCase("None") || genre.equalsIgnoreCase("Other")
-            || genre.equalsIgnoreCase("0")) {
+                || genre.equalsIgnoreCase("0")) {
             return UNSPECIFIED_GENRE;
         }
 
@@ -139,73 +202,44 @@ public class DataManager implements Constants {
 
     private String toTitleCase(String string) {
         StringBuilder builder = new StringBuilder();
-        StringTokenizer tokens = new StringTokenizer(string.toLowerCase());
+        Scanner scanner = new Scanner(string).useDelimiter(" ");
+        scanner.forEachRemaining(token -> builder.append(token.replaceFirst(token.substring(0, 1),
+                token.substring(0, 1).toUpperCase()) + " "));
 
-        while (tokens.hasMoreTokens()) {
-            String token = tokens.nextToken();
-            builder.append(token.replaceFirst(token.substring(0, 1), token.substring(0, 1).toUpperCase()) + " ");
-        }
-
-        return builder.toString().trim();
+        return builder.toString();
     }
 
-    @AllArgsConstructor
-    @ToString(includeFieldNames = true)
-    @EqualsAndHashCode(of = { "trackId" })
-    private static class ParserModelTrack {
-        @Getter
-        private String trackId;
-        @Getter
-        private String trackName;
-        @Getter
-        private String location;
-        @Getter
-        private boolean isPreferred;
+    @Data
+    private static class ParserModelData {
+        public ParserModelArtist artist;
+        public ParserModelAlbum album;
     }
 
-    @AllArgsConstructor
-    @ToString(includeFieldNames = true)
-    @EqualsAndHashCode(of = { "albumId" })
+    @Value
+    @Builder
     private static class ParserModelAlbum {
-        @Getter
-        private String albumId;
-        @Getter
-        private String albumName;
-        @Getter
-        private String albumImage;
-        @Getter
-        private int year;
+        private final int albumId;
+        private final String albumName;
+        private final String albumImage;
+        private final Integer year;
     }
 
-    @ToString(includeFieldNames = true)
-    @EqualsAndHashCode(of = { "artistId" })
+    @Value
+    @Builder
     private static class ParserModelArtist {
-        @Getter
-        private String artistId;
-        @Getter
-        private String artistName;
-        @Getter
-        private String artistImage;
-        @Getter
-        private String biography;
-        @Getter
-        private String members;
-        @Getter
-        private List<String> genres;
+        private final int artistId;
+        private final String artistName;
+        private final String artistImage;
+        private final String biography;
+        private final String members;
+        private final List<String> genres;
+    }
 
-        private ParserModelArtist(String artistId, String artistName, String artistImage, String biography,
-            String members) {
-            this.artistId = artistId;
-            this.artistName = artistName;
-            this.artistImage = artistImage;
-            this.biography = biography;
-            this.members = members;
-
-            genres = new ArrayList<>(1);
-        }
-
-        public void addGenre(String genre) {
-            genres.add(genre);
-        }
+    @Value
+    @Builder
+    private static class ParserModelTrack {
+        private final int number;
+        private final String trackName;
+        private final boolean isPreferred;
     }
 }
