@@ -40,7 +40,7 @@ dependencyCheck {
 sourceCompatibility = 1.8
 
 group 'uk.co.mpcontracting'
-version = '2.0.5'
+version = '3.0.0'
 
 jar {
     baseName = 'rpm-jukebox'

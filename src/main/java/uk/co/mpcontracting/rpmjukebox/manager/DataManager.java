@@ -132,7 +132,7 @@ public class DataManager implements Constants {
                     return nextIndex;
                 }))
                 .artistName(getRowData(rowData, 2))
-                .artistImage(getRowData(rowData, 3))
+                //.artistImage(getRowData(rowData, 3))
                 .biography(getRowData(rowData, 4))
                 .members(getRowData(rowData, 5))
                 .genres(ofNullable(getRowData(rowData, 6))
@@ -154,7 +154,7 @@ public class DataManager implements Constants {
                     return nextIndex;
                 }))
                 .albumName(getRowData(rowData, 2))
-                .albumImage(getRowData(rowData, 3))
+                //.albumImage(getRowData(rowData, 3))
                 .year(ofNullable(getRowData(rowData, 4)).map(Integer::valueOf).orElse(null))
                 .build();
     }
