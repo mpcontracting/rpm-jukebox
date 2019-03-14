@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
@@ -33,11 +34,9 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class DataManager implements Constants {
 
+    private final AppProperties appProperties;
     private final SearchManager searchManager;
     private final InternetManager internetManager;
-
-    @org.springframework.beans.factory.annotation.Value("${s3.bucket.url}")
-    private String s3BucketUrl;
 
     private Map<String, Integer> artistIndexMap;
     private AtomicInteger artistIndex;
@@ -94,7 +93,7 @@ public class DataManager implements Constants {
                                     Integer.toString(parserModelAlbum.getAlbumId()), parserModelAlbum.getAlbumName(),
                                     parserModelAlbum.getAlbumImage(), parserModelAlbum.getYear(),
                                     HashGenerator.generateHash(trackKey), parserModelTrack.getTrackName(),
-                                    parserModelTrack.getNumber(), s3BucketUrl + trackKey,
+                                    parserModelTrack.getNumber(), appProperties.getS3BucketUrl() + trackKey,
                                     parserModelTrack.isPreferred(), parserModelArtist.getGenres()));
                         }
                     } catch (Exception e) {

@@ -1,37 +1,37 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import com.igormaznitsa.commons.version.Version;
+import de.felixroske.jfxsupport.GUIState;
+import javafx.application.HostServices;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
+import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 
 import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.util.ReflectionTestUtils;
+import static java.lang.Thread.sleep;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.*;
 
-import com.igormaznitsa.commons.version.Version;
-
-import de.felixroske.jfxsupport.GUIState;
-import javafx.application.HostServices;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
-
-public class UpdateManagerTest extends AbstractTest {
-
-    @Autowired
-    private UpdateManager updateManager;
-
-    @Value("${website.url}")
-    private String websiteUrl;
+@RunWith(MockitoJUnitRunner.class)
+public class UpdateManagerTest {
 
     @Mock
-    private URL mockVersionUrl;
+    private AppProperties mockAppProperties;
+
+    @Mock
+    private EventManager mockEventManager;
+
+    @Mock
+    private SettingsManager mockSettingsManager;
 
     @Mock
     private InternetManager mockInternetManager;
@@ -42,18 +42,20 @@ public class UpdateManagerTest extends AbstractTest {
     @Mock
     private HostServices mockHostServices;
 
-    private UpdateManager spyUpdateManager;
+    private URL versionUrl;
+    private UpdateManager updateManager;
 
     @Before
     public void setup() throws Exception {
-        spyUpdateManager = spy(updateManager);
+        versionUrl = new URL("http://www.example.com");
+        updateManager = new UpdateManager(mockAppProperties, mockSettingsManager, mockInternetManager);
 
-        ReflectionTestUtils.setField(spyUpdateManager, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(spyUpdateManager, "internetManager", mockInternetManager);
-        ReflectionTestUtils.setField(spyUpdateManager, "versionUrl", mockVersionUrl);
-        ReflectionTestUtils.setField(spyUpdateManager, "newVersion", null);
+        setField(updateManager, "eventManager", mockEventManager);
+        setField(GUIState.class, "hostServices", mockHostServices);
 
-        when(mockInternetManager.openConnection(mockVersionUrl)).thenReturn(mockHttpURLConnection);
+        when(mockAppProperties.getVersionUrl()).thenReturn(versionUrl.toString());
+        when(mockSettingsManager.getVersion()).thenReturn(new Version("1.0.0"));
+        when(mockInternetManager.openConnection(versionUrl)).thenReturn(mockHttpURLConnection);
     }
 
     @Test
@@ -61,11 +63,11 @@ public class UpdateManagerTest extends AbstractTest {
         when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
         when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("99.99.99".getBytes()));
 
-        spyUpdateManager.checkForUpdates();
+        invokeMethod(updateManager, "checkForUpdates");
 
-        assertThat("New version should not be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"),
-            notNullValue());
-        verify(getMockEventManager(), times(1)).fireEvent(Event.NEW_VERSION_AVAILABLE, new Version("99.99.99"));
+        assertThat(getField(updateManager, "newVersion")).isNotNull();
+        verify(mockEventManager, times(1)).fireEvent(Event.NEW_VERSION_AVAILABLE,
+                new Version("99.99.99"));
     }
 
     @Test
@@ -73,34 +75,31 @@ public class UpdateManagerTest extends AbstractTest {
         when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
         when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("0.0.1".getBytes()));
 
-        spyUpdateManager.checkForUpdates();
+        invokeMethod(updateManager, "checkForUpdates");
 
-        assertThat("New version should be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"),
-            nullValue());
-        verify(getMockEventManager(), never()).fireEvent(Event.NEW_VERSION_AVAILABLE, new Version("0.0.1"));
+        assertThat(getField(updateManager, "newVersion")).isNull();
+        verify(mockEventManager, never()).fireEvent(Event.NEW_VERSION_AVAILABLE, new Version("0.0.1"));
     }
 
     @Test
     public void shouldNotFindUpdatesOnConnectionError() throws Exception {
-        doThrow(new RuntimeException("UpdateManagerTest.shouldNotFindUpdatesOnConnectionError()")).when(mockVersionUrl)
-            .openConnection();
+        doThrow(new RuntimeException("UpdateManagerTest.shouldNotFindUpdatesOnConnectionError()")).when(mockInternetManager)
+            .openConnection(any());
 
-        spyUpdateManager.checkForUpdates();
+        invokeMethod(updateManager, "checkForUpdates");
 
-        assertThat("New version should be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"),
-            nullValue());
-        verify(getMockEventManager(), never()).fireEvent(Event.NEW_VERSION_AVAILABLE, (Version)null);
+        assertThat(getField(updateManager, "newVersion")).isNull();
+        verify(mockEventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
     }
 
-    @Test
+   @Test
     public void shouldNotFindUpdatesOn404() throws Exception {
         when(mockHttpURLConnection.getResponseCode()).thenReturn(404);
 
-        spyUpdateManager.checkForUpdates();
+        invokeMethod(updateManager, "checkForUpdates");
 
-        assertThat("New version should be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"),
-            nullValue());
-        verify(getMockEventManager(), never()).fireEvent(Event.NEW_VERSION_AVAILABLE, (Version)null);
+        assertThat(getField(updateManager, "newVersion")).isNull();
+        verify(mockEventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
     }
 
     @Test
@@ -108,37 +107,31 @@ public class UpdateManagerTest extends AbstractTest {
         when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
         when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[] {}));
 
-        spyUpdateManager.checkForUpdates();
+        invokeMethod(updateManager, "checkForUpdates");
 
-        assertThat("New version should be null", ReflectionTestUtils.getField(spyUpdateManager, "newVersion"),
-            nullValue());
-        verify(getMockEventManager(), never()).fireEvent(Event.NEW_VERSION_AVAILABLE, (Version)null);
+        assertThat(getField(updateManager, "newVersion")).isNull();
+        verify(mockEventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
     }
 
     @Test
     public void shouldDownloadNewVersion() throws Exception {
-        HostServices existingHostServices = GUIState.getHostServices();
-        ReflectionTestUtils.setField(GUIState.class, "hostServices", mockHostServices);
+        when(mockAppProperties.getWebsiteUrl()).thenReturn("http://www.website.url");
 
-        spyUpdateManager.downloadNewVersion();
+        invokeMethod(updateManager, "downloadNewVersion");
 
         // Wait for invocation
-        Thread.sleep(500);
+        sleep(500);
 
-        ReflectionTestUtils.setField(GUIState.class, "hostServices", existingHostServices);
-
-        verify(mockHostServices, times(1)).showDocument(websiteUrl);
+        verify(mockHostServices, times(1)).showDocument(mockAppProperties.getWebsiteUrl());
     }
 
     @Test
     public void shouldCheckForUpdatesOnApplicationInitialisedEvent() throws Exception {
-        doNothing().when(spyUpdateManager).checkForUpdates();
-
-        spyUpdateManager.eventReceived(Event.APPLICATION_INITIALISED);
+        updateManager.eventReceived(Event.APPLICATION_INITIALISED);
 
         // Wait for invocation
-        Thread.sleep(500);
+        sleep(500);
 
-        verify(spyUpdateManager, times(1)).checkForUpdates();
+        verify(mockInternetManager, times(1)).openConnection(any());
     }
 }

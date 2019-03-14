@@ -1,18 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.media.AudioEqualizer;
@@ -21,21 +8,33 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.util.Duration;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 public class MediaManagerTest extends AbstractTest {
+
+    @Autowired
+    private AppProperties appProperties;
 
     @Autowired
     private MediaManager mediaManager;
 
     @Autowired
     private CacheManager cacheManager;
-
-    @Value("${internal.jetty.port}")
-    private int internalJettyPort;
 
     @Mock
     private CacheManager mockCacheManager;
@@ -99,7 +98,7 @@ public class MediaManagerTest extends AbstractTest {
 
         spyMediaManager.playTrack(mockTrack);
 
-        String source = "http://localhost:" + internalJettyPort
+        String source = "http://localhost:" + appProperties.getJettyPort()
             + "/cache?cacheType=TRACK&id=trackId&url=http%3A%2F%2Fwww.example.com%2Fmedia.mp3";
         Media currentMedia = (Media)ReflectionTestUtils.getField(spyMediaManager, "currentMedia");
 

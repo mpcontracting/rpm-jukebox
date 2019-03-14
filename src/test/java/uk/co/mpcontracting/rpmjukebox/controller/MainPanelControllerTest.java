@@ -1,47 +1,14 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.io.File;
-import java.io.FileReader;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import com.google.gson.Gson;
 import com.igormaznitsa.commons.version.Version;
-
 import de.felixroske.jfxsupport.GUIState;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -49,16 +16,18 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
-import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
-import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
-import uk.co.mpcontracting.rpmjukebox.manager.NativeManager;
-import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
-import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
-import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
-import uk.co.mpcontracting.rpmjukebox.manager.UpdateManager;
+import uk.co.mpcontracting.rpmjukebox.manager.*;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
@@ -69,15 +38,29 @@ import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
-import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
-import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
-import uk.co.mpcontracting.rpmjukebox.view.ExportView;
-import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
-import uk.co.mpcontracting.rpmjukebox.view.MessageView;
-import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
-import uk.co.mpcontracting.rpmjukebox.view.TrackTableView;
+import uk.co.mpcontracting.rpmjukebox.view.*;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class MainPanelControllerTest extends AbstractTest implements Constants {
+
+    @Autowired
+    private AppProperties appProperties;
 
     @Autowired
     private MainPanelController mainPanelController;
@@ -87,12 +70,6 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
     @Autowired
     private MessageManager messageManager;
-
-    @Value("${previous.seconds.cutoff}")
-    private int previousSecondsCutoff;
-
-    @Value("${shuffled.playlist.size}")
-    private int shuffledPlaylistSize;
 
     @Mock
     private EqualizerView mockEqualizerView;
@@ -722,7 +699,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldClickPreviousButtonWhenPlayingLessThanEqualCutoff() {
-        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn((double)previousSecondsCutoff);
+        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn((double)appProperties.getPreviousSecondsCutoff());
 
         clickOnNode("#previousButton");
 
@@ -732,7 +709,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldClickPreviousButtonWhenPlayingGreaterThanCutoff() {
-        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn(previousSecondsCutoff + 1d);
+        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn(appProperties.getPreviousSecondsCutoff() + 1d);
 
         clickOnNode("#previousButton");
 
@@ -937,7 +914,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         clickOnNode("#randomButton");
 
-        verify(mockSearchManager, times(1)).getShuffledPlaylist(shuffledPlaylistSize, "2000");
+        verify(mockSearchManager, times(1)).getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), "2000");
         verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, mockTracks);
         verify(mockPlaylistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
     }
@@ -961,11 +938,11 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         @SuppressWarnings("unchecked")
         List<Track> mockTracks = (List<Track>)mock(List.class);
 
-        when(mockSearchManager.getShuffledPlaylist(shuffledPlaylistSize, null)).thenReturn(mockTracks);
+        when(mockSearchManager.getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), null)).thenReturn(mockTracks);
 
         clickOnNode("#randomButton");
 
-        verify(mockSearchManager, times(1)).getShuffledPlaylist(shuffledPlaylistSize, null);
+        verify(mockSearchManager, times(1)).getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), null);
         verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, mockTracks);
         verify(mockPlaylistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
     }

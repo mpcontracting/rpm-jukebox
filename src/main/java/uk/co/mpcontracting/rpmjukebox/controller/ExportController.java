@@ -1,15 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,10 +13,13 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableCell;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableModel;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
@@ -35,8 +28,16 @@ import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.view.ExportView;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Slf4j
 @FXMLController
+@RequiredArgsConstructor
 public class ExportController implements Constants {
 
     @FXML
@@ -51,6 +52,8 @@ public class ExportController implements Constants {
     @FXML
     private Button cancelButton;
 
+    private final AppProperties appProperties;
+
     @Autowired
     private ExportView exportView;
 
@@ -62,9 +65,6 @@ public class ExportController implements Constants {
 
     @Autowired
     private PlaylistManager playlistManager;
-
-    @Value("${playlist.file.extension}")
-    private String playlistFileExtension;
 
     private ObservableList<PlaylistTableModel> observablePlaylists;
     private Set<Integer> playlistsToExport;
@@ -104,7 +104,7 @@ public class ExportController implements Constants {
         selectColumn.setEditable(true);
 
         playlistsToExport = new HashSet<>();
-        playlistExtensionFilter = "*." + playlistFileExtension;
+        playlistExtensionFilter = "*." + appProperties.getPlaylistFileExtension();
     }
 
     public void bindPlaylists() {

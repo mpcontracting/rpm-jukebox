@@ -1,30 +1,13 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import static java.util.Optional.*;
-
-import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
 import com.google.gson.reflect.TypeToken;
 import com.igormaznitsa.commons.version.Version;
-
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -33,20 +16,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Duration;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
-import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
-import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
-import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
-import uk.co.mpcontracting.rpmjukebox.manager.NativeManager;
-import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
-import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
-import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
-import uk.co.mpcontracting.rpmjukebox.manager.UpdateManager;
+import uk.co.mpcontracting.rpmjukebox.manager.*;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
@@ -58,15 +37,19 @@ import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
-import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
-import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
-import uk.co.mpcontracting.rpmjukebox.view.ExportView;
-import uk.co.mpcontracting.rpmjukebox.view.MessageView;
-import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
-import uk.co.mpcontracting.rpmjukebox.view.TrackTableView;
+import uk.co.mpcontracting.rpmjukebox.view.*;
+
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 @FXMLController
+@RequiredArgsConstructor
 public class MainPanelController extends EventAwareObject implements Constants {
 
     @FXML
@@ -144,6 +127,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
     @FXML
     private Button randomButton;
 
+    private final AppProperties appProperties;
+
     @Autowired
     private EqualizerView equalizerView;
 
@@ -194,18 +179,6 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
     @Autowired
     private UpdateManager updateManager;
-
-    @Value("${previous.seconds.cutoff}")
-    private int previousSecondsCutoff;
-
-    @Value("${max.playlist.size}")
-    private int maxPlaylistSize;
-
-    @Value("${shuffled.playlist.size}")
-    private int shuffledPlaylistSize;
-
-    @Value("${playlist.file.extension}")
-    private String playlistFileExtension;
 
     private ObservableList<Playlist> observablePlaylists;
 
@@ -270,7 +243,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
         // Track table view
         mainPanel.setCenter(trackTableView.getView());
 
-        playlistExtensionFilter = "*." + playlistFileExtension;
+        playlistExtensionFilter = "*." + appProperties.getPlaylistFileExtension();
         currentSelectedPlaylistId = -999;
     }
 
@@ -445,7 +418,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                 if (playlists != null) {
                     playlists.forEach(playlistSettings -> {
                         Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(),
-                            maxPlaylistSize);
+                            appProperties.getMaxPlaylistSize());
 
                         playlistSettings.getTracks().forEach(trackId -> {
                             Track track = searchManager.getTrackById(trackId);
@@ -507,7 +480,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     protected void handlePreviousButtonAction(ActionEvent event) {
         log.debug("Previous button pressed");
 
-        if (mediaManager.getPlayingTimeSeconds() > previousSecondsCutoff) {
+        if (mediaManager.getPlayingTimeSeconds() > appProperties.getPreviousSecondsCutoff()) {
             mediaManager.setSeekPositionPercent(0);
         } else {
             playlistManager.playPreviousTrack(true);
@@ -578,8 +551,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
         YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
 
-        playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getShuffledPlaylist(shuffledPlaylistSize,
-            (yearFilter != null ? yearFilter.getYear() : null)));
+        playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.getShuffledPlaylist(
+                appProperties.getShuffledPlaylistSize(),
+                (yearFilter != null ? yearFilter.getYear() : null)));
         playlistManager.playPlaylist(PLAYLIST_ID_SEARCH);
     }
 

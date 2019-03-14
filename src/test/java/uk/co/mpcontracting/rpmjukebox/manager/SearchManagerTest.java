@@ -1,34 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.LeafReader;
-import org.apache.lucene.index.LeafReaderContext;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TopFieldDocs;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.BytesRef;
 import org.junit.Before;
@@ -36,9 +11,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
-
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
@@ -50,19 +24,27 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.test.support.TestTermsEnum;
 
+import java.security.SecureRandom;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 public class SearchManagerTest extends AbstractTest implements Constants {
+
+    @Autowired
+    private AppProperties appProperties;
 
     @Autowired
     private SearchManager searchManager;
 
     @Autowired
     private SettingsManager settingsManager;
-
-    @Value("${directory.artist.index}")
-    private String directoryArtistIndex;
-
-    @Value("${directory.track.index}")
-    private String directoryTrackIndex;
 
     @Mock
     private SettingsManager mockSettingsManager;
@@ -101,10 +83,10 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         ReflectionTestUtils.setField(spySearchManager, "applicationManager", mockApplicationManager);
         ReflectionTestUtils.setField(spySearchManager, "dataManager", mockDataManager);
 
-        when(mockSettingsManager.getFileFromConfigDirectory(directoryArtistIndex))
-            .thenReturn(settingsManager.getFileFromConfigDirectory(directoryArtistIndex));
-        when(mockSettingsManager.getFileFromConfigDirectory(directoryTrackIndex))
-            .thenReturn(settingsManager.getFileFromConfigDirectory(directoryTrackIndex));
+        when(mockSettingsManager.getFileFromConfigDirectory(appProperties.getArtistIndexDirectory()))
+            .thenReturn(settingsManager.getFileFromConfigDirectory(appProperties.getArtistIndexDirectory()));
+        when(mockSettingsManager.getFileFromConfigDirectory(appProperties.getTrackIndexDirectory()))
+            .thenReturn(settingsManager.getFileFromConfigDirectory(appProperties.getTrackIndexDirectory()));
 
         ReflectionTestUtils.setField(spySearchManager, "artistDirectory", mockArtistDirectory);
         ReflectionTestUtils.setField(spySearchManager, "artistManager", mockArtistManager);

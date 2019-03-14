@@ -1,12 +1,28 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static java.util.Optional.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.igormaznitsa.commons.version.Version;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
+import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
+import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
+import uk.co.mpcontracting.rpmjukebox.settings.*;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import javax.annotation.PostConstruct;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Instant;
@@ -15,37 +31,14 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.igormaznitsa.commons.version.Version;
-
-import javafx.geometry.Rectangle2D;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
-import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.model.Track;
-import uk.co.mpcontracting.rpmjukebox.settings.EqBand;
-import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
-import uk.co.mpcontracting.rpmjukebox.settings.Settings;
-import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
-import uk.co.mpcontracting.rpmjukebox.settings.Window;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.OsType;
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SettingsManager implements Constants {
+
+    private final AppProperties appProperties;
 
     @Autowired
     private RpmJukebox rpmJukebox;
@@ -65,30 +58,6 @@ public class SettingsManager implements Constants {
     @Autowired
     private InternetManager internetManager;
 
-    @Value("${version}")
-    private String versionString;
-
-    @Value("${datafile.url}")
-    private String dataFileUrl;
-
-    @Value("${file.last.indexed}")
-    private String fileLastIndexed;
-
-    @Value("${file.window.settings}")
-    private String fileWindowSettings;
-
-    @Value("${file.system.settings}")
-    private String fileSystemSettings;
-
-    @Value("${file.user.settings}")
-    private String fileUserSettings;
-
-    @Value("${max.playlist.size}")
-    private int maxPlaylistSize;
-
-    @Value("${cache.size.mb}")
-    private int cacheSizeMb;
-
     @Getter
     private OsType osType;
     @Getter
@@ -102,7 +71,11 @@ public class SettingsManager implements Constants {
     private Gson gson;
     private boolean userSettingsLoaded;
 
-    public SettingsManager() {
+    @SneakyThrows
+    @PostConstruct
+    public void initialise() {
+        log.info("Initialising SettingsManager");
+
         // Determine the OS type
         String osName = System.getProperty("os.name").toLowerCase();
 
@@ -118,18 +91,12 @@ public class SettingsManager implements Constants {
 
         // Initialise Gson
         gson = new GsonBuilder().setPrettyPrinting().create();
-    }
-
-    @SneakyThrows
-    @PostConstruct
-    public void initialise() {
-        log.info("Initialising SettingsManager");
 
         // Get the application version
-        version = new Version(versionString);
+        version = new Version(appProperties.getVersion());
 
         // Get the data file location
-        dataFile = new URL(dataFileUrl);
+        dataFile = new URL(appProperties.getDataFileUrl());
 
         // Load the system settings
         loadSystemSettings();
@@ -186,7 +153,7 @@ public class SettingsManager implements Constants {
 
     public LocalDateTime getLastIndexedDate() {
         LocalDateTime lastIndexed = null;
-        File lastIndexedFile = getFileFromConfigDirectory(fileLastIndexed);
+        File lastIndexedFile = getFileFromConfigDirectory(appProperties.getLastIndexedFile());
 
         if (lastIndexedFile.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
@@ -205,11 +172,11 @@ public class SettingsManager implements Constants {
     }
 
     public void setLastIndexedDate(LocalDateTime localDateTime) {
-        File lastIndexedFile = getFileFromConfigDirectory(fileLastIndexed);
+        File lastIndexedFile = getFileFromConfigDirectory(appProperties.getLastIndexedFile());
         boolean alreadyExists = lastIndexedFile.exists();
 
         if (alreadyExists) {
-            lastIndexedFile.renameTo(getFileFromConfigDirectory(fileLastIndexed + ".bak"));
+            lastIndexedFile.renameTo(getFileFromConfigDirectory(appProperties.getLastIndexedFile() + ".bak"));
         }
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
@@ -221,17 +188,17 @@ public class SettingsManager implements Constants {
             lastIndexedFile.delete();
 
             if (alreadyExists) {
-                getFileFromConfigDirectory(fileLastIndexed + ".bak").renameTo(lastIndexedFile);
+                getFileFromConfigDirectory(appProperties.getLastIndexedFile() + ".bak").renameTo(lastIndexedFile);
             }
         } finally {
-            getFileFromConfigDirectory(fileLastIndexed + ".bak").delete();
+            getFileFromConfigDirectory(appProperties.getLastIndexedFile() + ".bak").delete();
         }
     }
 
     public void loadWindowSettings(Stage stage) {
         log.debug("Loading window settings");
 
-        File settingsFile = getFileFromConfigDirectory(fileWindowSettings);
+        File settingsFile = getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
         Window window = null;
 
         if (settingsFile.exists()) {
@@ -264,7 +231,7 @@ public class SettingsManager implements Constants {
         Window window = new Window(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
 
         // Write the file
-        File settingsFile = getFileFromConfigDirectory(fileWindowSettings);
+        File settingsFile = getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
 
         try (FileWriter fileWriter = new FileWriter(settingsFile)) {
             fileWriter.write(gson.toJson(window));
@@ -278,11 +245,11 @@ public class SettingsManager implements Constants {
 
         rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_LOADING_SYSTEM_SETTINGS));
 
-        File systemSettingsFile = getFileFromConfigDirectory(fileSystemSettings);
+        File systemSettingsFile = getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
 
         if (!systemSettingsFile.exists()) {
             systemSettings = new SystemSettings();
-            systemSettings.setCacheSizeMb(cacheSizeMb);
+            systemSettings.setCacheSizeMb(appProperties.getCacheSizeMb());
 
             saveSystemSettings();
 
@@ -296,7 +263,7 @@ public class SettingsManager implements Constants {
             log.error("Unable to load system settings file", e);
 
             systemSettings = new SystemSettings();
-            systemSettings.setCacheSizeMb(cacheSizeMb);
+            systemSettings.setCacheSizeMb(appProperties.getCacheSizeMb());
 
             saveSystemSettings();
 
@@ -308,10 +275,10 @@ public class SettingsManager implements Constants {
         log.debug("Saving system settings");
 
         // Update the version
-        systemSettings.setVersion(versionString);
+        systemSettings.setVersion(appProperties.getVersion());
 
         // Write the file
-        File systemSettingsFile = getFileFromConfigDirectory(fileSystemSettings);
+        File systemSettingsFile = getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
 
         try (FileWriter fileWriter = new FileWriter(systemSettingsFile)) {
             fileWriter.write(gson.toJson(systemSettings));
@@ -331,7 +298,7 @@ public class SettingsManager implements Constants {
     public void loadUserSettings() {
         log.debug("Loading user settings");
 
-        File userSettingsFile = getFileFromConfigDirectory(fileUserSettings);
+        File userSettingsFile = getFileFromConfigDirectory(appProperties.getUserSettingsFile());
 
         if (!userSettingsFile.exists()) {
             userSettingsLoaded = true;
@@ -363,7 +330,8 @@ public class SettingsManager implements Constants {
 
         ofNullable(settings.getPlaylists())
             .ifPresent(playlistSettingsList -> playlistSettingsList.forEach(playlistSettings -> {
-                Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(), maxPlaylistSize);
+                Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(),
+                        appProperties.getMaxPlaylistSize());
 
                 // Override the name of the search results and favourites
                 // playlists
@@ -424,11 +392,11 @@ public class SettingsManager implements Constants {
         settings.setPlaylists(playlists);
 
         // Write the file
-        File userSettingsFile = getFileFromConfigDirectory(fileUserSettings);
+        File userSettingsFile = getFileFromConfigDirectory(appProperties.getUserSettingsFile());
         boolean alreadyExists = userSettingsFile.exists();
 
         if (alreadyExists) {
-            userSettingsFile.renameTo(getFileFromConfigDirectory(fileUserSettings + ".bak"));
+            userSettingsFile.renameTo(getFileFromConfigDirectory(appProperties.getUserSettingsFile() + ".bak"));
         }
 
         try (FileWriter fileWriter = new FileWriter(userSettingsFile)) {
@@ -439,10 +407,10 @@ public class SettingsManager implements Constants {
             userSettingsFile.delete();
 
             if (alreadyExists) {
-                getFileFromConfigDirectory(fileUserSettings + ".bak").renameTo(userSettingsFile);
+                getFileFromConfigDirectory(appProperties.getUserSettingsFile() + ".bak").renameTo(userSettingsFile);
             }
         } finally {
-            getFileFromConfigDirectory(fileLastIndexed + ".bak").delete();
+            getFileFromConfigDirectory(appProperties.getUserSettingsFile() + ".bak").delete();
         }
     }
 }

@@ -1,5 +1,17 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.Synchronized;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
+import uk.co.mpcontracting.rpmjukebox.support.CacheType;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
+
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URLEncoder;
@@ -10,31 +22,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import lombok.SneakyThrows;
-import lombok.Synchronized;
-import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.rpmjukebox.support.CacheType;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
-
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CacheManager implements Constants {
+
+    private final AppProperties appProperties;
 
     @Autowired
     private SettingsManager settingsManager;
-
-    @Value("${directory.cache}")
-    private String directoryCache;
-
-    @Value("${internal.jetty.port}")
-    private int internalJettyPort;
 
     private File cacheDirectory;
 
@@ -45,7 +41,7 @@ public class CacheManager implements Constants {
         log.info("Initialising CacheManager");
 
         // Look for the cache directory and create it if it isn't there
-        cacheDirectory = settingsManager.getFileFromConfigDirectory(directoryCache);
+        cacheDirectory = settingsManager.getFileFromConfigDirectory(appProperties.getCacheDirectory());
 
         if (!cacheDirectory.exists() && !cacheDirectory.mkdirs()) {
             throw new RuntimeException("Unable to create cache directory - " + cacheDirectory.getAbsolutePath());
@@ -62,7 +58,7 @@ public class CacheManager implements Constants {
 
     @SneakyThrows
     public String constructInternalUrl(CacheType cacheType, String id, String location) {
-        return "http://localhost:" + internalJettyPort + "/cache?cacheType=" + cacheType + "&id=" + id + "&url="
+        return "http://localhost:" + appProperties.getJettyPort() + "/cache?cacheType=" + cacheType + "&id=" + id + "&url="
             + URLEncoder.encode(location, "UTF-8");
     }
 

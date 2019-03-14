@@ -1,56 +1,45 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import com.igormaznitsa.commons.version.Version;
-
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class UpdateManager extends EventAwareObject implements Constants {
 
-    @Autowired
-    private SettingsManager settingsManager;
-
-    @Autowired
-    private InternetManager internetManager;
-
-    @Value("${version.url}")
-    private URL versionUrl;
-
-    @Value("${website.url}")
-    private String websiteUrl;
+    private final AppProperties appProperties;
+    private final SettingsManager settingsManager;
+    private final InternetManager internetManager;
 
     private Version newVersion;
 
-    // Package level for testing purposes
-    void checkForUpdates() {
+    private void checkForUpdates() {
         log.debug("Checking for updates to version - {}", settingsManager.getVersion());
-        log.debug("Version url - {}", versionUrl);
+        log.debug("Version url - {}", appProperties.getVersionUrl());
 
         try {
-            HttpURLConnection connection = (HttpURLConnection)internetManager.openConnection(versionUrl);
+            HttpURLConnection connection = (HttpURLConnection)internetManager.openConnection(
+                    new URL(appProperties.getVersionUrl()));
 
             if (connection.getResponseCode() == 200) {
                 StringBuilder response = new StringBuilder();
 
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader((connection.getInputStream())))) {
-                    reader.lines().forEach(line -> {
-                        response.append(line);
-                    });
+                    reader.lines().forEach(response::append);
                 }
 
                 if (response.toString().length() > 0) {
@@ -77,18 +66,14 @@ public class UpdateManager extends EventAwareObject implements Constants {
     public void downloadNewVersion() {
         log.debug("Downloading new version - {}", newVersion);
 
-        ThreadRunner.run(() -> {
-            RpmJukebox.getAppHostServices().showDocument(websiteUrl);
-        });
+        ThreadRunner.run(() -> RpmJukebox.getAppHostServices().showDocument(appProperties.getWebsiteUrl()));
     }
 
     @Override
     public void eventReceived(Event event, Object... payload) {
         switch (event) {
             case APPLICATION_INITIALISED: {
-                ThreadRunner.run(() -> {
-                    checkForUpdates();
-                });
+                ThreadRunner.run(this::checkForUpdates);
 
                 break;
             }

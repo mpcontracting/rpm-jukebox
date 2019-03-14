@@ -1,63 +1,26 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.Synchronized;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StoredField;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.*;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
-import org.apache.lucene.index.LeafReaderContext;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.search.BooleanQuery.Builder;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TopFieldDocs;
-import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.Synchronized;
-import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
@@ -68,9 +31,20 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSort;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SearchManager extends EventAwareObject implements Constants {
+
+    private final AppProperties appProperties;
 
     @Autowired
     private RpmJukebox rpmJukebox;
@@ -86,15 +60,6 @@ public class SearchManager extends EventAwareObject implements Constants {
 
     @Autowired
     private DataManager dataManager;
-
-    @Value("${directory.artist.index}")
-    private String directoryArtistIndex;
-
-    @Value("${directory.track.index}")
-    private String directoryTrackIndex;
-
-    @Value("${max.search.hits}")
-    private int maxSearchHits;
 
     @Getter
     private List<String> genreList;
@@ -128,14 +93,15 @@ public class SearchManager extends EventAwareObject implements Constants {
             analyzer = new WhitespaceAnalyzer();
             BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
 
-            artistDirectory = FSDirectory
-                .open(settingsManager.getFileFromConfigDirectory(directoryArtistIndex).toPath());
+            artistDirectory = FSDirectory.open(
+                    settingsManager.getFileFromConfigDirectory(appProperties.getArtistIndexDirectory()).toPath());
             IndexWriterConfig artistWriterConfig = new IndexWriterConfig(analyzer);
             artistWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             artistWriter = new IndexWriter(artistDirectory, artistWriterConfig);
             artistManager = new SearcherManager(artistWriter, null);
 
-            trackDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(directoryTrackIndex).toPath());
+            trackDirectory = FSDirectory.open(
+                    settingsManager.getFileFromConfigDirectory(appProperties.getTrackIndexDirectory()).toPath());
             IndexWriterConfig trackWriterConfig = new IndexWriterConfig(analyzer);
             trackWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             trackWriter = new IndexWriter(trackDirectory, trackWriterConfig);
@@ -390,7 +356,7 @@ public class SearchManager extends EventAwareObject implements Constants {
                     StringUtils
                         .stripAccents(nullSafeTrim(stripWhitespace(trackSearch.getKeywords(), true)).toLowerCase()),
                     trackSearch.getTrackFilter().getFilter()),
-                maxSearchHits, new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
+                appProperties.getMaxSearchHits(), new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
             ScoreDoc[] scoreDocs = results.scoreDocs;
             List<Track> tracks = new ArrayList<>();
 
@@ -583,7 +549,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         try {
             trackSearcher = trackManager.acquire();
             TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.ALBUMID.name(), albumId)),
-                maxSearchHits, new Sort(new SortField(TrackSort.DEFAULTSORT.name(), SortField.Type.STRING)));
+                appProperties.getMaxSearchHits(), new Sort(new SortField(TrackSort.DEFAULTSORT.name(), SortField.Type.STRING)));
             ScoreDoc[] scoreDocs = results.scoreDocs;
             List<Track> tracks = new ArrayList<>();
 

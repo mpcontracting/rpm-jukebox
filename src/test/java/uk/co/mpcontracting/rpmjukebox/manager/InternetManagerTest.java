@@ -1,31 +1,30 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
-
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class InternetManagerTest extends AbstractTest {
 
     @Autowired
-    private InternetManager internetManager;
+    private AppProperties appProperties;
 
-    @Value("${internal.jetty.port}")
-    private int internalJettyPort;
+    @Autowired
+    private InternetManager internetManager;
 
     @Mock
     private SettingsManager mockSettingsManager;
@@ -162,7 +161,7 @@ public class InternetManagerTest extends AbstractTest {
     public void shouldGet404FromInternalJettyServer() throws Exception {
         when(mockSettingsManager.getSystemSettings()).thenReturn(new SystemSettings());
 
-        URL url = new URL("http://localhost:" + internalJettyPort + "/invalid");
+        URL url = new URL("http://localhost:" + appProperties.getJettyPort() + "/invalid");
         HttpURLConnection connection = null;
 
         try {

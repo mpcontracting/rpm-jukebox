@@ -1,18 +1,16 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.util.Duration;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
@@ -20,14 +18,18 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
+import javax.annotation.PostConstruct;
+
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MediaManager extends EventAwareObject implements Constants {
+
+    private final AppProperties appProperties;
 
     @Autowired
     private CacheManager cacheManager;
 
-    @Value("${default.volume}")
     @Getter
     private double volume;
 
@@ -45,6 +47,7 @@ public class MediaManager extends EventAwareObject implements Constants {
         log.info("Initialising MediaManager");
 
         muted = false;
+        volume = appProperties.getDefaultVolume();
         equalizer = new Equalizer(10);
     }
 

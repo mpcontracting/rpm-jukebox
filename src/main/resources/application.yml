@@ -1,0 +1,37 @@
+application:
+  # Version number
+  version: 3.0.0
+
+  # Version URL
+  version-url: http://www.mpcontracting.co.uk/rpmjukebox/data/latest-version
+
+  # Website URL
+  website-url: http://www.mpcontracting.co.uk/rpmjukebox/index.html#downloads
+
+  # Datafile URL
+  datafile-url: http://www.mpcontracting.co.uk/rpmjukebox/data/rpm-data.gz
+
+  # S3 Bucket URL
+  s3-bucket-url: https://s3-eu-west-1.amazonaws.com/rpm-archive/
+
+  # Internal settings
+  jetty-port: 43125
+
+  # Local storage settings
+  log-directory: log
+  artist-index-directory: artistIndex
+  track-index-directory: trackIndex
+  cache-directory: cache
+  last-indexed-file: last-indexed
+  window-settings-file: window.json
+  system-settings-file: system.json
+  user-settings-file: rpm-jukebox.json
+
+  # Default settings
+  default-volume: 0.8
+  max-search-hits: 250
+  max-playlist-size: 1000
+  shuffled-playlist-size: 50
+  previous-seconds-cutoff: 3
+  playlist-file-extension: plt
+  cache-size-mb: 500

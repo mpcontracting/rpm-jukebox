@@ -1,40 +1,18 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import com.google.common.io.Files;
+import com.google.gson.Gson;
+import com.igormaznitsa.commons.version.Version;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import com.google.common.io.Files;
-import com.google.gson.Gson;
-import com.igormaznitsa.commons.version.Version;
-
-import javafx.geometry.Rectangle2D;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
@@ -45,25 +23,29 @@ import uk.co.mpcontracting.rpmjukebox.settings.Window;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 public class SettingsManagerTest extends AbstractTest implements Constants {
 
     @Autowired
+    private AppProperties appProperties;
+
+    @Autowired
     private SettingsManager settingsManager;
-
-    @Value("${file.last.indexed}")
-    private String fileLastIndexed;
-
-    @Value("${file.window.settings}")
-    private String fileWindowSettings;
-
-    @Value("${file.system.settings}")
-    private String fileSystemSettings;
-
-    @Value("${file.user.settings}")
-    private String fileUserSettings;
-
-    @Value("${cache.size.mb}")
-    private int cacheSizeMb;
 
     @Mock
     private SearchManager mockSearchManager;
@@ -193,7 +175,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldGetLastIndexedDate() throws Exception {
         LocalDateTime now = LocalDateTime.now();
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(fileLastIndexed);
+        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
             writer.write(Long.toString(now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
@@ -219,7 +201,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldNotGetLastIndexedDateOnFileReadError() throws Exception {
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(fileLastIndexed);
+        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
             writer.write("Unparseable");
@@ -240,7 +222,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         spySettingsManager.setLastIndexedDate(now);
 
         LocalDateTime lastIndexed = null;
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(fileLastIndexed);
+        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
                 ZoneId.systemDefault());
@@ -264,7 +246,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         spySettingsManager.setLastIndexedDate(now);
 
         LocalDateTime lastIndexed = null;
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(fileLastIndexed);
+        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
                 ZoneId.systemDefault());
@@ -281,7 +263,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         spySettingsManager.setLastIndexedDate(mockLocalDateTime);
 
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(fileLastIndexed);
+        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
 
         assertThat("Last indexed file should not exist", lastIndexedFile.exists(), equalTo(false));
     }
@@ -303,7 +285,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         spySettingsManager.setLastIndexedDate(mockLocalDateTime);
 
         LocalDateTime lastIndexed = null;
-        File readLastIndexedFile = settingsManager.getFileFromConfigDirectory(fileLastIndexed);
+        File readLastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(readLastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
                 ZoneId.systemDefault());
@@ -332,7 +314,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldLoadWindowSettingsFromFile() throws Exception {
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileWindowSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
         Window window = new Window(100, 200, 300, 400);
 
         try (FileWriter fileWriter = new FileWriter(settingsFile)) {
@@ -350,7 +332,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldNotLoadWindowSettingsFromFileOnException() throws Exception {
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileWindowSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
         Window window = new Window(100, 200, 300, 400);
 
         try (FileWriter fileWriter = new FileWriter(settingsFile)) {
@@ -382,7 +364,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         spySettingsManager.saveWindowSettings(mockStage);
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileWindowSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
         Window window = null;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
@@ -411,7 +393,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         spySettingsManager.saveWindowSettings(mockStage);
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileWindowSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
         Window window = null;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
@@ -429,7 +411,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         SystemSettings systemSettings = spySettingsManager.getSystemSettings();
 
-        assertThat("Cache size should be " + cacheSizeMb, systemSettings.getCacheSizeMb(), equalTo(cacheSizeMb));
+        assertThat("Cache size should be " + appProperties.getCacheSizeMb(), systemSettings.getCacheSizeMb(),
+                equalTo(appProperties.getCacheSizeMb()));
         assertThat("Proxy host should be null", systemSettings.getProxyHost(), nullValue());
         assertThat("Proxy port should be null", systemSettings.getProxyPort(), nullValue());
         assertThat("Proxy requires authentication should be null", systemSettings.getProxyRequiresAuthentication(),
@@ -445,7 +428,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         doNothing().when(spySettingsManager).saveSystemSettings();
 
         File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSystemSettingsFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -470,7 +453,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldNotLoadSystemSettingsFromAnInvalidFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -478,7 +461,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         SystemSettings systemSettings = spySettingsManager.getSystemSettings();
 
-        assertThat("Cache size should be " + cacheSizeMb, systemSettings.getCacheSizeMb(), equalTo(cacheSizeMb));
+        assertThat("Cache size should be " + appProperties.getCacheSizeMb(), systemSettings.getCacheSizeMb(),
+                equalTo(appProperties.getCacheSizeMb()));
         assertThat("Proxy host should be null", systemSettings.getProxyHost(), nullValue());
         assertThat("Proxy port should be null", systemSettings.getProxyPort(), nullValue());
         assertThat("Proxy requires authentication should be null", systemSettings.getProxyRequiresAuthentication(),
@@ -501,7 +485,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         spySettingsManager.saveSystemSettings();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
         SystemSettings result = null;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
@@ -525,7 +509,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
         settingsFile.delete();
 
         spySettingsManager.saveSystemSettings();
@@ -545,7 +529,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsNull.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -562,7 +546,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsLower.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -579,7 +563,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldNotReturnNewVersionWhenSystemVersionIsEqual.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileSystemSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -593,7 +577,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldLoadUserSettingsFromFile() throws Exception {
         File testSettings = getTestResourceFile("json/settingsManager-shouldLoadUserSettingsFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -628,7 +612,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldLoadUserSettingsWithNoEqFromFile() throws Exception {
         File testSettings = getTestResourceFile("json/settingsManager-shouldLoadUserSettingsWithNoEqFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -648,7 +632,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     public void shouldLoadUserSettingsWithNoPlaylistsFromFile() throws Exception {
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldLoadUserSettingsWithNoPlaylistsFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -667,7 +651,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     @Test
     public void shouldNotLoadUserSettingsFromAnInvalidFile() throws Exception {
         File testSettings = getTestResourceFile("json/settingsManager-shouldNotLoadUserSettingsFromAnInvalidFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -709,7 +693,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         verify(mockEqualizer, times(5)).getGain(anyInt());
         verify(mockPlaylistManager, times(1)).getPlaylists();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
 
         Settings settings = null;
 
@@ -763,14 +747,14 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         spySettingsManager.saveUserSettings();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
 
         assertThat("Settings file should not exist", settingsFile.exists(), equalTo(false));
     }
 
     @Test
     public void shouldNotSaveUserSettingsOnExceptionWhenFileAlreadyExists() throws Exception {
-        File newSettingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
+        File newSettingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
         newSettingsFile.createNewFile();
 
         ReflectionTestUtils.setField(spySettingsManager, "userSettingsLoaded", true);
@@ -801,7 +785,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         spySettingsManager.saveUserSettings();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(fileUserSettings);
+        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
 
         assertThat("Settings file should exist", settingsFile.exists(), equalTo(true));
     }

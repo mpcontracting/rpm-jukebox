@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 import java.net.URL;
@@ -11,6 +12,9 @@ import java.net.URL;
 import static org.mockito.Mockito.*;
 
 public class DataManagerTest extends AbstractTest {
+
+    @Autowired
+    private AppProperties appProperties;
 
     @Autowired
     private InternetManager internetManager;
@@ -24,7 +28,7 @@ public class DataManagerTest extends AbstractTest {
     @Before
     public void setup() {
         spyInternetManager = spy(internetManager);
-        spyDataManager = spy(new DataManager(mockSearchManager, spyInternetManager));
+        spyDataManager = spy(new DataManager(appProperties, mockSearchManager, spyInternetManager));
         spyDataManager.setup();
     }
 

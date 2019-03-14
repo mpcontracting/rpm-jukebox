@@ -1,9 +1,8 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
-import java.net.BindException;
-
-import javax.annotation.PostConstruct;
-
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -12,19 +11,22 @@ import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
+import javax.annotation.PostConstruct;
+import java.net.BindException;
+
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JettyServer implements Constants {
+
+    private final AppProperties appProperties;
 
     @Autowired
     private RpmJukebox rpmJukebox;
@@ -35,22 +37,19 @@ public class JettyServer implements Constants {
     @Autowired
     private MessageManager messageManager;
 
-    @Value("${internal.jetty.port}")
-    private int internalJettyPort;
-
     private Server server;
 
     @SneakyThrows
     @PostConstruct
     public void initialise() {
-        log.info("Initialising JettyServer on port - {}", internalJettyPort);
+        log.info("Initialising JettyServer on port - {}", appProperties.getJettyPort());
 
         rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_INITIALISING_CACHE));
 
         server = constructServer();
 
         ServerConnector connector = new ServerConnector(server);
-        connector.setPort(internalJettyPort);
+        connector.setPort(appProperties.getJettyPort());
 
         server.setConnectors(new Connector[] { connector });
 

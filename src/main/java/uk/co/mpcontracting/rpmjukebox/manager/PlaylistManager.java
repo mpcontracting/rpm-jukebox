@@ -1,19 +1,11 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.controller.TrackTableController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
@@ -22,9 +14,15 @@ import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
+import javax.annotation.PostConstruct;
+import java.util.*;
+
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class PlaylistManager extends EventAwareObject implements Constants {
+
+    private final AppProperties appProperties;
 
     @Autowired
     private MessageManager messageManager;
@@ -37,9 +35,6 @@ public class PlaylistManager extends EventAwareObject implements Constants {
 
     @Autowired
     private TrackTableController trackTableController;
-
-    @Value("${max.playlist.size}")
-    private int maxPlaylistSize;
 
     private Map<Integer, Playlist> playlistMap;
 
@@ -62,10 +57,12 @@ public class PlaylistManager extends EventAwareObject implements Constants {
         log.info("Initialising PlaylistManager");
 
         playlistMap = new LinkedHashMap<>();
-        playlistMap.put(PLAYLIST_ID_SEARCH,
-            new Playlist(PLAYLIST_ID_SEARCH, messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH), maxPlaylistSize));
+        playlistMap.put(PLAYLIST_ID_SEARCH,new Playlist(PLAYLIST_ID_SEARCH,
+                messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH),
+                appProperties.getMaxPlaylistSize()));
         playlistMap.put(PLAYLIST_ID_FAVOURITES, new Playlist(PLAYLIST_ID_FAVOURITES,
-            messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES), maxPlaylistSize));
+                messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES),
+                appProperties.getMaxPlaylistSize()));
         currentPlaylistId = PLAYLIST_ID_SEARCH;
         currentPlaylistIndex = 0;
         currentTrack = null;
@@ -130,7 +127,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
                 playlistId++;
             }
 
-            playlist = new Playlist(playlistId, name, maxPlaylistSize);
+            playlist = new Playlist(playlistId, name, appProperties.getMaxPlaylistSize());
             playlistMap.put(playlistId, playlist);
 
             log.debug("Created playlist - " + playlistId);
