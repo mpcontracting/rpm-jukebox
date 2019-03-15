@@ -309,7 +309,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
         log.debug("Updating year filter - {}", searchManager.getYearList());
 
         List<YearFilter> yearFilters = new ArrayList<>();
-        yearFilters.add(new YearFilter("None", null));
+        yearFilters.add(new YearFilter(messageManager.getMessage(MESSAGE_YEAR_FILTER_NONE), null));
 
         ofNullable(searchManager.getYearList())
             .ifPresent(years -> years.forEach(year -> yearFilters.add(new YearFilter(year, year))));
@@ -395,7 +395,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
         log.debug("Import playlist button pressed");
 
         FileChooser fileChooser = constructFileChooser();
-        fileChooser.setTitle(messageManager.getMessage(MESSAGE_EXPORT_PLAYLIST_TITLE));
+        fileChooser.setTitle(messageManager.getMessage(MESSAGE_IMPORT_PLAYLIST_TITLE));
         fileChooser.getExtensionFilters()
             .add(new ExtensionFilter(
                 messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter),
