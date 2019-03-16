@@ -1,32 +1,26 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.util.Arrays;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TrackTableCellFactoryTest extends AbstractTest implements Constants {
 
@@ -41,9 +35,9 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
     @Before
     public void setup() {
         cellFactory = new TrackTableCellFactory<>();
-        ReflectionTestUtils.setField(cellFactory, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(cellFactory, "settingsManager", mockSettingsManager);
-        ReflectionTestUtils.setField(cellFactory, "playlistManager", mockPlaylistManager);
+        setField(cellFactory, "eventManager", getMockEventManager());
+        setField(cellFactory, "settingsManager", mockSettingsManager);
+        setField(cellFactory, "playlistManager", mockPlaylistManager);
 
         reset(mockSettingsManager);
         reset(mockPlaylistManager);
@@ -165,10 +159,8 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
         MenuItem createPlaylistFromAlbumItem = tableCell.getContextMenu().getItems().get(0);
         MenuItem deleteTrackFromPlaylistItem = tableCell.getContextMenu().getItems().get(1);
 
-        assertThat("Create playlist from album item should not be disabled", createPlaylistFromAlbumItem.isDisable(),
-            equalTo(false));
-        assertThat("Delete track from playlist item should be disabled", deleteTrackFromPlaylistItem.isDisable(),
-            equalTo(true));
+        assertThat(createPlaylistFromAlbumItem.isDisable()).isFalse();
+        assertThat(deleteTrackFromPlaylistItem.isDisable()).isTrue();
     }
 
     @Test
@@ -182,10 +174,8 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
         MenuItem createPlaylistFromAlbumItem = tableCell.getContextMenu().getItems().get(0);
         MenuItem deleteTrackFromPlaylistItem = tableCell.getContextMenu().getItems().get(1);
 
-        assertThat("Create playlist from album item should be disabled", createPlaylistFromAlbumItem.isDisable(),
-            equalTo(true));
-        assertThat("Delete track from playlist item should not be disabled", deleteTrackFromPlaylistItem.isDisable(),
-            equalTo(false));
+        assertThat(createPlaylistFromAlbumItem.isDisable()).isTrue();
+        assertThat(deleteTrackFromPlaylistItem.isDisable()).isFalse();
     }
 
     @Test
@@ -200,10 +190,8 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
         MenuItem createPlaylistFromAlbumItem = tableCell.getContextMenu().getItems().get(0);
         MenuItem deleteTrackFromPlaylistItem = tableCell.getContextMenu().getItems().get(1);
 
-        assertThat("Create playlist from album item should be disabled", createPlaylistFromAlbumItem.isDisable(),
-            equalTo(true));
-        assertThat("Delete track from playlist item should be disabled", deleteTrackFromPlaylistItem.isDisable(),
-            equalTo(true));
+        assertThat(createPlaylistFromAlbumItem.isDisable()).isTrue();
+        assertThat(deleteTrackFromPlaylistItem.isDisable()).isTrue();
     }
 
     @Test
@@ -308,7 +296,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
         tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("Table row style should not be empty", tableCell.getTableRow().getStyle(), not(isEmptyString()));
+        assertThat(tableCell.getTableRow().getStyle()).isNotEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -325,7 +313,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
         tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("Table row style should be empty", tableCell.getTableRow().getStyle(), isEmptyString());
+        assertThat(tableCell.getTableRow().getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -343,7 +331,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
         tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("Table row style should be empty", tableCell.getTableRow().getStyle(), isEmptyString());
+        assertThat(tableCell.getTableRow().getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -363,7 +351,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
         tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("Table row style should be empty", tableCell.getTableRow().getStyle(), isEmptyString());
+        assertThat(tableCell.getTableRow().getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -382,7 +370,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
         tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("Table row style should be empty", tableCell.getTableRow().getStyle(), isEmptyString());
+        assertThat(tableCell.getTableRow().getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -401,7 +389,7 @@ public class TrackTableCellFactoryTest extends AbstractTest implements Constants
 
         tableCell.onDragExitedProperty().get().handle(spyDragEvent);
 
-        assertThat("Table row style should be empty", tableCell.getTableRow().getStyle(), isEmptyString());
+        assertThat(tableCell.getTableRow().getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 

@@ -1,11 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import org.junit.Test;
-
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PercentageTableColumnTest extends AbstractTest {
 
@@ -13,15 +12,14 @@ public class PercentageTableColumnTest extends AbstractTest {
     public void shouldGetPercentageWidthProperty() {
         PercentageTableColumn<String, String> percentageTableColumn = new PercentageTableColumn<>();
 
-        assertThat("Percentage width should not be null", percentageTableColumn.percentageWidthProperty(),
-            notNullValue());
+        assertThat(percentageTableColumn.percentageWidthProperty()).isNotNull();
     }
 
     @Test
     public void shouldGetPercentageWidth() {
         PercentageTableColumn<String, String> percentageTableColumn = new PercentageTableColumn<>();
 
-        assertThat("Percentage width should be 1.0", percentageTableColumn.getPercentageWidth(), equalTo(1.0d));
+        assertThat(percentageTableColumn.getPercentageWidth()).isEqualTo(1.0d);
     }
 
     @Test
@@ -29,18 +27,22 @@ public class PercentageTableColumnTest extends AbstractTest {
         PercentageTableColumn<String, String> percentageTableColumn = new PercentageTableColumn<>();
         percentageTableColumn.setPercentageWidth(0.5);
 
-        assertThat("Percentage width should be 0.5", percentageTableColumn.getPercentageWidth(), equalTo(0.5d));
+        assertThat(percentageTableColumn.getPercentageWidth()).isEqualTo(0.5d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetPercentageWidthLessThanZero() {
         PercentageTableColumn<String, String> percentageTableColumn = new PercentageTableColumn<>();
-        percentageTableColumn.setPercentageWidth(-0.1);
+
+        assertThatThrownBy(() -> percentageTableColumn.setPercentageWidth(-0.1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetPercentageWidthGreaterThanOne() {
         PercentageTableColumn<String, String> percentageTableColumn = new PercentageTableColumn<>();
-        percentageTableColumn.setPercentageWidth(1.1);
+
+        assertThatThrownBy(() -> percentageTableColumn.setPercentageWidth(1.1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

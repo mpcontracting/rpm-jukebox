@@ -1,18 +1,16 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class PlaylistListCellTest extends AbstractTest implements Constants {
 
@@ -22,8 +20,8 @@ public class PlaylistListCellTest extends AbstractTest implements Constants {
 
         playlistListCell.updateItem(new Playlist(1, "Playlist", 10), false);
 
-        assertThat("Text should be 'Playlist'", playlistListCell.getText(), equalTo("Playlist"));
-        assertThat("Editable should be true", playlistListCell.isEditable(), equalTo(true));
+        assertThat(playlistListCell.getText()).isEqualTo("Playlist");
+        assertThat(playlistListCell.isEditable()).isTrue();
     }
 
     @Test
@@ -32,8 +30,8 @@ public class PlaylistListCellTest extends AbstractTest implements Constants {
 
         playlistListCell.updateItem(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10), false);
 
-        assertThat("Text should be 'Playlist'", playlistListCell.getText(), equalTo("Favourites"));
-        assertThat("Editable should be false", playlistListCell.isEditable(), equalTo(false));
+        assertThat(playlistListCell.getText()).isEqualTo("Favourites");
+        assertThat(playlistListCell.isEditable()).isFalse();
     }
 
     @Test
@@ -44,8 +42,8 @@ public class PlaylistListCellTest extends AbstractTest implements Constants {
 
         spyPlaylistListCell.updateItem(new Playlist(1, "Playlist", 10), false);
 
-        assertThat("Text should be null", spyPlaylistListCell.getText(), nullValue());
-        assertThat("Editable should be true", spyPlaylistListCell.isEditable(), equalTo(true));
+        assertThat(spyPlaylistListCell.getText()).isNull();
+        assertThat(spyPlaylistListCell.isEditable()).isTrue();
         verify(mockTextField, times(1)).selectAll();
     }
 
@@ -82,8 +80,7 @@ public class PlaylistListCellTest extends AbstractTest implements Constants {
         ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
 
         verify(spyPlaylistListCell, times(1)).commitEdit(playlistCaptor.capture());
-        assertThat("Playlist name should be updated to 'Playlist Updated'", playlistCaptor.getValue().getName(),
-            equalTo("Playlist Updated"));
+        assertThat(playlistCaptor.getValue().getName()).isEqualTo("Playlist Updated");
     }
 
     @Test

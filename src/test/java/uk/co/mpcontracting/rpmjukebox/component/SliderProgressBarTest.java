@@ -1,11 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import org.junit.Test;
-
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SliderProgressBarTest extends AbstractTest {
 
@@ -13,30 +11,28 @@ public class SliderProgressBarTest extends AbstractTest {
     public void shouldGetSliderValueProperty() {
         SliderProgressBar sliderProgressBar = new SliderProgressBar();
 
-        assertThat("Slider value property should not be null", sliderProgressBar.sliderValueProperty(), notNullValue());
+        assertThat(sliderProgressBar.sliderValueProperty()).isNotNull();
     }
 
     @Test
     public void shouldGetSliderValueChangingProperty() {
         SliderProgressBar sliderProgressBar = new SliderProgressBar();
 
-        assertThat("Slider value changing property should not be null", sliderProgressBar.sliderValueChangingProperty(),
-            notNullValue());
+        assertThat(sliderProgressBar.sliderValueChangingProperty()).isNotNull();
     }
 
     @Test
     public void shouldGetIsSliderValueChanging() {
         SliderProgressBar sliderProgressBar = new SliderProgressBar();
 
-        assertThat("Is slider value changing should be false", sliderProgressBar.isSliderValueChanging(),
-            equalTo(false));
+        assertThat(sliderProgressBar.isSliderValueChanging()).isFalse();
     }
 
     @Test
     public void shouldGetSliderValue() {
         SliderProgressBar sliderProgressBar = new SliderProgressBar();
 
-        assertThat("Slider value should be 0.0", sliderProgressBar.getSliderValue(), equalTo(0.0d));
+        assertThat(sliderProgressBar.getSliderValue()).isEqualTo(0.0d);
     }
 
     @Test
@@ -44,14 +40,14 @@ public class SliderProgressBarTest extends AbstractTest {
         SliderProgressBar sliderProgressBar = new SliderProgressBar();
         sliderProgressBar.setSliderValue(0.5);
 
-        assertThat("Slider value should be 0.5", sliderProgressBar.getSliderValue(), equalTo(0.5d));
+        assertThat(sliderProgressBar.getSliderValue()).isEqualTo(0.5d);
     }
 
     @Test
     public void shouldGetProgressValue() {
         SliderProgressBar sliderProgressBar = new SliderProgressBar();
 
-        assertThat("Progress value should be 0.0", sliderProgressBar.getProgressValue(), equalTo(0.0d));
+        assertThat(sliderProgressBar.getProgressValue()).isEqualTo(0.0d);
     }
 
     @Test
@@ -59,6 +55,6 @@ public class SliderProgressBarTest extends AbstractTest {
         SliderProgressBar sliderProgressBar = new SliderProgressBar();
         sliderProgressBar.setProgressValue(50);
 
-        assertThat("Progress value should be 0.5", sliderProgressBar.getProgressValue(), equalTo(0.5d));
+        assertThat(sliderProgressBar.getProgressValue()).isEqualTo(0.5d);
     }
 }

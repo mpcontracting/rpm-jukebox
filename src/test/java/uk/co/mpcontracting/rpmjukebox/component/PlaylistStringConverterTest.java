@@ -1,14 +1,13 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 public class PlaylistStringConverterTest extends AbstractTest {
 
@@ -21,11 +20,11 @@ public class PlaylistStringConverterTest extends AbstractTest {
         PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
         playlistStringConverter.setPlaylist(mockPlaylist);
 
-        Playlist playlist = (Playlist)ReflectionTestUtils.getField(playlistStringConverter, "playlist");
-        String playlistName = (String)ReflectionTestUtils.getField(playlistStringConverter, "originalName");
+        Playlist playlist = (Playlist) getField(playlistStringConverter, "playlist");
+        String playlistName = (String) getField(playlistStringConverter, "originalName");
 
-        assertThat("Playlist should equal mock playlist", playlist, equalTo(mockPlaylist));
-        assertThat("Playlist name should be 'Playlist'", playlistName, equalTo("Playlist"));
+        assertThat(playlist).isEqualTo(mockPlaylist);
+        assertThat(playlistName).isEqualTo("Playlist");
     }
 
     @Test
@@ -36,8 +35,7 @@ public class PlaylistStringConverterTest extends AbstractTest {
 
         PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
 
-        assertThat("To string should be 'Playlist'", playlistStringConverter.toString(mockPlaylist),
-            equalTo("Playlist"));
+        assertThat(playlistStringConverter.toString(mockPlaylist)).isEqualTo("Playlist");
     }
 
     @Test
@@ -49,8 +47,8 @@ public class PlaylistStringConverterTest extends AbstractTest {
 
         Playlist result = playlistStringConverter.fromString("Playlist From String");
 
-        assertThat("Playlist ID should be 5", result.getPlaylistId(), equalTo(5));
-        assertThat("Playlist name should be 'Playlist From String'", result.getName(), equalTo("Playlist From String"));
+        assertThat(result.getPlaylistId()).isEqualTo(5);
+        assertThat(result.getName()).isEqualTo("Playlist From String");
     }
 
     @Test
@@ -62,8 +60,8 @@ public class PlaylistStringConverterTest extends AbstractTest {
 
         Playlist result = playlistStringConverter.fromString(null);
 
-        assertThat("Playlist ID should be 5", result.getPlaylistId(), equalTo(5));
-        assertThat("Playlist name should be 'Playlist'", result.getName(), equalTo("Playlist"));
+        assertThat(result.getPlaylistId()).isEqualTo(5);
+        assertThat(result.getName()).isEqualTo("Playlist");
     }
 
     @Test
@@ -75,7 +73,7 @@ public class PlaylistStringConverterTest extends AbstractTest {
 
         Playlist result = playlistStringConverter.fromString(" ");
 
-        assertThat("Playlist ID should be 5", result.getPlaylistId(), equalTo(5));
-        assertThat("Playlist name should be 'Playlist'", result.getName(), equalTo("Playlist"));
+        assertThat(result.getPlaylistId()).isEqualTo(5);
+        assertThat(result.getName()).isEqualTo("Playlist");
     }
 }

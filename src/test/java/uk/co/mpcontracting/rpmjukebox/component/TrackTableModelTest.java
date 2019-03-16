@@ -1,14 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import org.junit.Test;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 import java.util.Arrays;
 
-import org.junit.Test;
-
-import uk.co.mpcontracting.rpmjukebox.model.Track;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackTableModelTest extends AbstractTest {
 
@@ -18,15 +16,13 @@ public class TrackTableModelTest extends AbstractTest {
             "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2"));
         TrackTableModel trackTableModel = new TrackTableModel(track);
 
-        assertThat("Tracks should be equal", trackTableModel.getTrack(), equalTo(track));
-        assertThat("Track ID should be '789'", trackTableModel.getTrackId().get(), equalTo("789"));
-        assertThat("Track name should be 'Track Name'", trackTableModel.getTrackName().get(), equalTo("Track Name"));
-        assertThat("Artist name should be 'Artist Name'", trackTableModel.getArtistName().get(),
-            equalTo("Artist Name"));
-        assertThat("Album year should be 2000", trackTableModel.getAlbumYear().get(), equalTo(2000));
-        assertThat("Album name should be 'Album Name'", trackTableModel.getAlbumName().get(), equalTo("Album Name"));
-        assertThat("Genres should be 'Genre 1, Genre 2'", trackTableModel.getGenres().get(),
-            equalTo("Genre 1, Genre 2"));
+        assertThat(trackTableModel.getTrack()).isEqualTo(track);
+        assertThat(trackTableModel.getTrackId().get()).isEqualTo("789");
+        assertThat(trackTableModel.getTrackName().get()).isEqualTo("Track Name");
+        assertThat(trackTableModel.getArtistName().get()).isEqualTo("Artist Name");
+        assertThat(trackTableModel.getAlbumYear().get()).isEqualTo(2000);
+        assertThat(trackTableModel.getAlbumName().get()).isEqualTo("Album Name");
+        assertThat(trackTableModel.getGenres().get()).isEqualTo("Genre 1, Genre 2");
     }
 
     @Test
@@ -35,13 +31,12 @@ public class TrackTableModelTest extends AbstractTest {
             "Track Name", 1, "Location", true, null);
         TrackTableModel trackTableModel = new TrackTableModel(track);
 
-        assertThat("Tracks should be equal", trackTableModel.getTrack(), equalTo(track));
-        assertThat("Track ID should be '789'", trackTableModel.getTrackId().get(), equalTo("789"));
-        assertThat("Track name should be 'Track Name'", trackTableModel.getTrackName().get(), equalTo("Track Name"));
-        assertThat("Artist name should be 'Artist Name'", trackTableModel.getArtistName().get(),
-            equalTo("Artist Name"));
-        assertThat("Album year should be 2000", trackTableModel.getAlbumYear().get(), equalTo(2000));
-        assertThat("Album name should be 'Album Name'", trackTableModel.getAlbumName().get(), equalTo("Album Name"));
-        assertThat("Genres should be ''", trackTableModel.getGenres().get(), equalTo(""));
+        assertThat(trackTableModel.getTrack()).isEqualTo(track);
+        assertThat(trackTableModel.getTrackId().get()).isEqualTo("789");
+        assertThat(trackTableModel.getTrackName().get()).isEqualTo("Track Name");
+        assertThat(trackTableModel.getArtistName().get()).isEqualTo("Artist Name");
+        assertThat(trackTableModel.getAlbumYear().get()).isEqualTo(2000);
+        assertThat(trackTableModel.getAlbumName().get()).isEqualTo("Album Name");
+        assertThat(trackTableModel.getGenres().get()).isEqualTo("");
     }
 }

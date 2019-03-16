@@ -1,13 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import org.junit.Test;
-
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PlaylistTableModelTest extends AbstractTest {
 
@@ -19,8 +18,8 @@ public class PlaylistTableModelTest extends AbstractTest {
 
         PlaylistTableModel playlistTableModel = new PlaylistTableModel(mockPlaylist);
 
-        assertThat("Playlist should equal mock playlist", playlistTableModel.getPlaylist(), equalTo(mockPlaylist));
-        assertThat("Selected should not be null", playlistTableModel.getSelected(), notNullValue());
-        assertThat("Name should be 'Playlist'", playlistTableModel.getName().get(), equalTo("Playlist"));
+        assertThat(playlistTableModel.getPlaylist()).isEqualTo(mockPlaylist);
+        assertThat(playlistTableModel.getSelected()).isNotNull();
+        assertThat(playlistTableModel.getName().get()).isEqualTo("Playlist");
     }
 }

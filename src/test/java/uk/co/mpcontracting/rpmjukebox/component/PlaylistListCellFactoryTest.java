@@ -1,30 +1,18 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.springframework.context.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
@@ -33,6 +21,12 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class PlaylistListCellFactoryTest extends AbstractTest implements Constants {
 
@@ -47,17 +41,17 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
     @Before
     public void setup() {
         cellFactory = new PlaylistListCellFactory();
-        ReflectionTestUtils.setField(cellFactory, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(cellFactory, "playlistManager", mockPlaylistManager);
+        setField(cellFactory, "eventManager", getMockEventManager());
+        setField(cellFactory, "playlistManager", mockPlaylistManager);
 
         reset(mockPlaylistManager);
 
-        originalContext = (ApplicationContext)ReflectionTestUtils.getField(ContextHelper.class, "applicationContext");
+        originalContext = (ApplicationContext) getField(ContextHelper.class, "applicationContext");
         mockMainPanelController = mock(MainPanelController.class);
         ApplicationContext mockContext = mock(ApplicationContext.class);
         when(mockContext.getBean(MainPanelController.class)).thenReturn(mockMainPanelController);
 
-        ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", mockContext);
+        setField(ContextHelper.class, "applicationContext", mockContext);
     }
 
     @Test
@@ -178,8 +172,8 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
         MenuItem newPlaylistItem = listCell.getContextMenu().getItems().get(0);
         MenuItem deletePlaylistItem = listCell.getContextMenu().getItems().get(1);
 
-        assertThat("New playlist item should be disabled", newPlaylistItem.isDisable(), equalTo(true));
-        assertThat("Delete playlist item should be disabled", deletePlaylistItem.isDisable(), equalTo(true));
+        assertThat(newPlaylistItem.isDisable()).isTrue();
+        assertThat(deletePlaylistItem.isDisable()).isTrue();
     }
 
     @Test
@@ -195,8 +189,8 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
         MenuItem newPlaylistItem = listCell.getContextMenu().getItems().get(0);
         MenuItem deletePlaylistItem = listCell.getContextMenu().getItems().get(1);
 
-        assertThat("New playlist item should be disabled", newPlaylistItem.isDisable(), equalTo(true));
-        assertThat("Delete playlist item should not be disabled", deletePlaylistItem.isDisable(), equalTo(false));
+        assertThat(newPlaylistItem.isDisable()).isTrue();
+        assertThat(deletePlaylistItem.isDisable()).isFalse();
     }
 
     @Test
@@ -212,8 +206,8 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
         MenuItem newPlaylistItem = listCell.getContextMenu().getItems().get(0);
         MenuItem deletePlaylistItem = listCell.getContextMenu().getItems().get(1);
 
-        assertThat("New playlist item should not be disabled", newPlaylistItem.isDisable(), equalTo(false));
-        assertThat("Delete playlist item should be disabled", deletePlaylistItem.isDisable(), equalTo(true));
+        assertThat(newPlaylistItem.isDisable()).isFalse();
+        assertThat(deletePlaylistItem.isDisable()).isTrue();
     }
 
     @Test
@@ -274,7 +268,7 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
 
         listCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("List cell style should not be empty", listCell.getStyle(), not(isEmptyString()));
+        assertThat(listCell.getStyle()).isNotEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -291,7 +285,7 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
 
         listCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("List cell style should be empty", listCell.getStyle(), isEmptyString());
+        assertThat(listCell.getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -308,7 +302,7 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
 
         listCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("List cell style should be empty", listCell.getStyle(), isEmptyString());
+        assertThat(listCell.getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -325,7 +319,7 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
 
         listCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("List cell style should be empty", listCell.getStyle(), isEmptyString());
+        assertThat(listCell.getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -342,7 +336,7 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
 
         listCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
-        assertThat("List cell style should be empty", listCell.getStyle(), isEmptyString());
+        assertThat(listCell.getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -359,7 +353,7 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
 
         listCell.onDragExitedProperty().get().handle(spyDragEvent);
 
-        assertThat("List cell style should be empty", listCell.getStyle(), isEmptyString());
+        assertThat(listCell.getStyle()).isEmpty();
         verify(spyDragEvent, times(1)).consume();
     }
 
@@ -415,6 +409,6 @@ public class PlaylistListCellFactoryTest extends AbstractTest implements Constan
 
     @After
     public void cleanup() {
-        ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", originalContext);
+        setField(ContextHelper.class, "applicationContext", originalContext);
     }
 }

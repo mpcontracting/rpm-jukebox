@@ -1,11 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import org.junit.Test;
-
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PlaylistTableCellTest extends AbstractTest {
 
@@ -14,7 +12,7 @@ public class PlaylistTableCellTest extends AbstractTest {
         PlaylistTableCell<String, String> playlistTableCell = new PlaylistTableCell<>();
         playlistTableCell.updateItem("Value", false);
 
-        assertThat("Text should be 'Value'", playlistTableCell.getText(), equalTo("Value"));
+        assertThat(playlistTableCell.getText()).isEqualTo("Value");
     }
 
     @Test
@@ -22,7 +20,7 @@ public class PlaylistTableCellTest extends AbstractTest {
         PlaylistTableCell<String, String> playlistTableCell = new PlaylistTableCell<>();
         playlistTableCell.updateItem("Value", true);
 
-        assertThat("Text should be null", playlistTableCell.getText(), nullValue());
+        assertThat(playlistTableCell.getText()).isNull();
     }
 
     @Test
@@ -30,6 +28,6 @@ public class PlaylistTableCellTest extends AbstractTest {
         PlaylistTableCell<String, String> playlistTableCell = new PlaylistTableCell<>();
         playlistTableCell.updateItem(null, false);
 
-        assertThat("Text should be null", playlistTableCell.getText(), nullValue());
+        assertThat(playlistTableCell.getText()).isNull();
     }
 }

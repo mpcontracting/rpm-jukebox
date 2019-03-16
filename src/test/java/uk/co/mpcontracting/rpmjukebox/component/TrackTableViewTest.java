@@ -1,14 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackTableViewTest extends AbstractTest {
 
@@ -23,8 +21,8 @@ public class TrackTableViewTest extends AbstractTest {
         int selectedIndex = trackTableView.getSelectionModel().getSelectedIndex();
         int focussedIndex = trackTableView.getFocusModel().getFocusedIndex();
 
-        assertThat("Selected index should be 5", selectedIndex, equalTo(5));
-        assertThat("Focussed index should be 5", focussedIndex, equalTo(5));
+        assertThat(selectedIndex).isEqualTo(5);
+        assertThat(focussedIndex).isEqualTo(5);
     }
 
     @Test
@@ -37,8 +35,8 @@ public class TrackTableViewTest extends AbstractTest {
         int selectedIndex = trackTableView.getSelectionModel().getSelectedIndex();
         int focussedIndex = trackTableView.getFocusModel().getFocusedIndex();
 
-        assertThat("Selected index should be -1", selectedIndex, equalTo(-1));
-        assertThat("Focussed index should be 0", focussedIndex, equalTo(0));
+        assertThat(selectedIndex).isEqualTo(-1);
+        assertThat(focussedIndex).isEqualTo(0);
     }
 
     @Test
@@ -52,8 +50,8 @@ public class TrackTableViewTest extends AbstractTest {
         int selectedIndex = trackTableView.getSelectionModel().getSelectedIndex();
         int focussedIndex = trackTableView.getFocusModel().getFocusedIndex();
 
-        assertThat("Selected index should be -1", selectedIndex, equalTo(-1));
-        assertThat("Focussed index should be -1", focussedIndex, equalTo(-1));
+        assertThat(selectedIndex).isEqualTo(-1);
+        assertThat(focussedIndex).isEqualTo(-1);
     }
 
     @Test
@@ -67,8 +65,8 @@ public class TrackTableViewTest extends AbstractTest {
         int selectedIndex = trackTableView.getSelectionModel().getSelectedIndex();
         int focussedIndex = trackTableView.getFocusModel().getFocusedIndex();
 
-        assertThat("Selected index should be -1", selectedIndex, equalTo(-1));
-        assertThat("Focussed index should be 0", focussedIndex, equalTo(0));
+        assertThat(selectedIndex).isEqualTo(-1);
+        assertThat(focussedIndex).isEqualTo(0);
     }
 
     private ObservableList<TrackTableModel> getTrackTableModels() {

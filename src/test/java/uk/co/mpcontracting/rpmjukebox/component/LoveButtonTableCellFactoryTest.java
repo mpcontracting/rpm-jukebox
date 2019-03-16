@@ -1,24 +1,24 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.mockito.Mockito.*;
-
-import java.util.Arrays;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import java.util.Arrays;
+
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class LoveButtonTableCellFactoryTest extends AbstractTest implements Constants {
 
@@ -30,8 +30,8 @@ public class LoveButtonTableCellFactoryTest extends AbstractTest implements Cons
     @Before
     public void setup() {
         cellFactory = new LoveButtonTableCellFactory<>();
-        ReflectionTestUtils.setField(cellFactory, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(cellFactory, "playlistManager", mockPlaylistManager);
+        setField(cellFactory, "eventManager", getMockEventManager());
+        setField(cellFactory, "playlistManager", mockPlaylistManager);
 
         reset(mockPlaylistManager);
     }

@@ -1,27 +1,25 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 public class LoveButtonTableCellTest extends AbstractTest implements Constants {
 
     @Mock
     private PlaylistManager mockPlaylistManager;
 
-    private LoveButtonTableCell<String, String> loveButtonTableCell;
+    private LoveButtonTableCell loveButtonTableCell;
 
     @Before
     public void setup() {
-        loveButtonTableCell = new LoveButtonTableCell<>(mockPlaylistManager);
+        loveButtonTableCell = new LoveButtonTableCell(mockPlaylistManager);
     }
 
     @Test
@@ -31,8 +29,7 @@ public class LoveButtonTableCellTest extends AbstractTest implements Constants {
 
         loveButtonTableCell.updateItem(trackId, false);
 
-        assertThat("ID should be '" + STYLE_LOVE_BUTTON_ON + "'", loveButtonTableCell.getId(),
-            equalTo(STYLE_LOVE_BUTTON_ON));
+        assertThat(loveButtonTableCell.getId()).isEqualTo(STYLE_LOVE_BUTTON_ON);
     }
 
     @Test
@@ -42,8 +39,7 @@ public class LoveButtonTableCellTest extends AbstractTest implements Constants {
 
         loveButtonTableCell.updateItem(trackId, false);
 
-        assertThat("ID should be '" + STYLE_LOVE_BUTTON_OFF + "'", loveButtonTableCell.getId(),
-            equalTo(STYLE_LOVE_BUTTON_OFF));
+        assertThat(loveButtonTableCell.getId()).isEqualTo(STYLE_LOVE_BUTTON_OFF);
     }
 
     @Test
@@ -53,7 +49,7 @@ public class LoveButtonTableCellTest extends AbstractTest implements Constants {
 
         loveButtonTableCell.updateItem(trackId, true);
 
-        assertThat("ID should be null", loveButtonTableCell.getId(), nullValue());
+        assertThat(loveButtonTableCell.getId()).isNull();
     }
 
     @Test
@@ -63,6 +59,6 @@ public class LoveButtonTableCellTest extends AbstractTest implements Constants {
 
         loveButtonTableCell.updateItem(null, false);
 
-        assertThat("ID should be null", loveButtonTableCell.getId(), nullValue());
+        assertThat(loveButtonTableCell.getId()).isNull();
     }
 }
