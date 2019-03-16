@@ -23,7 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
@@ -36,7 +35,6 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.view.*;
 
@@ -51,11 +49,12 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.support.ThreadRunner.runOnGui;
 
 public class MainPanelControllerTest extends AbstractTest implements Constants {
 
@@ -139,33 +138,33 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         mockRoot = mock(Parent.class);
         when(mockStage.getScene()).thenReturn(mockScene);
         when(mockScene.getRoot()).thenReturn(mockRoot);
-        ReflectionTestUtils.setField(GUIState.class, "stage", mockStage);
+        setField(GUIState.class, "stage", mockStage);
 
-        ReflectionTestUtils.setField(mainPanelController, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(mainPanelController, "equalizerView", mockEqualizerView);
-        ReflectionTestUtils.setField(mainPanelController, "settingsView", mockSettingsView);
-        ReflectionTestUtils.setField(mainPanelController, "exportView", mockExportView);
-        ReflectionTestUtils.setField(mainPanelController, "messageView", mockMessageView);
-        ReflectionTestUtils.setField(mainPanelController, "confirmView", mockConfirmView);
-        ReflectionTestUtils.setField(mainPanelController, "trackTableView", mockTrackTableView);
-        ReflectionTestUtils.setField(mainPanelController, "equalizerController", mockEqualizerController);
-        ReflectionTestUtils.setField(mainPanelController, "settingsController", mockSettingsController);
-        ReflectionTestUtils.setField(mainPanelController, "exportController", mockExportController);
-        ReflectionTestUtils.setField(mainPanelController, "settingsManager", mockSettingsManager);
-        ReflectionTestUtils.setField(mainPanelController, "searchManager", mockSearchManager);
-        ReflectionTestUtils.setField(mainPanelController, "playlistManager", mockPlaylistManager);
-        ReflectionTestUtils.setField(mainPanelController, "mediaManager", mockMediaManager);
-        ReflectionTestUtils.setField(mainPanelController, "cacheManager", mockCacheManager);
-        ReflectionTestUtils.setField(mainPanelController, "nativeManager", mockNativeManager);
-        ReflectionTestUtils.setField(mainPanelController, "updateManager", mockUpdateManager);
+        setField(mainPanelController, "eventManager", getMockEventManager());
+        setField(mainPanelController, "equalizerView", mockEqualizerView);
+        setField(mainPanelController, "settingsView", mockSettingsView);
+        setField(mainPanelController, "exportView", mockExportView);
+        setField(mainPanelController, "messageView", mockMessageView);
+        setField(mainPanelController, "confirmView", mockConfirmView);
+        setField(mainPanelController, "trackTableView", mockTrackTableView);
+        setField(mainPanelController, "equalizerController", mockEqualizerController);
+        setField(mainPanelController, "settingsController", mockSettingsController);
+        setField(mainPanelController, "exportController", mockExportController);
+        setField(mainPanelController, "settingsManager", mockSettingsManager);
+        setField(mainPanelController, "searchManager", mockSearchManager);
+        setField(mainPanelController, "playlistManager", mockPlaylistManager);
+        setField(mainPanelController, "mediaManager", mockMediaManager);
+        setField(mainPanelController, "cacheManager", mockCacheManager);
+        setField(mainPanelController, "nativeManager", mockNativeManager);
+        setField(mainPanelController, "updateManager", mockUpdateManager);
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
-            ((TextField)ReflectionTestUtils.getField(mainPanelController, "searchTextField")).setText(null);
-            ((ComboBox<YearFilter>)ReflectionTestUtils.getField(mainPanelController, "yearFilterComboBox")).getItems()
+        runOnGui(() -> {
+            ((TextField) getField(mainPanelController, "searchTextField")).setText(null);
+            ((ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox")).getItems()
                 .clear();
-            ((ListView<Playlist>)ReflectionTestUtils.getField(mainPanelController, "playlistPanelListView")).getItems()
+            ((ListView<Playlist>) getField(mainPanelController, "playlistPanelListView")).getItems()
                 .clear();
             latch.countDown();
         });
@@ -244,10 +243,10 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldUpdateSearchTextSearchCriteria() throws Exception {
-        TextField searchTextField = (TextField)ReflectionTestUtils.getField(mainPanelController, "searchTextField");
+        TextField searchTextField = (TextField) getField(mainPanelController, "searchTextField");
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             searchTextField.setText("Search");
             latch.countDown();
         });
@@ -263,15 +262,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldUpdateYearFilterSearchCriteria() throws Exception {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>)ReflectionTestUtils
-            .getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(1);
             latch.countDown();
         });
@@ -285,16 +283,15 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldUpdateYearFilterAndSearchTextSearchCriteria() throws Exception {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>)ReflectionTestUtils
-            .getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
 
-        TextField searchTextField = (TextField)ReflectionTestUtils.getField(mainPanelController, "searchTextField");
+        TextField searchTextField = (TextField) getField(mainPanelController, "searchTextField");
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(1);
 
             reset(mockPlaylistManager);
@@ -314,8 +311,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldUpdatePlayingPlaylistOnYearFilterUpdate() throws Exception {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>)ReflectionTestUtils
-            .getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
@@ -330,7 +326,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(1);
             latch.countDown();
         });
@@ -363,7 +359,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -392,7 +388,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -411,7 +407,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getSelectionModel().clearSelection();
             latch.countDown();
         });
@@ -430,7 +426,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch1 = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch1.countDown();
@@ -467,7 +463,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -480,9 +476,8 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         Playlist result = playlistCaptor.getValue();
 
-        assertThat("Playlist should be the same as the input playlist", result, equalTo(playlist));
-        assertThat("Playlist should have the same number of tracks as the input playlist", result.getTracks(),
-            hasSize(playlist.getTracks().size()));
+        assertThat(result).isEqualTo(playlist);
+        assertThat(result.getTracks()).hasSize(playlist.getTracks().size());
 
         verify(mockPlaylistManager, times(1)).getPlaylists();
         verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
@@ -496,7 +491,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -533,7 +528,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -546,8 +541,8 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         Playlist result = playlistCaptor.getValue();
 
-        assertThat("Playlist should be the same as the input playlist", result, equalTo(playlist));
-        assertThat("Playlist should have no tracks", result.getTracks(), empty());
+        assertThat(result).isEqualTo(playlist);
+        assertThat(result.getTracks()).isEmpty();
 
         verify(mockPlaylistManager, times(1)).getPlaylists();
         verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
@@ -561,7 +556,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -585,7 +580,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -605,7 +600,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -620,7 +615,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -640,7 +635,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -660,7 +655,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -801,8 +796,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         verify(mockMediaManager, times(1)).setMuted();
 
         Button volumeButton = find("#volumeButton");
-        assertThat("Volume button style should be '-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')'",
-            volumeButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')"));
+        assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')");
     }
 
     @Test
@@ -814,8 +808,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         verify(mockMediaManager, times(1)).setMuted();
 
         Button volumeButton = find("#volumeButton");
-        assertThat("Volume button style should be '-fx-background-image: url('" + IMAGE_VOLUME_ON + "')'",
-            volumeButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')"));
+        assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')");
     }
 
     @Test
@@ -827,8 +820,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         verify(mockPlaylistManager, times(1)).setShuffle(false, false);
 
         Button shuffleButton = find("#shuffleButton");
-        assertThat("Shuffle button style should be '-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')'",
-            shuffleButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')"));
+        assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')");
     }
 
     @Test
@@ -840,8 +832,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         verify(mockPlaylistManager, times(1)).setShuffle(true, false);
 
         Button shuffleButton = find("#shuffleButton");
-        assertThat("Shuffle button style should be '-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')'",
-            shuffleButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')"));
+        assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
     }
 
     @Test
@@ -853,8 +844,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         verify(mockPlaylistManager, times(1)).updateRepeat();
 
         Button repeatButton = find("#repeatButton");
-        assertThat("Repeat button style should be '-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')'",
-            repeatButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')"));
+        assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
     }
 
     @Test
@@ -866,8 +856,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         verify(mockPlaylistManager, times(1)).updateRepeat();
 
         Button repeatButton = find("#repeatButton");
-        assertThat("Repeat button style should be '-fx-background-image: url('" + IMAGE_REPEAT_ONE + "')'",
-            repeatButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_REPEAT_ONE + "')"));
+        assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_ONE + "')");
     }
 
     @Test
@@ -879,8 +868,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         verify(mockPlaylistManager, times(1)).updateRepeat();
 
         Button repeatButton = find("#repeatButton");
-        assertThat("Repeat button style should be '-fx-background-image: url('" + IMAGE_REPEAT_ALL + "')'",
-            repeatButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_REPEAT_ALL + "')"));
+        assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_ALL + "')");
     }
 
     @Test
@@ -894,13 +882,12 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldClickRandomButtonWithYearFilter() throws Exception {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>)ReflectionTestUtils
-            .getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(0);
             latch.countDown();
         });
@@ -922,13 +909,12 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
     @Test
     public void shouldClickRandomButtonWithNoYearFilter() throws Exception {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>)ReflectionTestUtils
-            .getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().clearSelection();
             latch.countDown();
         });
@@ -974,7 +960,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
             latch.countDown();
         });
@@ -983,51 +969,40 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
         YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
-        assertThat("Year filters should have a size of 1", yearFilterComboBox.getItems(), hasSize(1));
-        assertThat("Selected year filter year should be null", yearFilter.getYear(), nullValue());
+        assertThat(yearFilterComboBox.getItems()).hasSize(1);
+        assertThat(yearFilter.getYear()).isNull();
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(mainPanelController, "observablePlaylists");
-        assertThat("Observable playlists should have a size of 2", observablePlaylists, hasSize(2));
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(mainPanelController, "observablePlaylists");
+        assertThat(observablePlaylists).hasSize(2);
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        assertThat("First playlist should be selected", playlistPanelListView.getSelectionModel().getSelectedIndex(),
-            equalTo(0));
-        assertThat("First playlist should be focussed", playlistPanelListView.getFocusModel().getFocusedIndex(),
-            equalTo(0));
+        assertThat(playlistPanelListView.getSelectionModel().getSelectedIndex()).isEqualTo(0);
+        assertThat(playlistPanelListView.getFocusModel().getFocusedIndex()).isEqualTo(0);
 
         Button volumeButton = find("#volumeButton");
-        assertThat("Volume button style should be '-fx-background-image: url('" + IMAGE_VOLUME_ON + "')'",
-            volumeButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')"));
+        assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')");
 
         Button shuffleButton = find("#shuffleButton");
-        assertThat("Shuffle button style should be '-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')'",
-            shuffleButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')"));
+        assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
 
         Button repeatButton = find("#repeatButton");
-        assertThat("Repeat button style should be '-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')'",
-            repeatButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')"));
+        assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
 
-        assertThat("Year filter combo box should not be disabled", find("#yearFilterComboBox").isDisabled(),
-            equalTo(false));
-        assertThat("Search text field should not be disabled", find("#searchTextField").isDisabled(), equalTo(false));
-        assertThat("Add playlist button should not be disabled", find("#addPlaylistButton").isDisabled(),
-            equalTo(false));
-        assertThat("Delete playlist button should not be disabled", find("#deletePlaylistButton").isDisabled(),
-            equalTo(false));
-        assertThat("Import playlist button should not be disabled", find("#importPlaylistButton").isDisabled(),
-            equalTo(false));
-        assertThat("Export playlist button should not be disabled", find("#exportPlaylistButton").isDisabled(),
-            equalTo(false));
-        assertThat("Settings button should not be disabled", find("#settingsButton").isDisabled(), equalTo(false));
-        assertThat("Time slider should not be disabled", find("#timeSlider").isDisabled(), equalTo(false));
-        assertThat("Volume button should not be disabled", find("#volumeButton").isDisabled(), equalTo(false));
-        assertThat("Volume slider should not be disabled", find("#volumeSlider").isDisabled(), equalTo(false));
-        assertThat("Shuffle button should not be disabled", find("#shuffleButton").isDisabled(), equalTo(false));
-        assertThat("Repeat button should not be disabled", find("#repeatButton").isDisabled(), equalTo(false));
-        assertThat("EQ button should not be disabled", find("#eqButton").isDisabled(), equalTo(false));
-        assertThat("Random button should not be disabled", find("#randomButton").isDisabled(), equalTo(false));
+        assertThat(find("#yearFilterComboBox").isDisabled()).isFalse();
+        assertThat(find("#searchTextField").isDisabled()).isFalse();
+        assertThat(find("#addPlaylistButton").isDisabled()).isFalse();
+        assertThat(find("#deletePlaylistButton").isDisabled()).isFalse();
+        assertThat(find("#importPlaylistButton").isDisabled()).isFalse();
+        assertThat(find("#exportPlaylistButton").isDisabled()).isFalse();
+        assertThat(find("#settingsButton").isDisabled()).isFalse();
+        assertThat(find("#timeSlider").isDisabled()).isFalse();
+        assertThat(find("#volumeButton").isDisabled()).isFalse();
+        assertThat(find("#volumeSlider").isDisabled()).isFalse();
+        assertThat(find("#shuffleButton").isDisabled()).isFalse();
+        assertThat(find("#repeatButton").isDisabled()).isFalse();
+        assertThat(find("#eqButton").isDisabled()).isFalse();
+        assertThat(find("#randomButton").isDisabled()).isFalse();
     }
 
     @Test
@@ -1042,7 +1017,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
             latch.countDown();
         });
@@ -1051,8 +1026,8 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
         YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
-        assertThat("Year filters should have a size of 1", yearFilterComboBox.getItems(), hasSize(1));
-        assertThat("Selected year filter year should be null", yearFilter.getYear(), nullValue());
+        assertThat(yearFilterComboBox.getItems()).hasSize(1);
+        assertThat(yearFilter.getYear()).isNull();
     }
 
     @Test
@@ -1067,7 +1042,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
             latch.countDown();
         });
@@ -1076,8 +1051,8 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
         YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
-        assertThat("Year filters should have a size of 3", yearFilterComboBox.getItems(), hasSize(3));
-        assertThat("Selected year filter year should be null", yearFilter.getYear(), nullValue());
+        assertThat(yearFilterComboBox.getItems()).hasSize(3);
+        assertThat(yearFilter.getYear()).isNull();
     }
 
     @Test
@@ -1090,7 +1065,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
             latch.countDown();
         });
@@ -1098,9 +1073,8 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         latch.await(2000, TimeUnit.MILLISECONDS);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(mainPanelController, "observablePlaylists");
-        assertThat("Observable playlists should be empty", observablePlaylists, empty());
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(mainPanelController, "observablePlaylists");
+        assertThat(observablePlaylists).isEmpty();
     }
 
     @Test
@@ -1109,7 +1083,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             spyMainPanelController.eventReceived(Event.DATA_INDEXED);
             latch.countDown();
         });
@@ -1126,7 +1100,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             newVersionButton.setText(null);
             newVersionButton.setDisable(true);
             newVersionButton.setVisible(false);
@@ -1137,11 +1111,9 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat(
-            "Version button text should be '" + messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version) + "'",
-            newVersionButton.getText(), equalTo(messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version)));
-        assertThat("Version button should not be disabled", newVersionButton.isDisabled(), equalTo(false));
-        assertThat("Version button should be visible", newVersionButton.isVisible(), equalTo(true));
+        assertThat(newVersionButton.getText()).isEqualTo(messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version));
+        assertThat(newVersionButton.isDisabled()).isFalse();
+        assertThat(newVersionButton.isVisible()).isTrue();
     }
 
     @Test
@@ -1150,7 +1122,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             spyMainPanelController.eventReceived(Event.MUTE_UPDATED);
             latch.countDown();
         });
@@ -1169,7 +1141,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             timeSlider.setDisable(true);
             playTimeLabel.setText(null);
 
@@ -1180,9 +1152,9 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Time slider should not be disabled", timeSlider.isDisabled(), equalTo(false));
-        assertThat("Time slider value should be 50.0", timeSlider.getSliderValue(), equalTo(50.0d));
-        assertThat("Play time label should be '00:15/00:30'", playTimeLabel.getText(), equalTo("00:15/00:30"));
+        assertThat(timeSlider.isDisabled()).isFalse();
+        assertThat(timeSlider.getSliderValue()).isEqualTo(50.0d);
+        assertThat(playTimeLabel.getText()).isEqualTo("00:15/00:30");
     }
 
     @Test
@@ -1194,7 +1166,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             timeSlider.setDisable(false);
             playTimeLabel.setText(null);
 
@@ -1205,9 +1177,9 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Time slider should not be disabled", timeSlider.isDisabled(), equalTo(true));
-        assertThat("Time slider value should be 0.0", timeSlider.getSliderValue(), equalTo(0.0d));
-        assertThat("Play time label should be '00:15'", playTimeLabel.getText(), equalTo("00:15"));
+        assertThat(timeSlider.isDisabled()).isTrue();
+        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+        assertThat(playTimeLabel.getText()).isEqualTo("00:15");
     }
 
     @Test
@@ -1219,7 +1191,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             timeSlider.setDisable(false);
             playTimeLabel.setText(null);
 
@@ -1230,9 +1202,9 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Time slider should not be disabled", timeSlider.isDisabled(), equalTo(false));
-        assertThat("Time slider value should be 0.0", timeSlider.getSliderValue(), equalTo(0.0d));
-        assertThat("Play time label should be '00:15'", playTimeLabel.getText(), equalTo("00:15"));
+        assertThat(timeSlider.isDisabled()).isFalse();
+        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+        assertThat(playTimeLabel.getText()).isEqualTo("00:15");
     }
 
     @Test
@@ -1243,7 +1215,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
             mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
@@ -1253,7 +1225,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Time slider progress value should be 0.5", timeSlider.getProgressValue(), equalTo(0.5d));
+        assertThat(timeSlider.getProgressValue()).isEqualTo(0.5d);
     }
 
     @Test
@@ -1264,7 +1236,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
             mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
@@ -1274,7 +1246,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Time slider progress value should be 0.0", timeSlider.getProgressValue(), equalTo(0.0d));
+        assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
     }
 
     @Test
@@ -1285,7 +1257,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
             mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
@@ -1295,7 +1267,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Time slider progress value should be 0.0", timeSlider.getProgressValue(), equalTo(0.0d));
+        assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
     }
 
     @Test
@@ -1306,7 +1278,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(true);
             previousButton.setDisable(true);
@@ -1319,11 +1291,10 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PAUSE + "')'",
-            playPauseButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_PAUSE + "')"));
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
-        assertThat("Previous button should not be disabled", previousButton.isDisabled(), equalTo(false));
-        assertThat("Next button should not be disabled", nextButton.isDisabled(), equalTo(false));
+        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PAUSE + "')");
+        assertThat(playPauseButton.isDisabled()).isFalse();
+        assertThat(previousButton.isDisabled()).isFalse();
+        assertThat(nextButton.isDisabled()).isFalse();
     }
 
     @Test
@@ -1334,7 +1305,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(true);
             previousButton.setDisable(false);
@@ -1347,11 +1318,10 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PLAY + "')'",
-            playPauseButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_PLAY + "')"));
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
-        assertThat("Previous button should be disabled", previousButton.isDisabled(), equalTo(true));
-        assertThat("Next button should be disabled", nextButton.isDisabled(), equalTo(true));
+        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
+        assertThat(playPauseButton.isDisabled()).isFalse();
+        assertThat(previousButton.isDisabled()).isTrue();
+        assertThat(nextButton.isDisabled()).isTrue();
     }
 
     @Test
@@ -1364,7 +1334,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(false);
             previousButton.setDisable(false);
@@ -1380,14 +1350,13 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PLAY + "')'",
-            playPauseButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_PLAY + "')"));
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
-        assertThat("Previous button should be disabled", previousButton.isDisabled(), equalTo(true));
-        assertThat("Next button should be disabled", nextButton.isDisabled(), equalTo(true));
-        assertThat("Time slider should have a value of 0", timeSlider.getSliderValue(), equalTo(0d));
-        assertThat("Time slider should have a progress value of 0", timeSlider.getProgressValue(), equalTo(0d));
-        assertThat("Play time label should be '00:00/00:00'", playTimeLabel.getText(), equalTo("00:00/00:00"));
+        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
+        assertThat(playPauseButton.isDisabled()).isFalse();
+        assertThat(previousButton.isDisabled()).isTrue();
+        assertThat(nextButton.isDisabled()).isTrue();
+        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+        assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
+        assertThat(playTimeLabel.getText()).isEqualTo("00:00/00:00");
     }
 
     @Test
@@ -1402,7 +1371,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(false);
             previousButton.setDisable(false);
@@ -1418,14 +1387,13 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PLAY + "')'",
-            playPauseButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_PLAY + "')"));
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
-        assertThat("Previous button should be disabled", previousButton.isDisabled(), equalTo(true));
-        assertThat("Next button should be disabled", nextButton.isDisabled(), equalTo(true));
-        assertThat("Time slider should have a value of 0", timeSlider.getSliderValue(), equalTo(0d));
-        assertThat("Time slider should have a progress value of 0", timeSlider.getProgressValue(), equalTo(0d));
-        assertThat("Play time label should be '00:00/00:00'", playTimeLabel.getText(), equalTo("00:00/00:00"));
+        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
+        assertThat(playPauseButton.isDisabled()).isFalse();
+        assertThat(previousButton.isDisabled()).isTrue();
+        assertThat(nextButton.isDisabled()).isTrue();
+        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+        assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
+        assertThat(playTimeLabel.getText()).isEqualTo("00:00/00:00");
     }
 
     @Test
@@ -1440,7 +1408,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(false);
             previousButton.setDisable(false);
@@ -1456,21 +1424,20 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Play/pause button should have a style of '-fx-background-image: url('" + IMAGE_PLAY + "')'",
-            playPauseButton.getStyle(), equalTo("-fx-background-image: url('" + IMAGE_PLAY + "')"));
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
-        assertThat("Previous button should be disabled", previousButton.isDisabled(), equalTo(true));
-        assertThat("Next button should be disabled", nextButton.isDisabled(), equalTo(true));
-        assertThat("Time slider should have a value of 0", timeSlider.getSliderValue(), equalTo(0d));
-        assertThat("Time slider should have a progress value of 0.99", timeSlider.getProgressValue(), equalTo(0.99d));
-        assertThat("Play time label should be '00:00/00:00'", playTimeLabel.getText(), equalTo("00:00/00:00"));
+        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
+        assertThat(playPauseButton.isDisabled()).isFalse();
+        assertThat(previousButton.isDisabled()).isTrue();
+        assertThat(nextButton.isDisabled()).isTrue();
+        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+        assertThat(timeSlider.getProgressValue()).isEqualTo(0.99d);
+        assertThat(playTimeLabel.getText()).isEqualTo("00:00/00:00");
     }
 
     @Test
     public void shouldReceivePlaylistSelected() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
@@ -1481,15 +1448,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1503,27 +1469,23 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController,
-            "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
 
-        assertThat("Selected playlist is equal to favourites",
-            playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
-        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(),
-            equalTo(favourites));
-        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
-        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId,
-            equalTo(PLAYLIST_ID_FAVOURITES));
-        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+        assertThat(playPauseButton.isDisabled()).isTrue();
     }
 
     @Test
     public void shouldReceivePlaylistSelectedWithNullPayload() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
@@ -1534,15 +1496,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1556,27 +1517,23 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController,
-            "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, never()).clearSelectedTrack();
 
-        assertThat("Selected playlist is equal to favourites",
-            playlistPanelListView.getSelectionModel().getSelectedItem(), nullValue());
-        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(),
-            nullValue());
-        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
-        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_SEARCH, currentSelectedPlaylistId,
-            equalTo(PLAYLIST_ID_SEARCH));
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isNull();
+        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isNull();
+        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_SEARCH);
+        assertThat(playPauseButton.isDisabled()).isFalse();
     }
 
     @Test
     public void shouldReceivePlaylistSelectedWithEmptyPayload() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
@@ -1587,15 +1544,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1609,27 +1565,23 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController,
-            "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, never()).clearSelectedTrack();
 
-        assertThat("Selected playlist is equal to favourites",
-            playlistPanelListView.getSelectionModel().getSelectedItem(), nullValue());
-        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(),
-            nullValue());
-        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
-        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_SEARCH, currentSelectedPlaylistId,
-            equalTo(PLAYLIST_ID_SEARCH));
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isNull();
+        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isNull();
+        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_SEARCH);
+        assertThat(playPauseButton.isDisabled()).isFalse();
     }
 
     @Test
     public void shouldReceivePlaylistSelectedExistingPlaylist() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
@@ -1640,15 +1592,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1662,27 +1613,23 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController,
-            "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, never()).clearSelectedTrack();
 
-        assertThat("Selected playlist is equal to favourites",
-            playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(search));
-        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(),
-            equalTo(search));
-        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
-        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_SEARCH, currentSelectedPlaylistId,
-            equalTo(PLAYLIST_ID_SEARCH));
-        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(search);
+        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(search);
+        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_SEARCH);
+        assertThat(playPauseButton.isDisabled()).isTrue();
     }
 
     @Test
     public void shouldReceivePlaylistSelectedPlaylistIsNotEmpty() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
@@ -1694,15 +1641,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1716,27 +1662,23 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController,
-            "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
 
-        assertThat("Selected playlist is equal to favourites",
-            playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
-        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(),
-            equalTo(favourites));
-        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
-        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId,
-            equalTo(PLAYLIST_ID_FAVOURITES));
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+        assertThat(playPauseButton.isDisabled()).isFalse();
     }
 
     @Test
     public void shouldReceivePlaylistDeleted() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
@@ -1747,15 +1689,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1769,27 +1710,23 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController,
-            "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, times(1)).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
 
-        assertThat("Selected playlist is equal to favourites",
-            playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
-        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(),
-            equalTo(favourites));
-        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
-        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId,
-            equalTo(PLAYLIST_ID_FAVOURITES));
-        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+        assertThat(playPauseButton.isDisabled()).isTrue();
     }
 
     @Test
     public void shouldReceivePlaylistCreatedWithEdit() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
@@ -1800,15 +1737,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1822,27 +1758,23 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController,
-            "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, times(1)).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
 
-        assertThat("Selected playlist is equal to favourites",
-            playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
-        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(),
-            equalTo(favourites));
-        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(1));
-        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId,
-            equalTo(PLAYLIST_ID_FAVOURITES));
-        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(1);
+        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+        assertThat(playPauseButton.isDisabled()).isTrue();
     }
 
     @Test
     public void shouldReceivePlaylistCreatedWithoutEdit() throws Exception {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        ReflectionTestUtils.setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
@@ -1853,15 +1785,14 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>)ReflectionTestUtils
-            .getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1875,20 +1806,16 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer)ReflectionTestUtils.getField(spyMainPanelController,
-            "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, times(1)).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
 
-        assertThat("Selected playlist is equal to favourites",
-            playlistPanelListView.getSelectionModel().getSelectedItem(), equalTo(favourites));
-        assertThat("Focussed playlist is equal to favourites", playlistPanelListView.getFocusModel().getFocusedItem(),
-            equalTo(favourites));
-        assertThat("Favourites should not be being edited", playlistPanelListView.getEditingIndex(), equalTo(-1));
-        assertThat("Currenct selected playlist ID should be " + PLAYLIST_ID_FAVOURITES, currentSelectedPlaylistId,
-            equalTo(PLAYLIST_ID_FAVOURITES));
-        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+        assertThat(playPauseButton.isDisabled()).isTrue();
     }
 
     @Test
@@ -1897,7 +1824,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setDisable(true);
 
             mainPanelController.eventReceived(Event.TRACK_SELECTED);
@@ -1907,7 +1834,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat(playPauseButton.isDisabled()).isFalse();
     }
 
     @Test
@@ -1927,7 +1854,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -1941,14 +1868,11 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Playing track label should be '" + track.getTrackName() + "'", playingTrackLabel.getText(),
-            equalTo(track.getTrackName()));
-        assertThat("Playing album label should be '" + track.getAlbumName() + "'", playingAlbumLabel.getText(),
-            equalTo(track.getAlbumName()));
-        assertThat("Playing artist label should be '" + track.getArtistName() + "'", playingArtistLabel.getText(),
-            equalTo(track.getArtistName()));
-        assertThat("Image should not be null", playingImageView.getImage(), notNullValue());
-        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        assertThat(playingTrackLabel.getText()).isEqualTo(track.getTrackName());
+        assertThat(playingAlbumLabel.getText()).isEqualTo(track.getAlbumName());
+        assertThat(playingArtistLabel.getText()).isEqualTo(track.getArtistName());
+        assertThat(playingImageView.getImage()).isNotNull();
+        assertThat(playPauseButton.isDisabled()).isTrue();
 
         verify(mockNativeManager, times(1)).displayNotification(track);
     }
@@ -1970,7 +1894,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -1984,14 +1908,11 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Playing track label should be '" + track.getTrackName() + "'", playingTrackLabel.getText(),
-            equalTo(track.getTrackName()));
-        assertThat("Playing album label should be '" + track.getAlbumName() + "'", playingAlbumLabel.getText(),
-            equalTo(track.getAlbumName()));
-        assertThat("Playing artist label should be '" + track.getArtistName() + "'", playingArtistLabel.getText(),
-            equalTo(track.getArtistName()));
-        assertThat("Image should not be null", playingImageView.getImage(), notNullValue());
-        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        assertThat(playingTrackLabel.getText()).isEqualTo(track.getTrackName());
+        assertThat(playingAlbumLabel.getText()).isEqualTo(track.getAlbumName());
+        assertThat(playingArtistLabel.getText()).isEqualTo(track.getArtistName());
+        assertThat(playingImageView.getImage()).isNotNull();
+        assertThat(playPauseButton.isDisabled()).isTrue();
 
         verify(mockNativeManager, times(1)).displayNotification(track);
     }
@@ -2013,7 +1934,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -2027,14 +1948,11 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Playing track label should be '" + track.getTrackName() + "'", playingTrackLabel.getText(),
-            equalTo(track.getTrackName()));
-        assertThat("Playing album label should be '" + track.getAlbumName() + "'", playingAlbumLabel.getText(),
-            equalTo(track.getAlbumName()));
-        assertThat("Playing artist label should be '" + track.getArtistName() + "'", playingArtistLabel.getText(),
-            equalTo(track.getArtistName()));
-        assertThat("Image should not be null", playingImageView.getImage(), notNullValue());
-        assertThat("Play/pause button should be disabled", playPauseButton.isDisabled(), equalTo(true));
+        assertThat(playingTrackLabel.getText()).isEqualTo(track.getTrackName());
+        assertThat(playingAlbumLabel.getText()).isEqualTo(track.getAlbumName());
+        assertThat(playingArtistLabel.getText()).isEqualTo(track.getArtistName());
+        assertThat(playingImageView.getImage()).isNotNull();
+        assertThat(playPauseButton.isDisabled()).isTrue();
 
         verify(mockNativeManager, times(1)).displayNotification(track);
     }
@@ -2056,7 +1974,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -2070,11 +1988,11 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Playing track label should be null", playingTrackLabel.getText(), nullValue());
-        assertThat("Playing album label should be null", playingAlbumLabel.getText(), nullValue());
-        assertThat("Playing artist label should be null", playingArtistLabel.getText(), nullValue());
-        assertThat("Image should be null", playingImageView.getImage(), nullValue());
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat(playingTrackLabel.getText()).isNull();
+        assertThat(playingAlbumLabel.getText()).isNull();
+        assertThat(playingArtistLabel.getText()).isNull();
+        assertThat(playingImageView.getImage()).isNull();
+        assertThat(playPauseButton.isDisabled()).isFalse();
 
         verify(mockNativeManager, never()).displayNotification(track);
     }
@@ -2096,7 +2014,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -2110,11 +2028,11 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Playing track label should be null", playingTrackLabel.getText(), nullValue());
-        assertThat("Playing album label should be null", playingAlbumLabel.getText(), nullValue());
-        assertThat("Playing artist label should be null", playingArtistLabel.getText(), nullValue());
-        assertThat("Image should be null", playingImageView.getImage(), nullValue());
-        assertThat("Play/pause button should not be disabled", playPauseButton.isDisabled(), equalTo(false));
+        assertThat(playingTrackLabel.getText()).isNull();
+        assertThat(playingAlbumLabel.getText()).isNull();
+        assertThat(playingArtistLabel.getText()).isNull();
+        assertThat(playingImageView.getImage()).isNull();
+        assertThat(playPauseButton.isDisabled()).isFalse();
 
         verify(mockNativeManager, never()).displayNotification(track);
     }
@@ -2126,7 +2044,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
 
@@ -2160,7 +2078,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
 
@@ -2200,6 +2118,6 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
     @After
     public void cleanup() {
-        ReflectionTestUtils.setField(GUIState.class, "stage", existingStage);
+        setField(GUIState.class, "stage", existingStage);
     }
 }

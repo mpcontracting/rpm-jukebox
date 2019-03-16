@@ -1,27 +1,15 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
+import com.igormaznitsa.commons.version.Version;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import com.igormaznitsa.commons.version.Version;
-
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
@@ -30,6 +18,16 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
+
+import javax.annotation.PostConstruct;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.invokeMethod;
 
 public class SettingsControllerTest extends AbstractTest implements Constants {
 
@@ -88,9 +86,9 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        boolean valid = (Boolean)ReflectionTestUtils.invokeMethod(settingsController, "validate");
+        boolean valid = invokeMethod(settingsController, "validate");
 
-        assertThat("Settings should be valid", valid, equalTo(true));
+        assertThat(valid).isTrue();
     }
 
     @Test
@@ -100,9 +98,9 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         // Wait for reindex to kick off
         Thread.sleep(250);
 
-        boolean isReindexing = (boolean)ReflectionTestUtils.getField(settingsController, "isReindexing");
+        boolean isReindexing = (boolean) getField(settingsController, "isReindexing");
 
-        assertThat("Reindexing should be true", isReindexing, equalTo(true));
+        assertThat(isReindexing).isTrue();
         verify(mockMainPanelController, times(1)).showMessageView(anyString(), eq(false));
         verify(mockSearchManager, times(1)).indexData();
         verify(mockMainPanelController, never()).closeMessageView();
@@ -118,9 +116,9 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
         // Wait for reindex to kick off
         Thread.sleep(250);
 
-        boolean isReindexing = (boolean)ReflectionTestUtils.getField(settingsController, "isReindexing");
+        boolean isReindexing = (boolean) getField(settingsController, "isReindexing");
 
-        assertThat("Reindexing should be false", isReindexing, equalTo(false));
+        assertThat(isReindexing).isFalse();
         verify(mockMainPanelController, times(1)).showMessageView(anyString(), eq(false));
         verify(mockSearchManager, times(1)).indexData();
         verify(mockMainPanelController, times(1)).closeMessageView();
@@ -269,9 +267,9 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
 
         settingsController.eventReceived(Event.DATA_INDEXED);
 
-        boolean isReindexing = (boolean)ReflectionTestUtils.getField(settingsController, "isReindexing");
+        boolean isReindexing = (boolean) getField(settingsController, "isReindexing");
 
-        assertThat("Is reindexing should be false", isReindexing, equalTo(false));
+        assertThat(isReindexing).isFalse();
         verify(mockMainPanelController, times(1)).closeMessageView();
     }
 
@@ -281,9 +279,9 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
 
         settingsController.eventReceived(Event.DATA_INDEXED);
 
-        boolean isReindexing = (boolean)ReflectionTestUtils.getField(settingsController, "isReindexing");
+        boolean isReindexing = (boolean) getField(settingsController, "isReindexing");
 
-        assertThat("Is reindexing should be false", isReindexing, equalTo(false));
+        assertThat(isReindexing).isFalse();
         verify(mockMainPanelController, never()).closeMessageView();
     }
 }

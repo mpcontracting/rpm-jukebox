@@ -1,21 +1,19 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import static org.mockito.Mockito.*;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
+import javafx.scene.input.KeyCode;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import javafx.scene.input.KeyCode;
-import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
+
+import javax.annotation.PostConstruct;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.support.ThreadRunner.runOnGui;
 
 public class ConfirmControllerTest extends AbstractTest {
 
@@ -31,7 +29,7 @@ public class ConfirmControllerTest extends AbstractTest {
     public void constructView() throws Exception {
         spyConfirmView = spy(confirmView);
 
-        ReflectionTestUtils.setField(confirmController, "confirmView", spyConfirmView);
+        setField(confirmController, "confirmView", spyConfirmView);
 
         init(spyConfirmView);
     }
@@ -132,7 +130,7 @@ public class ConfirmControllerTest extends AbstractTest {
     private void setOkFocused() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        runOnGui(() -> {
             confirmController.setOkFocused();
             latch.countDown();
         });

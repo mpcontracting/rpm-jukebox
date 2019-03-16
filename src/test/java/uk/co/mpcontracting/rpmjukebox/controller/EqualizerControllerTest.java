@@ -1,23 +1,22 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import javax.annotation.PostConstruct;
-
+import javafx.scene.control.Slider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import javafx.scene.control.Slider;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
+
+import javax.annotation.PostConstruct;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class EqualizerControllerTest extends AbstractTest {
 
@@ -36,15 +35,15 @@ public class EqualizerControllerTest extends AbstractTest {
     public void constructView() throws Exception {
         spyEqualizerView = spy(equalizerView);
 
-        ReflectionTestUtils.setField(equalizerController, "equalizerView", spyEqualizerView);
+        setField(equalizerController, "equalizerView", spyEqualizerView);
 
         init(spyEqualizerView);
     }
 
     @Before
     public void setup() {
-        ReflectionTestUtils.setField(equalizerController, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(equalizerController, "mediaManager", mockMediaManager);
+        setField(equalizerController, "eventManager", getMockEventManager());
+        setField(equalizerController, "mediaManager", mockMediaManager);
 
         doNothing().when(spyEqualizerView).close();
     }
@@ -62,7 +61,7 @@ public class EqualizerControllerTest extends AbstractTest {
         equalizerController.updateSliderValues();
 
         for (int i = 0; i < 10; i++) {
-            Slider slider = (Slider)find("#eq" + i);
+            Slider slider = find("#eq" + i);
 
             assertThat("Slider " + i + " should have a value of 0.5", slider.getValue(), equalTo(0.5d));
         }

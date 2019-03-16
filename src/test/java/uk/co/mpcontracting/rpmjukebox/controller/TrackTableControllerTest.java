@@ -1,20 +1,13 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import javax.annotation.PostConstruct;
-
+import javafx.collections.ObservableList;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import javafx.collections.ObservableList;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableModel;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
@@ -22,6 +15,13 @@ import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.view.TrackTableView;
+
+import javax.annotation.PostConstruct;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class TrackTableControllerTest extends AbstractTest {
 
@@ -44,16 +44,14 @@ public class TrackTableControllerTest extends AbstractTest {
     @Before
     @SuppressWarnings("unchecked")
     public void setup() {
-        ReflectionTestUtils.setField(trackTableController, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(trackTableController, "playlistManager", mockPlaylistManager);
+        setField(trackTableController, "eventManager", getMockEventManager());
+        setField(trackTableController, "playlistManager", mockPlaylistManager);
 
         spyTrackTableView = spy(
-            (uk.co.mpcontracting.rpmjukebox.component.TrackTableView<TrackTableModel>)ReflectionTestUtils
-                .getField(trackTableController, "trackTableView"));
-        ReflectionTestUtils.setField(trackTableController, "trackTableView", spyTrackTableView);
+                (uk.co.mpcontracting.rpmjukebox.component.TrackTableView<TrackTableModel>) getField(trackTableController, "trackTableView"));
+        setField(trackTableController, "trackTableView", spyTrackTableView);
 
-        ((ObservableList<TrackTableModel>)ReflectionTestUtils.getField(trackTableController, "observableTracks"))
-            .clear();
+        ((ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks")).clear();
     }
 
     @Test
@@ -62,10 +60,9 @@ public class TrackTableControllerTest extends AbstractTest {
         ReflectionTestUtils.invokeMethod(trackTableController, "updateObservableTracks", 1);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should have a size of 10", observableTracks, hasSize(10));
+        assertThat(observableTracks).hasSize(10);
     }
 
     @Test
@@ -77,7 +74,7 @@ public class TrackTableControllerTest extends AbstractTest {
 
         Track track = trackTableController.getSelectedTrack();
 
-        assertThat("Track ID should be '7891'", track.getTrackId(), equalTo("7891"));
+        assertThat(track.getTrackId()).isEqualTo("7891");
     }
 
     @Test
@@ -89,13 +86,13 @@ public class TrackTableControllerTest extends AbstractTest {
 
         Track track = trackTableController.getSelectedTrack();
 
-        assertThat("Track should be null", track, nullValue());
+        assertThat(track).isNull();
     }
 
     @Test
     public void shouldUpdatePlaylistFromEvent() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -103,17 +100,16 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, 1, track);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should have a size of 10", observableTracks, hasSize(10));
+        assertThat(observableTracks).hasSize(10);
         verify(spyTrackTableView, times(1)).highlightTrack(track);
     }
 
     @Test
     public void shouldUpdatePlaylistFromEventWithoutIncludedTrack() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -121,17 +117,16 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, 1);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should have a size of 10", observableTracks, hasSize(10));
+        assertThat(observableTracks).hasSize(10);
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldNotUpdatePlaylistFromEventWithNullPayload() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -139,35 +134,33 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, (Object[])null);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldNotUpdatePlaylistFromEventWithEmptyPayload() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
 
-        trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, new Object[] {});
+        trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldNotUpdatePlaylistFromEventWithDifferentVisiblePlaylistId() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -175,17 +168,16 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, 1, track);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldCreatePlaylistFromEvent() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -194,17 +186,16 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_CREATED, 1);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should have a size of 10", observableTracks, hasSize(10));
+        assertThat(observableTracks).hasSize(10);
         verify(spyTrackTableView, times(1)).highlightTrack(track);
     }
 
     @Test
     public void shouldNotCreatePlaylistFromEventWithNullPayload() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -213,36 +204,34 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_CREATED, (Object[])null);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldNotCreatePlaylistFromEventWithEmptyPayload() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
-        trackTableController.eventReceived(Event.PLAYLIST_CREATED, new Object[] {});
+        trackTableController.eventReceived(Event.PLAYLIST_CREATED);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldNotCreatePlaylistFromEventWithSameVisiblePlaylistId() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -251,17 +240,16 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_CREATED, 1);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, times(1)).highlightTrack(track);
     }
 
     @Test
     public void shouldDeletePlaylistFromEvent() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -270,17 +258,16 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_DELETED, 1);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should have a size of 10", observableTracks, hasSize(10));
+        assertThat(observableTracks).hasSize(10);
         verify(spyTrackTableView, times(1)).highlightTrack(track);
     }
 
     @Test
     public void shouldNotDeletePlaylistFromEventWithNullPayload() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -289,36 +276,34 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_DELETED, (Object[])null);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldNotDeletePlaylistFromEventWithEmptyPayload() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
-        trackTableController.eventReceived(Event.PLAYLIST_DELETED, new Object[] {});
+        trackTableController.eventReceived(Event.PLAYLIST_DELETED);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldNotDeletePlaylistFromEventWithSameVisiblePlaylistId() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -327,17 +312,16 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_DELETED, 1);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, times(1)).highlightTrack(track);
     }
 
     @Test
     public void shouldSelectPlaylistFromEvent() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -346,17 +330,16 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_SELECTED, 1);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should have a size of 10", observableTracks, hasSize(10));
+        assertThat(observableTracks).hasSize(10);
         verify(spyTrackTableView, times(1)).highlightTrack(track);
     }
 
     @Test
     public void shouldNotSelectPlaylistFromEventWithNullPayload() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -365,36 +348,34 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_SELECTED, (Object[])null);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldNotSelectPlaylistFromEventWithEmptyPayload() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
-        trackTableController.eventReceived(Event.PLAYLIST_SELECTED, new Object[] {});
+        trackTableController.eventReceived(Event.PLAYLIST_SELECTED);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
 
     @Test
     public void shouldNotSelectPlaylistFromEventWithSameVisiblePlaylistId() {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
 
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
@@ -403,17 +384,16 @@ public class TrackTableControllerTest extends AbstractTest {
         trackTableController.eventReceived(Event.PLAYLIST_SELECTED, 1);
 
         @SuppressWarnings("unchecked")
-        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>)ReflectionTestUtils
-            .getField(trackTableController, "observableTracks");
+        ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
 
-        assertThat("Observable tracks should be empty", observableTracks, empty());
+        assertThat(observableTracks).isEmpty();
         verify(spyTrackTableView, times(1)).highlightTrack(track);
     }
 
     @Test
     public void shouldQueueTrackForPlayingFromEvent() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(1);
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
         track.setPlaylistId(1);
@@ -426,7 +406,7 @@ public class TrackTableControllerTest extends AbstractTest {
     @Test
     public void shouldQueueTrackForPlayingFromEventWithNullPayload() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(1);
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
         track.setPlaylistId(1);
@@ -439,12 +419,12 @@ public class TrackTableControllerTest extends AbstractTest {
     @Test
     public void shouldQueueTrackForPlayingFromEventWithEmptyPayload() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(1);
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
         track.setPlaylistId(1);
 
-        trackTableController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, new Object[] {});
+        trackTableController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING);
 
         verify(spyTrackTableView, never()).highlightTrack(track);
     }
@@ -452,7 +432,7 @@ public class TrackTableControllerTest extends AbstractTest {
     @Test
     public void shouldQueueTrackForPlayingFromEventWithDifferentVisiblePlaylistId() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(1);
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 2);
+        setField(trackTableController, "visiblePlaylistId", 2);
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
         track.setPlaylistId(1);
@@ -465,7 +445,7 @@ public class TrackTableControllerTest extends AbstractTest {
     @Test
     public void shouldQueueTrackForPlayingFromEventWithDifferentCurrentPlaylistId() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(2);
-        ReflectionTestUtils.setField(trackTableController, "visiblePlaylistId", 1);
+        setField(trackTableController, "visiblePlaylistId", 1);
         Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
             2001, "7891", "Track Name 1", 1, "Location 1", true, null);
         track.setPlaylistId(1);
