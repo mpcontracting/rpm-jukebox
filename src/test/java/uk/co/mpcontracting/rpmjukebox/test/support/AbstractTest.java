@@ -1,15 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.test.support;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Locale;
-
-import javax.annotation.PostConstruct;
-
+import de.roskenet.jfxsupport.test.GuiTest;
+import javafx.event.EventType;
+import javafx.scene.Node;
+import javafx.scene.input.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -18,25 +15,20 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import de.roskenet.jfxsupport.test.GuiTest;
-import javafx.event.EventType;
-import javafx.scene.Node;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.SneakyThrows;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
+
+import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Locale;
+
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -46,7 +38,7 @@ public abstract class AbstractTest extends GuiTest {
         System.setProperty("JAVAFX_HEADLESS", "true");
         System.setProperty("directory.config", ".rpmjukeboxtest");
         System.setProperty("spring.profiles.active", "test");
-        ReflectionTestUtils.setField(RpmJukebox.class, "configDirectory",
+        setField(RpmJukebox.class, "configDirectory",
             new File(System.getProperty("user.home") + File.separator + ".rpmjukeboxtest"));
         Locale.setDefault(Locale.UK);
     }
@@ -66,7 +58,7 @@ public abstract class AbstractTest extends GuiTest {
         RpmJukebox.getConfigDirectory().mkdirs();
 
         eventManager = EventManager.getInstance();
-        ReflectionTestUtils.setField(EventManager.class, "instance", mockEventManager);
+        setField(EventManager.class, "instance", mockEventManager);
     }
 
     protected long getLocalDateTimeInMillis(LocalDateTime localDateTime) {
@@ -131,7 +123,7 @@ public abstract class AbstractTest extends GuiTest {
     @After
     @SneakyThrows
     public void abstractTestCleanup() {
-        ReflectionTestUtils.setField(EventManager.class, "instance", eventManager);
+        setField(EventManager.class, "instance", eventManager);
 
         File configDirectory = RpmJukebox.getConfigDirectory();
 
