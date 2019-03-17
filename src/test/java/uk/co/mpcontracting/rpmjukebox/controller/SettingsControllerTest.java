@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
@@ -26,10 +25,12 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.util.ReflectionTestUtils.getField;
-import static org.springframework.test.util.ReflectionTestUtils.invokeMethod;
+import static org.springframework.test.util.ReflectionTestUtils.*;
 
 public class SettingsControllerTest extends AbstractTest implements Constants {
+
+    @Autowired
+    private ThreadRunner threadRunner;
 
     @Autowired
     private SettingsController settingsController;
@@ -57,11 +58,11 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
     public void setup() {
         spySettingsView = spy(settingsView);
 
-        ReflectionTestUtils.setField(settingsController, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(settingsController, "settingsManager", mockSettingsManager);
-        ReflectionTestUtils.setField(settingsController, "searchManager", mockSearchManager);
-        ReflectionTestUtils.setField(settingsController, "mainPanelController", mockMainPanelController);
-        ReflectionTestUtils.setField(settingsController, "settingsView", spySettingsView);
+        setField(settingsController, "eventManager", getMockEventManager());
+        setField(settingsController, "settingsManager", mockSettingsManager);
+        setField(settingsController, "searchManager", mockSearchManager);
+        setField(settingsController, "mainPanelController", mockMainPanelController);
+        setField(settingsController, "settingsView", spySettingsView);
 
         doNothing().when(spySettingsView).close();
     }
@@ -79,7 +80,7 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             settingsController.bindSystemSettings();
             latch.countDown();
         });
@@ -263,7 +264,7 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldRespondToDataIndexedEventWhenIndexing() {
-        ReflectionTestUtils.setField(settingsController, "isReindexing", true);
+        setField(settingsController, "isReindexing", true);
 
         settingsController.eventReceived(Event.DATA_INDEXED);
 
@@ -275,7 +276,7 @@ public class SettingsControllerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldRespondToDataIndexedEventWhenNotIndexing() {
-        ReflectionTestUtils.setField(settingsController, "isReindexing", false);
+        setField(settingsController, "isReindexing", false);
 
         settingsController.eventReceived(Event.DATA_INDEXED);
 

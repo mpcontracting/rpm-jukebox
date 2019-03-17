@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
+import javafx.application.Platform;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +25,8 @@ import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
+
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 @SpringBootApplication
@@ -71,9 +75,12 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
     }
 
     public void updateSplashProgress(String message) {
-        ThreadRunner.runOnGui(() -> {
-            Optional.ofNullable(splashScreen).ifPresent(splashScreen -> splashScreen.updateProgress(message));
-        });
+        try {
+            Platform.runLater(() -> ofNullable(splashScreen)
+                    .ifPresent(splashScreen -> splashScreen.updateProgress(message)));
+        } catch (IllegalStateException e) {
+            log.warn("JavaFX toolkit not initialized");
+        }
     }
 
     private static void initialiseLogging() {

@@ -1,10 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
+import javafx.application.Platform;
+import lombok.Synchronized;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.Synchronized;
-import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 public class EventManager {
     private static EventManager instance;
@@ -33,7 +33,7 @@ public class EventManager {
     }
 
     public void fireEvent(final Event event, final Object... payload) {
-        ThreadRunner.runOnGui(() -> {
+        Platform.runLater(() -> {
             eventListeners.forEach(eventListener -> eventListener.eventReceived(event, payload));
         });
     }

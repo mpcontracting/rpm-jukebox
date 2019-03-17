@@ -15,6 +15,7 @@ import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableModel;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.view.ExportView;
 
@@ -31,9 +32,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.support.ThreadRunner.runOnGui;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestResourceContent;
 
 public class ExportControllerTest extends AbstractTest {
+
+    @Autowired
+    private ThreadRunner threadRunner;
 
     @Autowired
     private ExportController exportController;
@@ -77,7 +81,7 @@ public class ExportControllerTest extends AbstractTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyExportController.bindPlaylists();
             latch.countDown();
         });
@@ -97,7 +101,7 @@ public class ExportControllerTest extends AbstractTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyExportController.bindPlaylists();
             latch.countDown();
         });
@@ -126,7 +130,7 @@ public class ExportControllerTest extends AbstractTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyExportController.bindPlaylists();
             latch.countDown();
         });

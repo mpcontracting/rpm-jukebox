@@ -38,6 +38,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 
 public class SettingsManagerTest extends AbstractTest implements Constants {
 

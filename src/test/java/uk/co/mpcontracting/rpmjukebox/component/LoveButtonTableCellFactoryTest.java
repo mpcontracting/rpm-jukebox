@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getMouseEvent;
 
 public class LoveButtonTableCellFactoryTest extends AbstractTest implements Constants {
 

@@ -1,28 +1,31 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import de.felixroske.jfxsupport.GUIState;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 public class MessageViewTest extends AbstractTest {
+
+    @Autowired
+    private ThreadRunner threadRunner;
 
     @Autowired
     private MessageView messageView;
@@ -46,7 +49,7 @@ public class MessageViewTest extends AbstractTest {
         ReflectionTestUtils.setField(spyMessageView, "stage", null);
         CountDownLatch latch1 = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyMessageView.initialise();
             latch1.countDown();
         });
@@ -64,7 +67,7 @@ public class MessageViewTest extends AbstractTest {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             stage.show();
             latch2.countDown();
         });
@@ -87,7 +90,7 @@ public class MessageViewTest extends AbstractTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        ThreadRunner.runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyMessageView.initialise();
             latch.countDown();
         });

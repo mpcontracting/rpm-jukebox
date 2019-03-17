@@ -3,6 +3,7 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -28,32 +29,42 @@ import uk.co.mpcontracting.rpmjukebox.view.AbstractModalView;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ApplicationManager extends EventAwareObject implements ApplicationContextAware, Constants {
 
-    @Autowired
-    private RpmJukebox rpmJukebox;
+    private final ThreadRunner threadRunner;
+    private final Environment environment;
+    private final RpmJukebox rpmJukebox;
+    private final MessageManager messageManager;
 
-    @Autowired
-    private MessageManager messageManager;
-
-    @Autowired
-    private SettingsManager settingsManager;
-
-    @Autowired
-    private SearchManager searchManager;
-
-    @Autowired
-    private MediaManager mediaManager;
-
-    @Autowired
     private JettyServer jettyServer;
-
-    @Autowired
-    private Environment environment;
+    private SettingsManager settingsManager;
+    private SearchManager searchManager;
+    private MediaManager mediaManager;
 
     private ApplicationContext context;
     private Stage stage;
     private boolean isInitialised;
+
+    @Autowired
+    public void wireJettyServer(JettyServer jettyServer) {
+        this.jettyServer = jettyServer;
+    }
+
+    @Autowired
+    public void wireSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
+
+    @Autowired
+    public void wireSearchManager(SearchManager searchManager) {
+        this.searchManager = searchManager;
+    }
+
+    @Autowired
+    public void wireMediaManager(MediaManager mediaManager) {
+        this.mediaManager = mediaManager;
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext context) throws BeansException {
@@ -63,7 +74,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
     @SneakyThrows
     @EventListener(ContextRefreshedEvent.class)
     public void initialise() {
-        if (Arrays.stream(environment.getActiveProfiles()).noneMatch(env -> "test".equals(env))) {
+        if (Arrays.stream(environment.getActiveProfiles()).noneMatch("test"::equals)) {
             searchManager.initialise();
 
             rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_LOADING_USER_SETTINGS));
@@ -74,7 +85,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
             rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_INITIALISING_VIEWS));
             CountDownLatch latch = new CountDownLatch(1);
 
-            ThreadRunner.runOnGui(() -> {
+            threadRunner.runOnGui(() -> {
                 context.getBeansOfType(AbstractModalView.class).forEach((name, view) -> {
                     view.initialise();
                 });
@@ -131,9 +142,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
         log.info("Shutting down the application");
 
         if (context != null) {
-            SpringApplication.exit(context, () -> {
-                return 0;
-            });
+            SpringApplication.exit(context, () -> 0);
         } else {
             System.exit(0);
         }

@@ -3,6 +3,7 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import com.igormaznitsa.commons.version.Version;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
@@ -22,10 +23,22 @@ import java.net.URL;
 public class UpdateManager extends EventAwareObject implements Constants {
 
     private final AppProperties appProperties;
-    private final SettingsManager settingsManager;
-    private final InternetManager internetManager;
+    private final ThreadRunner threadRunner;
+
+    private SettingsManager settingsManager;
+    private InternetManager internetManager;
 
     private Version newVersion;
+
+    @Autowired
+    public void wireSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
+
+    @Autowired
+    public void wireInternetManager(InternetManager internetManager) {
+        this.internetManager = internetManager;
+    }
 
     private void checkForUpdates() {
         log.debug("Checking for updates to version - {}", settingsManager.getVersion());
@@ -66,14 +79,14 @@ public class UpdateManager extends EventAwareObject implements Constants {
     public void downloadNewVersion() {
         log.debug("Downloading new version - {}", newVersion);
 
-        ThreadRunner.run(() -> RpmJukebox.getAppHostServices().showDocument(appProperties.getWebsiteUrl()));
+        threadRunner.run(() -> RpmJukebox.getAppHostServices().showDocument(appProperties.getWebsiteUrl()));
     }
 
     @Override
     public void eventReceived(Event event, Object... payload) {
         switch (event) {
             case APPLICATION_INITIALISED: {
-                ThreadRunner.run(this::checkForUpdates);
+                threadRunner.run(this::checkForUpdates);
 
                 break;
             }

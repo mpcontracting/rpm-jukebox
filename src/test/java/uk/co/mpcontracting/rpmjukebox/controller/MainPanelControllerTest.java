@@ -35,6 +35,7 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.view.*;
 
@@ -54,12 +55,15 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.support.ThreadRunner.runOnGui;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getKeyEvent;
 
 public class MainPanelControllerTest extends AbstractTest implements Constants {
 
     @Autowired
     private AppProperties appProperties;
+
+    @Autowired
+    private ThreadRunner threadRunner;
 
     @Autowired
     private MainPanelController mainPanelController;
@@ -160,7 +164,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             ((TextField) getField(mainPanelController, "searchTextField")).setText(null);
             ((ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox")).getItems()
                 .clear();
@@ -246,7 +250,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         TextField searchTextField = (TextField) getField(mainPanelController, "searchTextField");
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             searchTextField.setText("Search");
             latch.countDown();
         });
@@ -269,7 +273,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(1);
             latch.countDown();
         });
@@ -291,7 +295,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
         TextField searchTextField = (TextField) getField(mainPanelController, "searchTextField");
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(1);
 
             reset(mockPlaylistManager);
@@ -326,7 +330,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(1);
             latch.countDown();
         });
@@ -359,7 +363,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -388,7 +392,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -407,7 +411,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getSelectionModel().clearSelection();
             latch.countDown();
         });
@@ -426,7 +430,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch1 = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch1.countDown();
@@ -463,7 +467,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -491,7 +495,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -528,7 +532,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -556,7 +560,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -580,7 +584,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -600,7 +604,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -615,7 +619,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -635,7 +639,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
             latch.countDown();
@@ -655,7 +659,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
             latch2.countDown();
         });
@@ -887,7 +891,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(0);
             latch.countDown();
         });
@@ -914,7 +918,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().clearSelection();
             latch.countDown();
         });
@@ -960,7 +964,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
             latch.countDown();
         });
@@ -1017,7 +1021,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
             latch.countDown();
         });
@@ -1042,7 +1046,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
             latch.countDown();
         });
@@ -1065,7 +1069,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
             latch.countDown();
         });
@@ -1083,7 +1087,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyMainPanelController.eventReceived(Event.DATA_INDEXED);
             latch.countDown();
         });
@@ -1100,7 +1104,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             newVersionButton.setText(null);
             newVersionButton.setDisable(true);
             newVersionButton.setVisible(false);
@@ -1122,7 +1126,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             spyMainPanelController.eventReceived(Event.MUTE_UPDATED);
             latch.countDown();
         });
@@ -1141,7 +1145,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             timeSlider.setDisable(true);
             playTimeLabel.setText(null);
 
@@ -1166,7 +1170,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             timeSlider.setDisable(false);
             playTimeLabel.setText(null);
 
@@ -1191,7 +1195,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             timeSlider.setDisable(false);
             playTimeLabel.setText(null);
 
@@ -1215,7 +1219,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
             mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
@@ -1236,7 +1240,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
             mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
@@ -1257,7 +1261,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
             mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
@@ -1278,7 +1282,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(true);
             previousButton.setDisable(true);
@@ -1305,7 +1309,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(true);
             previousButton.setDisable(false);
@@ -1334,7 +1338,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(false);
             previousButton.setDisable(false);
@@ -1371,7 +1375,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(false);
             previousButton.setDisable(false);
@@ -1408,7 +1412,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(false);
             previousButton.setDisable(false);
@@ -1455,7 +1459,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1503,7 +1507,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1551,7 +1555,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1599,7 +1603,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1648,7 +1652,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1696,7 +1700,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1744,7 +1748,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1792,7 +1796,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
             playlistPanelListView.getSelectionModel().clearSelection();
@@ -1824,7 +1828,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(true);
 
             mainPanelController.eventReceived(Event.TRACK_SELECTED);
@@ -1854,7 +1858,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -1894,7 +1898,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -1934,7 +1938,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -1974,7 +1978,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -2014,7 +2018,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
             playingTrackLabel.setText(null);
@@ -2044,7 +2048,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
 
@@ -2078,7 +2082,7 @@ public class MainPanelControllerTest extends AbstractTest implements Constants {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
 

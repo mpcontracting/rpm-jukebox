@@ -6,6 +6,7 @@ import java.nio.file.StandardCopyOption;
 
 import javax.annotation.PostConstruct;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,10 @@ import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class NativeManager {
+
+    private final ThreadRunner threadRunner;
 
     @Autowired
     private SettingsManager settingsManager;
@@ -55,7 +59,7 @@ public class NativeManager {
 
     public void displayNotification(Track track) {
         if (settingsManager.getOsType() == OsType.OSX) {
-            ThreadRunner.run(() -> {
+            threadRunner.run(() -> {
                 try {
                     nsUserNotificationsBridge.sendNotification(track.getTrackName(), track.getArtistName(),
                         track.getAlbumName(), 0);

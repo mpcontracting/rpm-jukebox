@@ -128,6 +128,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     private Button randomButton;
 
     private final AppProperties appProperties;
+    private final ThreadRunner threadRunner;
 
     @Autowired
     private EqualizerView equalizerView;
@@ -248,7 +249,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     public void showMessageView(String message, boolean blurBackground) {
-        ThreadRunner.runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             messageView.setMessage(message);
 
             if (!messageView.isShowing()) {
@@ -258,13 +259,13 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     public void closeMessageView() {
-        ThreadRunner.runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             messageView.close();
         });
     }
 
     public void showConfirmView(String message, boolean blurBackground, Runnable okRunnable, Runnable cancelRunnable) {
-        ThreadRunner.runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             confirmView.setMessage(message);
             confirmView.setRunnables(okRunnable, cancelRunnable);
 

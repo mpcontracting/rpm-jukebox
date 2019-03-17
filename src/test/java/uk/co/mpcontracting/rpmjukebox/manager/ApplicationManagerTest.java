@@ -1,33 +1,46 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.Environment;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import lombok.SneakyThrows;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.Environment;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
+import uk.co.mpcontracting.rpmjukebox.test.support.TestThreadRunner;
 
-public class ApplicationManagerTest extends AbstractTest implements Constants {
+import java.util.concurrent.Executors;
 
-    @Autowired
-    private ApplicationManager applicationManager;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-    @Autowired
-    private MessageManager messageManager;
+@RunWith(MockitoJUnitRunner.class)
+public class ApplicationManagerTest implements Constants {
+
+    @Mock
+    private Environment mockEnvironment;
+
+    @Mock
+    private RpmJukebox mockRpmJukebox;
+
+    @Mock
+    private EventManager mockEventManager;
+
+    @Mock
+    private MessageManager mockMessageManager;
 
     @Mock
     private SettingsManager mockSettingsManager;
@@ -50,116 +63,112 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
     @Mock
     private ObservableList<Image> mockObservableList;
 
-    private ApplicationManager spyApplicationManager;
+    private ApplicationManager applicationManager;
+    private ThreadRunner threadRunner = new TestThreadRunner(Executors.newSingleThreadExecutor());
 
     @Before
     public void setup() {
-        spyApplicationManager = spy(applicationManager);
-        ReflectionTestUtils.setField(spyApplicationManager, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(spyApplicationManager, "settingsManager", mockSettingsManager);
-        ReflectionTestUtils.setField(spyApplicationManager, "searchManager", mockSearchManager);
-        ReflectionTestUtils.setField(spyApplicationManager, "mediaManager", mockMediaManager);
-        ReflectionTestUtils.setField(spyApplicationManager, "jettyServer", mockJettyServer);
-        ReflectionTestUtils.setField(spyApplicationManager, "context", mockApplicationContext);
+        applicationManager = new ApplicationManager(threadRunner, mockEnvironment, mockRpmJukebox, mockMessageManager);
+        applicationManager.wireJettyServer(mockJettyServer);
+        applicationManager.wireSettingsManager(mockSettingsManager);
+        applicationManager.wireSearchManager(mockSearchManager);
+        applicationManager.wireMediaManager(mockMediaManager);
+        applicationManager.setApplicationContext(mockApplicationContext);
+
+        setField(applicationManager, "eventManager", mockEventManager);
 
         when(mockStage.getIcons()).thenReturn(mockObservableList);
     }
 
     @Test
-    public void shouldInitialise() throws Exception {
-        Environment mockEnvironment = mock(Environment.class);
+    @SneakyThrows
+    public void shouldInitialise() {
         when(mockEnvironment.getActiveProfiles()).thenReturn(new String[] { "default" });
 
-        ReflectionTestUtils.setField(spyApplicationManager, "environment", mockEnvironment);
-
-        spyApplicationManager.initialise();
+        applicationManager.initialise();
 
         verify(mockSearchManager, times(1)).initialise();
         verify(mockSettingsManager, times(1)).loadUserSettings();
     }
 
     @Test
-    public void shouldNotInitialiseForTestProfile() throws Exception {
-        Environment mockEnvironment = mock(Environment.class);
+    @SneakyThrows
+    public void shouldNotInitialiseForTestProfile() {
         when(mockEnvironment.getActiveProfiles()).thenReturn(new String[] { "test" });
 
-        ReflectionTestUtils.setField(spyApplicationManager, "environment", mockEnvironment);
-
-        spyApplicationManager.initialise();
+        applicationManager.initialise();
 
         verify(mockSearchManager, never()).initialise();
         verify(mockSettingsManager, never()).loadUserSettings();
     }
 
     @Test
-    public void shouldInitialiseStageOnOsx() throws Exception {
+    public void shouldInitialiseStageOnOsx() {
         when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
-        ReflectionTestUtils.setField(spyApplicationManager, "stage", null);
-        ReflectionTestUtils.setField(spyApplicationManager, "isInitialised", false);
+        when(mockMessageManager.getMessage(MESSAGE_WINDOW_TITLE)).thenReturn("WindowTitle");
+        setField(applicationManager, "stage", null);
+        setField(applicationManager, "isInitialised", false);
 
-        spyApplicationManager.start(mockStage);
+        applicationManager.start(mockStage);
 
-        boolean isInitialised = (Boolean)ReflectionTestUtils.getField(spyApplicationManager, "isInitialised");
+        assertThat(getField(applicationManager, "stage")).isNotNull();
+        assertThat((boolean) getField(applicationManager, "isInitialised")).isTrue();
 
-        assertThat("Stage should not be null", ReflectionTestUtils.getField(spyApplicationManager, "stage"),
-            notNullValue());
-        assertThat("Is initialised should be true", isInitialised, equalTo(true));
-        verify(mockStage, times(1)).setTitle(messageManager.getMessage(MESSAGE_WINDOW_TITLE));
+        verify(mockStage, times(1)).setTitle("WindowTitle");
         verify(mockStage, never()).getIcons();
         verify(mockSettingsManager, times(1)).loadWindowSettings(mockStage);
         verify(mockStage, times(1)).show();
         verify(mockStage, times(1)).requestFocus();
-        verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
+        verify(mockEventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
 
     @Test
-    public void shouldInitialiseStageOnWindows() throws Exception {
+    public void shouldInitialiseStageOnWindows() {
         when(mockSettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
-        ReflectionTestUtils.setField(spyApplicationManager, "stage", null);
-        ReflectionTestUtils.setField(spyApplicationManager, "isInitialised", false);
+        when(mockMessageManager.getMessage(MESSAGE_WINDOW_TITLE)).thenReturn("WindowTitle");
+        setField(applicationManager, "stage", null);
+        setField(applicationManager, "isInitialised", false);
 
-        spyApplicationManager.start(mockStage);
+        applicationManager.start(mockStage);
 
-        boolean isInitialised = (Boolean)ReflectionTestUtils.getField(spyApplicationManager, "isInitialised");
+        assertThat(getField(applicationManager, "stage")).isNotNull();
+        assertThat((boolean) getField(applicationManager, "isInitialised")).isTrue();
 
-        assertThat("Stage should not be null", ReflectionTestUtils.getField(spyApplicationManager, "stage"),
-            notNullValue());
-        assertThat("Is initialised should be true", isInitialised, equalTo(true));
-        verify(mockStage, times(1)).setTitle(messageManager.getMessage(MESSAGE_WINDOW_TITLE));
+        verify(mockStage, times(1)).setTitle("WindowTitle");
         verify(mockStage, times(1)).getIcons();
         verify(mockSettingsManager, times(1)).loadWindowSettings(mockStage);
         verify(mockStage, times(1)).show();
         verify(mockStage, times(1)).requestFocus();
-        verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
+        verify(mockEventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
 
     @Test
-    public void shouldInitialiseStageOnLinux() throws Exception {
+    public void shouldInitialiseStageOnLinux() {
         when(mockSettingsManager.getOsType()).thenReturn(OsType.LINUX);
-        ReflectionTestUtils.setField(spyApplicationManager, "stage", null);
-        ReflectionTestUtils.setField(spyApplicationManager, "isInitialised", false);
+        when(mockMessageManager.getMessage(MESSAGE_WINDOW_TITLE)).thenReturn("WindowTitle");
+        setField(applicationManager, "stage", null);
+        setField(applicationManager, "isInitialised", false);
 
-        spyApplicationManager.start(mockStage);
+        applicationManager.start(mockStage);
 
-        boolean isInitialised = (Boolean)ReflectionTestUtils.getField(spyApplicationManager, "isInitialised");
+        assertThat(getField(applicationManager, "stage")).isNotNull();
+        assertThat((boolean) getField(applicationManager, "isInitialised")).isTrue();
 
-        assertThat("Stage should not be null", ReflectionTestUtils.getField(spyApplicationManager, "stage"),
-            notNullValue());
-        assertThat("Is initialised should be true", isInitialised, equalTo(true));
-        verify(mockStage, times(1)).setTitle(messageManager.getMessage(MESSAGE_WINDOW_TITLE));
+        verify(mockStage, times(1)).setTitle("WindowTitle");
         verify(mockStage, never()).getIcons();
         verify(mockSettingsManager, times(1)).loadWindowSettings(mockStage);
         verify(mockStage, times(1)).show();
         verify(mockStage, times(1)).requestFocus();
-        verify(getMockEventManager(), times(1)).fireEvent(Event.APPLICATION_INITIALISED);
+        verify(mockEventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
 
     @Test
-    public void shouldStopApplication() throws Exception {
-        ReflectionTestUtils.setField(spyApplicationManager, "stage", mockStage);
-        ReflectionTestUtils.setField(spyApplicationManager, "isInitialised", true);
+    @SneakyThrows
+    public void shouldStopApplication() {
+        setField(applicationManager, "stage", mockStage);
+        setField(applicationManager, "isInitialised", true);
 
-        spyApplicationManager.stop();
+        applicationManager.stop();
 
         verify(mockMediaManager, times(1)).cleanUpResources();
         verify(mockSearchManager, times(1)).shutdown();
@@ -169,11 +178,12 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
     }
 
     @Test
-    public void shouldStopApplicationWhenNotInitialised() throws Exception {
-        ReflectionTestUtils.setField(spyApplicationManager, "stage", mockStage);
-        ReflectionTestUtils.setField(spyApplicationManager, "isInitialised", false);
+    @SneakyThrows
+    public void shouldStopApplicationWhenNotInitialised() {
+        setField(applicationManager, "stage", mockStage);
+        setField(applicationManager, "isInitialised", false);
 
-        spyApplicationManager.stop();
+        applicationManager.stop();
 
         verify(mockMediaManager, times(1)).cleanUpResources();
         verify(mockSearchManager, times(1)).shutdown();
@@ -183,14 +193,15 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
     }
 
     @Test
-    public void shouldStopApplicationWhenExceptionThrown() throws Exception {
+    @SneakyThrows
+    public void shouldStopApplicationWhenExceptionThrown() {
         doThrow(new RuntimeException("ApplicationManagerTest.shouldStopApplicationWhenExceptionThrown()"))
             .when(mockJettyServer).stop();
 
-        ReflectionTestUtils.setField(spyApplicationManager, "stage", mockStage);
-        ReflectionTestUtils.setField(spyApplicationManager, "isInitialised", false);
+        setField(applicationManager, "stage", mockStage);
+        setField(applicationManager, "isInitialised", false);
 
-        spyApplicationManager.stop();
+        applicationManager.stop();
 
         verify(mockMediaManager, times(1)).cleanUpResources();
         verify(mockSearchManager, times(1)).shutdown();
@@ -200,8 +211,9 @@ public class ApplicationManagerTest extends AbstractTest implements Constants {
     }
 
     @Test
+    @SneakyThrows
     public void shouldShutdownApplication() {
-        spyApplicationManager.shutdown();
+        applicationManager.shutdown();
 
         verify(mockApplicationContext, times(1)).close();
     }

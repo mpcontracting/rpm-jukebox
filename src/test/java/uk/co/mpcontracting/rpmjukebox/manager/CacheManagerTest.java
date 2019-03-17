@@ -1,33 +1,31 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.RandomAccessFile;
-
+import lombok.SneakyThrows;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
-public class CacheManagerTest extends AbstractTest {
+import java.io.*;
 
-    @Autowired
-    private CacheManager cacheManager;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDirectory;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getDateTimeInMillis;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CacheManagerTest  {
 
     @Mock
-    private CacheType mockCacheType;
+    private AppProperties mockAppProperties;
 
     @Mock
     private SettingsManager mockSettingsManager;
@@ -35,37 +33,36 @@ public class CacheManagerTest extends AbstractTest {
     @Mock
     private SystemSettings mockSystemSettings;
 
-    private File cacheDirectory;
-    private CacheManager spyCacheManager;
+    private File cacheDirectory = new File(getConfigDirectory(), "cache");
+    private CacheManager cacheManager;
 
     @Before
     public void setup() {
-        spyCacheManager = spy(cacheManager);
+        cacheManager = new CacheManager(mockAppProperties);
+        cacheManager.wireSettingsManager(mockSettingsManager);
 
-        ReflectionTestUtils.setField(spyCacheManager, "settingsManager", mockSettingsManager);
-
-        cacheDirectory = (File)ReflectionTestUtils.getField(spyCacheManager, "cacheDirectory");
-        cacheDirectory.mkdirs();
-
+        when(mockAppProperties.getCacheDirectory()).thenReturn("cache");
+        when(mockAppProperties.getJettyPort()).thenReturn(43125);
+        when(mockSettingsManager.getFileFromConfigDirectory(anyString())).thenReturn(cacheDirectory);
         when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
         when(mockSystemSettings.getCacheSizeMb()).thenReturn(1);
+
+        cacheManager.initialise();
     }
 
     @Test
     public void shouldReturnAValidInternalUrl() {
-        String result = spyCacheManager.constructInternalUrl(CacheType.IMAGE, "12345", "http://www.example.com");
+        String result = cacheManager.constructInternalUrl(CacheType.IMAGE, "12345", "http://www.example.com");
 
-        assertThat(
-            "URL should be 'http://localhost:43125/cache?cacheType=IMAGE&id=12345&url=http%3A%2F%2Fwww.example.com'",
-            result, equalTo("http://localhost:43125/cache?cacheType=IMAGE&id=12345&url=http%3A%2F%2Fwww.example.com"));
+        assertThat(result).isEqualTo("http://localhost:43125/cache?cacheType=IMAGE&id=12345&url=http%3A%2F%2Fwww.example.com");
     }
 
     @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionConstructingInternalUrl() {
         doThrow(new RuntimeException("CacheManagerTest.shouldThrowExceptionConstructingInternalUrl"))
-            .when(mockCacheType).toString();
+            .when(mockAppProperties).getJettyPort();
 
-        spyCacheManager.constructInternalUrl(mockCacheType, "12345", "http://www.example.com");
+        cacheManager.constructInternalUrl(CacheType.TRACK, "12345", "http://www.example.com");
     }
 
     @Test
@@ -76,10 +73,10 @@ public class CacheManagerTest extends AbstractTest {
 
         writeCacheFile(cacheType, id, cacheContent);
 
-        File file = spyCacheManager.readCache(cacheType, id);
+        File file = cacheManager.readCache(cacheType, id);
         String result = readCacheFile(file);
 
-        assertThat("Cache content should be '" + cacheContent + "'", result, equalTo(cacheContent));
+        assertThat(result).isEqualTo(cacheContent);
     }
 
     @Test
@@ -90,11 +87,11 @@ public class CacheManagerTest extends AbstractTest {
 
         writeCacheFile(cacheType, id, cacheContent);
 
-        ReflectionTestUtils.setField(spyCacheManager, "cacheDirectory", mock(File.class));
+        ReflectionTestUtils.setField(cacheManager, "cacheDirectory", mock(File.class));
 
-        File file = spyCacheManager.readCache(cacheType, id);
+        File file = cacheManager.readCache(cacheType, id);
 
-        assertThat("Cache file should be null", file, nullValue());
+        assertThat(file).isNull();
     }
 
     @Test
@@ -105,10 +102,10 @@ public class CacheManagerTest extends AbstractTest {
 
         writeCacheFile(cacheType, id, cacheContent);
 
-        File file = spyCacheManager.readCache(cacheType, id);
+        File file = cacheManager.readCache(cacheType, id);
         String result = readCacheFile(file);
 
-        assertThat("Cache content should be '" + cacheContent + "'", result, equalTo(cacheContent));
+        assertThat(result).isEqualTo(cacheContent);
     }
 
     @Test
@@ -117,12 +114,12 @@ public class CacheManagerTest extends AbstractTest {
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldWriteImageCache()";
 
-        spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
         File file = new File(cacheDirectory, HashGenerator.generateHash(id));
         String result = readCacheFile(file);
 
-        assertThat("Cache content should be '" + cacheContent + "'", result, equalTo(cacheContent));
+        assertThat(result).isEqualTo(cacheContent);
     }
 
     @Test
@@ -131,13 +128,13 @@ public class CacheManagerTest extends AbstractTest {
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldFailToWriteImageCacheOnException()";
 
-        ReflectionTestUtils.setField(spyCacheManager, "cacheDirectory", mock(File.class));
+        ReflectionTestUtils.setField(cacheManager, "cacheDirectory", mock(File.class));
 
-        spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
         File file = new File(cacheDirectory, HashGenerator.generateHash(id));
 
-        assertThat("Cache file should not exist", file.exists(), equalTo(false));
+        assertThat(file.exists()).isFalse();
     }
 
     @Test
@@ -146,19 +143,19 @@ public class CacheManagerTest extends AbstractTest {
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldWriteTrackCache()";
 
-        spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
         File file = new File(cacheDirectory, id);
         String result = readCacheFile(file);
 
-        assertThat("Cache content should be '" + cacheContent + "'", result, equalTo(cacheContent));
+        assertThat(result).isEqualTo(cacheContent);
     }
 
     @Test
     public void shouldReturnCacheMiss() {
-        File file = spyCacheManager.readCache(CacheType.IMAGE, "12345");
+        File file = cacheManager.readCache(CacheType.IMAGE, "12345");
 
-        assertThat("Cache file should be null", file, nullValue());
+        assertThat(file).isNull();
     }
 
     @Test
@@ -172,12 +169,11 @@ public class CacheManagerTest extends AbstractTest {
         originalFile.setLastModified(getDateTimeInMillis(1971, 1, 1, 0, 0));
         long originalModified = originalFile.lastModified();
 
-        spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
         File newFile = new File(cacheDirectory, id);
 
-        assertThat("Cached file should have a newer modified timestamp", newFile.lastModified() > originalModified,
-            equalTo(true));
+        assertThat(newFile.lastModified() > originalModified).isTrue();
     }
 
     @Test
@@ -196,12 +192,12 @@ public class CacheManagerTest extends AbstractTest {
             file.setLastModified(getDateTimeInMillis(1971, 1, 1, 0, 50 - i));
         }
 
-        spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
-        File cachedFile = spyCacheManager.readCache(cacheType, id);
+        File cachedFile = cacheManager.readCache(cacheType, id);
 
-        assertThat("Cached file directory should have 21 files", cacheDirectory.listFiles().length, equalTo(21));
-        assertThat("Cached file exists", cachedFile, notNullValue());
+        assertThat(cacheDirectory.listFiles().length).isEqualTo(21);
+        assertThat(cachedFile).isNotNull();
     }
 
     @Test
@@ -220,12 +216,20 @@ public class CacheManagerTest extends AbstractTest {
             file.setLastModified(getDateTimeInMillis(1971, 1, 1, 0, 0));
         }
 
-        spyCacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
-        File cachedFile = spyCacheManager.readCache(cacheType, id);
+        File cachedFile = cacheManager.readCache(cacheType, id);
 
-        assertThat("Cached file directory should have 21 files", cacheDirectory.listFiles().length, equalTo(21));
-        assertThat("Cached file exists", cachedFile, notNullValue());
+        assertThat(cacheDirectory.listFiles().length).isEqualTo(21);
+        assertThat(cachedFile).isNotNull();
+    }
+
+    @After
+    @SneakyThrows
+    public void cleanup() {
+        if (cacheDirectory.exists()) {
+            FileUtils.deleteDirectory(getConfigDirectory());
+        }
     }
 
     private void writeCacheFile(CacheType cacheType, String id, String cacheContent) throws Exception {
@@ -238,9 +242,7 @@ public class CacheManagerTest extends AbstractTest {
     private String readCacheFile(File file) throws Exception {
         StringBuilder builder = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            reader.lines().forEach(line -> {
-                builder.append(line);
-            });
+            reader.lines().forEach(builder::append);
         }
 
         return builder.toString();

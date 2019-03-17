@@ -29,12 +29,15 @@ public class CacheManager implements Constants {
 
     private final AppProperties appProperties;
 
-    @Autowired
     private SettingsManager settingsManager;
 
     private File cacheDirectory;
-
     private Comparator<File> timestampComparator;
+
+    @Autowired
+    public void wireSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
 
     @PostConstruct
     public void initialise() {

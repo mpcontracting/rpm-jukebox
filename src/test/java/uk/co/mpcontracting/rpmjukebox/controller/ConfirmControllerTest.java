@@ -4,6 +4,7 @@ import javafx.scene.input.KeyCode;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
 
@@ -13,9 +14,11 @@ import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.support.ThreadRunner.runOnGui;
 
 public class ConfirmControllerTest extends AbstractTest {
+
+    @Autowired
+    private ThreadRunner threadRunner;
 
     @Autowired
     private ConfirmController confirmController;
@@ -130,7 +133,7 @@ public class ConfirmControllerTest extends AbstractTest {
     private void setOkFocused() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
 
-        runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             confirmController.setOkFocused();
             latch.countDown();
         });

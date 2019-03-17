@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.felixroske.jfxsupport.FXMLController;
@@ -24,6 +25,7 @@ import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
 
 @Slf4j
 @FXMLController
+@RequiredArgsConstructor
 public class SettingsController extends EventAwareObject implements Constants {
 
     @FXML
@@ -49,6 +51,8 @@ public class SettingsController extends EventAwareObject implements Constants {
 
     @FXML
     private Button cancelButton;
+
+    private final ThreadRunner threadRunner;
 
     @Autowired
     private SettingsView settingsView;
@@ -154,7 +158,7 @@ public class SettingsController extends EventAwareObject implements Constants {
         log.debug("Re-index data button pressed");
 
         // Don't run this on the GUI thread
-        ThreadRunner.run(() -> {
+        threadRunner.run(() -> {
             try {
                 mainPanelController.showMessageView(messageManager.getMessage(MESSAGE_DOWNLOAD_INDEX), false);
                 isReindexing = true;

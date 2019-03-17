@@ -17,6 +17,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestResourceFile;
 
 public class InternetManagerTest extends AbstractTest {
 

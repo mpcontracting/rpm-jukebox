@@ -9,9 +9,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class ThreadRunnerTest extends AbstractTest {
+
+    @Autowired
+    private ThreadRunner threadRunner;
 
     private CountDownLatch latch;
     private String threadName;
@@ -24,7 +28,7 @@ public class ThreadRunnerTest extends AbstractTest {
 
     @Test
     public void shouldRunOffGuiThread() throws Exception {
-        ThreadRunner.run(() -> {
+        threadRunner.run(() -> {
             threadName = Thread.currentThread().getName();
             latch.countDown();
         });
@@ -36,7 +40,7 @@ public class ThreadRunnerTest extends AbstractTest {
 
     @Test
     public void shouldRunOnGuiThread() throws Exception {
-        ThreadRunner.runOnGui(() -> {
+        threadRunner.runOnGui(() -> {
             threadName = Thread.currentThread().getName();
             latch.countDown();
         });

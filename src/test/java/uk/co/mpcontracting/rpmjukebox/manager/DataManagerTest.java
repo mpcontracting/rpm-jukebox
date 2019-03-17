@@ -10,6 +10,7 @@ import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import java.net.URL;
 
 import static org.mockito.Mockito.*;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestResourceFile;
 
 public class DataManagerTest extends AbstractTest {
 

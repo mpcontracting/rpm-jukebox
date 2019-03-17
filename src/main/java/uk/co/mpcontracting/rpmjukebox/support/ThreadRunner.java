@@ -3,17 +3,22 @@ package uk.co.mpcontracting.rpmjukebox.support;
 import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.ExecutorService;
+
 @Slf4j
-public abstract class ThreadRunner {
+public class ThreadRunner {
 
-    private ThreadRunner() {
+    private ExecutorService executorService;
+
+    public ThreadRunner(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
-    public static void run(Runnable runnable) {
-        new Thread(runnable).start();
+    public void run(Runnable runnable) {
+        executorService.submit(runnable);
     }
 
-    public static void runOnGui(Runnable runnable) {
+    public void runOnGui(Runnable runnable) {
         try {
             Platform.runLater(runnable);
         } catch (IllegalStateException e) {

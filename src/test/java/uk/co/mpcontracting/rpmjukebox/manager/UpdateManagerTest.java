@@ -11,10 +11,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.Executors;
 
 import static java.lang.Thread.sleep;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,11 +46,14 @@ public class UpdateManagerTest {
 
     private URL versionUrl;
     private UpdateManager updateManager;
+    private ThreadRunner threadRunner = new ThreadRunner(Executors.newSingleThreadExecutor());
 
     @Before
     public void setup() throws Exception {
         versionUrl = new URL("http://www.example.com");
-        updateManager = new UpdateManager(mockAppProperties, mockSettingsManager, mockInternetManager);
+        updateManager = new UpdateManager(mockAppProperties, threadRunner);
+        updateManager.wireSettingsManager(mockSettingsManager);
+        updateManager.wireInternetManager(mockInternetManager);
 
         setField(updateManager, "eventManager", mockEventManager);
         setField(GUIState.class, "hostServices", mockHostServices);
