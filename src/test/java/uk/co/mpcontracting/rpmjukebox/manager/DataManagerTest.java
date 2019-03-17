@@ -2,42 +2,49 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 import java.net.URL;
+import java.net.URLConnection;
 
 import static org.mockito.Mockito.*;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestResourceFile;
 
-public class DataManagerTest extends AbstractTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DataManagerTest {
 
-    @Autowired
-    private AppProperties appProperties;
-
-    @Autowired
-    private InternetManager internetManager;
+    @Mock
+    private AppProperties mockAppProperties;
 
     @Mock
     private SearchManager mockSearchManager;
 
-    private DataManager spyDataManager;
-    private InternetManager spyInternetManager;
+    @Mock
+    private InternetManager mockInternetManager;
+
+    private DataManager dataManager;
 
     @Before
     public void setup() {
-        spyInternetManager = spy(internetManager);
-        spyDataManager = spy(new DataManager(appProperties, mockSearchManager, spyInternetManager));
-        spyDataManager.setup();
+        dataManager = new DataManager(mockAppProperties);
+        dataManager.wireSearchManager(mockSearchManager);
+        dataManager.wireInternetManager(mockInternetManager);
+
+        dataManager.initialise();
     }
 
     @Test
     public void shouldParseDataFile() throws Exception {
         URL dataFile = new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath());
+        URLConnection mockUrlConnection = mock(URLConnection.class);
 
-        spyDataManager.parse(dataFile);
+        when(mockInternetManager.openConnection(dataFile)).thenReturn(mockUrlConnection);
+        when(mockUrlConnection.getInputStream()).thenReturn(dataFile.openStream());
+
+        dataManager.parse(dataFile);
 
         verify(mockSearchManager, times(4)).addArtist(any());
         verify(mockSearchManager, times(5)).addTrack(any());
@@ -45,12 +52,12 @@ public class DataManagerTest extends AbstractTest {
 
     @Test
     public void shouldNotParseDataFileOnException() throws Exception {
-        doThrow(new RuntimeException("DataManagerTest.shouldNotParseDataFileOnException()")).when(spyInternetManager)
+        doThrow(new RuntimeException("DataManagerTest.shouldNotParseDataFileOnException()")).when(mockInternetManager)
             .openConnection(any());
 
         URL dataFile = new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath());
 
-        spyDataManager.parse(dataFile);
+        dataManager.parse(dataFile);
 
         verify(mockSearchManager, never()).addArtist(any());
         verify(mockSearchManager, never()).addTrack(any());

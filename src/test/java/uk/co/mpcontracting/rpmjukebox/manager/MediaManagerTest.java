@@ -10,40 +10,35 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.util.Duration;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-public class MediaManagerTest extends AbstractTest {
+@RunWith(MockitoJUnitRunner.class)
+public class MediaManagerTest {
 
-    @Autowired
-    private AppProperties appProperties;
+    @Mock
+    private EventManager mockEventManager;
 
-    @Autowired
-    private MediaManager mediaManager;
-
-    @Autowired
-    private CacheManager cacheManager;
+    @Mock
+    private AppProperties mockAppProperties;
 
     @Mock
     private CacheManager mockCacheManager;
 
     @Mock
     private MediaPlayer mockMediaPlayer;
-
-    @Mock
-    private Media mockMedia;
 
     @Mock
     private AudioEqualizer mockAudioEqualizer;
@@ -72,13 +67,14 @@ public class MediaManagerTest extends AbstractTest {
     private MediaManager spyMediaManager;
 
     @Before
-    public void setup() throws Exception {
-        spyMediaManager = spy(mediaManager);
+    public void setup() {
+        spyMediaManager = spy(new MediaManager(mockAppProperties));
+        spyMediaManager.wireCacheManager(mockCacheManager);
+        spyMediaManager.initialise();
 
-        ReflectionTestUtils.setField(spyMediaManager, "cacheManager", mockCacheManager);
-        ReflectionTestUtils.setField(spyMediaManager, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", mockMediaPlayer);
-        ReflectionTestUtils.setField(spyMediaManager, "currentDuration", mockCurrentDuration);
+        setField(spyMediaManager, "eventManager", mockEventManager);
+        setField(spyMediaManager, "currentPlayer", mockMediaPlayer);
+        setField(spyMediaManager, "currentDuration", mockCurrentDuration);
 
         doReturn(mockMediaPlayer).when(spyMediaManager).constructMediaPlayer(any());
 
@@ -91,22 +87,20 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldPlayTrack() {
-        ReflectionTestUtils.setField(spyMediaManager, "cacheManager", cacheManager);
+        String source = "http://localhost:43125/cache?cacheType=TRACK&id=trackId&url=http%3A%2F%2Fwww.example.com%2Fmedia.mp3";
 
         when(mockTrack.getTrackId()).thenReturn("trackId");
         when(mockTrack.getLocation()).thenReturn("http://www.example.com/media%2Emp3");
+        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString())).thenReturn(source);
 
         spyMediaManager.playTrack(mockTrack);
 
-        String source = "http://localhost:" + appProperties.getJettyPort()
-            + "/cache?cacheType=TRACK&id=trackId&url=http%3A%2F%2Fwww.example.com%2Fmedia.mp3";
-        Media currentMedia = (Media)ReflectionTestUtils.getField(spyMediaManager, "currentMedia");
+        Media currentMedia = (Media) getField(spyMediaManager, "currentMedia");
 
-        assertThat("Current media has a URI of '" + source + "'", currentMedia.getSource(), equalTo(source));
-        assertThat("Current track is the mock track",
-            ReflectionTestUtils.getField(spyMediaManager, "currentTrack") == mockTrack, equalTo(true));
+        assertThat(currentMedia.getSource()).isEqualTo(source);
+        assertThat(getField(spyMediaManager, "currentTrack")).isSameAs(mockTrack);
         verify(mockMediaPlayer, times(1)).play();
-        verify(getMockEventManager(), times(1)).fireEvent(Event.TRACK_QUEUED_FOR_PLAYING, mockTrack);
+        verify(mockEventManager, times(1)).fireEvent(Event.TRACK_QUEUED_FOR_PLAYING, mockTrack);
     }
 
     @Test
@@ -118,7 +112,7 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldNotPausePlaybackWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
+        setField(spyMediaManager, "currentPlayer", null);
 
         spyMediaManager.pausePlayback();
 
@@ -134,7 +128,7 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldNotResumePlaybackWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
+        setField(spyMediaManager, "currentPlayer", null);
 
         spyMediaManager.resumePlayback();
 
@@ -150,7 +144,7 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldNotStopPlaybackWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
+        setField(spyMediaManager, "currentPlayer", null);
 
         spyMediaManager.stopPlayback();
 
@@ -159,103 +153,91 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldSetVolumePercent() {
-        ReflectionTestUtils.setField(spyMediaManager, "muted", true);
-        ReflectionTestUtils.setField(spyMediaManager, "volume", 0d);
+        setField(spyMediaManager, "muted", true);
+        setField(spyMediaManager, "volume", 0d);
 
         spyMediaManager.setVolumePercent(50d);
 
-        assertThat("Volume should be 0.5", (double)ReflectionTestUtils.getField(spyMediaManager, "volume"),
-            equalTo(0.5d));
-        assertThat("Muted should be false", (boolean)ReflectionTestUtils.getField(spyMediaManager, "muted"),
-            equalTo(false));
+        assertThat((double) getField(spyMediaManager, "volume")).isEqualTo(0.5d);
+        assertThat((boolean) getField(spyMediaManager, "muted")).isFalse();
         verify(mockMediaPlayer, times(1)).setVolume(anyDouble());
-        verify(getMockEventManager(), times(1)).fireEvent(Event.MUTE_UPDATED);
+        verify(mockEventManager, times(1)).fireEvent(Event.MUTE_UPDATED);
     }
 
     @Test
     public void shouldSetVolumePercentZero() {
-        ReflectionTestUtils.setField(spyMediaManager, "muted", false);
-        ReflectionTestUtils.setField(spyMediaManager, "volume", 0.5d);
+        setField(spyMediaManager, "muted", false);
+        setField(spyMediaManager, "volume", 0.5d);
 
         spyMediaManager.setVolumePercent(0d);
 
-        assertThat("Volume should be 0", (double)ReflectionTestUtils.getField(spyMediaManager, "volume"), equalTo(0d));
-        assertThat("Muted should be true", (boolean)ReflectionTestUtils.getField(spyMediaManager, "muted"),
-            equalTo(true));
+        assertThat((double) getField(spyMediaManager, "volume")).isEqualTo(0d);
+        assertThat((boolean) getField(spyMediaManager, "muted")).isTrue();
         verify(mockMediaPlayer, times(1)).setVolume(anyDouble());
-        verify(getMockEventManager(), times(1)).fireEvent(Event.MUTE_UPDATED);
+        verify(mockEventManager, times(1)).fireEvent(Event.MUTE_UPDATED);
     }
 
     @Test
     public void shouldNotSetVolumePercentWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
-        ReflectionTestUtils.setField(spyMediaManager, "muted", true);
-        ReflectionTestUtils.setField(spyMediaManager, "volume", 0d);
+        setField(spyMediaManager, "currentPlayer", null);
+        setField(spyMediaManager, "muted", true);
+        setField(spyMediaManager, "volume", 0d);
 
         spyMediaManager.setVolumePercent(50d);
 
-        assertThat("Volume should be 0.5", (double)ReflectionTestUtils.getField(spyMediaManager, "volume"),
-            equalTo(0.5d));
-        assertThat("Muted should be false", (boolean)ReflectionTestUtils.getField(spyMediaManager, "muted"),
-            equalTo(false));
+        assertThat((double) getField(spyMediaManager, "volume")).isEqualTo(0.5d);
+        assertThat((boolean) getField(spyMediaManager, "muted")).isFalse();
         verify(mockMediaPlayer, never()).setVolume(anyDouble());
-        verify(getMockEventManager(), times(1)).fireEvent(Event.MUTE_UPDATED);
+        verify(mockEventManager, times(1)).fireEvent(Event.MUTE_UPDATED);
     }
 
     @Test
     public void shouldNotFireMuteUpdatedEventIfMutedFlagHasNotChanged() {
-        ReflectionTestUtils.setField(spyMediaManager, "muted", true);
-        ReflectionTestUtils.setField(spyMediaManager, "volume", 0d);
+        setField(spyMediaManager, "muted", true);
+        setField(spyMediaManager, "volume", 0d);
 
         spyMediaManager.setVolumePercent(0d);
 
-        assertThat("Volume should be 0", (double)ReflectionTestUtils.getField(spyMediaManager, "volume"), equalTo(0d));
-        assertThat("Muted should be true", (boolean)ReflectionTestUtils.getField(spyMediaManager, "muted"),
-            equalTo(true));
+        assertThat((double) getField(spyMediaManager, "volume")).isEqualTo(0d);
+        assertThat((boolean) getField(spyMediaManager, "muted")).isTrue();
         verify(mockMediaPlayer, times(1)).setVolume(anyDouble());
-        verify(getMockEventManager(), never()).fireEvent(Event.MUTE_UPDATED);
+        verify(mockEventManager, never()).fireEvent(Event.MUTE_UPDATED);
     }
 
     @Test
     public void shouldSetMutedOn() {
-        ReflectionTestUtils.setField(spyMediaManager, "muted", false);
-        ReflectionTestUtils.setField(spyMediaManager, "volume", 0.5d);
+        setField(spyMediaManager, "muted", false);
+        setField(spyMediaManager, "volume", 0.5d);
 
         spyMediaManager.setMuted();
 
-        assertThat("Volume should be 0.5", (double)ReflectionTestUtils.getField(spyMediaManager, "volume"),
-            equalTo(0.5d));
-        assertThat("Muted should be true", (boolean)ReflectionTestUtils.getField(spyMediaManager, "muted"),
-            equalTo(true));
+        assertThat((double) getField(spyMediaManager, "volume")).isEqualTo(0.5d);
+        assertThat((boolean) getField(spyMediaManager, "muted")).isTrue();
         verify(mockMediaPlayer, times(1)).setVolume(0d);
     }
 
     @Test
     public void shouldSetMutedOff() {
-        ReflectionTestUtils.setField(spyMediaManager, "muted", true);
-        ReflectionTestUtils.setField(spyMediaManager, "volume", 0.5d);
+        setField(spyMediaManager, "muted", true);
+        setField(spyMediaManager, "volume", 0.5d);
 
         spyMediaManager.setMuted();
 
-        assertThat("Volume should be 0.5", (double)ReflectionTestUtils.getField(spyMediaManager, "volume"),
-            equalTo(0.5d));
-        assertThat("Muted should be false", (boolean)ReflectionTestUtils.getField(spyMediaManager, "muted"),
-            equalTo(false));
+        assertThat((double) getField(spyMediaManager, "volume")).isEqualTo(0.5d);
+        assertThat((boolean) getField(spyMediaManager, "muted")).isFalse();
         verify(mockMediaPlayer, times(1)).setVolume(0.5d);
     }
 
     @Test
     public void shouldNotSetMutedWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
-        ReflectionTestUtils.setField(spyMediaManager, "muted", true);
-        ReflectionTestUtils.setField(spyMediaManager, "volume", 0.5d);
+        setField(spyMediaManager, "currentPlayer", null);
+        setField(spyMediaManager, "muted", true);
+        setField(spyMediaManager, "volume", 0.5d);
 
         spyMediaManager.setMuted();
 
-        assertThat("Volume should be 0.5", (double)ReflectionTestUtils.getField(spyMediaManager, "volume"),
-            equalTo(0.5d));
-        assertThat("Muted should be false", (boolean)ReflectionTestUtils.getField(spyMediaManager, "muted"),
-            equalTo(false));
+        assertThat((double) getField(spyMediaManager, "volume")).isEqualTo(0.5d);
+        assertThat((boolean) getField(spyMediaManager, "muted")).isFalse();
         verify(mockMediaPlayer, never()).setVolume(anyDouble());
     }
 
@@ -271,7 +253,7 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldNotSetSeekPositionPercentWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
+        setField(spyMediaManager, "currentPlayer", null);
 
         spyMediaManager.setSeekPositionPercent(0.5);
 
@@ -284,17 +266,17 @@ public class MediaManagerTest extends AbstractTest {
 
         double result = spyMediaManager.getPlayingTimeSeconds();
 
-        assertThat("Playing time seconds should be 2", result, equalTo(2d));
+        assertThat(result).isEqualTo(2d);
     }
 
     @Test
     public void shouldGetPlayingTimeSecondsWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
-        when(mockMediaPlayer.getCurrentTime()).thenReturn(new Duration(2000));
+        setField(spyMediaManager, "currentPlayer", null);
+        //when(mockMediaPlayer.getCurrentTime()).thenReturn(new Duration(2000));
 
         double result = spyMediaManager.getPlayingTimeSeconds();
 
-        assertThat("Playing time seconds should be 0", result, equalTo(0d));
+        assertThat(result).isEqualTo(0d);
     }
 
     @Test
@@ -304,23 +286,21 @@ public class MediaManagerTest extends AbstractTest {
 
         double result = spyMediaManager.getPlayingTimePercent();
 
-        assertThat("Playing time seconds should be 50", result, equalTo(50d));
+        assertThat(result).isEqualTo(50d);
     }
 
     @Test
     public void shouldGetPlayingTimePercentWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
-        when(mockMediaPlayer.getCurrentTime()).thenReturn(new Duration(2000));
-        when(mockMediaPlayer.getTotalDuration()).thenReturn(new Duration(4000));
+        setField(spyMediaManager, "currentPlayer", null);
 
         double result = spyMediaManager.getPlayingTimePercent();
 
-        assertThat("Playing time seconds should be 0", result, equalTo(0d));
+        assertThat(result).isEqualTo(0d);
     }
 
     @Test
     public void shouldSetEqualizerGain() {
-        ReflectionTestUtils.setField(spyMediaManager, "equalizer", mockEqualizer);
+        setField(spyMediaManager, "equalizer", mockEqualizer);
 
         spyMediaManager.setEqualizerGain(5, 50d);
 
@@ -331,8 +311,8 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldNotSetEqualizerGainWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
-        ReflectionTestUtils.setField(spyMediaManager, "equalizer", mockEqualizer);
+        setField(spyMediaManager, "currentPlayer", null);
+        setField(spyMediaManager, "equalizer", mockEqualizer);
 
         spyMediaManager.setEqualizerGain(5, 50d);
 
@@ -347,8 +327,8 @@ public class MediaManagerTest extends AbstractTest {
 
         boolean result = spyMediaManager.isPlaying();
 
+        assertThat(result).isTrue();
         verify(mockMediaPlayer, times(1)).getStatus();
-        assertThat("Playing status should be true", result, equalTo(true));
     }
 
     @Test
@@ -357,19 +337,18 @@ public class MediaManagerTest extends AbstractTest {
 
         boolean result = spyMediaManager.isPlaying();
 
+        assertThat(result).isFalse();
         verify(mockMediaPlayer, times(1)).getStatus();
-        assertThat("Playing status should be false", result, equalTo(false));
     }
 
     @Test
     public void shouldNotGetIsPlayingWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
-        when(mockMediaPlayer.getStatus()).thenReturn(Status.PLAYING);
+        setField(spyMediaManager, "currentPlayer", null);
 
         boolean result = spyMediaManager.isPlaying();
 
+        assertThat(result).isFalse();
         verify(mockMediaPlayer, never()).getStatus();
-        assertThat("Playing status should be false", result, equalTo(false));
     }
 
     @Test
@@ -378,8 +357,8 @@ public class MediaManagerTest extends AbstractTest {
 
         boolean result = spyMediaManager.isPaused();
 
+        assertThat(result).isTrue();
         verify(mockMediaPlayer, times(1)).getStatus();
-        assertThat("Playing status should be true", result, equalTo(true));
     }
 
     @Test
@@ -388,19 +367,18 @@ public class MediaManagerTest extends AbstractTest {
 
         boolean result = spyMediaManager.isPaused();
 
+        assertThat(result).isFalse();
         verify(mockMediaPlayer, times(1)).getStatus();
-        assertThat("Playing status should be false", result, equalTo(false));
     }
 
     @Test
     public void shouldNotGetIsPausedWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
-        when(mockMediaPlayer.getStatus()).thenReturn(Status.PAUSED);
+        setField(spyMediaManager, "currentPlayer", null);
 
         boolean result = spyMediaManager.isPaused();
 
+        assertThat(result).isFalse();
         verify(mockMediaPlayer, never()).getStatus();
-        assertThat("Playing status should be false", result, equalTo(false));
     }
 
     @Test
@@ -413,7 +391,7 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldCleanUpResourcesWhenCurrentPlayerIsNull() {
-        ReflectionTestUtils.setField(spyMediaManager, "currentPlayer", null);
+        setField(spyMediaManager, "currentPlayer", null);
 
         spyMediaManager.cleanUpResources();
 
@@ -423,9 +401,9 @@ public class MediaManagerTest extends AbstractTest {
 
     @Test
     public void shouldConstructConcreteMediaPlayer() {
-        MediaPlayer mediaPlayer = mediaManager.constructMediaPlayer(new Media("http://www.example.com/example.mp3"));
+        MediaPlayer mediaPlayer = spyMediaManager.constructMediaPlayer(new Media("http://www.example.com/example.mp3"));
 
-        assertThat("Media player should not be null", mediaPlayer, notNullValue());
+        assertThat(mediaPlayer).isNotNull();
     }
 
     @Test

@@ -27,7 +27,6 @@ public class MediaManager extends EventAwareObject implements Constants {
 
     private final AppProperties appProperties;
 
-    @Autowired
     private CacheManager cacheManager;
 
     @Getter
@@ -41,6 +40,11 @@ public class MediaManager extends EventAwareObject implements Constants {
     private Equalizer equalizer;
     @Getter
     private boolean muted;
+
+    @Autowired
+    public void wireCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
 
     @PostConstruct
     public void initialise() {

@@ -1,27 +1,26 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static java.util.Optional.*;
-
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Base64;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
+
+import java.net.*;
+import java.util.Base64;
+
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 @Component
 public class InternetManager extends EventAwareObject {
 
-    @Autowired
     private SettingsManager settingsManager;
+
+    @Autowired
+    public void wireSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
 
     public URLConnection openConnection(URL url) throws Exception {
         log.debug("Opening connection to - {}", url);

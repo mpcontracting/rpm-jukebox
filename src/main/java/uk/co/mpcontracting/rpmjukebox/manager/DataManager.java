@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
@@ -35,8 +36,9 @@ import static java.util.stream.Collectors.toList;
 public class DataManager implements Constants {
 
     private final AppProperties appProperties;
-    private final SearchManager searchManager;
-    private final InternetManager internetManager;
+
+    private SearchManager searchManager;
+    private InternetManager internetManager;
 
     private Map<String, Integer> artistIndexMap;
     private AtomicInteger artistIndex;
@@ -46,8 +48,18 @@ public class DataManager implements Constants {
 
     private AtomicInteger trackIndex;
 
+    @Autowired
+    public void wireSearchManager(SearchManager searchManager) {
+        this.searchManager = searchManager;
+    }
+
+    @Autowired
+    public void wireInternetManager(InternetManager internetManager) {
+        this.internetManager = internetManager;
+    }
+
     @PostConstruct
-    public void setup() {
+    public void initialise() {
         artistIndexMap = new HashMap<>();
         artistIndex = new AtomicInteger(1);
 

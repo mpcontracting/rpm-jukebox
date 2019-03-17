@@ -2,38 +2,38 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
-import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestResourceFile;
 
-public class InternetManagerTest extends AbstractTest {
+@RunWith(MockitoJUnitRunner.class)
+public class InternetManagerTest {
 
-    @Autowired
-    private AppProperties appProperties;
-
-    @Autowired
-    private InternetManager internetManager;
+    @Mock
+    private EventManager mockEventManager;
 
     @Mock
     private SettingsManager mockSettingsManager;
 
+    private InternetManager internetManager;
+
     @Before
     public void setup() {
-        ReflectionTestUtils.setField(internetManager, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(internetManager, "settingsManager", mockSettingsManager);
+        internetManager = new InternetManager();
+        internetManager.wireSettingsManager(mockSettingsManager);
+
+        setField(internetManager, "eventManager", mockEventManager);
     }
 
     @Test
@@ -156,23 +156,5 @@ public class InternetManagerTest extends AbstractTest {
         verify(mockUrl, never()).openConnection();
         verify(mockUrl, times(1)).openConnection(any());
         verify(mockConnection, times(1)).setRequestProperty(anyString(), anyString());
-    }
-
-    @Test
-    public void shouldGet404FromInternalJettyServer() throws Exception {
-        when(mockSettingsManager.getSystemSettings()).thenReturn(new SystemSettings());
-
-        URL url = new URL("http://localhost:" + appProperties.getJettyPort() + "/invalid");
-        HttpURLConnection connection = null;
-
-        try {
-            connection = (HttpURLConnection)internetManager.openConnection(url);
-
-            assertThat("Response code should be 404", connection.getResponseCode(), equalTo(404));
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
     }
 }

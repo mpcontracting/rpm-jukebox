@@ -1,188 +1,196 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import lombok.SneakyThrows;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
-
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.core.io.ClassPathResource;
 import uk.co.mpcontracting.rpmjukebox.manager.NativeManager.NsUserNotificationsBridge;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
+import uk.co.mpcontracting.rpmjukebox.test.support.TestThreadRunner;
 
-public class NativeManagerTest extends AbstractTest {
+import java.io.File;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-    @Autowired
-    private NativeManager nativeManager;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDirectory;
 
-    @Autowired
-    private SettingsManager settingsManager;
+@RunWith(MockitoJUnitRunner.class)
+public class NativeManagerTest {
+
+    @Mock
+    private SettingsManager mockSettingsManager;
 
     @Mock
     private Track mockTrack;
 
-    private NativeManager spyNativeManager;
-    private SettingsManager spySettingsManager;
+    private NativeManager nativeManager;
+    private String nativeDylibLocation = "/native/NsUserNotificationsBridge.dylib";
+    private File nativeDirectory = new File(getConfigDirectory(), "native");
+    private ThreadRunner threadRunner = new TestThreadRunner(Executors.newSingleThreadExecutor());
 
     @Before
     public void setup() {
-        spyNativeManager = spy(nativeManager);
-        spySettingsManager = spy(settingsManager);
-        ReflectionTestUtils.setField(spyNativeManager, "settingsManager", spySettingsManager);
+        nativeManager = new NativeManager(threadRunner);
+        nativeManager.wireSettingsManager(mockSettingsManager);
+
+        when(mockSettingsManager.getFileFromConfigDirectory("native")).thenReturn(nativeDirectory);
     }
 
     @Test
     public void shouldInitialiseNativeBridgeSuccessfullyOnOsx() throws Exception {
         // This test only runs when being built on OSX
-        if (settingsManager.getOsType() == OsType.OSX) {
-            when(spySettingsManager.getOsType()).thenReturn(OsType.OSX);
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
+            when(mockSettingsManager.getFileFromConfigDirectory(nativeDylibLocation)).thenReturn(
+                    new ClassPathResource(nativeDylibLocation).getFile());
 
-            ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", null);
-            spyNativeManager.initialise();
-            NsUserNotificationsBridge result = (NsUserNotificationsBridge)ReflectionTestUtils.getField(spyNativeManager,
+            nativeManager.initialise();
+
+            NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
                 "nsUserNotificationsBridge");
 
-            assertThat("NSUserNotificationsBridge should not be null", result, notNullValue());
+            assertThat(result).isNotNull();
         }
     }
 
     @Test
     public void shouldInitialiseNativeBridgeSuccessfullyOnOsxDirectoryExists() throws Exception {
         // This test only runs when being built on OSX
-        if (settingsManager.getOsType() == OsType.OSX) {
-            settingsManager.getFileFromConfigDirectory("native").mkdirs();
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
+            when(mockSettingsManager.getFileFromConfigDirectory(nativeDylibLocation)).thenReturn(
+                    new ClassPathResource(nativeDylibLocation).getFile());
 
-            when(spySettingsManager.getOsType()).thenReturn(OsType.OSX);
+            nativeDirectory.mkdirs();
+            nativeManager.initialise();
 
-            ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", null);
-            spyNativeManager.initialise();
-            NsUserNotificationsBridge result = (NsUserNotificationsBridge)ReflectionTestUtils.getField(spyNativeManager,
+            NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
                 "nsUserNotificationsBridge");
 
-            assertThat("NSUserNotificationsBridge should not be null", result, notNullValue());
+            assertThat(result).isNotNull();
         }
     }
 
     @Test
     public void shouldNotInitialiseNativeBridgeOnWindows() throws Exception {
-        when(spySettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
+        when(mockSettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
 
-        ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", null);
-        spyNativeManager.initialise();
-        NsUserNotificationsBridge result = (NsUserNotificationsBridge)ReflectionTestUtils.getField(spyNativeManager,
+        nativeManager.initialise();
+
+        NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
             "nsUserNotificationsBridge");
 
-        assertThat("NSUserNotificationsBridge should be null", result, nullValue());
+        assertThat(result).isNull();
     }
 
     @Test
     public void shouldNotInitialiseNativeBridgeOnLinux() throws Exception {
-        when(spySettingsManager.getOsType()).thenReturn(OsType.LINUX);
+        when(mockSettingsManager.getOsType()).thenReturn(OsType.LINUX);
 
-        ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", null);
-        spyNativeManager.initialise();
-        NsUserNotificationsBridge result = (NsUserNotificationsBridge)ReflectionTestUtils.getField(spyNativeManager,
+        nativeManager.initialise();
+
+        NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
             "nsUserNotificationsBridge");
 
-        assertThat("NSUserNotificationsBridge should be null", result, nullValue());
+        assertThat(result).isNull();
     }
 
     @Test
     public void shouldDisplayNotificationOnOsx() throws Exception {
-        when(spySettingsManager.getOsType()).thenReturn(OsType.OSX);
+        when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
 
         AtomicBoolean notificationSent = new AtomicBoolean(false);
         CountDownLatch latch = new CountDownLatch(1);
-        NsUserNotificationsBridge nsUserNotificationsBridge = new NsUserNotificationsBridge() {
-            @Override
-            public int sendNotification(String title, String subtitle, String text, int timeoffset) {
-                notificationSent.set(true);
-                latch.countDown();
+        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
+            notificationSent.set(true);
+            latch.countDown();
 
-                return 0;
-            }
+            return 0;
         };
 
-        ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
+        setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
 
-        spyNativeManager.displayNotification(mockTrack);
+        nativeManager.displayNotification(mockTrack);
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Notification should have been displayed", notificationSent.get(), equalTo(true));
+        assertThat(notificationSent.get()).isTrue();
     }
 
     @Test
     public void shouldHandleExceptionInDisplayNotificationOnOsx() throws Exception {
-        when(spySettingsManager.getOsType()).thenReturn(OsType.OSX);
+        when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
 
         CountDownLatch latch = new CountDownLatch(1);
-        NsUserNotificationsBridge nsUserNotificationsBridge = new NsUserNotificationsBridge() {
-            @Override
-            public int sendNotification(String title, String subtitle, String text, int timeoffset) {
-                throw new Error("NativeManagerTest.shouldHandleExceptionInDisplayNotificationOnOsx()");
-            }
+        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
+            throw new Error("NativeManagerTest.shouldHandleExceptionInDisplayNotificationOnOsx()");
         };
 
-        ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
+        setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
 
-        spyNativeManager.displayNotification(mockTrack);
+        nativeManager.displayNotification(mockTrack);
         latch.await(500, TimeUnit.MILLISECONDS);
     }
 
     @Test
     public void shouldNotDisplayNotificationOnWindows() throws Exception {
-        when(spySettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
+        when(mockSettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
 
         AtomicBoolean notificationSent = new AtomicBoolean(false);
         CountDownLatch latch = new CountDownLatch(1);
-        NsUserNotificationsBridge nsUserNotificationsBridge = new NsUserNotificationsBridge() {
-            @Override
-            public int sendNotification(String title, String subtitle, String text, int timeoffset) {
-                notificationSent.set(true);
-                latch.countDown();
+        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
+            notificationSent.set(true);
+            latch.countDown();
 
-                return 0;
-            }
+            return 0;
         };
 
-        ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
+        setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
 
-        spyNativeManager.displayNotification(mockTrack);
+        nativeManager.displayNotification(mockTrack);
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Notification should not have been displayed", notificationSent.get(), equalTo(false));
+        assertThat(notificationSent.get()).isFalse();
     }
 
     @Test
     public void shouldNotDisplayNotificationOnLinux() throws Exception {
-        when(spySettingsManager.getOsType()).thenReturn(OsType.LINUX);
+        when(mockSettingsManager.getOsType()).thenReturn(OsType.LINUX);
 
         AtomicBoolean notificationSent = new AtomicBoolean(false);
         CountDownLatch latch = new CountDownLatch(1);
-        NsUserNotificationsBridge nsUserNotificationsBridge = new NsUserNotificationsBridge() {
-            @Override
-            public int sendNotification(String title, String subtitle, String text, int timeoffset) {
-                notificationSent.set(true);
-                latch.countDown();
+        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
+            notificationSent.set(true);
+            latch.countDown();
 
-                return 0;
-            }
+            return 0;
         };
 
-        ReflectionTestUtils.setField(spyNativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
+        setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
 
-        spyNativeManager.displayNotification(mockTrack);
+        nativeManager.displayNotification(mockTrack);
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Notification should not have been displayed", notificationSent.get(), equalTo(false));
+        assertThat(notificationSent.get()).isFalse();
+    }
+
+    @After
+    @SneakyThrows
+    public void cleanup() {
+        if (nativeDirectory.exists()) {
+            FileUtils.deleteDirectory(getConfigDirectory());
+        }
     }
 }

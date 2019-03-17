@@ -1,17 +1,34 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import java.util.ResourceBundle;
 
-public class MessageManagerTest extends AbstractTest {
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-    @Autowired
+@RunWith(MockitoJUnitRunner.class)
+public class MessageManagerTest {
+
+    @Mock
+    private ResourceBundle mockResourceBundle;
+
     private MessageManager messageManager;
+
+    @Before
+    public void setup() {
+        messageManager = new MessageManager();
+
+        setField(messageManager, "messageBundle", mockResourceBundle);
+
+        when(mockResourceBundle.getString("settings.copyright.2")).thenReturn("Version {0}");
+    }
 
     @Test
     public void shouldReturnCorrectMessageWithoutArguments() {

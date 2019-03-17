@@ -1,22 +1,19 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-
-import javax.annotation.PostConstruct;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 @Slf4j
 @Component
@@ -25,10 +22,14 @@ public class NativeManager {
 
     private final ThreadRunner threadRunner;
 
-    @Autowired
     private SettingsManager settingsManager;
 
     private NsUserNotificationsBridge nsUserNotificationsBridge;
+
+    @Autowired
+    public void wireSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
 
     @PostConstruct
     public void initialise() {
@@ -49,8 +50,8 @@ public class NativeManager {
                 Files.copy(getClass().getResourceAsStream(userNotifications), userNotificationsFile.toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
 
-                nsUserNotificationsBridge = (NsUserNotificationsBridge)Native
-                    .loadLibrary(userNotificationsFile.getAbsolutePath(), NsUserNotificationsBridge.class);
+                nsUserNotificationsBridge = Native.loadLibrary(userNotificationsFile.getAbsolutePath(),
+                        NsUserNotificationsBridge.class);
             } catch (Throwable t) {
                 log.error("Error loading native notifications bridge", t);
             }
@@ -72,6 +73,6 @@ public class NativeManager {
 
     // Package level for testing purposes
     interface NsUserNotificationsBridge extends Library {
-        public int sendNotification(String title, String subtitle, String text, int timeoffset);
+        int sendNotification(String title, String subtitle, String text, int timeoffset);
     }
 }

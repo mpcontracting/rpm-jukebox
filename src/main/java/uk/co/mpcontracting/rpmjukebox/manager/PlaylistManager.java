@@ -23,20 +23,14 @@ import java.util.*;
 public class PlaylistManager extends EventAwareObject implements Constants {
 
     private final AppProperties appProperties;
+    private final MessageManager messageManager;
 
-    @Autowired
-    private MessageManager messageManager;
-
-    @Autowired
     private SearchManager searchManager;
-
-    @Autowired
     private MediaManager mediaManager;
-
-    @Autowired
     private TrackTableController trackTableController;
 
-    private Map<Integer, Playlist> playlistMap;
+    private final Map<Integer, Playlist> playlistMap = new LinkedHashMap<>();
+    ;
 
     @Getter
     private int currentPlaylistId;
@@ -52,11 +46,25 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     @Getter
     private Track selectedTrack;
 
+    @Autowired
+    public void wireSearchManager(SearchManager searchManager) {
+        this.searchManager = searchManager;
+    }
+
+    @Autowired
+    public void wireMediaManager(MediaManager mediaManager) {
+        this.mediaManager = mediaManager;
+    }
+
+    @Autowired
+    public void wireTrackTableController(TrackTableController trackTableController) {
+        this.trackTableController = trackTableController;
+    }
+
     @PostConstruct
     public void initialise() {
         log.info("Initialising PlaylistManager");
 
-        playlistMap = new LinkedHashMap<>();
         playlistMap.put(PLAYLIST_ID_SEARCH,new Playlist(PLAYLIST_ID_SEARCH,
                 messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH),
                 appProperties.getMaxPlaylistSize()));
@@ -84,10 +92,10 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     public List<Playlist> getPlaylists() {
         log.debug("Getting playlists");
 
-        List<Playlist> playlists = new ArrayList<>();
+        List<Playlist> playlists;
 
         synchronized (playlistMap) {
-            playlistMap.values().forEach(playlist -> playlists.add(playlist));
+            playlists = new ArrayList<>(playlistMap.values());
         }
 
         return Collections.unmodifiableList(playlists);
@@ -119,7 +127,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
         log.debug("Creating playlist - {}", name);
 
         int playlistId = 1;
-        Playlist playlist = null;
+        Playlist playlist;
 
         synchronized (playlistMap) {
             // Find the first ID available
