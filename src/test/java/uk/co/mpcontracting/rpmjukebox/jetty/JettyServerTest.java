@@ -1,45 +1,92 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
-import static org.mockito.Mockito.*;
+import lombok.SneakyThrows;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
+import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
+import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 import java.net.BindException;
 
-import org.eclipse.jetty.server.Server;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
-import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+@RunWith(MockitoJUnitRunner.class)
+public class JettyServerTest implements Constants {
 
-public class JettyServerTest extends AbstractTest {
+    @Mock
+    private AppProperties mockAppProperties;
 
-    @Autowired
-    private JettyServer jettyServer;
+    @Mock
+    private RpmJukebox mockRpmJukebox;
 
     @Mock
     private ApplicationManager mockApplicationManager;
 
     @Mock
+    private MessageManager mockMessageManager;
+
+    @Mock
     private Server mockServer;
 
+    @Mock
+    private ServerConnector mockServerConnector;
+
     private JettyServer spyJettyServer;
-    private Server spyServer;
 
     @Before
     public void setup() {
-        spyJettyServer = spy(jettyServer);
-        spyServer = spy(new Server());
-        doReturn(spyServer).when(spyJettyServer).constructServer();
+        spyJettyServer = spy(new JettyServer(mockAppProperties, mockRpmJukebox, mockApplicationManager, mockMessageManager));
 
-        ReflectionTestUtils.setField(spyJettyServer, "applicationManager", mockApplicationManager);
-        ReflectionTestUtils.setField(spyJettyServer, "server", mockServer);
+        doReturn(mockServer).when(spyJettyServer).constructServer();
+        doReturn(mockServerConnector).when(spyJettyServer).constructServerConnector(mockServer);
+
+        when(mockMessageManager.getMessage(MESSAGE_SPLASH_INITIALISING_CACHE)).thenReturn("InitialiseCache");
+        when(mockMessageManager.getMessage(MESSAGE_SPLASH_ALREADY_RUNNING)).thenReturn("AlreadyRunning");
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldInitialiseJettyServer() {
+        spyJettyServer.initialise();
+
+        verify(mockRpmJukebox, times(1)).updateSplashProgress("InitialiseCache");
+        verify(mockServer, times(1)).start();
+    }
+
+    @Test
+    public void shouldShutdownApplicationIfBindExceptionThrownOnServerStart() throws Exception {
+        doThrow(new BindException("JettyServerTest.shouldShutdownApplicationIfBindExceptionThrownOnServerStart()"))
+                .when(mockServer).start();
+
+        spyJettyServer.initialise();
+
+        verify(mockRpmJukebox, times(1)).updateSplashProgress("AlreadyRunning");
+        verify(mockApplicationManager, times(1)).shutdown();
+    }
+
+    @Test
+    public void shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart() throws Exception {
+        doThrow(
+                new IllegalStateException("JettyServerTest.shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart()"))
+                .when(mockServer).start();
+
+        assertThatThrownBy(() -> spyJettyServer.initialise()).isInstanceOf(IllegalStateException.class);
+
+        verify(mockApplicationManager, never()).shutdown();
     }
 
     @Test
     public void shouldStopJettyServer() throws Exception {
+        spyJettyServer.initialise();
         spyJettyServer.stop();
 
         verify(mockServer, times(1)).stop();
@@ -48,29 +95,9 @@ public class JettyServerTest extends AbstractTest {
 
     @Test
     public void shouldStopJettyServerWhenServerIsNull() throws Exception {
-        ReflectionTestUtils.setField(spyJettyServer, "server", null);
-
         spyJettyServer.stop();
-    }
 
-    @Test
-    public void shouldShutdownApplicationIfBindExceptionThrownOnServerStart() throws Exception {
-        doThrow(new BindException("JettyServerTest.shouldShutdownApplicationIfBindExceptionThrownOnServerStart()"))
-            .when(spyServer).start();
-
-        spyJettyServer.initialise();
-
-        verify(mockApplicationManager, times(1)).shutdown();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart() throws Exception {
-        doThrow(
-            new IllegalStateException("JettyServerTest.shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart()"))
-                .when(spyServer).start();
-
-        spyJettyServer.initialise();
-
-        verify(mockApplicationManager, never()).shutdown();
+        verify(mockServer, never()).stop();
+        verify(mockServer, never()).join();
     }
 }

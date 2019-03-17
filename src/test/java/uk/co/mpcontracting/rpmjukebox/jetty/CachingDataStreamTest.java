@@ -1,26 +1,28 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-
-import javax.servlet.AsyncContext;
-import javax.servlet.ServletOutputStream;
-
 import org.eclipse.jetty.io.EofException;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
-public class CachingDataStreamTest extends AbstractTest {
+import javax.servlet.AsyncContext;
+import javax.servlet.ServletOutputStream;
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CachingDataStreamTest {
 
     private AsyncContext mockAsyncContext;
     private ServletOutputStream mockServletOutputStream;
@@ -53,10 +55,9 @@ public class CachingDataStreamTest extends AbstractTest {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte)255);
 
-        ApplicationContext originalContext = (ApplicationContext)ReflectionTestUtils.getField(ContextHelper.class,
-            "applicationContext");
+        ApplicationContext originalContext = (ApplicationContext) getField(ContextHelper.class, "applicationContext");
         ApplicationContext mockContext = mock(ApplicationContext.class);
-        ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", mockContext);
+        setField(ContextHelper.class, "applicationContext", mockContext);
 
         CacheManager mockCacheManager = mock(CacheManager.class);
         when(mockContext.getBean(CacheManager.class)).thenReturn(mockCacheManager);
@@ -75,7 +76,7 @@ public class CachingDataStreamTest extends AbstractTest {
             verify(mockCacheManager, times(1)).writeCache(CacheType.TRACK, "123", array);
             verify(spyInputStream, times(1)).close();
         } finally {
-            ReflectionTestUtils.setField(ContextHelper.class, "applicationContext", originalContext);
+            setField(ContextHelper.class, "applicationContext", originalContext);
         }
     }
 
@@ -104,7 +105,6 @@ public class CachingDataStreamTest extends AbstractTest {
         ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
         CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
             mockAsyncContext, mockServletOutputStream);
-        when(mockServletOutputStream.isReady()).thenReturn(true);
 
         dataStream.onError(new Exception("CachingDataStreamTest.shouldDealWithAnError()"));
 
@@ -121,7 +121,6 @@ public class CachingDataStreamTest extends AbstractTest {
         ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
         CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
             mockAsyncContext, mockServletOutputStream);
-        when(mockServletOutputStream.isReady()).thenReturn(true);
         doThrow(new RuntimeException("CachingDataStreamTest.shouldDealWithAnErrorWhenAsyncContextThrowsAnException()"))
             .when(mockAsyncContext).complete();
 

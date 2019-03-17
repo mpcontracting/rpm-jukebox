@@ -10,7 +10,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
@@ -27,15 +26,9 @@ import java.net.BindException;
 public class JettyServer implements Constants {
 
     private final AppProperties appProperties;
-
-    @Autowired
-    private RpmJukebox rpmJukebox;
-
-    @Autowired
-    private ApplicationManager applicationManager;
-
-    @Autowired
-    private MessageManager messageManager;
+    private final RpmJukebox rpmJukebox;
+    private final ApplicationManager applicationManager;
+    private final MessageManager messageManager;
 
     private Server server;
 
@@ -48,7 +41,7 @@ public class JettyServer implements Constants {
 
         server = constructServer();
 
-        ServerConnector connector = new ServerConnector(server);
+        ServerConnector connector = constructServerConnector(server);
         connector.setPort(appProperties.getJettyPort());
 
         server.setConnectors(new Connector[] { connector });
@@ -84,6 +77,10 @@ public class JettyServer implements Constants {
     // Package level for testing purposes
     Server constructServer() {
         return new Server();
+    }
+
+    ServerConnector constructServerConnector(Server server) {
+        return new ServerConnector(server);
     }
 
     public void stop() throws Exception {
