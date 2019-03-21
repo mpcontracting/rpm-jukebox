@@ -39,23 +39,12 @@ import static java.util.Optional.ofNullable;
 public class SettingsManager implements Constants {
 
     private final AppProperties appProperties;
+    private final RpmJukebox rpmJukebox;
+    private final MessageManager messageManager;
 
-    @Autowired
-    private RpmJukebox rpmJukebox;
-
-    @Autowired
-    private MessageManager messageManager;
-
-    @Autowired
     private SearchManager searchManager;
-
-    @Autowired
     private PlaylistManager playlistManager;
-
-    @Autowired
     private MediaManager mediaManager;
-
-    @Autowired
     private InternetManager internetManager;
 
     @Getter
@@ -70,6 +59,26 @@ public class SettingsManager implements Constants {
     @Getter
     private Gson gson;
     private boolean userSettingsLoaded;
+
+    @Autowired
+    public void wireSearchManager(SearchManager searchManager) {
+        this.searchManager = searchManager;
+    }
+
+    @Autowired
+    public void wirePlaylistManager(PlaylistManager playlistManager) {
+        this.playlistManager = playlistManager;
+    }
+
+    @Autowired
+    public void wireMediaManager(MediaManager mediaManager) {
+        this.mediaManager = mediaManager;
+    }
+
+    @Autowired
+    public void wireInternetManager(InternetManager internetManager) {
+        this.internetManager = internetManager;
+    }
 
     @SneakyThrows
     @PostConstruct

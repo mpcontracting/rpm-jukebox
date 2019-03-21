@@ -2,15 +2,17 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 
 import com.google.common.io.Files;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.igormaznitsa.commons.version.Version;
-import javafx.geometry.Rectangle2D;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
+import lombok.SneakyThrows;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
@@ -21,7 +23,6 @@ import uk.co.mpcontracting.rpmjukebox.settings.Settings;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.settings.Window;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -30,23 +31,26 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 
-public class SettingsManagerTest extends AbstractTest implements Constants {
+@RunWith(MockitoJUnitRunner.class)
+public class SettingsManagerTest implements Constants {
 
-    @Autowired
-    private AppProperties appProperties;
+    @Mock
+    private AppProperties mockAppProperties;
 
-    @Autowired
-    private SettingsManager settingsManager;
+    @Mock
+    private RpmJukebox mockRpmJukebox;
+
+    @Mock
+    private MessageManager mockMessageManager;
 
     @Mock
     private SearchManager mockSearchManager;
@@ -63,16 +67,40 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     @Mock
     private URL mockDataFile;
 
+    private SettingsManager settingsManager;
     private SettingsManager spySettingsManager;
 
     @Before
+    @SneakyThrows
     public void setup() {
+        settingsManager = new SettingsManager(mockAppProperties, mockRpmJukebox, mockMessageManager);
         spySettingsManager = spy(settingsManager);
-        ReflectionTestUtils.setField(spySettingsManager, "searchManager", mockSearchManager);
-        ReflectionTestUtils.setField(spySettingsManager, "playlistManager", mockPlaylistManager);
-        ReflectionTestUtils.setField(spySettingsManager, "mediaManager", mockMediaManager);
-        ReflectionTestUtils.setField(spySettingsManager, "internetManager", mockInternetManager);
-        ReflectionTestUtils.setField(spySettingsManager, "dataFile", mockDataFile);
+        spySettingsManager.wireSearchManager(mockSearchManager);
+        spySettingsManager.wirePlaylistManager(mockPlaylistManager);
+        spySettingsManager.wireMediaManager(mockMediaManager);
+        spySettingsManager.wireInternetManager(mockInternetManager);
+
+        setField(spySettingsManager, "gson", new GsonBuilder().setPrettyPrinting().create());
+        setField(spySettingsManager, "version", new Version("1.0.0"));
+        setField(spySettingsManager, "dataFile", mockDataFile);
+
+        getConfigDirectory().mkdirs();
+
+        when(mockAppProperties.getVersion()).thenReturn("1.0.0");
+        when(mockAppProperties.getCacheSizeMb()).thenReturn(250);
+
+        when(mockAppProperties.getLastIndexedFile()).thenReturn("last-indexed");
+        when(spySettingsManager.getFileFromConfigDirectory("last-indexed")).thenReturn(new File(getConfigDirectory(), "last-indexed"));
+
+
+        when(mockAppProperties.getWindowSettingsFile()).thenReturn("window.json");
+        when(spySettingsManager.getFileFromConfigDirectory("window.json")).thenReturn(new File(getConfigDirectory(), "window.json"));
+
+        when(mockAppProperties.getSystemSettingsFile()).thenReturn("system.json");
+        when(spySettingsManager.getFileFromConfigDirectory("system.json")).thenReturn(new File(getConfigDirectory(), "system.json"));
+
+        when(mockAppProperties.getUserSettingsFile()).thenReturn("rpm-jukebox.json");
+        when(spySettingsManager.getFileFromConfigDirectory("rpm-jukebox.json")).thenReturn(new File(getConfigDirectory(), "rpm-jukebox.json"));
     }
 
     @Test
@@ -80,12 +108,12 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         File correctValue = new File(RpmJukebox.getConfigDirectory(), "test");
         File result = spySettingsManager.getFileFromConfigDirectory("test");
 
-        assertThat("Resulting file should be '" + correctValue.getAbsolutePath() + "'", result.getAbsolutePath(),
-            equalTo(correctValue.getAbsolutePath()));
+        assertThat(result.getAbsolutePath()).isEqualTo(correctValue.getAbsolutePath());
     }
 
     @Test
-    public void shouldShowHttpDataFileHasExpired() throws Exception {
+    @SneakyThrows
+    public void shouldShowHttpDataFileHasExpired() {
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockDataFile.getProtocol()).thenReturn("http");
         when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
@@ -94,11 +122,12 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
-        assertThat("Data file should have expired", result, equalTo(true));
+        assertThat(result).isTrue();
     }
 
     @Test
-    public void shouldShowHttpDataFileHasNotExpiredAsLastModifiedNotOneHourOld() throws Exception {
+    @SneakyThrows
+    public void shouldShowHttpDataFileHasNotExpiredAsLastModifiedNotOneHourOld() {
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockDataFile.getProtocol()).thenReturn("http");
         when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
@@ -107,12 +136,13 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         doReturn(LocalDateTime.of(1971, 1, 1, 0, 0)).when(spySettingsManager).getLastIndexedDate();
 
         boolean result = spySettingsManager.hasDataFileExpired();
-
-        assertThat("Data file should not have expired", result, equalTo(false));
+        
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldShowHttpDataFileHasNotExpiredAsLastModifiedBeforeLastIndexed() throws Exception {
+    @SneakyThrows
+    public void shouldShowHttpDataFileHasNotExpiredAsLastModifiedBeforeLastIndexed() {
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockDataFile.getProtocol()).thenReturn("http");
         when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
@@ -120,12 +150,13 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         doReturn(LocalDateTime.of(1975, 1, 1, 0, 0)).when(spySettingsManager).getLastIndexedDate();
 
         boolean result = spySettingsManager.hasDataFileExpired();
-
-        assertThat("Data file should not have expired", result, equalTo(false));
+        
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldShowHttpDataFileHasNotExpiredOnLastModifiedError() throws Exception {
+    @SneakyThrows
+    public void shouldShowHttpDataFileHasNotExpiredOnLastModifiedError() {
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockDataFile.getProtocol()).thenReturn("http");
         when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
@@ -134,23 +165,25 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
-        assertThat("Data file should not have expired", result, equalTo(false));
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldShowHttpDataFileHasNotExpiredOnConnectionError() throws Exception {
+    @SneakyThrows
+    public void shouldShowHttpDataFileHasNotExpiredOnConnectionError() {
         when(mockDataFile.getProtocol()).thenReturn("http");
         doThrow(new RuntimeException("SettingsManagerTest.shouldShowHttpDataFileHasNotExpiredOnConnectionError()"))
             .when(mockInternetManager).openConnection(mockDataFile);
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
-        assertThat("Data file should not have expired", result, equalTo(false));
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldShowFileSystemDataFileHasExpired() throws Exception {
-        File lastIndexedFile = new File(RpmJukebox.getConfigDirectory(), "last-indexed");
+    @SneakyThrows
+    public void shouldShowFileSystemDataFileHasExpired() {
+        File lastIndexedFile = new File(getConfigDirectory(), "last-indexed");
         lastIndexedFile.createNewFile();
         lastIndexedFile.setLastModified(getDateTimeInMillis(1975, 1, 1, 0, 0));
         when(mockDataFile.getProtocol()).thenReturn("file");
@@ -159,35 +192,35 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
-        assertThat("Data file should have expired", result, equalTo(true));
+        assertThat(result).isTrue();
     }
 
     @Test
-    public void shouldShowFileSystemDataFileHasNotExpiredOnFileReadError() throws Exception {
+    @SneakyThrows
+    public void shouldShowFileSystemDataFileHasNotExpiredOnFileReadError() {
         when(mockDataFile.getProtocol()).thenReturn("file");
         doThrow(new RuntimeException("SettingsManagerTest.shouldShowFileSystemDataFileHasNotExpiredOnFileReadError()"))
             .when(mockDataFile).toURI();
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
-        assertThat("Data file should not have expired", result, equalTo(false));
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldGetLastIndexedDate() throws Exception {
+    @SneakyThrows
+    public void shouldGetLastIndexedDate() {
         LocalDateTime now = LocalDateTime.now();
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
+        File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
             writer.write(Long.toString(now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
             writer.newLine();
         }
 
-        doNothing().when(spySettingsManager).setLastIndexedDate(any());
-
         LocalDateTime result = spySettingsManager.getLastIndexedDate();
-
-        assertThat("Result should be '" + now + "'", result, equalTo(now));
+        
+        assertThat(result).isEqualTo(now);
     }
 
     @Test
@@ -196,45 +229,45 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         LocalDateTime result = spySettingsManager.getLastIndexedDate();
 
-        assertThat("Result should be greater that now minus 1 minute",
-            result.isAfter(LocalDateTime.now().minusMinutes(1)), equalTo(true));
+        assertThat(result).isAfter(LocalDateTime.now().minusMinutes(1));
     }
 
     @Test
-    public void shouldNotGetLastIndexedDateOnFileReadError() throws Exception {
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
+    @SneakyThrows
+    public void shouldNotGetLastIndexedDateOnFileReadError() {
+        File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
             writer.write("Unparseable");
             writer.newLine();
         }
 
-        doNothing().when(spySettingsManager).setLastIndexedDate(any());
-
         LocalDateTime result = spySettingsManager.getLastIndexedDate();
 
-        assertThat("Result should be null", result, nullValue());
+        assertThat(result).isNull();
     }
 
     @Test
-    public void shouldSetLastIndexedDate() throws Exception {
+    @SneakyThrows
+    public void shouldSetLastIndexedDate() {
         LocalDateTime now = LocalDateTime.now();
 
         spySettingsManager.setLastIndexedDate(now);
 
         LocalDateTime lastIndexed = null;
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
+        File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
                 ZoneId.systemDefault());
         }
 
-        assertThat("Last indexed should equal '" + now + "'", now, equalTo(lastIndexed));
+        assertThat(lastIndexed).isEqualTo(now);
     }
 
     @Test
-    public void shouldSetLastIndexedDateIfAlreadyExists() throws Exception {
-        File writeLastIndexedFile = new File(RpmJukebox.getConfigDirectory(), "last-indexed");
+    @SneakyThrows
+    public void shouldSetLastIndexedDateIfAlreadyExists() {
+        File writeLastIndexedFile = new File(getConfigDirectory(), "last-indexed");
         LocalDateTime originalLastIndexed = LocalDateTime.of(1971, 1, 1, 0, 0);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(writeLastIndexedFile))) {
@@ -247,31 +280,32 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         spySettingsManager.setLastIndexedDate(now);
 
         LocalDateTime lastIndexed = null;
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
+        File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
                 ZoneId.systemDefault());
         }
 
-        assertThat("Last indexed should equal '" + now + "'", now, equalTo(lastIndexed));
+        assertThat(lastIndexed).isEqualTo(now);
     }
 
     @Test
-    public void shouldNotSetLastIndexedDateOnExceptionIfNotAlreadyExists() throws Exception {
+    public void shouldNotSetLastIndexedDateOnExceptionIfNotAlreadyExists() {
         LocalDateTime mockLocalDateTime = mock(LocalDateTime.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSetLastIndexDateOnException()"))
             .when(mockLocalDateTime).atZone(any());
 
         spySettingsManager.setLastIndexedDate(mockLocalDateTime);
 
-        File lastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
+        File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
 
-        assertThat("Last indexed file should not exist", lastIndexedFile.exists(), equalTo(false));
+        assertThat(lastIndexedFile.exists()).isFalse();
     }
 
     @Test
-    public void shouldLeaveLastIndexedDateOnExceptionIfAlreadyExists() throws Exception {
-        File writeLastIndexedFile = new File(RpmJukebox.getConfigDirectory(), "last-indexed");
+    @SneakyThrows
+    public void shouldLeaveLastIndexedDateOnExceptionIfAlreadyExists() {
+        File writeLastIndexedFile = new File(getConfigDirectory(), "last-indexed");
         LocalDateTime originalLastIndexed = LocalDateTime.of(1971, 1, 1, 0, 0);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(writeLastIndexedFile))) {
@@ -286,18 +320,17 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         spySettingsManager.setLastIndexedDate(mockLocalDateTime);
 
         LocalDateTime lastIndexed = null;
-        File readLastIndexedFile = settingsManager.getFileFromConfigDirectory(appProperties.getLastIndexedFile());
+        File readLastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(readLastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
                 ZoneId.systemDefault());
         }
 
-        assertThat("Last indexed should equal '" + originalLastIndexed + "'", lastIndexed,
-            equalTo(originalLastIndexed));
+        assertThat(lastIndexed).isEqualTo(originalLastIndexed);
     }
 
-    @Test
-    public void shouldLoadWindowSettingsFromDefault() throws Exception {
+    /*@Test
+    public void shouldLoadWindowSettingsFromDefault() {
         Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
         double width = (bounds.getWidth() / 100d) * 75d;
         double height = (bounds.getHeight() / 100d) * 75d;
@@ -311,11 +344,12 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         verify(mockStage, times(1)).setY(y);
         verify(mockStage, times(1)).setWidth(width);
         verify(mockStage, times(1)).setHeight(height);
-    }
+    }*/
 
     @Test
-    public void shouldLoadWindowSettingsFromFile() throws Exception {
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
+    @SneakyThrows
+    public void shouldLoadWindowSettingsFromFile() {
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getWindowSettingsFile());
         Window window = new Window(100, 200, 300, 400);
 
         try (FileWriter fileWriter = new FileWriter(settingsFile)) {
@@ -332,8 +366,9 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     }
 
     @Test
-    public void shouldNotLoadWindowSettingsFromFileOnException() throws Exception {
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
+    @SneakyThrows
+    public void shouldNotLoadWindowSettingsFromFileOnException() {
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getWindowSettingsFile());
         Window window = new Window(100, 200, 300, 400);
 
         try (FileWriter fileWriter = new FileWriter(settingsFile)) {
@@ -345,7 +380,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotLoadWindowSettingsFromFileOnException()"))
             .when(mockGson).fromJson(any(FileReader.class), (Class<?>)any(Class.class));
 
-        ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
+        setField(spySettingsManager, "gson", mockGson);
 
         spySettingsManager.loadWindowSettings(mockStage);
 
@@ -356,7 +391,8 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     }
 
     @Test
-    public void shouldSaveWindowSettings() throws Exception {
+    @SneakyThrows
+    public void shouldSaveWindowSettings() {
         Stage mockStage = mock(Stage.class);
         when(mockStage.getX()).thenReturn(100d);
         when(mockStage.getY()).thenReturn(200d);
@@ -365,21 +401,22 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         spySettingsManager.saveWindowSettings(mockStage);
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
-        Window window = null;
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getWindowSettingsFile());
+        Window window;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
             window = new Gson().fromJson(fileReader, Window.class);
         }
 
-        assertThat("X should be 100", window.getX(), equalTo(100d));
-        assertThat("Y should be 200", window.getY(), equalTo(200d));
-        assertThat("Width should be 300", window.getWidth(), equalTo(300d));
-        assertThat("Height should be 400", window.getHeight(), equalTo(400d));
+        assertThat(window.getX()).isEqualTo(100d);
+        assertThat(window.getY()).isEqualTo(200d);
+        assertThat(window.getWidth()).isEqualTo(300d);
+        assertThat(window.getHeight()).isEqualTo(400d);
     }
 
     @Test
-    public void shouldNotSaveWindowSettingsOnException() throws Exception {
+    @SneakyThrows
+    public void shouldNotSaveWindowSettingsOnException() {
         Stage mockStage = mock(Stage.class);
         when(mockStage.getX()).thenReturn(100d);
         when(mockStage.getY()).thenReturn(200d);
@@ -390,46 +427,43 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveWindowSettingsOnException()")).when(mockGson)
             .toJson(any(Window.class));
 
-        ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
+        setField(spySettingsManager, "gson", mockGson);
 
         spySettingsManager.saveWindowSettings(mockStage);
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getWindowSettingsFile());
         Window window = null;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
             window = new Gson().fromJson(fileReader, Window.class);
         }
 
-        assertThat("Window should be null", window, nullValue());
+        assertThat(window).isNull();
     }
 
     @Test
-    public void shouldLoadSystemSettingsFromDefault() throws Exception {
+    public void shouldLoadSystemSettingsFromDefault() {
         doNothing().when(spySettingsManager).saveSystemSettings();
 
         spySettingsManager.loadSystemSettings();
 
         SystemSettings systemSettings = spySettingsManager.getSystemSettings();
 
-        assertThat("Cache size should be " + appProperties.getCacheSizeMb(), systemSettings.getCacheSizeMb(),
-                equalTo(appProperties.getCacheSizeMb()));
-        assertThat("Proxy host should be null", systemSettings.getProxyHost(), nullValue());
-        assertThat("Proxy port should be null", systemSettings.getProxyPort(), nullValue());
-        assertThat("Proxy requires authentication should be null", systemSettings.getProxyRequiresAuthentication(),
-            nullValue());
-        assertThat("Proxy username should be null", systemSettings.getProxyUsername(), nullValue());
-        assertThat("Proxy password should be null", systemSettings.getProxyPassword(), nullValue());
+        assertThat(systemSettings.getCacheSizeMb()).isEqualTo(mockAppProperties.getCacheSizeMb());
+        assertThat(systemSettings.getProxyHost()).isNull();
+        assertThat(systemSettings.getProxyPort()).isNull();
+        assertThat(systemSettings.getProxyRequiresAuthentication()).isNull();
+        assertThat(systemSettings.getProxyUsername()).isNull();
+        assertThat(systemSettings.getProxyPassword()).isNull();
 
         verify(spySettingsManager, times(1)).saveSystemSettings();
     }
 
     @Test
-    public void shouldLoadSystemSettingsFromFile() throws Exception {
-        doNothing().when(spySettingsManager).saveSystemSettings();
-
+    @SneakyThrows
+    public void shouldLoadSystemSettingsFromFile() {
         File testSettings = getTestResourceFile("json/settingsManager-shouldLoadSystemSettingsFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -437,24 +471,24 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         SystemSettings systemSettings = spySettingsManager.getSystemSettings();
 
-        assertThat("Cache size should be 123", systemSettings.getCacheSizeMb(), equalTo(123));
-        assertThat("Proxy host should be 'localhost'", systemSettings.getProxyHost(), equalTo("localhost"));
-        assertThat("Proxy port should be 8080", systemSettings.getProxyPort(), equalTo(8080));
-        assertThat("Proxy requires authentication should be true", systemSettings.getProxyRequiresAuthentication(),
-            equalTo(true));
-        assertThat("Proxy username should be 'username'", systemSettings.getProxyUsername(), equalTo("username"));
-        assertThat("Proxy password should be 'password'", systemSettings.getProxyPassword(), equalTo("password"));
+        assertThat(systemSettings.getCacheSizeMb()).isEqualTo(123);
+        assertThat(systemSettings.getProxyHost()).isEqualTo("localhost");
+        assertThat(systemSettings.getProxyPort()).isEqualTo(8080);
+        assertThat(systemSettings.getProxyRequiresAuthentication()).isTrue();
+        assertThat(systemSettings.getProxyUsername()).isEqualTo("username");
+        assertThat(systemSettings.getProxyPassword()).isEqualTo("password");
 
         verify(spySettingsManager, never()).saveSystemSettings();
     }
 
     @Test
-    public void shouldNotLoadSystemSettingsFromAnInvalidFile() throws Exception {
+    @SneakyThrows
+    public void shouldNotLoadSystemSettingsFromAnInvalidFile() {
         doNothing().when(spySettingsManager).saveSystemSettings();
 
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldNotLoadSystemSettingsFromAnInvalidFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -462,20 +496,21 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         SystemSettings systemSettings = spySettingsManager.getSystemSettings();
 
-        assertThat("Cache size should be " + appProperties.getCacheSizeMb(), systemSettings.getCacheSizeMb(),
-                equalTo(appProperties.getCacheSizeMb()));
-        assertThat("Proxy host should be null", systemSettings.getProxyHost(), nullValue());
-        assertThat("Proxy port should be null", systemSettings.getProxyPort(), nullValue());
-        assertThat("Proxy requires authentication should be null", systemSettings.getProxyRequiresAuthentication(),
-            nullValue());
-        assertThat("Proxy username should be null", systemSettings.getProxyUsername(), nullValue());
-        assertThat("Proxy password should be null", systemSettings.getProxyPassword(), nullValue());
+        assertThat(systemSettings.getCacheSizeMb()).isEqualTo(mockAppProperties.getCacheSizeMb());
+        assertThat(systemSettings.getProxyHost()).isNull();
+        assertThat(systemSettings.getProxyPort()).isNull();
+        assertThat(systemSettings.getProxyRequiresAuthentication()).isNull();
+        assertThat(systemSettings.getProxyUsername()).isNull();
+        assertThat(systemSettings.getProxyPassword()).isNull();
 
         verify(spySettingsManager, times(1)).saveSystemSettings();
     }
 
     @Test
-    public void shouldSaveSystemSettings() throws Exception {
+    @SneakyThrows
+    public void shouldSaveSystemSettings() {
+        setField(spySettingsManager, "systemSettings", new SystemSettings());
+
         SystemSettings systemSettings = spySettingsManager.getSystemSettings();
         systemSettings.setCacheSizeMb(123);
         systemSettings.setProxyHost("localhost");
@@ -486,99 +521,100 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         spySettingsManager.saveSystemSettings();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
         SystemSettings result = null;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
             result = new Gson().fromJson(fileReader, SystemSettings.class);
         }
 
-        assertThat("Cache size should be 123", result.getCacheSizeMb(), equalTo(123));
-        assertThat("Proxy host should be 'localhost'", result.getProxyHost(), equalTo("localhost"));
-        assertThat("Proxy port should be 8080", result.getProxyPort(), equalTo(8080));
-        assertThat("Proxy requires authentication should be true", result.getProxyRequiresAuthentication(),
-            equalTo(true));
-        assertThat("Proxy username should be 'username'", result.getProxyUsername(), equalTo("username"));
-        assertThat("Proxy password should be 'password'", result.getProxyPassword(), equalTo("password"));
+        assertThat(systemSettings.getCacheSizeMb()).isEqualTo(123);
+        assertThat(systemSettings.getProxyHost()).isEqualTo("localhost");
+        assertThat(systemSettings.getProxyPort()).isEqualTo(8080);
+        assertThat(systemSettings.getProxyRequiresAuthentication()).isTrue();
+        assertThat(systemSettings.getProxyUsername()).isEqualTo("username");
+        assertThat(systemSettings.getProxyPassword()).isEqualTo("password");
     }
 
     @Test
-    public void shouldNotSaveSystemSettingsOnException() throws Exception {
+    @SneakyThrows
+    public void shouldNotSaveSystemSettingsOnException() {
         Gson mockGson = mock(Gson.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveSystemSettingsOnException()")).when(mockGson)
             .toJson(any(SystemSettings.class));
 
-        ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
+        setField(spySettingsManager, "gson", mockGson);
+        setField(spySettingsManager, "systemSettings", new SystemSettings());
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
         settingsFile.delete();
 
         spySettingsManager.saveSystemSettings();
 
         SystemSettings result = null;
 
-        try (FileReader fileReader = new FileReader(settingsFile)) {
-            result = new Gson().fromJson(fileReader, SystemSettings.class);
+        if (settingsFile.exists()) {
+            try (FileReader fileReader = new FileReader(settingsFile)) {
+                result = new Gson().fromJson(fileReader, SystemSettings.class);
+            }
         }
 
-        assertThat("System settings should be null", result, nullValue());
+        assertThat(result).isNull();
     }
 
     @Test
-    public void shouldReturnNewVersionWhenSystemVersionIsNull() throws Exception {
-        doNothing().when(spySettingsManager).saveSystemSettings();
-
+    @SneakyThrows
+    public void shouldReturnNewVersionWhenSystemVersionIsNull() {
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsNull.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadSystemSettings();
 
-        ReflectionTestUtils.setField(spySettingsManager, "version", new Version("1.1.1"));
+        setField(spySettingsManager, "version", new Version("1.1.1"));
 
-        assertThat("New version should be true", spySettingsManager.isNewVersion(), equalTo(true));
+        assertThat(spySettingsManager.isNewVersion()).isTrue();
     }
 
     @Test
-    public void shouldReturnNewVersionWhenSystemVersionIsLower() throws Exception {
-        doNothing().when(spySettingsManager).saveSystemSettings();
-
+    @SneakyThrows
+    public void shouldReturnNewVersionWhenSystemVersionIsLower() {
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsLower.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadSystemSettings();
 
-        ReflectionTestUtils.setField(spySettingsManager, "version", new Version("1.1.1"));
+        setField(spySettingsManager, "version", new Version("1.1.1"));
 
-        assertThat("New version should be true", spySettingsManager.isNewVersion(), equalTo(true));
+        assertThat(spySettingsManager.isNewVersion()).isTrue();
     }
 
     @Test
-    public void shouldNotReturnNewVersionWhenSystemVersionIsEqual() throws Exception {
-        doNothing().when(spySettingsManager).saveSystemSettings();
-
+    @SneakyThrows
+    public void shouldNotReturnNewVersionWhenSystemVersionIsEqual() {
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldNotReturnNewVersionWhenSystemVersionIsEqual.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadSystemSettings();
 
-        ReflectionTestUtils.setField(spySettingsManager, "version", new Version("1.1.1"));
+        setField(spySettingsManager, "version", new Version("1.1.1"));
 
-        assertThat("New version should be true", spySettingsManager.isNewVersion(), equalTo(false));
+        assertThat(spySettingsManager.isNewVersion()).isFalse();
     }
 
     @Test
-    public void shouldLoadUserSettingsFromFile() throws Exception {
+    @SneakyThrows
+    public void shouldLoadUserSettingsFromFile() {
         File testSettings = getTestResourceFile("json/settingsManager-shouldLoadUserSettingsFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getUserSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
@@ -587,9 +623,9 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
             .thenReturn(mockTrack);
 
         spySettingsManager.loadUserSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
+        boolean settingsLoaded = (Boolean) getField(spySettingsManager, "userSettingsLoaded");
 
-        assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+        assertThat(settingsLoaded).isTrue();
 
         verify(mockPlaylistManager, times(1)).setShuffle(true, true);
         verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
@@ -603,24 +639,25 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         doNothing().when(spySettingsManager).saveUserSettings();
 
         spySettingsManager.loadUserSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
+        boolean settingsLoaded = (Boolean) getField(spySettingsManager, "userSettingsLoaded");
 
-        assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+        assertThat(settingsLoaded).isTrue();
 
         verify(spySettingsManager, times(1)).saveUserSettings();
     }
 
     @Test
-    public void shouldLoadUserSettingsWithNoEqFromFile() throws Exception {
+    @SneakyThrows
+    public void shouldLoadUserSettingsWithNoEqFromFile() {
         File testSettings = getTestResourceFile("json/settingsManager-shouldLoadUserSettingsWithNoEqFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getUserSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadUserSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
+        boolean settingsLoaded = (Boolean) getField(spySettingsManager, "userSettingsLoaded");
 
-        assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+        assertThat(settingsLoaded).isTrue();
 
         verify(mockPlaylistManager, times(1)).setShuffle(true, true);
         verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
@@ -630,17 +667,18 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     }
 
     @Test
-    public void shouldLoadUserSettingsWithNoPlaylistsFromFile() throws Exception {
+    @SneakyThrows
+    public void shouldLoadUserSettingsWithNoPlaylistsFromFile() {
         File testSettings = getTestResourceFile(
             "json/settingsManager-shouldLoadUserSettingsWithNoPlaylistsFromFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getUserSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadUserSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
+        boolean settingsLoaded = (Boolean) getField(spySettingsManager, "userSettingsLoaded");
 
-        assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(true));
+        assertThat(settingsLoaded).isTrue();
 
         verify(mockPlaylistManager, times(1)).setShuffle(true, true);
         verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
@@ -650,23 +688,25 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
     }
 
     @Test
-    public void shouldNotLoadUserSettingsFromAnInvalidFile() throws Exception {
+    @SneakyThrows
+    public void shouldNotLoadUserSettingsFromAnInvalidFile() {
         File testSettings = getTestResourceFile("json/settingsManager-shouldNotLoadUserSettingsFromAnInvalidFile.json");
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getUserSettingsFile());
 
         Files.copy(testSettings, settingsFile);
 
         spySettingsManager.loadUserSettings();
-        boolean settingsLoaded = (Boolean)ReflectionTestUtils.getField(spySettingsManager, "userSettingsLoaded");
+        boolean settingsLoaded = (Boolean) getField(spySettingsManager, "userSettingsLoaded");
 
-        assertThat("Settings loaded flag should be true", settingsLoaded, equalTo(false));
+        assertThat(settingsLoaded).isFalse();
 
         verify(spySettingsManager, never()).saveUserSettings();
     }
 
     @Test
-    public void shouldSaveUserSettings() throws Exception {
-        ReflectionTestUtils.setField(spySettingsManager, "userSettingsLoaded", true);
+    @SneakyThrows
+    public void shouldSaveUserSettings() {
+        setField(spySettingsManager, "userSettingsLoaded", true);
 
         when(mockPlaylistManager.isShuffle()).thenReturn(true);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
@@ -677,11 +717,9 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         Playlist mockSearchPlaylist = mock(Playlist.class);
         when(mockSearchPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
-        when(mockSearchPlaylist.iterator()).thenReturn(Collections.emptyIterator());
 
         Playlist mockFavouritesPlaylist = mock(Playlist.class);
         when(mockFavouritesPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
-        when(mockFavouritesPlaylist.iterator()).thenReturn(Collections.emptyIterator());
 
         List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] { mockSearchPlaylist, mockFavouritesPlaylist });
         when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
@@ -694,24 +732,21 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         verify(mockEqualizer, times(5)).getGain(anyInt());
         verify(mockPlaylistManager, times(1)).getPlaylists();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getUserSettingsFile());
 
-        Settings settings = null;
+        Settings settings;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
             settings = new Gson().fromJson(fileReader, Settings.class);
         }
 
-        assertThat("Playlists should have a size of 1", settings.getPlaylists(), hasSize(1));
-        assertThat("Playlist should have an ID of " + PLAYLIST_ID_FAVOURITES, settings.getPlaylists().get(0).getId(),
-            equalTo(PLAYLIST_ID_FAVOURITES));
+        assertThat(settings.getPlaylists()).hasSize(1);
+        assertThat(settings.getPlaylists().get(0).getId()).isEqualTo(PLAYLIST_ID_FAVOURITES);
     }
 
     @Test
     public void shouldNotSaveUserSettingsIfNotUserSettingsLoaded() {
-        ReflectionTestUtils.setField(spySettingsManager, "userSettingsLoaded", false);
-
-        when(mockPlaylistManager.isShuffle()).thenReturn(true);
+        setField(spySettingsManager, "userSettingsLoaded", false);
 
         spySettingsManager.saveUserSettings();
 
@@ -720,7 +755,7 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
     @Test
     public void shouldNotSaveUserSettingsOnException() {
-        ReflectionTestUtils.setField(spySettingsManager, "userSettingsLoaded", true);
+        setField(spySettingsManager, "userSettingsLoaded", true);
 
         when(mockPlaylistManager.isShuffle()).thenReturn(true);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
@@ -731,11 +766,9 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         Playlist mockSearchPlaylist = mock(Playlist.class);
         when(mockSearchPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
-        when(mockSearchPlaylist.iterator()).thenReturn(Collections.emptyIterator());
 
         Playlist mockFavouritesPlaylist = mock(Playlist.class);
         when(mockFavouritesPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
-        when(mockFavouritesPlaylist.iterator()).thenReturn(Collections.emptyIterator());
 
         List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] { mockSearchPlaylist, mockFavouritesPlaylist });
         when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
@@ -744,21 +777,22 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveUserSettingsOnException()")).when(mockGson)
             .toJson(any(Settings.class));
 
-        ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
+        setField(spySettingsManager, "gson", mockGson);
 
         spySettingsManager.saveUserSettings();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getUserSettingsFile());
 
-        assertThat("Settings file should not exist", settingsFile.exists(), equalTo(false));
+        assertThat(settingsFile.exists()).isFalse();
     }
 
     @Test
-    public void shouldNotSaveUserSettingsOnExceptionWhenFileAlreadyExists() throws Exception {
-        File newSettingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
+    @SneakyThrows
+    public void shouldNotSaveUserSettingsOnExceptionWhenFileAlreadyExists() {
+        File newSettingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getUserSettingsFile());
         newSettingsFile.createNewFile();
 
-        ReflectionTestUtils.setField(spySettingsManager, "userSettingsLoaded", true);
+        setField(spySettingsManager, "userSettingsLoaded", true);
 
         when(mockPlaylistManager.isShuffle()).thenReturn(true);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
@@ -769,11 +803,9 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
 
         Playlist mockSearchPlaylist = mock(Playlist.class);
         when(mockSearchPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
-        when(mockSearchPlaylist.iterator()).thenReturn(Collections.emptyIterator());
 
         Playlist mockFavouritesPlaylist = mock(Playlist.class);
         when(mockFavouritesPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
-        when(mockFavouritesPlaylist.iterator()).thenReturn(Collections.emptyIterator());
 
         List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] { mockSearchPlaylist, mockFavouritesPlaylist });
         when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
@@ -782,12 +814,18 @@ public class SettingsManagerTest extends AbstractTest implements Constants {
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveSettingsOnException()")).when(mockGson)
             .toJson(any(Settings.class));
 
-        ReflectionTestUtils.setField(spySettingsManager, "gson", mockGson);
+        setField(spySettingsManager, "gson", mockGson);
 
         spySettingsManager.saveUserSettings();
 
-        File settingsFile = settingsManager.getFileFromConfigDirectory(appProperties.getUserSettingsFile());
+        File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getUserSettingsFile());
 
-        assertThat("Settings file should exist", settingsFile.exists(), equalTo(true));
+        assertThat(settingsFile.exists()).isTrue();
+    }
+
+    @After
+    @SneakyThrows
+    public void cleanup() {
+        FileUtils.deleteDirectory(getConfigDirectory());
     }
 }

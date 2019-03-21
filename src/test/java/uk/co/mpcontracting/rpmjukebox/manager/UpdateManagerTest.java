@@ -3,6 +3,7 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 import com.igormaznitsa.commons.version.Version;
 import de.felixroske.jfxsupport.GUIState;
 import javafx.application.HostServices;
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,13 +45,12 @@ public class UpdateManagerTest {
     @Mock
     private HostServices mockHostServices;
 
-    private URL versionUrl;
     private UpdateManager updateManager;
     private ThreadRunner threadRunner = new ThreadRunner(Executors.newSingleThreadExecutor());
 
     @Before
-    public void setup() throws Exception {
-        versionUrl = new URL("http://www.example.com");
+    @SneakyThrows
+    public void setup() {
         updateManager = new UpdateManager(mockAppProperties, threadRunner);
         updateManager.wireSettingsManager(mockSettingsManager);
         updateManager.wireInternetManager(mockInternetManager);
@@ -58,13 +58,16 @@ public class UpdateManagerTest {
         setField(updateManager, "eventManager", mockEventManager);
         setField(GUIState.class, "hostServices", mockHostServices);
 
+        URL versionUrl = new URL("http://www.example.com");
+
         when(mockAppProperties.getVersionUrl()).thenReturn(versionUrl.toString());
         when(mockSettingsManager.getVersion()).thenReturn(new Version("1.0.0"));
         when(mockInternetManager.openConnection(versionUrl)).thenReturn(mockHttpURLConnection);
     }
 
     @Test
-    public void shouldFindUpdatesAvailable() throws Exception {
+    @SneakyThrows
+    public void shouldFindUpdatesAvailable() {
         when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
         when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("99.99.99".getBytes()));
 
@@ -76,7 +79,8 @@ public class UpdateManagerTest {
     }
 
     @Test
-    public void shouldNotFindUpdatesAvailable() throws Exception {
+    @SneakyThrows
+    public void shouldNotFindUpdatesAvailable() {
         when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
         when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("0.0.1".getBytes()));
 
@@ -87,7 +91,8 @@ public class UpdateManagerTest {
     }
 
     @Test
-    public void shouldNotFindUpdatesOnConnectionError() throws Exception {
+    @SneakyThrows
+    public void shouldNotFindUpdatesOnConnectionError() {
         doThrow(new RuntimeException("UpdateManagerTest.shouldNotFindUpdatesOnConnectionError()")).when(mockInternetManager)
             .openConnection(any());
 
@@ -97,8 +102,9 @@ public class UpdateManagerTest {
         verify(mockEventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
     }
 
-   @Test
-    public void shouldNotFindUpdatesOn404() throws Exception {
+    @Test
+    @SneakyThrows
+    public void shouldNotFindUpdatesOn404() {
         when(mockHttpURLConnection.getResponseCode()).thenReturn(404);
 
         invokeMethod(updateManager, "checkForUpdates");
@@ -108,7 +114,8 @@ public class UpdateManagerTest {
     }
 
     @Test
-    public void shouldNotFindUpdatesAvailableOnEmptyVersionString() throws Exception {
+    @SneakyThrows
+    public void shouldNotFindUpdatesAvailableOnEmptyVersionString() {
         when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
         when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[] {}));
 
@@ -119,7 +126,8 @@ public class UpdateManagerTest {
     }
 
     @Test
-    public void shouldDownloadNewVersion() throws Exception {
+    @SneakyThrows
+    public void shouldDownloadNewVersion() {
         when(mockAppProperties.getWebsiteUrl()).thenReturn("http://www.website.url");
 
         invokeMethod(updateManager, "downloadNewVersion");
@@ -131,7 +139,8 @@ public class UpdateManagerTest {
     }
 
     @Test
-    public void shouldCheckForUpdatesOnApplicationInitialisedEvent() throws Exception {
+    @SneakyThrows
+    public void shouldCheckForUpdatesOnApplicationInitialisedEvent() {
         updateManager.eventReceived(Event.APPLICATION_INITIALISED);
 
         // Wait for invocation

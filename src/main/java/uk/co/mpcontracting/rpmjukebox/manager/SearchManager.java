@@ -45,20 +45,11 @@ import java.util.concurrent.TimeUnit;
 public class SearchManager extends EventAwareObject implements Constants {
 
     private final AppProperties appProperties;
+    private final RpmJukebox rpmJukebox;
+    private final MessageManager messageManager;
 
-    @Autowired
-    private RpmJukebox rpmJukebox;
-
-    @Autowired
-    private MessageManager messageManager;
-
-    @Autowired
     private SettingsManager settingsManager;
-
-    @Autowired
     private ApplicationManager applicationManager;
-
-    @Autowired
     private DataManager dataManager;
 
     @Getter
@@ -81,6 +72,21 @@ public class SearchManager extends EventAwareObject implements Constants {
     private SecureRandom random;
 
     private ExecutorService executorService;
+
+    @Autowired
+    public void wireSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
+
+    @Autowired
+    public void wireApplicationManager(ApplicationManager applicationManager) {
+        this.applicationManager = applicationManager;
+    }
+
+    @Autowired
+    public void wireDataManager(DataManager dataManager) {
+        this.dataManager = dataManager;
+    }
 
     public void initialise() throws Exception {
         log.info("Initialising SearchManager");

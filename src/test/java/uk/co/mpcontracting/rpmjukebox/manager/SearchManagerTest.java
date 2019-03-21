@@ -1,19 +1,24 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import lombok.SneakyThrows;
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.BytesRef;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.search.ArtistField;
@@ -21,30 +26,37 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackField;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSort;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 import uk.co.mpcontracting.rpmjukebox.test.support.TestTermsEnum;
 
+import java.io.File;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDirectory;
 
-public class SearchManagerTest extends AbstractTest implements Constants {
+@RunWith(MockitoJUnitRunner.class)
+public class SearchManagerTest implements Constants {
 
-    @Autowired
-    private AppProperties appProperties;
+    @Mock
+    private EventManager mockEventManager;
 
-    @Autowired
-    private SearchManager searchManager;
+    @Mock
+    private AppProperties mockAppProperties;
 
-    @Autowired
-    private SettingsManager settingsManager;
+    @Mock
+    private RpmJukebox mockRpmJukebox;
+
+    @Mock
+    private MessageManager mockMessageManager;
 
     @Mock
     private SettingsManager mockSettingsManager;
@@ -77,72 +89,75 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
     @Before
     public void setup() {
-        spySearchManager = spy(searchManager);
-        ReflectionTestUtils.setField(spySearchManager, "eventManager", getMockEventManager());
-        ReflectionTestUtils.setField(spySearchManager, "settingsManager", mockSettingsManager);
-        ReflectionTestUtils.setField(spySearchManager, "applicationManager", mockApplicationManager);
-        ReflectionTestUtils.setField(spySearchManager, "dataManager", mockDataManager);
+        spySearchManager = spy(new SearchManager(mockAppProperties, mockRpmJukebox, mockMessageManager));
+        spySearchManager.wireSettingsManager(mockSettingsManager);
+        spySearchManager.wireApplicationManager(mockApplicationManager);
+        spySearchManager.wireDataManager(mockDataManager);
 
-        when(mockSettingsManager.getFileFromConfigDirectory(appProperties.getArtistIndexDirectory()))
-            .thenReturn(settingsManager.getFileFromConfigDirectory(appProperties.getArtistIndexDirectory()));
-        when(mockSettingsManager.getFileFromConfigDirectory(appProperties.getTrackIndexDirectory()))
-            .thenReturn(settingsManager.getFileFromConfigDirectory(appProperties.getTrackIndexDirectory()));
+        setField(spySearchManager, "eventManager", mockEventManager);
 
-        ReflectionTestUtils.setField(spySearchManager, "artistDirectory", mockArtistDirectory);
-        ReflectionTestUtils.setField(spySearchManager, "artistManager", mockArtistManager);
-        ReflectionTestUtils.setField(spySearchManager, "artistWriter", mockArtistWriter);
-        ReflectionTestUtils.setField(spySearchManager, "trackDirectory", mockTrackDirectory);
-        ReflectionTestUtils.setField(spySearchManager, "trackManager", mockTrackManager);
-        ReflectionTestUtils.setField(spySearchManager, "trackWriter", mockTrackWriter);
+        when(mockAppProperties.getArtistIndexDirectory()).thenReturn("artistIndex");
+        when(mockAppProperties.getTrackIndexDirectory()).thenReturn("trackIndex");
+        when(mockSettingsManager.getFileFromConfigDirectory("artistIndex"))
+            .thenReturn(new File(getConfigDirectory(), "artistIndex"));
+        when(mockSettingsManager.getFileFromConfigDirectory("trackIndex"))
+                .thenReturn(new File(getConfigDirectory(), "trackIndex"));
+
+        setField(spySearchManager, "artistDirectory", mockArtistDirectory);
+        setField(spySearchManager, "artistManager", mockArtistManager);
+        setField(spySearchManager, "artistWriter", mockArtistWriter);
+        setField(spySearchManager, "trackDirectory", mockTrackDirectory);
+        setField(spySearchManager, "trackManager", mockTrackManager);
+        setField(spySearchManager, "trackWriter", mockTrackWriter);
     }
 
     @Test
+    @SneakyThrows
     public void shouldInitialise() throws Exception {
         try {
-            doNothing().when(spySearchManager).indexData();
             doReturn(true).when(spySearchManager).isIndexValid(any());
             doReturn(Collections.emptyList()).when(spySearchManager).search(any());
             doReturn(Collections.emptyList()).when(spySearchManager).getDistinctTrackFieldValues(any());
             when(mockSettingsManager.hasDataFileExpired()).thenReturn(false);
 
-            ReflectionTestUtils.setField(spySearchManager, "artistDirectory", null);
-            ReflectionTestUtils.setField(spySearchManager, "artistManager", null);
-            ReflectionTestUtils.setField(spySearchManager, "artistWriter", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackDirectory", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackWriter", null);
+            setField(spySearchManager, "artistDirectory", null);
+            setField(spySearchManager, "artistManager", null);
+            setField(spySearchManager, "artistWriter", null);
+            setField(spySearchManager, "trackDirectory", null);
+            setField(spySearchManager, "trackManager", null);
+            setField(spySearchManager, "trackWriter", null);
 
             spySearchManager.initialise();
 
-            Analyzer analyzer = (Analyzer)ReflectionTestUtils.getField(spySearchManager, "analyzer");
-            Directory artistDirectory = (Directory)ReflectionTestUtils.getField(spySearchManager, "artistDirectory");
-            IndexWriter artistWriter = (IndexWriter)ReflectionTestUtils.getField(spySearchManager, "artistWriter");
-            SearcherManager artistManager = (SearcherManager)ReflectionTestUtils.getField(spySearchManager,
+            Analyzer analyzer = (Analyzer) getField(spySearchManager, "analyzer");
+            Directory artistDirectory = (Directory) getField(spySearchManager, "artistDirectory");
+            IndexWriter artistWriter = (IndexWriter) getField(spySearchManager, "artistWriter");
+            SearcherManager artistManager = (SearcherManager) getField(spySearchManager,
                 "artistManager");
-            Directory trackDirectory = (Directory)ReflectionTestUtils.getField(spySearchManager, "trackDirectory");
-            IndexWriter trackWriter = (IndexWriter)ReflectionTestUtils.getField(spySearchManager, "trackWriter");
-            SearcherManager trackManager = (SearcherManager)ReflectionTestUtils.getField(spySearchManager,
+            Directory trackDirectory = (Directory) getField(spySearchManager, "trackDirectory");
+            IndexWriter trackWriter = (IndexWriter) getField(spySearchManager, "trackWriter");
+            SearcherManager trackManager = (SearcherManager) getField(spySearchManager,
                 "trackManager");
-            SecureRandom secureRandom = (SecureRandom)ReflectionTestUtils.getField(spySearchManager, "random");
-            ExecutorService executorService = (ExecutorService)ReflectionTestUtils.getField(spySearchManager,
+            SecureRandom secureRandom = (SecureRandom) getField(spySearchManager, "random");
+            ExecutorService executorService = (ExecutorService) getField(spySearchManager,
                 "executorService");
             List<String> genreList = spySearchManager.getGenreList();
             List<String> yearList = spySearchManager.getYearList();
             List<TrackSort> trackSortList = spySearchManager.getTrackSortList();
 
-            assertThat("Analyzer should not be null", analyzer, notNullValue());
-            assertThat("Artist directory should not be null", artistDirectory, notNullValue());
-            assertThat("Artist writer should not be null", artistWriter, notNullValue());
-            assertThat("Artist manager should not be null", artistManager, notNullValue());
-            assertThat("Track directory should not be null", trackDirectory, notNullValue());
-            assertThat("Track writer should not be null", trackWriter, notNullValue());
-            assertThat("Track manager should not be null", trackManager, notNullValue());
-            assertThat("Secure random should not be null", secureRandom, notNullValue());
-            assertThat("Executor service should not be null", executorService, notNullValue());
-            assertThat("Genre list should have a size of 1", genreList, hasSize(1));
-            assertThat("Genre list should contain the unspecified genre", genreList.get(0), equalTo(UNSPECIFIED_GENRE));
-            assertThat("Year list should be empty", yearList.isEmpty(), equalTo(true));
-            assertThat("Track sort list should have a size of 4", trackSortList, hasSize(4));
+            assertThat(analyzer).isNotNull();
+            assertThat(artistDirectory).isNotNull();
+            assertThat(artistWriter).isNotNull();
+            assertThat(artistManager).isNotNull();
+            assertThat(trackDirectory).isNotNull();
+            assertThat(trackWriter).isNotNull();
+            assertThat(trackManager).isNotNull();
+            assertThat(secureRandom).isNotNull();
+            assertThat(executorService).isNotNull();
+            assertThat(genreList).hasSize(1);
+            assertThat(genreList.get(0)).isEqualTo(UNSPECIFIED_GENRE);
+            assertThat(yearList).isEmpty();
+            assertThat(trackSortList).hasSize(4);
 
             verify(spySearchManager, never()).indexData();
             verify(spySearchManager, times(9)).search(any());
@@ -155,49 +170,48 @@ public class SearchManagerTest extends AbstractTest implements Constants {
     public void shouldInitialiseAndIndexWhenDataFileHasExpired() throws Exception {
         try {
             doNothing().when(spySearchManager).indexData();
-            doReturn(true).when(spySearchManager).isIndexValid(any());
             doReturn(Collections.emptyList()).when(spySearchManager).search(any());
             doReturn(Collections.emptyList()).when(spySearchManager).getDistinctTrackFieldValues(any());
             when(mockSettingsManager.hasDataFileExpired()).thenReturn(true);
 
-            ReflectionTestUtils.setField(spySearchManager, "artistDirectory", null);
-            ReflectionTestUtils.setField(spySearchManager, "artistManager", null);
-            ReflectionTestUtils.setField(spySearchManager, "artistWriter", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackDirectory", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackWriter", null);
+            setField(spySearchManager, "artistDirectory", null);
+            setField(spySearchManager, "artistManager", null);
+            setField(spySearchManager, "artistWriter", null);
+            setField(spySearchManager, "trackDirectory", null);
+            setField(spySearchManager, "trackManager", null);
+            setField(spySearchManager, "trackWriter", null);
 
             spySearchManager.initialise();
 
-            Analyzer analyzer = (Analyzer)ReflectionTestUtils.getField(spySearchManager, "analyzer");
-            Directory artistDirectory = (Directory)ReflectionTestUtils.getField(spySearchManager, "artistDirectory");
-            IndexWriter artistWriter = (IndexWriter)ReflectionTestUtils.getField(spySearchManager, "artistWriter");
-            SearcherManager artistManager = (SearcherManager)ReflectionTestUtils.getField(spySearchManager,
+            Analyzer analyzer = (Analyzer) getField(spySearchManager, "analyzer");
+            Directory artistDirectory = (Directory) getField(spySearchManager, "artistDirectory");
+            IndexWriter artistWriter = (IndexWriter) getField(spySearchManager, "artistWriter");
+            SearcherManager artistManager = (SearcherManager) getField(spySearchManager,
                 "artistManager");
-            Directory trackDirectory = (Directory)ReflectionTestUtils.getField(spySearchManager, "trackDirectory");
-            IndexWriter trackWriter = (IndexWriter)ReflectionTestUtils.getField(spySearchManager, "trackWriter");
-            SearcherManager trackManager = (SearcherManager)ReflectionTestUtils.getField(spySearchManager,
+            Directory trackDirectory = (Directory) getField(spySearchManager, "trackDirectory");
+            IndexWriter trackWriter = (IndexWriter) getField(spySearchManager, "trackWriter");
+            SearcherManager trackManager = (SearcherManager) getField(spySearchManager,
                 "trackManager");
-            SecureRandom secureRandom = (SecureRandom)ReflectionTestUtils.getField(spySearchManager, "random");
-            ExecutorService executorService = (ExecutorService)ReflectionTestUtils.getField(spySearchManager,
+            SecureRandom secureRandom = (SecureRandom) getField(spySearchManager, "random");
+            ExecutorService executorService = (ExecutorService) getField(spySearchManager,
                 "executorService");
             List<String> genreList = spySearchManager.getGenreList();
             List<String> yearList = spySearchManager.getYearList();
             List<TrackSort> trackSortList = spySearchManager.getTrackSortList();
 
-            assertThat("Analyzer should not be null", analyzer, notNullValue());
-            assertThat("Artist directory should not be null", artistDirectory, notNullValue());
-            assertThat("Artist writer should not be null", artistWriter, notNullValue());
-            assertThat("Artist manager should not be null", artistManager, notNullValue());
-            assertThat("Track directory should not be null", trackDirectory, notNullValue());
-            assertThat("Track writer should not be null", trackWriter, notNullValue());
-            assertThat("Track manager should not be null", trackManager, notNullValue());
-            assertThat("Secure random should not be null", secureRandom, notNullValue());
-            assertThat("Executor service should not be null", executorService, notNullValue());
-            assertThat("Genre list should have a size of 1", genreList, hasSize(1));
-            assertThat("Genre list should contain the unspecified genre", genreList.get(0), equalTo(UNSPECIFIED_GENRE));
-            assertThat("Year list should be empty", yearList.isEmpty(), equalTo(true));
-            assertThat("Track sort list should have a size of 4", trackSortList, hasSize(4));
+            assertThat(analyzer).isNotNull();
+            assertThat(artistDirectory).isNotNull();
+            assertThat(artistWriter).isNotNull();
+            assertThat(artistManager).isNotNull();
+            assertThat(trackDirectory).isNotNull();
+            assertThat(trackWriter).isNotNull();
+            assertThat(trackManager).isNotNull();
+            assertThat(secureRandom).isNotNull();
+            assertThat(executorService).isNotNull();
+            assertThat(genreList).hasSize(1);
+            assertThat(genreList.get(0)).isEqualTo(UNSPECIFIED_GENRE);
+            assertThat(yearList).isEmpty();
+            assertThat(trackSortList).hasSize(4);
 
             verify(spySearchManager, times(1)).indexData();
             verify(spySearchManager, times(9)).search(any());
@@ -215,44 +229,44 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             doReturn(Collections.emptyList()).when(spySearchManager).getDistinctTrackFieldValues(any());
             when(mockSettingsManager.hasDataFileExpired()).thenReturn(false);
 
-            ReflectionTestUtils.setField(spySearchManager, "artistDirectory", null);
-            ReflectionTestUtils.setField(spySearchManager, "artistManager", null);
-            ReflectionTestUtils.setField(spySearchManager, "artistWriter", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackDirectory", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackWriter", null);
+            setField(spySearchManager, "artistDirectory", null);
+            setField(spySearchManager, "artistManager", null);
+            setField(spySearchManager, "artistWriter", null);
+            setField(spySearchManager, "trackDirectory", null);
+            setField(spySearchManager, "trackManager", null);
+            setField(spySearchManager, "trackWriter", null);
 
             spySearchManager.initialise();
 
-            Analyzer analyzer = (Analyzer)ReflectionTestUtils.getField(spySearchManager, "analyzer");
-            Directory artistDirectory = (Directory)ReflectionTestUtils.getField(spySearchManager, "artistDirectory");
-            IndexWriter artistWriter = (IndexWriter)ReflectionTestUtils.getField(spySearchManager, "artistWriter");
-            SearcherManager artistManager = (SearcherManager)ReflectionTestUtils.getField(spySearchManager,
+            Analyzer analyzer = (Analyzer) getField(spySearchManager, "analyzer");
+            Directory artistDirectory = (Directory) getField(spySearchManager, "artistDirectory");
+            IndexWriter artistWriter = (IndexWriter) getField(spySearchManager, "artistWriter");
+            SearcherManager artistManager = (SearcherManager) getField(spySearchManager,
                 "artistManager");
-            Directory trackDirectory = (Directory)ReflectionTestUtils.getField(spySearchManager, "trackDirectory");
-            IndexWriter trackWriter = (IndexWriter)ReflectionTestUtils.getField(spySearchManager, "trackWriter");
-            SearcherManager trackManager = (SearcherManager)ReflectionTestUtils.getField(spySearchManager,
+            Directory trackDirectory = (Directory) getField(spySearchManager, "trackDirectory");
+            IndexWriter trackWriter = (IndexWriter) getField(spySearchManager, "trackWriter");
+            SearcherManager trackManager = (SearcherManager) getField(spySearchManager,
                 "trackManager");
-            SecureRandom secureRandom = (SecureRandom)ReflectionTestUtils.getField(spySearchManager, "random");
-            ExecutorService executorService = (ExecutorService)ReflectionTestUtils.getField(spySearchManager,
+            SecureRandom secureRandom = (SecureRandom) getField(spySearchManager, "random");
+            ExecutorService executorService = (ExecutorService) getField(spySearchManager,
                 "executorService");
             List<String> genreList = spySearchManager.getGenreList();
             List<String> yearList = spySearchManager.getYearList();
             List<TrackSort> trackSortList = spySearchManager.getTrackSortList();
 
-            assertThat("Analyzer should not be null", analyzer, notNullValue());
-            assertThat("Artist directory should not be null", artistDirectory, notNullValue());
-            assertThat("Artist writer should not be null", artistWriter, notNullValue());
-            assertThat("Artist manager should not be null", artistManager, notNullValue());
-            assertThat("Track directory should not be null", trackDirectory, notNullValue());
-            assertThat("Track writer should not be null", trackWriter, notNullValue());
-            assertThat("Track manager should not be null", trackManager, notNullValue());
-            assertThat("Secure random should not be null", secureRandom, notNullValue());
-            assertThat("Executor service should not be null", executorService, notNullValue());
-            assertThat("Genre list should have a size of 1", genreList, hasSize(1));
-            assertThat("Genre list should contain the unspecified genre", genreList.get(0), equalTo(UNSPECIFIED_GENRE));
-            assertThat("Year list should be empty", yearList.isEmpty(), equalTo(true));
-            assertThat("Track sort list should have a size of 4", trackSortList, hasSize(4));
+            assertThat(analyzer).isNotNull();
+            assertThat(artistDirectory).isNotNull();
+            assertThat(artistWriter).isNotNull();
+            assertThat(artistManager).isNotNull();
+            assertThat(trackDirectory).isNotNull();
+            assertThat(trackWriter).isNotNull();
+            assertThat(trackManager).isNotNull();
+            assertThat(secureRandom).isNotNull();
+            assertThat(executorService).isNotNull();
+            assertThat(genreList).hasSize(1);
+            assertThat(genreList.get(0)).isEqualTo(UNSPECIFIED_GENRE);
+            assertThat(yearList).isEmpty();
+            assertThat(trackSortList).hasSize(4);
 
             verify(spySearchManager, times(1)).indexData();
             verify(spySearchManager, times(9)).search(any());
@@ -270,12 +284,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
             doReturn(Collections.emptyList()).when(spySearchManager).getDistinctTrackFieldValues(any());
             when(mockSettingsManager.hasDataFileExpired()).thenReturn(false);
 
-            ReflectionTestUtils.setField(spySearchManager, "artistDirectory", null);
-            ReflectionTestUtils.setField(spySearchManager, "artistManager", null);
-            ReflectionTestUtils.setField(spySearchManager, "artistWriter", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackDirectory", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
-            ReflectionTestUtils.setField(spySearchManager, "trackWriter", null);
+            setField(spySearchManager, "artistDirectory", null);
+            setField(spySearchManager, "artistManager", null);
+            setField(spySearchManager, "artistWriter", null);
+            setField(spySearchManager, "trackDirectory", null);
+            setField(spySearchManager, "trackManager", null);
+            setField(spySearchManager, "trackWriter", null);
 
             spySearchManager.initialise();
             spySearchManager.initialise();
@@ -286,21 +300,22 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         }
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldThrowExceptionOnInitialise() throws Exception {
         try {
             doThrow(new RuntimeException("SearchManagerTest.shouldThrowExceptionOnInitialise()")).when(spySearchManager)
                 .indexData();
             doReturn(false).when(spySearchManager).isIndexValid(any());
 
-            spySearchManager.initialise();
+            assertThatThrownBy(() -> spySearchManager.initialise()).isInstanceOf(RuntimeException.class);
         } finally {
             spySearchManager.shutdown();
         }
     }
 
     @Test
-    public void shouldReturnIndexValid() throws Exception {
+    @SneakyThrows
+    public void shouldReturnIndexValid() {
         IndexSearcher mockIndexSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockIndexSearcher);
         doNothing().when(mockArtistManager).release(mockIndexSearcher);
@@ -312,14 +327,14 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         boolean isValid = spySearchManager.isIndexValid(mockArtistManager);
 
-        assertThat("Index should be valid", isValid, equalTo(true));
+        assertThat(isValid).isTrue();
     }
 
     @Test
-    public void shouldReturnIndexValidWhenExceptionOnRelease() throws Exception {
+    @SneakyThrows
+    public void shouldReturnIndexValidWhenExceptionOnRelease() {
         IndexSearcher mockIndexSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockIndexSearcher);
-        doNothing().when(mockArtistManager).release(mockIndexSearcher);
         doThrow(new RuntimeException("SearchManagerTest.shouldReturnIndexValidWhenExceptionOnRelease()"))
             .when(mockArtistManager).release(mockIndexSearcher);
 
@@ -330,11 +345,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         boolean isValid = spySearchManager.isIndexValid(mockArtistManager);
 
-        assertThat("Index should be valid", isValid, equalTo(true));
+        assertThat(isValid).isTrue();
     }
 
     @Test
-    public void shouldReturnIndexInvalidWithEmptyTracks() throws Exception {
+    @SneakyThrows
+    public void shouldReturnIndexInvalidWithEmptyTracks() {
         IndexSearcher mockIndexSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockIndexSearcher);
         doNothing().when(mockArtistManager).release(mockIndexSearcher);
@@ -342,11 +358,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         boolean isValid = spySearchManager.isIndexValid(mockArtistManager);
 
-        assertThat("Index should be invalid", isValid, equalTo(false));
+        assertThat(isValid).isFalse();
     }
 
     @Test
-    public void shouldReturnIndexInvalidWithNullTracks() throws Exception {
+    @SneakyThrows
+    public void shouldReturnIndexInvalidWithNullTracks() {
         IndexSearcher mockIndexSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockIndexSearcher);
         doNothing().when(mockArtistManager).release(mockIndexSearcher);
@@ -354,11 +371,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         boolean isValid = spySearchManager.isIndexValid(mockArtistManager);
 
-        assertThat("Index should be invalid", isValid, equalTo(false));
+        assertThat(isValid).isFalse();
     }
 
     @Test
-    public void shouldReturnIndexInvalidOnException() throws Exception {
+    @SneakyThrows
+    public void shouldReturnIndexInvalidOnException() {
         IndexSearcher mockIndexSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockIndexSearcher);
         doNothing().when(mockArtistManager).release(mockIndexSearcher);
@@ -367,11 +385,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         boolean isValid = spySearchManager.isIndexValid(mockArtistManager);
 
-        assertThat("Index should be invalid", isValid, equalTo(false));
+        assertThat(isValid).isFalse();
     }
 
     @Test
-    public void shouldIndexData() throws Exception {
+    @SneakyThrows
+    public void shouldIndexData() {
         spySearchManager.indexData();
 
         verify(mockDataManager, times(1)).parse(any());
@@ -380,11 +399,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         verify(mockArtistManager, times(1)).maybeRefreshBlocking();
         verify(mockTrackManager, times(1)).maybeRefreshBlocking();
         verify(mockSettingsManager, times(1)).setLastIndexedDate(any());
-        verify(getMockEventManager(), times(1)).fireEvent(Event.DATA_INDEXED);
+        verify(mockEventManager, times(1)).fireEvent(Event.DATA_INDEXED);
     }
 
     @Test
-    public void shouldIndexDataButNotCommitOnException() throws Exception {
+    @SneakyThrows
+    public void shouldIndexDataButNotCommitOnException() {
         doThrow(new RuntimeException("SearchManagerTest.shouldIndexDataButNotCommitOnException()"))
             .when(mockArtistWriter).commit();
 
@@ -396,40 +416,32 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         verify(mockArtistManager, never()).maybeRefreshBlocking();
         verify(mockTrackManager, never()).maybeRefreshBlocking();
         verify(mockSettingsManager, times(1)).setLastIndexedDate(any());
-        verify(getMockEventManager(), times(1)).fireEvent(Event.DATA_INDEXED);
+        verify(mockEventManager, times(1)).fireEvent(Event.DATA_INDEXED);
     }
 
     @Test
-    public void shouldAddArtist() throws Exception {
+    @SneakyThrows
+    public void shouldAddArtist() {
         spySearchManager.addArtist(new Artist("123", "Artist Name", "Artist Image", null, "Members"));
 
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockArtistWriter, times(1)).addDocument(document.capture());
 
-        assertThat("Artist ID should be stored",
-            document.getValue().getField(ArtistField.ARTISTID.name()).fieldType().stored(), equalTo(true));
-        assertThat("Artist ID should be 123", document.getValue().getField(ArtistField.ARTISTID.name()).stringValue(),
-            equalTo("123"));
-        assertThat("Artist name should be stored",
-            document.getValue().getField(ArtistField.ARTISTNAME.name()).fieldType().stored(), equalTo(true));
-        assertThat("Artist name should be 'Artist Name'",
-            document.getValue().getField(ArtistField.ARTISTNAME.name()).stringValue(), equalTo("Artist Name"));
-        assertThat("Artist image should be stored",
-            document.getValue().getField(ArtistField.ARTISTIMAGE.name()).fieldType().stored(), equalTo(true));
-        assertThat("Artist image should be 'Artist Image'",
-            document.getValue().getField(ArtistField.ARTISTIMAGE.name()).stringValue(), equalTo("Artist Image"));
-        assertThat("Biography should be stored",
-            document.getValue().getField(ArtistField.BIOGRAPHY.name()).fieldType().stored(), equalTo(true));
-        assertThat("Biography should be ''", document.getValue().getField(ArtistField.BIOGRAPHY.name()).stringValue(),
-            equalTo(""));
-        assertThat("Members should be stored",
-            document.getValue().getField(ArtistField.MEMBERS.name()).fieldType().stored(), equalTo(true));
-        assertThat("Members should be 'Members'",
-            document.getValue().getField(ArtistField.MEMBERS.name()).stringValue(), equalTo("Members"));
+        assertThat(document.getValue().getField(ArtistField.ARTISTID.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(ArtistField.ARTISTID.name()).stringValue()).isEqualTo("123");
+        assertThat(document.getValue().getField(ArtistField.ARTISTNAME.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(ArtistField.ARTISTNAME.name()).stringValue()).isEqualTo("Artist Name");
+        assertThat(document.getValue().getField(ArtistField.ARTISTIMAGE.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(ArtistField.ARTISTIMAGE.name()).stringValue()).isEqualTo("Artist Image");
+        assertThat(document.getValue().getField(ArtistField.BIOGRAPHY.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(ArtistField.BIOGRAPHY.name()).stringValue()).isEqualTo("");
+        assertThat(document.getValue().getField(ArtistField.MEMBERS.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(ArtistField.MEMBERS.name()).stringValue()).isEqualTo("Members");
     }
 
     @Test
-    public void shouldNotAddArtistOnException() throws Exception {
+    @SneakyThrows
+    public void shouldNotAddArtistOnException() {
         doThrow(new RuntimeException("SearchManagerTest.shouldNotAddArtistOnException()")).when(mockArtistWriter)
             .addDocument(any());
 
@@ -438,98 +450,60 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockArtistWriter, times(1)).addDocument(document.capture());
 
-        assertThat("Document should have 5 fields", document.getValue().getFields(), hasSize(5));
+        assertThat(document.getValue().getFields()).hasSize(5);
     }
 
     @Test
-    public void shouldAddTrack() throws Exception {
+    @SneakyThrows
+    public void shouldAddTrack() {
         spySearchManager.addTrack(new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image",
             2000, "789", "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2")));
 
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockTrackWriter, times(1)).addDocument(document.capture());
 
-        assertThat("Track keywords should be stored",
-            document.getValue().getField(TrackField.KEYWORDS.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track keywords should be 'artist name album name track name'",
-            document.getValue().getField(TrackField.KEYWORDS.name()).stringValue(),
-            equalTo("artist name album name track name"));
-        assertThat("Track artist ID should be stored",
-            document.getValue().getField(TrackField.ARTISTID.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track artist ID should be 123",
-            document.getValue().getField(TrackField.ARTISTID.name()).stringValue(), equalTo("123"));
-        assertThat("Track artist name should be stored",
-            document.getValue().getField(TrackField.ARTISTNAME.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track artist name should be 'Artist Name'",
-            document.getValue().getField(TrackField.ARTISTNAME.name()).stringValue(), equalTo("Artist Name"));
-        assertThat("Track artist image should be stored",
-            document.getValue().getField(TrackField.ARTISTIMAGE.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track artist image should be 'Artist Image'",
-            document.getValue().getField(TrackField.ARTISTIMAGE.name()).stringValue(), equalTo("Artist Image"));
-        assertThat("Track album ID should be stored",
-            document.getValue().getField(TrackField.ALBUMID.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track album ID should be 456",
-            document.getValue().getField(TrackField.ALBUMID.name()).stringValue(), equalTo("456"));
-        assertThat("Track album name should be stored",
-            document.getValue().getField(TrackField.ALBUMNAME.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track album name should be 'Album Name'",
-            document.getValue().getField(TrackField.ALBUMNAME.name()).stringValue(), equalTo("Album Name"));
-        assertThat("Track album image should be stored",
-            document.getValue().getField(TrackField.ALBUMIMAGE.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track album image should be 'Album Image'",
-            document.getValue().getField(TrackField.ALBUMIMAGE.name()).stringValue(), equalTo("Album Image"));
-        assertThat("Track year should be stored",
-            document.getValue().getField(TrackField.YEAR.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track year should be 2000", document.getValue().getField(TrackField.YEAR.name()).stringValue(),
-            equalTo("2000"));
-        assertThat("Track ID should be stored",
-            document.getValue().getField(TrackField.TRACKID.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track ID should be 789", document.getValue().getField(TrackField.TRACKID.name()).stringValue(),
-            equalTo("789"));
-        assertThat("Track name should be stored",
-            document.getValue().getField(TrackField.TRACKNAME.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track name should be 'Track Name'",
-            document.getValue().getField(TrackField.TRACKNAME.name()).stringValue(), equalTo("Track Name"));
-        assertThat("Track number should be stored",
-            document.getValue().getField(TrackField.NUMBER.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track number should be 1", document.getValue().getField(TrackField.NUMBER.name()).stringValue(),
-            equalTo("1"));
-        assertThat("Track location should be stored",
-            document.getValue().getField(TrackField.LOCATION.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track location should be Location",
-            document.getValue().getField(TrackField.LOCATION.name()).stringValue(), equalTo("Location"));
-        assertThat("Track is preferred should be stored",
-            document.getValue().getField(TrackField.ISPREFERRED.name()).fieldType().stored(), equalTo(true));
-        assertThat("Track is preferred should be true",
-            document.getValue().getField(TrackField.ISPREFERRED.name()).stringValue(), equalTo("true"));
+        assertThat(document.getValue().getField(TrackField.KEYWORDS.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.KEYWORDS.name()).stringValue()).isEqualTo("artist name album name track name");
+        assertThat(document.getValue().getField(TrackField.ARTISTID.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ARTISTID.name()).stringValue()).isEqualTo("123");
+        assertThat(document.getValue().getField(TrackField.ARTISTNAME.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ARTISTNAME.name()).stringValue()).isEqualTo("Artist Name");
+        assertThat(document.getValue().getField(TrackField.ARTISTIMAGE.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ARTISTIMAGE.name()).stringValue()).isEqualTo("Artist Image");
+        assertThat(document.getValue().getField(TrackField.ALBUMID.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ALBUMID.name()).stringValue()).isEqualTo("456");
+        assertThat(document.getValue().getField(TrackField.ALBUMNAME.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ALBUMNAME.name()).stringValue()).isEqualTo("Album Name");
+        assertThat(document.getValue().getField(TrackField.ALBUMIMAGE.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ALBUMIMAGE.name()).stringValue()).isEqualTo("Album Image");
+        assertThat(document.getValue().getField(TrackField.YEAR.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.YEAR.name()).stringValue()).isEqualTo("2000");
+        assertThat(document.getValue().getField(TrackField.TRACKID.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.TRACKID.name()).stringValue()).isEqualTo("789");
+        assertThat(document.getValue().getField(TrackField.TRACKNAME.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.TRACKNAME.name()).stringValue()).isEqualTo("Track Name");
+        assertThat(document.getValue().getField(TrackField.NUMBER.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.NUMBER.name()).stringValue()).isEqualTo("1");
+        assertThat(document.getValue().getField(TrackField.LOCATION.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.LOCATION.name()).stringValue()).isEqualTo("Location");
+        assertThat(document.getValue().getField(TrackField.ISPREFERRED.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ISPREFERRED.name()).stringValue()).isEqualTo("true");
 
-        assertThat("Track genres should have a size of 2",
-            document.getValue().getFields(TrackField.GENRE.name()).length, equalTo(2));
-        assertThat("Track genre 0 should be stored",
-            document.getValue().getFields(TrackField.GENRE.name())[0].fieldType().stored(), equalTo(true));
-        assertThat("Track genre 0 should be 'Genre 1'",
-            document.getValue().getFields(TrackField.GENRE.name())[0].stringValue(), equalTo("Genre 1"));
-        assertThat("Track genre 1 should be stored",
-            document.getValue().getFields(TrackField.GENRE.name())[1].fieldType().stored(), equalTo(true));
-        assertThat("Track genre 1 should be 'Genre 2'",
-            document.getValue().getFields(TrackField.GENRE.name())[1].stringValue(), equalTo("Genre 2"));
+        assertThat(document.getValue().getFields(TrackField.GENRE.name())).hasSize(2);
+        assertThat(document.getValue().getFields(TrackField.GENRE.name())[0].fieldType().stored()).isTrue();
+        assertThat(document.getValue().getFields(TrackField.GENRE.name())[0].stringValue()).isEqualTo("Genre 1");
+        assertThat(document.getValue().getFields(TrackField.GENRE.name())[1].fieldType().stored()).isTrue();
+        assertThat(document.getValue().getFields(TrackField.GENRE.name())[1].stringValue()).isEqualTo("Genre 2");
 
-        assertThat("Track default sort should be 'ArtistName0000002000AlbumName0000000001'",
-            document.getValue().getBinaryValue(TrackSort.DEFAULTSORT.name()).utf8ToString(),
-            equalTo("ArtistName0000002000AlbumName0000000001"));
-        assertThat("Track artist sort should be '0000002000ArtistName'",
-            document.getValue().getBinaryValue(TrackSort.ARTISTSORT.name()).utf8ToString(),
-            equalTo("0000002000ArtistName"));
-        assertThat("Track album sort should be '0000002000AlbumName'",
-            document.getValue().getBinaryValue(TrackSort.ALBUMSORT.name()).utf8ToString(),
-            equalTo("0000002000AlbumName"));
-        assertThat("Track sort should be '0000002000TrackName'",
-            document.getValue().getBinaryValue(TrackSort.TRACKSORT.name()).utf8ToString(),
-            equalTo("0000002000TrackName"));
+        assertThat(document.getValue().getBinaryValue(TrackSort.DEFAULTSORT.name()).utf8ToString()).isEqualTo("ArtistName0000002000AlbumName0000000001");
+        assertThat(document.getValue().getBinaryValue(TrackSort.ARTISTSORT.name()).utf8ToString()).isEqualTo("0000002000ArtistName");
+        assertThat(document.getValue().getBinaryValue(TrackSort.ALBUMSORT.name()).utf8ToString()).isEqualTo("0000002000AlbumName");
+        assertThat(document.getValue().getBinaryValue(TrackSort.TRACKSORT.name()).utf8ToString()).isEqualTo("0000002000TrackName");
     }
 
     @Test
-    public void shouldNotAddTrackOnException() throws Exception {
+    @SneakyThrows
+    public void shouldNotAddTrackOnException() {
         doThrow(new RuntimeException("SearchManagerTest.shouldNotAddTrackOnException()")).when(mockTrackWriter)
             .addDocument(any());
 
@@ -539,11 +513,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockTrackWriter, times(1)).addDocument(document.capture());
 
-        assertThat("Document should have 19 fields", document.getValue().getFields(), hasSize(19));
+        assertThat(document.getValue().getFields()).hasSize(19);
     }
 
     @Test
-    public void shouldGetDistinctTrackFieldValues() throws Exception {
+    @SneakyThrows
+    public void shouldGetDistinctTrackFieldValues() {
         IndexSearcher mockIndexSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockIndexSearcher);
 
@@ -551,7 +526,7 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         when(mockIndexSearcher.getIndexReader()).thenReturn(mockIndexReader);
 
         LeafReaderContext mockLeafReaderContext = mock(LeafReaderContext.class);
-        List<LeafReaderContext> mockLeafReaderContexts = Arrays.asList(mockLeafReaderContext);
+        List<LeafReaderContext> mockLeafReaderContexts = singletonList(mockLeafReaderContext);
         when(mockIndexReader.leaves()).thenReturn(mockLeafReaderContexts);
 
         LeafReader mockLeafReader = mock(LeafReader.class);
@@ -565,20 +540,22 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
 
-        assertThat("Result should have a size of 2", result, hasSize(2));
-        assertThat("Result 0 should be 'Ref 1'", result.get(0), equalTo("Ref 1"));
-        assertThat("Result 1 should be 'Ref 2'", result.get(1), equalTo("Ref 2"));
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void shouldFailToGetDistinctTrackFieldValuesIfTrackManagerIsNull() {
-        ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
-
-        spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0)).isEqualTo("Ref 1");
+        assertThat(result.get(1)).isEqualTo("Ref 2");
     }
 
     @Test
-    public void shouldGetEmptyDistinctTrackFieldValuesWhenTermsNull() throws Exception {
+    public void shouldFailToGetDistinctTrackFieldValuesIfTrackManagerIsNull() {
+        setField(spySearchManager, "trackManager", null);
+
+        assertThatThrownBy(() -> spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldGetEmptyDistinctTrackFieldValuesWhenTermsNull() {
         IndexSearcher mockIndexSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockIndexSearcher);
 
@@ -595,21 +572,23 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
 
-        assertThat("Result should be empty", result.isEmpty(), equalTo(true));
+        assertThat(result).isEmpty();
     }
 
     @Test
-    public void shouldGetEmptyDistinctTrackFieldValuesWhenExceptionThrown() throws Exception {
+    @SneakyThrows
+    public void shouldGetEmptyDistinctTrackFieldValuesWhenExceptionThrown() {
         doThrow(new RuntimeException("SearchManagerTest.shouldGetEmptyDistinctTrackFieldValuesWhenExceptionThrown()"))
             .when(mockTrackManager).acquire();
 
         List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
 
-        assertThat("Result should be empty", result.isEmpty(), equalTo(true));
+        assertThat(result).isEmpty();
     }
 
     @Test
-    public void shouldGetDistinctTrackFieldValuesIsExceptionThrownOnRelease() throws Exception {
+    @SneakyThrows
+    public void shouldGetDistinctTrackFieldValuesIsExceptionThrownOnRelease() {
         doThrow(new RuntimeException("SearchManagerTest.shouldGetDistinctTrackFieldValuesIsExceptionThrownOnRelease()"))
             .when(mockTrackManager).release(any());
 
@@ -634,13 +613,14 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
 
-        assertThat("Result should have a size of 2", result, hasSize(2));
-        assertThat("Result 0 should be 'Ref 1'", result.get(0), equalTo("Ref 1"));
-        assertThat("Result 1 should be 'Ref 2'", result.get(1), equalTo("Ref 2"));
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0)).isEqualTo("Ref 1");
+        assertThat(result.get(1)).isEqualTo("Ref 2");
     }
 
     @Test
-    public void shouldGetSearchResults() throws Exception {
+    @SneakyThrows
+    public void shouldGetSearchResults() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -651,77 +631,76 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<Track> result = spySearchManager.search(new TrackSearch("keywords"));
 
-        assertThat("Result should have 2 tracks", result, hasSize(2));
+        assertThat(result).hasSize(2);
 
         Track track1 = result.get(0);
 
-        assertThat("Track 1 artist ID should be 1231", track1.getArtistId(), equalTo("1231"));
-        assertThat("Track 1 artist name should be 'Artist Name 1", track1.getArtistName(), equalTo("Artist Name 1"));
-        assertThat("Track 1 artist image should be 'Artist Image 1", track1.getArtistImage(),
-            equalTo("Artist Image 1"));
-        assertThat("Track 1 album ID should be 4561", track1.getAlbumId(), equalTo("4561"));
-        assertThat("Track 1 album name should be 'Album Name 1", track1.getAlbumName(), equalTo("Album Name 1"));
-        assertThat("Track 1 album image should be 'Album Image 1", track1.getAlbumImage(), equalTo("Album Image 1"));
-        assertThat("Track 1 year should be 2001", track1.getYear(), equalTo(2001));
-        assertThat("Track 1 track ID should be 7891", track1.getTrackId(), equalTo("7891"));
-        assertThat("Track 1 track name should be 'Track Name 1", track1.getTrackName(), equalTo("Track Name 1"));
-        assertThat("Track 1 number should be 1", track1.getNumber(), equalTo(1));
-        assertThat("Track 1 location should be 'Location 1'", track1.getLocation(), equalTo("Location 1"));
-        assertThat("Track 1 is preferred should be true", track1.isPreferred(), equalTo(true));
-        assertThat("Track 1 should have 2 genres", track1.getGenres(), hasSize(2));
-        assertThat("Track 1 genre 0 should be 'Genre 1 1", track1.getGenres().get(0), equalTo("Genre 1 1"));
-        assertThat("Track 1 genre 1 should be 'Genre 2 1", track1.getGenres().get(1), equalTo("Genre 2 1"));
+        assertThat(track1.getArtistId()).isEqualTo("1231");
+        assertThat(track1.getArtistName()).isEqualTo("Artist Name 1");
+        assertThat(track1.getArtistImage()).isEqualTo("Artist Image 1");
+        assertThat(track1.getAlbumId()).isEqualTo("4561");
+        assertThat(track1.getAlbumName()).isEqualTo("Album Name 1");
+        assertThat(track1.getAlbumImage()).isEqualTo("Album Image 1");
+        assertThat(track1.getYear()).isEqualTo(2001);
+        assertThat(track1.getTrackId()).isEqualTo("7891");
+        assertThat(track1.getTrackName()).isEqualTo("Track Name 1");
+        assertThat(track1.getNumber()).isEqualTo(1);
+        assertThat(track1.getLocation()).isEqualTo("Location 1");
+        assertThat(track1.isPreferred()).isTrue();
+        assertThat(track1.getGenres()).hasSize(2);
+        assertThat(track1.getGenres().get(0)).isEqualTo("Genre 1 1");
+        assertThat(track1.getGenres().get(1)).isEqualTo("Genre 2 1");
 
         Track track2 = result.get(1);
 
-        assertThat("Track 2 artist ID should be 1232", track2.getArtistId(), equalTo("1232"));
-        assertThat("Track 2 artist name should be 'Artist Name 2", track2.getArtistName(), equalTo("Artist Name 2"));
-        assertThat("Track 2 artist image should be 'Artist Image 2", track2.getArtistImage(),
-            equalTo("Artist Image 2"));
-        assertThat("Track 2 album ID should be 4562", track2.getAlbumId(), equalTo("4562"));
-        assertThat("Track 2 album name should be 'Album Name 2", track2.getAlbumName(), equalTo("Album Name 2"));
-        assertThat("Track 2 album image should be 'Album Image 2", track2.getAlbumImage(), equalTo("Album Image 2"));
-        assertThat("Track 2 year should be 2002", track2.getYear(), equalTo(2002));
-        assertThat("Track 2 track ID should be 7892", track2.getTrackId(), equalTo("7892"));
-        assertThat("Track 2 track name should be 'Track Name 2", track2.getTrackName(), equalTo("Track Name 2"));
-        assertThat("Track 2 number should be 2", track2.getNumber(), equalTo(2));
-        assertThat("Track 2 location should be 'Location 2'", track2.getLocation(), equalTo("Location 2"));
-        assertThat("Track 2 is preferred should be true", track2.isPreferred(), equalTo(false));
-        assertThat("Track 2 should have 2 genres", track2.getGenres(), hasSize(2));
-        assertThat("Track 2 genre 0 should be 'Genre 1 2", track2.getGenres().get(0), equalTo("Genre 1 2"));
-        assertThat("Track 2 genre 1 should be 'Genre 2 2", track2.getGenres().get(1), equalTo("Genre 2 2"));
+        assertThat(track2.getArtistId()).isEqualTo("1232");
+        assertThat(track2.getArtistName()).isEqualTo("Artist Name 2");
+        assertThat(track2.getArtistImage()).isEqualTo("Artist Image 2");
+        assertThat(track2.getAlbumId()).isEqualTo("4562");
+        assertThat(track2.getAlbumName()).isEqualTo("Album Name 2");
+        assertThat(track2.getAlbumImage()).isEqualTo("Album Image 2");
+        assertThat(track2.getYear()).isEqualTo(2002);
+        assertThat(track2.getTrackId()).isEqualTo("7892");
+        assertThat(track2.getTrackName()).isEqualTo("Track Name 2");
+        assertThat(track2.getNumber()).isEqualTo(2);
+        assertThat(track2.getLocation()).isEqualTo("Location 2");
+        assertThat(track2.isPreferred()).isFalse();
+        assertThat(track2.getGenres()).hasSize(2);
+        assertThat(track2.getGenres().get(0)).isEqualTo("Genre 1 2");
+        assertThat(track2.getGenres().get(1)).isEqualTo("Genre 2 2");
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldFailToGetSearchResultsIfTrackManagerIsNull() {
-        ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
+        setField(spySearchManager, "trackManager", null);
 
-        spySearchManager.search(new TrackSearch("keywords"));
+        assertThatThrownBy(() -> spySearchManager.search(new TrackSearch("keywords"))).isInstanceOf(RuntimeException.class);
     }
 
     @Test
     public void shouldGetEmptySearchResultsWithNullTrackSearch() {
         List<Track> result = spySearchManager.search(null);
 
-        assertThat("Result should be empty", result.isEmpty(), equalTo(true));
+        assertThat(result).isEmpty();
     }
 
     @Test
     public void shouldGetEmptySearchResultsWithNullKeywords() {
         List<Track> result = spySearchManager.search(new TrackSearch(null));
 
-        assertThat("Result should be empty", result.isEmpty(), equalTo(true));
+        assertThat(result).isEmpty();
     }
 
     @Test
     public void shouldGetEmptySearchResultsWithEmptyKeywords() {
         List<Track> result = spySearchManager.search(new TrackSearch(" "));
 
-        assertThat("Result should be empty", result.isEmpty(), equalTo(true));
+        assertThat(result).isEmpty();
     }
 
     @Test
-    public void shouldGetEmptySearchResultsOnException() throws Exception {
+    @SneakyThrows
+    public void shouldGetEmptySearchResultsOnException() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -730,11 +709,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<Track> result = spySearchManager.search(new TrackSearch("keywords"));
 
-        assertThat("Result should be empty", result.isEmpty(), equalTo(true));
+        assertThat(result).isEmpty();
     }
 
     @Test
-    public void shouldGetSearchResultsWhenExceptionThrownOnRelease() throws Exception {
+    @SneakyThrows
+    public void shouldGetSearchResultsWhenExceptionThrownOnRelease() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -748,11 +728,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<Track> result = spySearchManager.search(new TrackSearch("keywords"));
 
-        assertThat("Result should have 2 tracks", result, hasSize(2));
+        assertThat(result).hasSize(2);
     }
 
     @Test
-    public void shouldGetShuffledPlaylist() throws Exception {
+    @SneakyThrows
+    public void shouldGetShuffledPlaylist() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -769,21 +750,22 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
-        ReflectionTestUtils.setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
-        ReflectionTestUtils.setField(spySearchManager, "random",
+        setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
+        setField(spySearchManager, "random",
             new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
 
         List<Track> result = spySearchManager.getShuffledPlaylist(3, null);
 
-        assertThat("Result should have 3 tracks", result, hasSize(3));
+        assertThat(result).hasSize(3);
 
         Set<Track> uniqueResult = new HashSet<>(result);
 
-        assertThat("Unique result should have 3 tracks", uniqueResult, hasSize(3));
+        assertThat(uniqueResult).hasSize(3);
     }
 
     @Test
-    public void shouldGetShuffledPlaylistWithYearFilter() throws Exception {
+    @SneakyThrows
+    public void shouldGetShuffledPlaylistWithYearFilter() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -800,21 +782,22 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
-        ReflectionTestUtils.setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
-        ReflectionTestUtils.setField(spySearchManager, "random",
+        setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
+        setField(spySearchManager, "random",
             new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
 
         List<Track> result = spySearchManager.getShuffledPlaylist(3, "2001");
 
-        assertThat("Result should have 3 tracks", result, hasSize(3));
+        assertThat(result).hasSize(3);
 
         Set<Track> uniqueResult = new HashSet<>(result);
 
-        assertThat("Unique result should have 3 tracks", uniqueResult, hasSize(3));
+        assertThat(uniqueResult).hasSize(3);
     }
 
     @Test
-    public void shouldGetShuffledPlaylistWhenExceptionThrownOnRelease() throws Exception {
+    @SneakyThrows
+    public void shouldGetShuffledPlaylistWhenExceptionThrownOnRelease() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -831,8 +814,8 @@ public class SearchManagerTest extends AbstractTest implements Constants {
         when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
-        ReflectionTestUtils.setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
-        ReflectionTestUtils.setField(spySearchManager, "random",
+        setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
+        setField(spySearchManager, "random",
             new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetShuffledPlaylistWhenExceptionThrownOnRelease()"))
@@ -840,16 +823,16 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<Track> result = spySearchManager.getShuffledPlaylist(3, null);
 
-        assertThat("Result should have 3 tracks", result, hasSize(3));
+        assertThat(result).hasSize(3);
 
         Set<Track> uniqueResult = new HashSet<>(result);
 
-        assertThat("Unique result should have 3 tracks", uniqueResult, hasSize(3));
+        assertThat(uniqueResult).hasSize(3);
     }
 
     @Test
-    public void shouldGetMaxSizeShuffledPlaylistWhenPlaylistSizeGreaterOrEqualToNumberOfSearchResults()
-        throws Exception {
+    @SneakyThrows
+    public void shouldGetMaxSizeShuffledPlaylistWhenPlaylistSizeGreaterOrEqualToNumberOfSearchResults() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -868,35 +851,41 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<Track> result = spySearchManager.getShuffledPlaylist(9, null);
 
-        assertThat("Result should have 9 tracks", result, hasSize(9));
+        assertThat(result).hasSize(9);
 
         Set<Track> uniqueResult = new HashSet<>(result);
 
-        assertThat("Unique result should have 9 tracks", uniqueResult, hasSize(9));
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void shouldFailToGetShuffledPlaylistIfTrackManagerIsNull() {
-        ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
-
-        spySearchManager.getShuffledPlaylist(3, null);
+        assertThat(uniqueResult).hasSize(9);
     }
 
     @Test
-    public void shouldGetEmptyShuffledPlaylistOnException() throws Exception {
+    public void shouldFailToGetShuffledPlaylistIfTrackManagerIsNull() {
+        setField(spySearchManager, "trackManager", null);
+
+        assertThatThrownBy(() -> spySearchManager.getShuffledPlaylist(3, null)).isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldGetEmptyShuffledPlaylistOnException() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
+
+        IndexReader mockIndexReader = mock(IndexReader.class);
+        when(mockTrackSearcher.getIndexReader()).thenReturn(mockIndexReader);
+        when(mockIndexReader.maxDoc()).thenReturn(100);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetEmptyShuffledPlaylistOnException()"))
             .when(mockTrackSearcher).search(any(), anyInt());
 
         List<Track> result = spySearchManager.getShuffledPlaylist(3, null);
 
-        assertThat("Result should be empty", result.isEmpty(), equalTo(true));
+        assertThat(result).isEmpty();
     }
 
     @Test
-    public void shouldGetArtistById() throws Exception {
+    @SneakyThrows
+    public void shouldGetArtistById() {
         IndexSearcher mockArtistSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
 
@@ -906,16 +895,17 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         Artist artist = spySearchManager.getArtistById("123");
 
-        assertThat("Artist should not be null", artist, notNullValue());
-        assertThat("Artist ID should be 1231", artist.getArtistId(), equalTo("1231"));
-        assertThat("Artist name should be 'Artist Name 1'", artist.getArtistName(), equalTo("Artist Name 1"));
-        assertThat("Artist image should be 'Artist Image 1'", artist.getArtistImage(), equalTo("Artist Image 1"));
-        assertThat("Biography should be 'Biography 1'", artist.getBiography(), equalTo("Biography 1"));
-        assertThat("Members should be 'Members 1'", artist.getMembers(), equalTo("Members 1"));
+        assertThat(artist).isNotNull();
+        assertThat(artist.getArtistId()).isEqualTo("1231");
+        assertThat(artist.getArtistName()).isEqualTo("Artist Name 1");
+        assertThat(artist.getArtistImage()).isEqualTo("Artist Image 1");
+        assertThat(artist.getBiography()).isEqualTo("Biography 1");
+        assertThat(artist.getMembers()).isEqualTo("Members 1");
     }
 
     @Test
-    public void shouldGetArtistByIdWhenExceptionThrownOnRelease() throws Exception {
+    @SneakyThrows
+    public void shouldGetArtistByIdWhenExceptionThrownOnRelease() {
         IndexSearcher mockArtistSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
 
@@ -928,16 +918,17 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         Artist artist = spySearchManager.getArtistById("123");
 
-        assertThat("Artist should not be null", artist, notNullValue());
-        assertThat("Artist ID should be 1231", artist.getArtistId(), equalTo("1231"));
-        assertThat("Artist name should be 'Artist Name 1'", artist.getArtistName(), equalTo("Artist Name 1"));
-        assertThat("Artist image should be 'Artist Image 1'", artist.getArtistImage(), equalTo("Artist Image 1"));
-        assertThat("Biography should be 'Biography 1'", artist.getBiography(), equalTo("Biography 1"));
-        assertThat("Members should be 'Members 1'", artist.getMembers(), equalTo("Members 1"));
+        assertThat(artist).isNotNull();
+        assertThat(artist.getArtistId()).isEqualTo("1231");
+        assertThat(artist.getArtistName()).isEqualTo("Artist Name 1");
+        assertThat(artist.getArtistImage()).isEqualTo("Artist Image 1");
+        assertThat(artist.getBiography()).isEqualTo("Biography 1");
+        assertThat(artist.getMembers()).isEqualTo("Members 1");
     }
 
     @Test
-    public void shouldFailToGetArtistByIdIfNoSearchResults() throws Exception {
+    @SneakyThrows
+    public void shouldFailToGetArtistByIdIfNoSearchResults() {
         IndexSearcher mockArtistSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
 
@@ -946,11 +937,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         Artist artist = spySearchManager.getArtistById("123");
 
-        assertThat("Artist should be null", artist, nullValue());
+        assertThat(artist).isNull();
     }
 
     @Test
-    public void shouldFailToGetArtistByIdOnException() throws Exception {
+    @SneakyThrows
+    public void shouldFailToGetArtistByIdOnException() {
         IndexSearcher mockArtistSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
 
@@ -959,18 +951,19 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         Artist artist = spySearchManager.getArtistById("123");
 
-        assertThat("Artist should be null", artist, nullValue());
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void shouldFailToGetArtistByIdIfArtistManagerIsNull() {
-        ReflectionTestUtils.setField(spySearchManager, "artistManager", null);
-
-        spySearchManager.getArtistById("123");
+        assertThat(artist).isNull();
     }
 
     @Test
-    public void shouldGetTrackById() throws Exception {
+    public void shouldFailToGetArtistByIdIfArtistManagerIsNull() {
+        setField(spySearchManager, "artistManager", null);
+
+        assertThatThrownBy(() -> spySearchManager.getArtistById("123")).isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldGetTrackById() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -980,26 +973,27 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         Track track = spySearchManager.getTrackById("123");
 
-        assertThat("Track should not be null", track, notNullValue());
-        assertThat("Track artist ID should be 1231", track.getArtistId(), equalTo("1231"));
-        assertThat("Track artist name should be 'Artist Name 1'", track.getArtistName(), equalTo("Artist Name 1"));
-        assertThat("Track artist image should be 'Artist Image 1'", track.getArtistImage(), equalTo("Artist Image 1"));
-        assertThat("Track album ID should be 4561", track.getAlbumId(), equalTo("4561"));
-        assertThat("Track album name should be 'Album Name 1'", track.getAlbumName(), equalTo("Album Name 1"));
-        assertThat("Track album image should be 'Album Image 1'", track.getAlbumImage(), equalTo("Album Image 1"));
-        assertThat("Track year should be 2001", track.getYear(), equalTo(2001));
-        assertThat("Track ID should be 7891", track.getTrackId(), equalTo("7891"));
-        assertThat("Track name should be 'Track Name 1'", track.getTrackName(), equalTo("Track Name 1"));
-        assertThat("Track number should be 1", track.getNumber(), equalTo(1));
-        assertThat("Track location should be 'Location 1'", track.getLocation(), equalTo("Location 1"));
-        assertThat("Track is preferred should be true", track.isPreferred(), equalTo(true));
-        assertThat("Track genres should have a size of 2", track.getGenres(), hasSize(2));
-        assertThat("Track genre 0 should be 'Genre 1 1", track.getGenres().get(0), equalTo("Genre 1 1"));
-        assertThat("Track genre 1 should be 'Genre 2 1", track.getGenres().get(1), equalTo("Genre 2 1"));
+        assertThat(track).isNotNull();
+        assertThat(track.getArtistId()).isEqualTo("1231");
+        assertThat(track.getArtistName()).isEqualTo("Artist Name 1");
+        assertThat(track.getArtistImage()).isEqualTo("Artist Image 1");
+        assertThat(track.getAlbumId()).isEqualTo("4561");
+        assertThat(track.getAlbumName()).isEqualTo("Album Name 1");
+        assertThat(track.getAlbumImage()).isEqualTo("Album Image 1");
+        assertThat(track.getYear()).isEqualTo(2001);
+        assertThat(track.getTrackId()).isEqualTo("7891");
+        assertThat(track.getTrackName()).isEqualTo("Track Name 1");
+        assertThat(track.getNumber()).isEqualTo(1);
+        assertThat(track.getLocation()).isEqualTo("Location 1");
+        assertThat(track.isPreferred()).isTrue();
+        assertThat(track.getGenres()).hasSize(2);
+        assertThat(track.getGenres().get(0)).isEqualTo("Genre 1 1");
+        assertThat(track.getGenres().get(1)).isEqualTo("Genre 2 1");
     }
 
     @Test
-    public void shouldGetTrackByIdWhenExceptionThrownOnRelease() throws Exception {
+    @SneakyThrows
+    public void shouldGetTrackByIdWhenExceptionThrownOnRelease() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -1012,26 +1006,27 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         Track track = spySearchManager.getTrackById("123");
 
-        assertThat("Track should not be null", track, notNullValue());
-        assertThat("Track artist ID should be 1231", track.getArtistId(), equalTo("1231"));
-        assertThat("Track artist name should be 'Artist Name 1'", track.getArtistName(), equalTo("Artist Name 1"));
-        assertThat("Track artist image should be 'Artist Image 1'", track.getArtistImage(), equalTo("Artist Image 1"));
-        assertThat("Track album ID should be 4561", track.getAlbumId(), equalTo("4561"));
-        assertThat("Track album name should be 'Album Name 1'", track.getAlbumName(), equalTo("Album Name 1"));
-        assertThat("Track album image should be 'Album Image 1'", track.getAlbumImage(), equalTo("Album Image 1"));
-        assertThat("Track year should be 2001", track.getYear(), equalTo(2001));
-        assertThat("Track ID should be 7891", track.getTrackId(), equalTo("7891"));
-        assertThat("Track name should be 'Track Name 1'", track.getTrackName(), equalTo("Track Name 1"));
-        assertThat("Track number should be 1", track.getNumber(), equalTo(1));
-        assertThat("Track location should be 'Location 1'", track.getLocation(), equalTo("Location 1"));
-        assertThat("Track is preferred should be true", track.isPreferred(), equalTo(true));
-        assertThat("Track genres should have a size of 2", track.getGenres(), hasSize(2));
-        assertThat("Track genre 0 should be 'Genre 1 1", track.getGenres().get(0), equalTo("Genre 1 1"));
-        assertThat("Track genre 1 should be 'Genre 2 1", track.getGenres().get(1), equalTo("Genre 2 1"));
+        assertThat(track).isNotNull();
+        assertThat(track.getArtistId()).isEqualTo("1231");
+        assertThat(track.getArtistName()).isEqualTo("Artist Name 1");
+        assertThat(track.getArtistImage()).isEqualTo("Artist Image 1");
+        assertThat(track.getAlbumId()).isEqualTo("4561");
+        assertThat(track.getAlbumName()).isEqualTo("Album Name 1");
+        assertThat(track.getAlbumImage()).isEqualTo("Album Image 1");
+        assertThat(track.getYear()).isEqualTo(2001);
+        assertThat(track.getTrackId()).isEqualTo("7891");
+        assertThat(track.getTrackName()).isEqualTo("Track Name 1");
+        assertThat(track.getNumber()).isEqualTo(1);
+        assertThat(track.getLocation()).isEqualTo("Location 1");
+        assertThat(track.isPreferred()).isTrue();
+        assertThat(track.getGenres()).hasSize(2);
+        assertThat(track.getGenres().get(0)).isEqualTo("Genre 1 1");
+        assertThat(track.getGenres().get(1)).isEqualTo("Genre 2 1");
     }
 
     @Test
-    public void shouldFailToGetTrackByIdIfNoSearchResults() throws Exception {
+    @SneakyThrows
+    public void shouldFailToGetTrackByIdIfNoSearchResults() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -1040,11 +1035,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         Track track = spySearchManager.getTrackById("123");
 
-        assertThat("Track should be null", track, nullValue());
+        assertThat(track).isNull();
     }
 
     @Test
-    public void shouldFailToGetTrackByIdOnException() throws Exception {
+    @SneakyThrows
+    public void shouldFailToGetTrackByIdOnException() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -1053,18 +1049,19 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         Track track = spySearchManager.getTrackById("123");
 
-        assertThat("Track should be null", track, nullValue());
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void shouldFailToGetTrackByIdIfArtistManagerIsNull() {
-        ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
-
-        spySearchManager.getTrackById("123");
+        assertThat(track).isNull();
     }
 
     @Test
-    public void shouldGetAlbumById() throws Exception {
+    public void shouldFailToGetTrackByIdIfArtistManagerIsNull() {
+        setField(spySearchManager, "trackManager", null);
+
+        assertThatThrownBy(() -> spySearchManager.getTrackById("123")).isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldGetAlbumById() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -1080,11 +1077,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<Track> tracks = spySearchManager.getAlbumById("123");
 
-        assertThat("Tracks should have a size of 9", tracks, hasSize(9));
+        assertThat(tracks).hasSize(9);
     }
 
     @Test
-    public void shouldGetAlbumByIdWhenExceptionThrownOnRelease() throws Exception {
+    @SneakyThrows
+    public void shouldGetAlbumByIdWhenExceptionThrownOnRelease() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -1103,11 +1101,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<Track> tracks = spySearchManager.getAlbumById("123");
 
-        assertThat("Tracks should have a size of 9", tracks, hasSize(9));
+        assertThat(tracks).hasSize(9);
     }
 
     @Test
-    public void shouldGetEmptyAlbumByIdIfNoSearchResults() throws Exception {
+    @SneakyThrows
+    public void shouldGetEmptyAlbumByIdIfNoSearchResults() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -1117,11 +1116,12 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<Track> tracks = spySearchManager.getAlbumById("123");
 
-        assertThat("Tracks should be empty", tracks.isEmpty(), equalTo(true));
+        assertThat(tracks).isEmpty();
     }
 
     @Test
-    public void shouldFailToGetAlbumByIdOnException() throws Exception {
+    @SneakyThrows
+    public void shouldFailToGetAlbumByIdOnException() {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
@@ -1130,14 +1130,20 @@ public class SearchManagerTest extends AbstractTest implements Constants {
 
         List<Track> tracks = spySearchManager.getAlbumById("123");
 
-        assertThat("Tracks should be null", tracks, nullValue());
+        assertThat(tracks).isNull();
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldFailToGetAlbumByIdIfArtistManagerIsNull() {
-        ReflectionTestUtils.setField(spySearchManager, "trackManager", null);
+        setField(spySearchManager, "trackManager", null);
 
-        spySearchManager.getAlbumById("123");
+        assertThatThrownBy(() -> spySearchManager.getAlbumById("123")).isInstanceOf(RuntimeException.class);
+    }
+
+    @After
+    @SneakyThrows
+    public void cleanup() {
+        FileUtils.deleteDirectory(getConfigDirectory());
     }
 
     private void setArtistSearcherDocuments(IndexSearcher mockArtistSearcher) throws Exception {

@@ -227,9 +227,7 @@ public class CacheManagerTest  {
     @After
     @SneakyThrows
     public void cleanup() {
-        if (cacheDirectory.exists()) {
-            FileUtils.deleteDirectory(getConfigDirectory());
-        }
+        FileUtils.deleteDirectory(getConfigDirectory());
     }
 
     private void writeCacheFile(CacheType cacheType, String id, String cacheContent) throws Exception {
