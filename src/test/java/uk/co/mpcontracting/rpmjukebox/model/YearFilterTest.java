@@ -1,18 +1,18 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class YearFilterTest extends AbstractTest {
+@RunWith(MockitoJUnitRunner.class)
+public class YearFilterTest {
 
     @Test
     public void shouldReturnDisplayFromToString() {
         YearFilter yearFilter = new YearFilter("Display", "2000");
 
-        assertThat("Year filter toString() should be 'Display'", yearFilter.toString(), equalTo("Display"));
+        assertThat(yearFilter.toString()).isEqualTo("Display");
     }
 }

@@ -1,33 +1,35 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
+import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
-
-public class PlaylistTest extends AbstractTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaylistTest {
 
     @Test
     public void shouldSetPlaylistId() {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
 
         @SuppressWarnings("unchecked")
-        List<Track> tracks = (List<Track>)ReflectionTestUtils.getField(playlist, "tracks");
+        List<Track> tracks = (List<Track>) getField(playlist, "tracks");
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = (List<Track>)ReflectionTestUtils.getField(playlist, "shuffledTracks");
+        List<Track> shuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
 
         Track track = spy(tracks.get(0));
         tracks.set(0, track);
@@ -49,7 +51,7 @@ public class PlaylistTest extends AbstractTest {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
         Track track = playlist.getTrackAtIndex(5);
 
-        assertThat("Track ID should be 5", track.getTrackId(), equalTo("7896"));
+        assertThat(track.getTrackId()).isEqualTo("7896");
     }
 
     @Test
@@ -57,7 +59,7 @@ public class PlaylistTest extends AbstractTest {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
         Track track = playlist.getTrackAtIndex(10);
 
-        assertThat("Track should be null", track, nullValue());
+        assertThat(track).isNull();
     }
 
     @Test
@@ -67,17 +69,17 @@ public class PlaylistTest extends AbstractTest {
 
         Track result = playlist.getPlaylistTrack(track);
 
-        assertThat("Tracks should be equal", result, equalTo(track));
+        assertThat(result).isEqualTo(track);
     }
 
     @Test
     public void shouldFailToGetPlaylistTrack() {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
+        Track track = new Track("1230", null, null, "4560", null, null, 2000, "7890", null, 1, null, false, null);
 
-        Track result = playlist.getPlaylistTrack(
-            new Track("1230", null, null, "4560", null, null, 2000, "7890", null, 1, null, false, null));
+        Track result = playlist.getPlaylistTrack(track);
 
-        assertThat("Track should be null", result, nullValue());
+        assertThat(result).isNull();
     }
 
     @Test
@@ -85,7 +87,7 @@ public class PlaylistTest extends AbstractTest {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
         Track track = playlist.getShuffledTrackAtIndex(5);
 
-        assertThat("Track should not be null", track, notNullValue());
+        assertThat(track).isNotNull();
     }
 
     @Test
@@ -93,7 +95,7 @@ public class PlaylistTest extends AbstractTest {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
         Track track = playlist.getShuffledTrackAtIndex(10);
 
-        assertThat("Track should be null", track, nullValue());
+        assertThat(track).isNull();
     }
 
     @Test
@@ -101,8 +103,8 @@ public class PlaylistTest extends AbstractTest {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
 
         @SuppressWarnings("unchecked")
-        List<Track> spyShuffledTracks = spy((List<Track>)ReflectionTestUtils.getField(playlist, "shuffledTracks"));
-        ReflectionTestUtils.setField(playlist, "shuffledTracks", spyShuffledTracks);
+        List<Track> spyShuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
+        setField(playlist, "shuffledTracks", spyShuffledTracks);
 
         playlist.shuffle();
 
@@ -115,8 +117,8 @@ public class PlaylistTest extends AbstractTest {
         Track track = playlist.getTrackAtIndex(1);
 
         @SuppressWarnings("unchecked")
-        List<Track> spyShuffledTracks = spy((List<Track>)ReflectionTestUtils.getField(playlist, "shuffledTracks"));
-        ReflectionTestUtils.setField(playlist, "shuffledTracks", spyShuffledTracks);
+        List<Track> spyShuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
+        setField(playlist, "shuffledTracks", spyShuffledTracks);
 
         playlist.setTrackAtShuffledIndex(track, 5);
 
@@ -130,7 +132,7 @@ public class PlaylistTest extends AbstractTest {
 
         boolean result = playlist.isTrackInPlaylist("7895");
 
-        assertThat("Result should be true", result, equalTo(true));
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -139,7 +141,7 @@ public class PlaylistTest extends AbstractTest {
 
         boolean result = playlist.isTrackInPlaylist(null);
 
-        assertThat("Result should be false", result, equalTo(false));
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -148,15 +150,15 @@ public class PlaylistTest extends AbstractTest {
 
         boolean result = playlist.isTrackInPlaylist("20");
 
-        assertThat("Result should be false", result, equalTo(false));
+        assertThat(result).isFalse();
     }
 
     @Test
     public void shouldSetTracks() {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
-        playlist.setTracks(Arrays.asList(mock(Track.class), mock(Track.class)));
+        playlist.setTracks(asList(mock(Track.class), mock(Track.class)));
 
-        assertThat("Playlist size should be 2", playlist.getTracks(), hasSize(2));
+        assertThat(playlist.getTracks()).hasSize(2);
     }
 
     @Test
@@ -164,15 +166,15 @@ public class PlaylistTest extends AbstractTest {
         Track track1 = new Track("1231", null, null, "4561", null, null, 2000, "7891", null, 1, null, false, null);
         Track track2 = new Track("1232", null, null, "4562", null, null, 2000, "7892", null, 1, null, false, null);
         Playlist playlist = new Playlist(1, "Playlist", 10);
-        playlist.setTracks(Arrays.asList(track1, track2));
+        playlist.setTracks(asList(track1, track2));
 
         Track addedTrack = new Track("1233", null, null, "4563", null, null, 2000, "7893", null, 1, null, false, null);
 
         playlist.addTrack(addedTrack);
 
-        assertThat("Playlist size should be 3", playlist.getTracks(), hasSize(3));
-        assertThat("Added track should have a playlist ID of 1", addedTrack.getPlaylistId(), equalTo(1));
-        assertThat("Added track should have a playlist index of 2", addedTrack.getPlaylistIndex(), equalTo(2));
+        assertThat(playlist.getTracks()).hasSize(3);
+        assertThat(addedTrack.getPlaylistId()).isEqualTo(1);
+        assertThat(addedTrack.getPlaylistIndex()).isEqualTo(2);
     }
 
     @Test
@@ -180,11 +182,11 @@ public class PlaylistTest extends AbstractTest {
         Track track1 = new Track("1231", null, null, "4561", null, null, 2000, "7891", null, 1, null, false, null);
         Track track2 = new Track("1232", null, null, "4562", null, null, 2000, "7892", null, 1, null, false, null);
         Playlist playlist = new Playlist(1, "Playlist", 10);
-        playlist.setTracks(Arrays.asList(track1, track2));
+        playlist.setTracks(asList(track1, track2));
 
         playlist.addTrack(new Track("1232", null, null, "4562", null, null, 2000, "7892", null, 1, null, false, null));
 
-        assertThat("Playlist size should be 2", playlist.getTracks(), hasSize(2));
+        assertThat(playlist.getTracks()).hasSize(2);
     }
 
     @Test
@@ -192,25 +194,24 @@ public class PlaylistTest extends AbstractTest {
         Track track1 = new Track("1231", null, null, "4561", null, null, 2000, "7891", null, 1, null, false, null);
         Track track2 = new Track("1232", null, null, "4562", null, null, 2000, "7892", null, 1, null, false, null);
         Playlist playlist = new Playlist(1, "Playlist", 2);
-        playlist.setTracks(Arrays.asList(track1, track2));
+        playlist.setTracks(asList(track1, track2));
 
         playlist.addTrack(new Track("1233", null, null, "4563", null, null, 2000, "7893", null, 1, null, false, null));
 
-        assertThat("Playlist size should be 2", playlist.getTracks(), hasSize(2));
+        assertThat(playlist.getTracks()).hasSize(2);
     }
 
     @Test
     public void shouldRemoveTrack() {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
 
-        playlist
-            .removeTrack(new Track("1231", null, null, "4561", null, null, 2000, "7891", null, 1, null, false, null));
+        playlist.removeTrack(new Track("1231", null, null, "4561", null, null, 2000, "7891", null, 1, null, false, null));
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = (List<Track>)ReflectionTestUtils.getField(playlist, "shuffledTracks");
+        List<Track> shuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
 
-        assertThat("Tracks size should be 9", playlist.getTracks(), hasSize(9));
-        assertThat("Shuffled tracks size should be 9", shuffledTracks, hasSize(9));
+        assertThat(playlist.getTracks()).hasSize(9);
+        assertThat(shuffledTracks).hasSize(9);
     }
 
     @Test
@@ -221,10 +222,10 @@ public class PlaylistTest extends AbstractTest {
             .removeTrack(new Track("1230", null, null, "4560", null, null, 2000, "7890", null, 1, null, false, null));
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = (List<Track>)ReflectionTestUtils.getField(playlist, "shuffledTracks");
+        List<Track> shuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
 
-        assertThat("Tracks size should be 10", playlist.getTracks(), hasSize(10));
-        assertThat("Shuffled tracks size should be 10", shuffledTracks, hasSize(10));
+        assertThat(playlist.getTracks()).hasSize(10);
+        assertThat(shuffledTracks).hasSize(10);
     }
 
     @Test
@@ -236,13 +237,13 @@ public class PlaylistTest extends AbstractTest {
             new Track("1238", null, null, "4568", null, null, 2000, "7898", null, 1, null, false, null));
 
         @SuppressWarnings("unchecked")
-        List<Track> spyShuffledTracks = spy((List<Track>)ReflectionTestUtils.getField(playlist, "shuffledTracks"));
-        ReflectionTestUtils.setField(playlist, "shuffledTracks", spyShuffledTracks);
+        List<Track> spyShuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
+        setField(playlist, "shuffledTracks", spyShuffledTracks);
 
         playlist.swapTracks(source, target);
 
-        assertThat("Source should have a playlist index of 7", source.getPlaylistIndex(), equalTo(7));
-        assertThat("Target should have a playlist index of 6", target.getPlaylistIndex(), equalTo(6));
+        assertThat(source.getPlaylistIndex()).isEqualTo(7);
+        assertThat(target.getPlaylistIndex()).isEqualTo(6);
         verify(spyShuffledTracks, atLeastOnce()).set(anyInt(), any());
     }
 
@@ -255,13 +256,13 @@ public class PlaylistTest extends AbstractTest {
             new Track("1238", null, null, "4568", null, null, 2000, "7898", null, 1, null, false, null));
 
         @SuppressWarnings("unchecked")
-        List<Track> spyShuffledTracks = spy((List<Track>)ReflectionTestUtils.getField(playlist, "shuffledTracks"));
-        ReflectionTestUtils.setField(playlist, "shuffledTracks", spyShuffledTracks);
+        List<Track> spyShuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
+        setField(playlist, "shuffledTracks", spyShuffledTracks);
 
         playlist.swapTracks(source, target);
 
-        assertThat("Source should have a playlist index of 1", source.getPlaylistIndex(), equalTo(1));
-        assertThat("Target should have a playlist index of 2", target.getPlaylistIndex(), equalTo(2));
+        assertThat(source.getPlaylistIndex()).isEqualTo(1);
+        assertThat(target.getPlaylistIndex()).isEqualTo(2);
         verify(spyShuffledTracks, atLeastOnce()).set(anyInt(), any());
     }
 
@@ -270,21 +271,21 @@ public class PlaylistTest extends AbstractTest {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
         Iterator<Track> iterator = playlist.iterator();
 
-        assertThat("Iterator has at least one track", iterator.hasNext(), equalTo(true));
+        assertThat(iterator.hasNext()).isTrue();
     }
 
     @Test
     public void shouldGetSize() {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
 
-        assertThat("Playlist should have a size of 10", playlist.size(), equalTo(10));
+        assertThat(playlist.size()).isEqualTo(10);
     }
 
     @Test
     public void shouldGetIsEmpty() {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
 
-        assertThat("Playlist should not be empty", playlist.isEmpty(), equalTo(false));
+        assertThat(playlist.isEmpty()).isFalse();
     }
 
     @Test
@@ -293,10 +294,10 @@ public class PlaylistTest extends AbstractTest {
         playlist.clear();
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = (List<Track>)ReflectionTestUtils.getField(playlist, "shuffledTracks");
+        List<Track> shuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
 
-        assertThat("Tracks should be empty", playlist.getTracks().isEmpty(), equalTo(true));
-        assertThat("Shuffled tracks should be empty", shuffledTracks.isEmpty(), equalTo(true));
+        assertThat(playlist.getTracks()).isEmpty();
+        assertThat(shuffledTracks).isEmpty();
     }
 
     @Test
@@ -304,26 +305,24 @@ public class PlaylistTest extends AbstractTest {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
         Playlist clone = playlist.clone();
 
-        int playlistMaxSize = (Integer)ReflectionTestUtils.getField(playlist, "maxPlaylistSize");
-        int cloneMaxSize = (Integer)ReflectionTestUtils.getField(clone, "maxPlaylistSize");
-        SecureRandom playlistRandom = (SecureRandom)ReflectionTestUtils.getField(playlist, "random");
-        SecureRandom cloneRandom = (SecureRandom)ReflectionTestUtils.getField(clone, "random");
+        int playlistMaxSize = (Integer) requireNonNull(getField(playlist, "maxPlaylistSize"));
+        int cloneMaxSize = (Integer) requireNonNull(getField(clone, "maxPlaylistSize"));
+        SecureRandom playlistRandom = (SecureRandom) getField(playlist, "random");
+        SecureRandom cloneRandom = (SecureRandom) getField(clone, "random");
 
         @SuppressWarnings("unchecked")
-        List<Track> playlistShuffledTracks = (List<Track>)ReflectionTestUtils.getField(playlist, "shuffledTracks");
+        List<Track> playlistShuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
 
         @SuppressWarnings("unchecked")
-        List<Track> cloneShuffledTracks = (List<Track>)ReflectionTestUtils.getField(clone, "shuffledTracks");
+        List<Track> cloneShuffledTracks = (List<Track>) getField(clone, "shuffledTracks");
 
-        assertThat("Clone should not be the same object as playlist", clone == playlist, equalTo(false));
-        assertThat("Playlist ID should be equal", clone.getPlaylistId(), equalTo(playlist.getPlaylistId()));
-        assertThat("Playlist name should be equal", clone.getName(), equalTo(playlist.getName()));
-        assertThat("Playlist max play size should be equal", cloneMaxSize, equalTo(playlistMaxSize));
-        assertThat("Playlist tracks should be equal", getAreTrackListsEqual(clone.getTracks(), playlist.getTracks()),
-            equalTo(true));
-        assertThat("Playlist shuffled tracks should be equal",
-            getAreTrackListsEqual(cloneShuffledTracks, playlistShuffledTracks), equalTo(true));
-        assertThat("Random generators should be different objects", cloneRandom == playlistRandom, equalTo(false));
+        assertThat(clone).isNotSameAs(playlist);
+        assertThat(clone.getPlaylistId()).isEqualTo(playlist.getPlaylistId());
+        assertThat(clone.getName()).isEqualTo(playlist.getName());
+        assertThat(cloneMaxSize).isEqualTo(playlistMaxSize);
+        assertThat(getAreTrackListsEqual(clone.getTracks(), playlist.getTracks())).isTrue();
+        assertThat(getAreTrackListsEqual(cloneShuffledTracks, playlistShuffledTracks)).isTrue();
+        assertThat(cloneRandom).isNotSameAs(playlistRandom);
     }
 
     private Playlist createPlaylist(int playlistId, String playlistName, int maxPlaylistSize) {
