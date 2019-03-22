@@ -5,7 +5,7 @@ public enum TrackSort {
 
     private String friendlyName;
 
-    private TrackSort(String friendlyName) {
+    TrackSort(String friendlyName) {
         this.friendlyName = friendlyName;
     }
 

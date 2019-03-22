@@ -1,27 +1,27 @@
 package uk.co.mpcontracting.rpmjukebox.search;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import org.apache.lucene.queries.TermsQuery;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class TrackFilterTest extends AbstractTest {
+@RunWith(MockitoJUnitRunner.class)
+public class TrackFilterTest {
 
     @Test
     public void shouldInitialiseWithNoGenreOrYear() {
         TrackFilter trackFilter = new TrackFilter(null, null);
 
-        assertThat("Filter query should be null", trackFilter.getFilter(), nullValue());
+        assertThat(trackFilter.getFilter()).isNull();
     }
 
     @Test
     public void shouldInitialiseWithBlankGenreOrYear() {
         TrackFilter trackFilter = new TrackFilter("", "");
 
-        assertThat("Filter query should be null", trackFilter.getFilter(), nullValue());
+        assertThat(trackFilter.getFilter()).isNull();
     }
 
     @Test
@@ -29,7 +29,7 @@ public class TrackFilterTest extends AbstractTest {
         TrackFilter trackFilter = new TrackFilter("Genre", null);
         TermsQuery termsQuery = (TermsQuery)trackFilter.getFilter();
 
-        assertThat("Filter query should have 1 term", termsQuery.getTermData().size(), equalTo(1l));
+        assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
     }
 
     @Test
@@ -37,7 +37,7 @@ public class TrackFilterTest extends AbstractTest {
         TrackFilter trackFilter = new TrackFilter(null, "2000");
         TermsQuery termsQuery = (TermsQuery)trackFilter.getFilter();
 
-        assertThat("Filter query should have 1 term", termsQuery.getTermData().size(), equalTo(1l));
+        assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
     }
 
     @Test
@@ -45,6 +45,6 @@ public class TrackFilterTest extends AbstractTest {
         TrackFilter trackFilter = new TrackFilter("Genre", "2000");
         TermsQuery termsQuery = (TermsQuery)trackFilter.getFilter();
 
-        assertThat("Filter query should have 2 terms", termsQuery.getTermData().size(), equalTo(2l));
+        assertThat(termsQuery.getTermData().size()).isEqualTo(2L);
     }
 }
