@@ -1,50 +1,64 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+@RunWith(MockitoJUnitRunner.class)
+public class HashGeneratorTest {
 
-public class HashGeneratorTest extends AbstractTest {
+  private HashGenerator hashGenerator;
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowIllegalArgumentExceptionWithNullHashKeys() throws Exception {
-        HashGenerator.generateHash((Object[])null);
+  @Before
+  public void setup() {
+    hashGenerator = new HashGenerator();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowIllegalArgumentExceptionWithNoHashKeys() throws Exception {
-        HashGenerator.generateHash(new Object[] {});
-    }
-
-    @Test(expected = Exception.class)
-    public void shouldThrowExceptionIfKeyLengthIsZero() throws Exception {
-        HashGenerator.generateHash("", "");
-    }
-
-    @Test
-    public void shouldGenerateAHashFromASingleObject() throws Exception {
-        String hash = HashGenerator.generateHash("Object 1");
-
-        assertThat("Generated hash should be '9c98295d0c3d33bf3ba088bfa61e7c781c6e6cc95d4cdc9ce98c1ee070424c4a'", hash,
-            equalTo("9c98295d0c3d33bf3ba088bfa61e7c781c6e6cc95d4cdc9ce98c1ee070424c4a"));
+  @Test
+  public void shouldThrowIllegalArgumentExceptionWithNullHashKeys() {
+    assertThatThrownBy(() -> hashGenerator.generateHash((Object[]) null))
+        .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void shouldGenerateAHashFromAMultipleObjects() throws Exception {
-        String hash = HashGenerator.generateHash("Object 1", "Object 2");
-
-        assertThat("Generated hash should be '7ca30a03c43d539842c53db6597a7ea583fa4f2b37a2a63bf67d087538282e27'", hash,
-            equalTo("7ca30a03c43d539842c53db6597a7ea583fa4f2b37a2a63bf67d087538282e27"));
+    public void shouldThrowIllegalArgumentExceptionWithNoHashKeys() {
+      assertThatThrownBy(() -> hashGenerator.generateHash())
+          .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void shouldGenerateEqualHashesFromAMultipleObjectsWithNull() throws Exception {
-        String hash1 = HashGenerator.generateHash("Object 1", "Object 2");
-        String hash2 = HashGenerator.generateHash("Object 1", null, "Object 2");
+    public void shouldThrowExceptionIfKeyLengthIsZero() {
+      assertThatThrownBy(() -> hashGenerator.generateHash("", "")).isInstanceOf(Exception.class);
+    }
 
-        assertThat("Should generate the same hash if an key is null", hash1, equalTo(hash2));
+    @Test
+    @SneakyThrows
+    public void shouldGenerateAHashFromASingleObject() {
+      String hash = hashGenerator.generateHash("Object 1");
+
+      assertThat(hash)
+          .isEqualTo("9c98295d0c3d33bf3ba088bfa61e7c781c6e6cc95d4cdc9ce98c1ee070424c4a");
+    }
+
+  @Test
+  @SneakyThrows
+  public void shouldGenerateAHashFromAMultipleObjects() {
+    String hash = hashGenerator.generateHash("Object 1", "Object 2");
+
+    assertThat(hash).isEqualTo("7ca30a03c43d539842c53db6597a7ea583fa4f2b37a2a63bf67d087538282e27");
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldGenerateEqualHashesFromAMultipleObjectsWithNull() {
+    String hash1 = hashGenerator.generateHash("Object 1", "Object 2");
+    String hash2 = hashGenerator.generateHash("Object 1", null, "Object 2");
+
+    assertThat(hash1).isEqualTo(hash2);
     }
 }

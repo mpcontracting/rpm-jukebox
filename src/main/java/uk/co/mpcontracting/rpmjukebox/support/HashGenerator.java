@@ -2,16 +2,14 @@ package uk.co.mpcontracting.rpmjukebox.support;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-public abstract class HashGenerator {
+@Component
+public class HashGenerator {
 
-    private HashGenerator() {
-    }
-
-    public static String generateHash(Object... objects) throws Exception {
+  public String generateHash(Object... objects) throws Exception {
         log.debug("Generating hash for - {}", objectsAsString(objects));
 
         if (objects == null || objects.length == 0) {
@@ -43,7 +41,7 @@ public abstract class HashGenerator {
         }
     }
 
-    private static String objectsAsString(Object... objects) {
+  private String objectsAsString(Object... objects) {
         StringBuilder builder = new StringBuilder();
 
         if (objects != null) {
@@ -67,7 +65,7 @@ public abstract class HashGenerator {
         return builder.toString();
     }
 
-    private static String toHex(byte[] bytes) {
+  private String toHex(byte[] bytes) {
         return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
 }

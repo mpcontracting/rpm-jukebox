@@ -1,5 +1,15 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
@@ -11,23 +21,13 @@ import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.net.URLEncoder;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CacheManager implements Constants {
 
     private final AppProperties appProperties;
+  private final HashGenerator hashGenerator;
 
     private SettingsManager settingsManager;
 
@@ -70,7 +70,8 @@ public class CacheManager implements Constants {
         log.debug("Reading cache : Cache type - {}, ID - {}", cacheType, id);
 
         try {
-            File file = new File(cacheDirectory, (cacheType == CacheType.TRACK ? id : HashGenerator.generateHash(id)));
+          File file = new File(cacheDirectory,
+              (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
 
             if (file.exists()) {
                 log.debug("Found cached file : Cache type - {}, ID - {}", cacheType, id);
@@ -93,7 +94,8 @@ public class CacheManager implements Constants {
         log.debug("Writing cache : Cache type - {}, ID - {}", cacheType, id);
 
         try {
-            File file = new File(cacheDirectory, (cacheType == CacheType.TRACK ? id : HashGenerator.generateHash(id)));
+          File file = new File(cacheDirectory,
+              (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
 
             if (file.exists()) {
                 file.delete();

@@ -1,5 +1,21 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
+import javax.annotation.PostConstruct;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -13,29 +29,13 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
-import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.zip.GZIPInputStream;
-
-import static java.util.Arrays.stream;
-import static java.util.Collections.singletonList;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DataManager implements Constants {
 
     private final AppProperties appProperties;
+  private final HashGenerator hashGenerator;
 
     private SearchManager searchManager;
     private InternetManager internetManager;
@@ -104,7 +104,8 @@ public class DataManager implements Constants {
                                     parserModelArtist.getArtistName(), parserModelArtist.getArtistImage(),
                                     Integer.toString(parserModelAlbum.getAlbumId()), parserModelAlbum.getAlbumName(),
                                     parserModelAlbum.getAlbumImage(), parserModelAlbum.getYear(),
-                                    HashGenerator.generateHash(trackKey), parserModelTrack.getTrackName(),
+                                hashGenerator.generateHash(trackKey),
+                                parserModelTrack.getTrackName(),
                                     parserModelTrack.getNumber(), appProperties.getS3BucketUrl() + trackKey,
                                     parserModelTrack.isPreferred(), parserModelArtist.getGenres()));
                         }

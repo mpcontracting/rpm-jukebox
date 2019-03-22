@@ -1,11 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javafx.scene.control.TextField;
+import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
 public class ValidationHelperTest extends AbstractTest implements Constants {
@@ -14,42 +12,42 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
     public void shouldReturnNullStringAsBlank() {
         String result = ValidationHelper.nullAsBlank((String)null);
 
-        assertThat("Result should be ''", result, equalTo(""));
+        assertThat(result).isEqualTo("");
     }
 
     @Test
     public void shouldReturnStringAsTrimmedString() {
         String result = ValidationHelper.nullAsBlank("test ");
 
-        assertThat("Result should be 'test '", result, equalTo("test"));
+        assertThat(result).isEqualTo("test");
     }
 
     @Test
     public void shouldReturnNullIntegerAsBlank() {
         String result = ValidationHelper.nullAsBlank((Integer)null);
 
-        assertThat("Result should be ''", result, equalTo(""));
+        assertThat(result).isEqualTo("");
     }
 
     @Test
     public void shouldReturnIntegerAsString() {
         String result = ValidationHelper.nullAsBlank(123);
 
-        assertThat("Result should be '123'", result, equalTo("123"));
+        assertThat(result).isEqualTo("123");
     }
 
     @Test
     public void shouldReturnNullBooleanAsFalse() {
         boolean result = ValidationHelper.nullAsFalse(null);
 
-        assertThat("Result should be false", result, equalTo(false));
+        assertThat(result).isFalse();
     }
 
     @Test
     public void shouldReturnBooleanAsBoolean() {
         boolean result = ValidationHelper.nullAsFalse(true);
 
-        assertThat("Result should be true", result, equalTo(true));
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -58,8 +56,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateTextField(textField, true, 1, 500);
 
-        assertThat("Result should be true", result, equalTo(true));
-        assertThat("Style should be '" + STYLE_VALID_BORDER + "'", textField.getStyle(), equalTo(STYLE_VALID_BORDER));
+        assertThat(result).isTrue();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_VALID_BORDER);
     }
 
     @Test
@@ -68,9 +66,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateTextField(textField, true, null, null);
 
-        assertThat("Result should be true", result, equalTo(false));
-        assertThat("Style should be '" + STYLE_INVALID_BORDER + "'", textField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
+        assertThat(result).isFalse();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_INVALID_BORDER);
     }
 
     @Test
@@ -79,8 +76,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateTextField(textField, false, 1, 500);
 
-        assertThat("Result should be true", result, equalTo(true));
-        assertThat("Style should be '" + STYLE_VALID_BORDER + "'", textField.getStyle(), equalTo(STYLE_VALID_BORDER));
+        assertThat(result).isTrue();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_VALID_BORDER);
     }
 
     @Test
@@ -89,8 +86,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateTextField(textField, false, 1, 500);
 
-        assertThat("Result should be true", result, equalTo(true));
-        assertThat("Style should be '" + STYLE_VALID_BORDER + "'", textField.getStyle(), equalTo(STYLE_VALID_BORDER));
+        assertThat(result).isTrue();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_VALID_BORDER);
     }
 
     @Test
@@ -99,8 +96,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateTextField(textField, true, null, null);
 
-        assertThat("Result should be true", result, equalTo(true));
-        assertThat("Style should be '" + STYLE_VALID_BORDER + "'", textField.getStyle(), equalTo(STYLE_VALID_BORDER));
+        assertThat(result).isTrue();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_VALID_BORDER);
     }
 
     @Test
@@ -109,9 +106,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateTextField(textField, true, 50, null);
 
-        assertThat("Result should be false", result, equalTo(false));
-        assertThat("Style should be '" + STYLE_INVALID_BORDER + "'", textField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
+        assertThat(result).isFalse();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_INVALID_BORDER);
     }
 
     @Test
@@ -120,9 +116,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateTextField(textField, true, null, 5);
 
-        assertThat("Result should be false", result, equalTo(false));
-        assertThat("Style should be '" + STYLE_INVALID_BORDER + "'", textField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
+        assertThat(result).isFalse();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_INVALID_BORDER);
     }
 
     @Test
@@ -131,8 +126,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateIntegerField(textField, true, 1, 500);
 
-        assertThat("Result should be true", result, equalTo(true));
-        assertThat("Style should be '" + STYLE_VALID_BORDER + "'", textField.getStyle(), equalTo(STYLE_VALID_BORDER));
+        assertThat(result).isTrue();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_VALID_BORDER);
     }
 
     @Test
@@ -141,9 +136,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateIntegerField(textField, true, null, null);
 
-        assertThat("Result should be true", result, equalTo(false));
-        assertThat("Style should be '" + STYLE_INVALID_BORDER + "'", textField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
+        assertThat(result).isFalse();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_INVALID_BORDER);
     }
 
     @Test
@@ -152,8 +146,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateIntegerField(textField, false, 1, 500);
 
-        assertThat("Result should be true", result, equalTo(true));
-        assertThat("Style should be '" + STYLE_VALID_BORDER + "'", textField.getStyle(), equalTo(STYLE_VALID_BORDER));
+        assertThat(result).isTrue();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_VALID_BORDER);
     }
 
     @Test
@@ -162,8 +156,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateIntegerField(textField, false, 1, 500);
 
-        assertThat("Result should be true", result, equalTo(true));
-        assertThat("Style should be '" + STYLE_VALID_BORDER + "'", textField.getStyle(), equalTo(STYLE_VALID_BORDER));
+        assertThat(result).isTrue();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_VALID_BORDER);
     }
 
     @Test
@@ -172,9 +166,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateIntegerField(textField, true, 1, 500);
 
-        assertThat("Result should be false", result, equalTo(false));
-        assertThat("Style should be '" + STYLE_INVALID_BORDER + "'", textField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
+        assertThat(result).isFalse();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_INVALID_BORDER);
     }
 
     @Test
@@ -183,8 +176,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateIntegerField(textField, true, null, null);
 
-        assertThat("Result should be true", result, equalTo(true));
-        assertThat("Style should be '" + STYLE_VALID_BORDER + "'", textField.getStyle(), equalTo(STYLE_VALID_BORDER));
+        assertThat(result).isTrue();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_VALID_BORDER);
     }
 
     @Test
@@ -193,9 +186,8 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateIntegerField(textField, true, 50, null);
 
-        assertThat("Result should be false", result, equalTo(false));
-        assertThat("Style should be '" + STYLE_INVALID_BORDER + "'", textField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
+        assertThat(result).isFalse();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_INVALID_BORDER);
     }
 
     @Test
@@ -204,8 +196,7 @@ public class ValidationHelperTest extends AbstractTest implements Constants {
 
         boolean result = ValidationHelper.validateIntegerField(textField, true, null, 200);
 
-        assertThat("Result should be false", result, equalTo(false));
-        assertThat("Style should be '" + STYLE_INVALID_BORDER + "'", textField.getStyle(),
-            equalTo(STYLE_INVALID_BORDER));
+        assertThat(result).isFalse();
+        assertThat(textField.getStyle()).isEqualTo(STYLE_INVALID_BORDER);
     }
 }

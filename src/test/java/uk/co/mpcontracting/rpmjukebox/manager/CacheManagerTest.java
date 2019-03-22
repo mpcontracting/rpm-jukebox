@@ -1,5 +1,19 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import static java.util.Objects.requireNonNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDirectory;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getDateTimeInMillis;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.RandomAccessFile;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -14,13 +28,6 @@ import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
-import java.io.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDirectory;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getDateTimeInMillis;
-
 @RunWith(MockitoJUnitRunner.class)
 public class CacheManagerTest  {
 
@@ -34,11 +41,14 @@ public class CacheManagerTest  {
     private SystemSettings mockSystemSettings;
 
     private File cacheDirectory = new File(getConfigDirectory(), "cache");
+    private HashGenerator hashGenerator;
     private CacheManager cacheManager;
 
     @Before
     public void setup() {
-        cacheManager = new CacheManager(mockAppProperties);
+        hashGenerator = new HashGenerator();
+
+        cacheManager = new CacheManager(mockAppProperties, hashGenerator);
         cacheManager.wireSettingsManager(mockSettingsManager);
 
         when(mockAppProperties.getCacheDirectory()).thenReturn("cache");
@@ -116,7 +126,7 @@ public class CacheManagerTest  {
 
         cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
-        File file = new File(cacheDirectory, HashGenerator.generateHash(id));
+        File file = new File(cacheDirectory, hashGenerator.generateHash(id));
         String result = readCacheFile(file);
 
         assertThat(result).isEqualTo(cacheContent);
@@ -132,7 +142,7 @@ public class CacheManagerTest  {
 
         cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
-        File file = new File(cacheDirectory, HashGenerator.generateHash(id));
+        File file = new File(cacheDirectory, hashGenerator.generateHash(id));
 
         assertThat(file.exists()).isFalse();
     }
@@ -220,7 +230,7 @@ public class CacheManagerTest  {
 
         File cachedFile = cacheManager.readCache(cacheType, id);
 
-        assertThat(cacheDirectory.listFiles().length).isEqualTo(21);
+        assertThat(requireNonNull(cacheDirectory.listFiles()).length).isEqualTo(21);
         assertThat(cachedFile).isNotNull();
     }
 
@@ -231,7 +241,8 @@ public class CacheManagerTest  {
     }
 
     private void writeCacheFile(CacheType cacheType, String id, String cacheContent) throws Exception {
-        File file = new File(cacheDirectory, (cacheType == CacheType.TRACK ? id : HashGenerator.generateHash(id)));
+        File file = new File(cacheDirectory,
+            (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(cacheContent.getBytes());
         }

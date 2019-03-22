@@ -1,61 +1,61 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javafx.util.Duration;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-public class StringHelperTest extends AbstractTest {
+@RunWith(MockitoJUnitRunner.class)
+public class StringHelperTest {
 
     @Test
     public void shouldFormatAnElapsedZeroTime() {
         String elapsedTime = StringHelper.formatElapsedTime(new Duration(0), new Duration(0));
 
-        assertThat("Duration should be '00:00/00:00'", elapsedTime, equalTo("00:00/00:00"));
+      assertThat(elapsedTime).isEqualTo("00:00/00:00");
     }
 
     @Test
     public void shouldFormatAnElapsedTimeWithSeconds() {
         String elapsedTime = StringHelper.formatElapsedTime(new Duration(2000), new Duration(1000));
 
-        assertThat("Duration should be '00:01/00:02'", elapsedTime, equalTo("00:01/00:02"));
+      assertThat(elapsedTime).isEqualTo("00:01/00:02");
     }
 
     @Test
     public void shouldFormatAnElapsedTimeWithMinutes() {
         String elapsedTime = StringHelper.formatElapsedTime(new Duration(120000), new Duration(60000));
 
-        assertThat("Duration should be '01:00/02:00'", elapsedTime, equalTo("01:00/02:00"));
+      assertThat(elapsedTime).isEqualTo("01:00/02:00");
     }
 
     @Test
     public void shouldFormatAnElapsedTimeWithHours() {
         String elapsedTime = StringHelper.formatElapsedTime(new Duration(7200000), new Duration(3600000));
 
-        assertThat("Duration should be '1:00:00/2:00:00'", elapsedTime, equalTo("1:00:00/2:00:00"));
+      assertThat(elapsedTime).isEqualTo("1:00:00/2:00:00");
     }
 
     @Test
     public void shouldFormatAnElapsedTimeWithZeroMediaDurationSeconds() {
         String elapsedTime = StringHelper.formatElapsedTime(new Duration(0), new Duration(1000));
 
-        assertThat("Duration should be '00:01'", elapsedTime, equalTo("00:01"));
+      assertThat(elapsedTime).isEqualTo("00:01");
     }
 
     @Test
     public void shouldFormatAnElapsedTimeWithZeroMediaDurationMinutes() {
         String elapsedTime = StringHelper.formatElapsedTime(new Duration(0), new Duration(60000));
 
-        assertThat("Duration should be '01:00'", elapsedTime, equalTo("01:00"));
+      assertThat(elapsedTime).isEqualTo("01:00");
     }
 
     @Test
     public void shouldFormatAnElapsedTimeWithZeroMediaDurationHours() {
         String elapsedTime = StringHelper.formatElapsedTime(new Duration(0), new Duration(3600000));
 
-        assertThat("Duration should be '1:00:00'", elapsedTime, equalTo("1:00:00"));
+      assertThat(elapsedTime).isEqualTo("1:00:00");
     }
 }

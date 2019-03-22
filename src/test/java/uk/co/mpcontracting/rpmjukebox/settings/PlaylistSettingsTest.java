@@ -1,26 +1,26 @@
 package uk.co.mpcontracting.rpmjukebox.settings;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
-
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
-public class PlaylistSettingsTest extends AbstractTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PlaylistSettingsTest {
 
     @Test
     public void shouldPopulateTracksFromPlaylist() {
         Playlist playlist = new Playlist(1, "Test Playlist", 10);
-        for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 11; i++) {
             playlist.addTrack(mock(Track.class));
         }
 
         PlaylistSettings playlistSettings = new PlaylistSettings(playlist);
 
-        assertThat("Playlist settings should have 10 tracks", playlistSettings.getTracks(), hasSize(10));
+      assertThat(playlistSettings.getTracks()).hasSize(10);
     }
 }

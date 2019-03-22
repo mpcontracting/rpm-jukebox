@@ -1,17 +1,23 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestResourceFile;
+
+import java.net.URL;
+import java.net.URLConnection;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
-
-import java.net.URL;
-import java.net.URLConnection;
-
-import static org.mockito.Mockito.*;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestResourceFile;
+import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataManagerTest {
@@ -29,7 +35,7 @@ public class DataManagerTest {
 
     @Before
     public void setup() {
-        dataManager = new DataManager(mockAppProperties);
+      dataManager = new DataManager(mockAppProperties, new HashGenerator());
         dataManager.wireSearchManager(mockSearchManager);
         dataManager.wireInternetManager(mockInternetManager);
 

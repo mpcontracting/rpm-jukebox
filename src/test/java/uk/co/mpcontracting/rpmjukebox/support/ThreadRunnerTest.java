@@ -1,14 +1,11 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
@@ -35,7 +32,7 @@ public class ThreadRunnerTest extends AbstractTest {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Thread name should not contain 'JavaFX'", threadName.contains("JavaFX"), equalTo(false));
+        assertThat(threadName).doesNotContain("JavaFX");
     }
 
     @Test
@@ -47,6 +44,6 @@ public class ThreadRunnerTest extends AbstractTest {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        assertThat("Thread name should contain 'JavaFX'", threadName.contains("JavaFX"), equalTo(true));
+        assertThat(threadName).contains("JavaFX");
     }
 }
