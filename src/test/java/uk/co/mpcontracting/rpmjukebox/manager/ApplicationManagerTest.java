@@ -83,7 +83,7 @@ public class ApplicationManagerTest implements Constants {
     @Test
     @SneakyThrows
     public void shouldInitialise() {
-        when(mockEnvironment.getActiveProfiles()).thenReturn(new String[] { "default" });
+        when(mockEnvironment.getActiveProfiles()).thenReturn(new String[]{"default"});
 
         applicationManager.initialise();
 
@@ -94,7 +94,7 @@ public class ApplicationManagerTest implements Constants {
     @Test
     @SneakyThrows
     public void shouldNotInitialiseForTestProfile() {
-        when(mockEnvironment.getActiveProfiles()).thenReturn(new String[] { "test" });
+        when(mockEnvironment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
         applicationManager.initialise();
 
@@ -196,7 +196,7 @@ public class ApplicationManagerTest implements Constants {
     @SneakyThrows
     public void shouldStopApplicationWhenExceptionThrown() {
         doThrow(new RuntimeException("ApplicationManagerTest.shouldStopApplicationWhenExceptionThrown()"))
-            .when(mockJettyServer).stop();
+                .when(mockJettyServer).stop();
 
         setField(applicationManager, "stage", mockStage);
         setField(applicationManager, "isInitialised", false);

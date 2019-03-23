@@ -47,7 +47,7 @@ public class PlaylistListCell extends TextFieldListCell<Playlist> {
 
             textField.focusedProperty().addListener((observableValue, oldValue, newValue) -> {
                 if (newValue != null && !newValue) {
-                    commitEdit(((PlaylistStringConverter<Playlist>)getConverter()).fromString(textField.getText()));
+                    commitEdit((getConverter()).fromString(textField.getText()));
                 }
             });
         }

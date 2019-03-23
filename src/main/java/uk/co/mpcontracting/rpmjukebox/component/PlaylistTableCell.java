@@ -2,7 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.component;
 
 import javafx.scene.control.TableCell;
 
-public class PlaylistTableCell<S, T> extends TableCell<PlaylistTableModel, T> {
+public class PlaylistTableCell<T> extends TableCell<PlaylistTableModel, T> {
 
     @Override
     protected void updateItem(T value, boolean empty) {

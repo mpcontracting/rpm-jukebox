@@ -1,15 +1,17 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 @Slf4j
 @Component
 public class HashGenerator {
 
-  public String generateHash(Object... objects) throws Exception {
+    public String generateHash(Object... objects) throws Exception {
         log.debug("Generating hash for - {}", objectsAsString(objects));
 
         if (objects == null || objects.length == 0) {
@@ -33,7 +35,7 @@ public class HashGenerator {
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             digest.reset();
-            digest.update(builder.toString().getBytes("UTF-8"));
+            digest.update(builder.toString().getBytes(StandardCharsets.UTF_8));
 
             return toHex(digest.digest());
         } catch (Exception e) {
@@ -41,7 +43,7 @@ public class HashGenerator {
         }
     }
 
-  private String objectsAsString(Object... objects) {
+    private String objectsAsString(Object... objects) {
         StringBuilder builder = new StringBuilder();
 
         if (objects != null) {
@@ -65,7 +67,7 @@ public class HashGenerator {
         return builder.toString();
     }
 
-  private String toHex(byte[] bytes) {
+    private String toHex(byte[] bytes) {
         return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
 }

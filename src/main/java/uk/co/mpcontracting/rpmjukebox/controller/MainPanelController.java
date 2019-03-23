@@ -295,7 +295,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
         currentSelectedPlaylistId = -999;
     }
 
-    public void showMessageView(String message, boolean blurBackground) {
+    void showMessageView(String message, boolean blurBackground) {
         threadRunner.runOnGui(() -> {
             messageView.setMessage(message);
 
@@ -305,7 +305,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
         });
     }
 
-    public void closeMessageView() {
+    void closeMessageView() {
         threadRunner.runOnGui(() -> {
             messageView.close();
         });
@@ -432,9 +432,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
         if (playlist != null && playlist.getPlaylistId() > 0) {
             showConfirmView(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), true,
-                () -> {
-                    playlistManager.deletePlaylist(playlist.getPlaylistId());
-                }, null);
+                () -> playlistManager.deletePlaylist(playlist.getPlaylistId()), null);
         }
     }
 
@@ -456,12 +454,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
         File file = fileChooser.showOpenDialog(RpmJukebox.getStage());
 
         if (file != null) {
-            List<PlaylistSettings> playlists = null;
+            List<PlaylistSettings> playlists;
 
             try (FileReader fileReader = constructFileReader(file)) {
                 playlists = settingsManager.getGson().fromJson(fileReader,
-                    new TypeToken<ArrayList<PlaylistSettings>>() {
-                    }.getType());
+                    new TypeToken<ArrayList<PlaylistSettings>>() {}.getType());
 
                 if (playlists != null) {
                     playlists.forEach(playlistSettings -> {
@@ -756,18 +753,15 @@ public class MainPanelController extends EventAwareObject implements Constants {
                             }
                         }
 
-                        // If we're selecting a new playlist, then clear the
-                        // selected track
+                        // If we're selecting a new playlist, then clear the selected track
                         if (currentSelectedPlaylistId != selectedPlaylistId) {
                             playlistManager.clearSelectedTrack();
                         }
 
                         currentSelectedPlaylistId = selectedPlaylistId;
 
-                        // If we're not playing or paused and the playlist is
-                        // not empty
-                        // then enable the play button so we can play the
-                        // playlist
+                        // If we're not playing or paused and the playlist is not empty
+                        // then enable the play button so we can play the playlist
                         if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
                             if (!playlistManager.getPlaylist(currentSelectedPlaylistId).isEmpty()) {
                                 playPauseButton.setDisable(false);

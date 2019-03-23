@@ -7,21 +7,15 @@ import javafx.beans.property.StringProperty;
 import lombok.Getter;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 
+@Getter
 public class TrackTableModel {
 
-    @Getter
     private Track track;
-    @Getter
     private StringProperty trackId;
-    @Getter
     private StringProperty trackName;
-    @Getter
     private StringProperty artistName;
-    @Getter
     private IntegerProperty albumYear;
-    @Getter
     private StringProperty albumName;
-    @Getter
     private StringProperty genres;
 
     public TrackTableModel(Track track) {

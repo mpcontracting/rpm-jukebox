@@ -32,7 +32,7 @@ public class LoveButtonTableCellFactory<S, T> extends EventAwareObject
             if (event.getButton() == MouseButton.PRIMARY) {
                 if (event.getClickCount() == 1) {
                     // Single click
-                    if (tableCell != null && tableCell.getItem() != null) {
+                    if (tableCell.getItem() != null) {
                         Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
 
                         if (playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, track.getTrackId())) {

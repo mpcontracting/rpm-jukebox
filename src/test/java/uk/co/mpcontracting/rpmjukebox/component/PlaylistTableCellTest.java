@@ -9,7 +9,7 @@ public class PlaylistTableCellTest extends AbstractGUITest {
 
     @Test
     public void shouldUpdateItem() {
-        PlaylistTableCell<String, String> playlistTableCell = new PlaylistTableCell<>();
+        PlaylistTableCell<String> playlistTableCell = new PlaylistTableCell<>();
         playlistTableCell.updateItem("Value", false);
 
         assertThat(playlistTableCell.getText()).isEqualTo("Value");
@@ -17,7 +17,7 @@ public class PlaylistTableCellTest extends AbstractGUITest {
 
     @Test
     public void shouldUpdateItemAsEmpty() {
-        PlaylistTableCell<String, String> playlistTableCell = new PlaylistTableCell<>();
+        PlaylistTableCell<String> playlistTableCell = new PlaylistTableCell<>();
         playlistTableCell.updateItem("Value", true);
 
         assertThat(playlistTableCell.getText()).isNull();
@@ -25,7 +25,7 @@ public class PlaylistTableCellTest extends AbstractGUITest {
 
     @Test
     public void shouldUpdateItemAsNull() {
-        PlaylistTableCell<String, String> playlistTableCell = new PlaylistTableCell<>();
+        PlaylistTableCell<String> playlistTableCell = new PlaylistTableCell<>();
         playlistTableCell.updateItem(null, false);
 
         assertThat(playlistTableCell.getText()).isNull();

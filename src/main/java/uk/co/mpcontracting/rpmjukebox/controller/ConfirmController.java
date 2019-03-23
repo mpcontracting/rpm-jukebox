@@ -17,9 +17,6 @@ public class ConfirmController {
     @FXML
     private Button okButton;
 
-    @FXML
-    private Button cancelButton;
-
     private ConfirmView confirmView;
 
     private Runnable okRunnable;

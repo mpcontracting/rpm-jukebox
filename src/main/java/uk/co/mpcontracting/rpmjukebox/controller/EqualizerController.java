@@ -49,7 +49,7 @@ public class EqualizerController extends EventAwareObject {
         });
     }
 
-    public void updateSliderValues() {
+    void updateSliderValues() {
         Equalizer equalizer = mediaManager.getEqualizer();
 
         sliderHbox.getChildren().forEach(node -> {

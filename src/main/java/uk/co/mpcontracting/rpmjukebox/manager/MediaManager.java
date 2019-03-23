@@ -30,16 +30,16 @@ public class MediaManager extends EventAwareObject implements Constants {
     private CacheManager cacheManager;
 
     @Getter
+    private boolean muted;
+    @Getter
     private double volume;
+    @Getter
+    private Equalizer equalizer;
 
     private MediaPlayer currentPlayer;
     private Track currentTrack;
     private Media currentMedia;
     private Duration currentDuration;
-    @Getter
-    private Equalizer equalizer;
-    @Getter
-    private boolean muted;
 
     @Autowired
     public void wireCacheManager(CacheManager cacheManager) {
@@ -55,7 +55,7 @@ public class MediaManager extends EventAwareObject implements Constants {
         equalizer = new Equalizer(10);
     }
 
-    public void playTrack(Track track) {
+    void playTrack(Track track) {
         log.debug("Playing track : {} - {} - {} - {}", track.getArtistName(), track.getAlbumName(),
             track.getTrackName(), track.getLocation());
 
@@ -70,7 +70,7 @@ public class MediaManager extends EventAwareObject implements Constants {
         fireEvent(Event.TRACK_QUEUED_FOR_PLAYING, currentTrack);
     }
 
-    public void pausePlayback() {
+    void pausePlayback() {
         log.debug("Pausing playback");
 
         if (currentPlayer != null) {
@@ -78,7 +78,7 @@ public class MediaManager extends EventAwareObject implements Constants {
         }
     }
 
-    public void resumePlayback() {
+    void resumePlayback() {
         log.debug("Resuming playback");
 
         if (currentPlayer != null) {
@@ -86,7 +86,7 @@ public class MediaManager extends EventAwareObject implements Constants {
         }
     }
 
-    public void stopPlayback() {
+    void stopPlayback() {
         log.debug("Stopping playback");
 
         if (currentPlayer != null) {
@@ -144,7 +144,7 @@ public class MediaManager extends EventAwareObject implements Constants {
         return 0;
     }
 
-    public void setEqualizerGain(int band, double value) {
+    void setEqualizerGain(int band, double value) {
         log.debug("Setting EQ gain : Band - {}, Value - {}", band, value);
 
         equalizer.setGain(band, value);
@@ -170,7 +170,7 @@ public class MediaManager extends EventAwareObject implements Constants {
         return false;
     }
 
-    public void cleanUpResources() {
+    void cleanUpResources() {
         log.debug("Cleaning up resources");
 
         stopPlayback();
@@ -209,17 +209,9 @@ public class MediaManager extends EventAwareObject implements Constants {
             fireEvent(Event.BUFFER_UPDATED, currentDuration, currentPlayer.getBufferProgressTime());
         });
 
-        currentPlayer.setOnPaused(() -> {
-            fireEvent(Event.MEDIA_PAUSED);
-        });
-
-        currentPlayer.setOnStopped(() -> {
-            fireEvent(Event.MEDIA_STOPPED);
-        });
-
-        currentPlayer.setOnEndOfMedia(() -> {
-            fireEvent(Event.END_OF_MEDIA);
-        });
+        currentPlayer.setOnPaused(() -> fireEvent(Event.MEDIA_PAUSED));
+        currentPlayer.setOnStopped(() -> fireEvent(Event.MEDIA_STOPPED));
+        currentPlayer.setOnEndOfMedia(() -> fireEvent(Event.END_OF_MEDIA));
 
         currentPlayer.setOnError(() -> {
             log.warn("Error occurred playing media - " + currentPlayer.getError());

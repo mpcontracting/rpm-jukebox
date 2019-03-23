@@ -1,19 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import static java.util.Objects.requireNonNull;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDirectory;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getDateTimeInMillis;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.RandomAccessFile;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -28,8 +14,16 @@ import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
+import java.io.*;
+
+import static java.util.Objects.requireNonNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDirectory;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getDateTimeInMillis;
+
 @RunWith(MockitoJUnitRunner.class)
-public class CacheManagerTest  {
+public class CacheManagerTest {
 
     @Mock
     private AppProperties mockAppProperties;
@@ -70,7 +64,7 @@ public class CacheManagerTest  {
     @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionConstructingInternalUrl() {
         doThrow(new RuntimeException("CacheManagerTest.shouldThrowExceptionConstructingInternalUrl"))
-            .when(mockAppProperties).getJettyPort();
+                .when(mockAppProperties).getJettyPort();
 
         cacheManager.constructInternalUrl(CacheType.TRACK, "12345", "http://www.example.com");
     }
@@ -242,7 +236,7 @@ public class CacheManagerTest  {
 
     private void writeCacheFile(CacheType cacheType, String id, String cacheContent) throws Exception {
         File file = new File(cacheDirectory,
-            (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
+                (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(cacheContent.getBytes());
         }

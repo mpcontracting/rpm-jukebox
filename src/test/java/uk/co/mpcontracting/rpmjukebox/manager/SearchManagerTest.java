@@ -2,7 +2,6 @@ package uk.co.mpcontracting.rpmjukebox.manager;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
@@ -129,23 +128,18 @@ public class SearchManagerTest implements Constants {
 
             spySearchManager.initialise();
 
-            Analyzer analyzer = (Analyzer) getField(spySearchManager, "analyzer");
             Directory artistDirectory = (Directory) getField(spySearchManager, "artistDirectory");
             IndexWriter artistWriter = (IndexWriter) getField(spySearchManager, "artistWriter");
-            SearcherManager artistManager = (SearcherManager) getField(spySearchManager,
-                "artistManager");
+            SearcherManager artistManager = (SearcherManager) getField(spySearchManager, "artistManager");
             Directory trackDirectory = (Directory) getField(spySearchManager, "trackDirectory");
             IndexWriter trackWriter = (IndexWriter) getField(spySearchManager, "trackWriter");
-            SearcherManager trackManager = (SearcherManager) getField(spySearchManager,
-                "trackManager");
+            SearcherManager trackManager = (SearcherManager) getField(spySearchManager, "trackManager");
             SecureRandom secureRandom = (SecureRandom) getField(spySearchManager, "random");
-            ExecutorService executorService = (ExecutorService) getField(spySearchManager,
-                "executorService");
+            ExecutorService executorService = (ExecutorService) getField(spySearchManager, "executorService");
             List<String> genreList = spySearchManager.getGenreList();
             List<String> yearList = spySearchManager.getYearList();
             List<TrackSort> trackSortList = spySearchManager.getTrackSortList();
 
-            assertThat(analyzer).isNotNull();
             assertThat(artistDirectory).isNotNull();
             assertThat(artistWriter).isNotNull();
             assertThat(artistManager).isNotNull();
@@ -183,23 +177,18 @@ public class SearchManagerTest implements Constants {
 
             spySearchManager.initialise();
 
-            Analyzer analyzer = (Analyzer) getField(spySearchManager, "analyzer");
             Directory artistDirectory = (Directory) getField(spySearchManager, "artistDirectory");
             IndexWriter artistWriter = (IndexWriter) getField(spySearchManager, "artistWriter");
-            SearcherManager artistManager = (SearcherManager) getField(spySearchManager,
-                "artistManager");
+            SearcherManager artistManager = (SearcherManager) getField(spySearchManager, "artistManager");
             Directory trackDirectory = (Directory) getField(spySearchManager, "trackDirectory");
             IndexWriter trackWriter = (IndexWriter) getField(spySearchManager, "trackWriter");
-            SearcherManager trackManager = (SearcherManager) getField(spySearchManager,
-                "trackManager");
+            SearcherManager trackManager = (SearcherManager) getField(spySearchManager, "trackManager");
             SecureRandom secureRandom = (SecureRandom) getField(spySearchManager, "random");
-            ExecutorService executorService = (ExecutorService) getField(spySearchManager,
-                "executorService");
+            ExecutorService executorService = (ExecutorService) getField(spySearchManager, "executorService");
             List<String> genreList = spySearchManager.getGenreList();
             List<String> yearList = spySearchManager.getYearList();
             List<TrackSort> trackSortList = spySearchManager.getTrackSortList();
 
-            assertThat(analyzer).isNotNull();
             assertThat(artistDirectory).isNotNull();
             assertThat(artistWriter).isNotNull();
             assertThat(artistManager).isNotNull();
@@ -238,23 +227,18 @@ public class SearchManagerTest implements Constants {
 
             spySearchManager.initialise();
 
-            Analyzer analyzer = (Analyzer) getField(spySearchManager, "analyzer");
             Directory artistDirectory = (Directory) getField(spySearchManager, "artistDirectory");
             IndexWriter artistWriter = (IndexWriter) getField(spySearchManager, "artistWriter");
-            SearcherManager artistManager = (SearcherManager) getField(spySearchManager,
-                "artistManager");
+            SearcherManager artistManager = (SearcherManager) getField(spySearchManager, "artistManager");
             Directory trackDirectory = (Directory) getField(spySearchManager, "trackDirectory");
             IndexWriter trackWriter = (IndexWriter) getField(spySearchManager, "trackWriter");
-            SearcherManager trackManager = (SearcherManager) getField(spySearchManager,
-                "trackManager");
+            SearcherManager trackManager = (SearcherManager) getField(spySearchManager, "trackManager");
             SecureRandom secureRandom = (SecureRandom) getField(spySearchManager, "random");
-            ExecutorService executorService = (ExecutorService) getField(spySearchManager,
-                "executorService");
+            ExecutorService executorService = (ExecutorService) getField(spySearchManager, "executorService");
             List<String> genreList = spySearchManager.getGenreList();
             List<String> yearList = spySearchManager.getYearList();
             List<TrackSort> trackSortList = spySearchManager.getTrackSortList();
 
-            assertThat(analyzer).isNotNull();
             assertThat(artistDirectory).isNotNull();
             assertThat(artistWriter).isNotNull();
             assertThat(artistManager).isNotNull();

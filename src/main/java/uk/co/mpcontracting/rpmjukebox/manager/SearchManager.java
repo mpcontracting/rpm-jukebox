@@ -59,7 +59,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     @Getter
     private List<TrackSort> trackSortList;
 
-    private Analyzer analyzer;
+    //private Analyzer analyzer;
 
     private Directory artistDirectory;
     private IndexWriter artistWriter;
@@ -96,7 +96,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             executorService = Executors.newSingleThreadExecutor();
 
             // Initialise the indexes
-            analyzer = new WhitespaceAnalyzer();
+            Analyzer analyzer = new WhitespaceAnalyzer();
             BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
 
             artistDirectory = FSDirectory.open(

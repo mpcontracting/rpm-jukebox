@@ -1,19 +1,17 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.io.EofException;
+import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
+import uk.co.mpcontracting.rpmjukebox.support.CacheType;
+import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
-
-import org.eclipse.jetty.io.EofException;
-
-import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.rpmjukebox.manager.CacheManager;
-import uk.co.mpcontracting.rpmjukebox.support.CacheType;
-import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Slf4j
 public class CachingDataStream implements WriteListener {
@@ -26,7 +24,7 @@ public class CachingDataStream implements WriteListener {
     private ServletOutputStream outputStream;
     private ByteArrayOutputStream byteStream;
 
-    public CachingDataStream(CacheType cacheType, String id, boolean isCached, InputStream inputStream,
+    CachingDataStream(CacheType cacheType, String id, boolean isCached, InputStream inputStream,
         AsyncContext asyncContext, ServletOutputStream outputStream) {
         this.cacheType = cacheType;
         this.id = id;

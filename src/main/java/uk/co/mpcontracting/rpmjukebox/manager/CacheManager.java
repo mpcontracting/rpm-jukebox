@@ -1,15 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.net.URLEncoder;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
@@ -21,13 +11,26 @@ import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CacheManager implements Constants {
 
     private final AppProperties appProperties;
-  private final HashGenerator hashGenerator;
+    private final HashGenerator hashGenerator;
 
     private SettingsManager settingsManager;
 
@@ -62,7 +65,7 @@ public class CacheManager implements Constants {
     @SneakyThrows
     public String constructInternalUrl(CacheType cacheType, String id, String location) {
         return "http://localhost:" + appProperties.getJettyPort() + "/cache?cacheType=" + cacheType + "&id=" + id + "&url="
-            + URLEncoder.encode(location, "UTF-8");
+                + URLEncoder.encode(location, "UTF-8");
     }
 
     @Synchronized
@@ -70,13 +73,14 @@ public class CacheManager implements Constants {
         log.debug("Reading cache : Cache type - {}, ID - {}", cacheType, id);
 
         try {
-          File file = new File(cacheDirectory,
-              (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
+            File file = new File(cacheDirectory, (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
 
             if (file.exists()) {
                 log.debug("Found cached file : Cache type - {}, ID - {}", cacheType, id);
 
-                file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+                if (!file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())) {
+                    log.warn("Unable set last modified date on file - {}", file);
+                }
 
                 return file;
             }
@@ -94,11 +98,13 @@ public class CacheManager implements Constants {
         log.debug("Writing cache : Cache type - {}, ID - {}", cacheType, id);
 
         try {
-          File file = new File(cacheDirectory,
-              (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
+            File file = new File(cacheDirectory,
+                    (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
 
             if (file.exists()) {
-                file.delete();
+                if (!file.delete()) {
+                    log.warn("Unable to delete file - {}", file);
+                }
             }
 
             try (FileOutputStream outputStream = new FileOutputStream(file)) {
@@ -118,13 +124,9 @@ public class CacheManager implements Constants {
 
         log.debug("Trimming the cache to {}Mb", cacheSizeMb);
 
-        List<File> files = new ArrayList<>();
+        List<File> files = new ArrayList<>(Arrays.asList(requireNonNull(cacheDirectory.listFiles())));
 
-        for (File file : cacheDirectory.listFiles()) {
-            files.add(file);
-        }
-
-        Collections.sort(files, timestampComparator);
+        files.sort(timestampComparator);
 
         while (getCacheSizeMb(files) > cacheSizeMb && !files.isEmpty()) {
             File file = files.get(0);
@@ -146,6 +148,6 @@ public class CacheManager implements Constants {
             cacheSizeBytes += file.length();
         }
 
-        return (int)cacheSizeBytes / 1024 / 1024;
+        return (int) cacheSizeBytes / 1024 / 1024;
     }
 }

@@ -113,11 +113,11 @@ public class SettingsManager implements Constants {
         userSettingsLoaded = false;
     }
 
-    public File getFileFromConfigDirectory(String relativePath) {
+    File getFileFromConfigDirectory(String relativePath) {
         return new File(RpmJukebox.getConfigDirectory(), relativePath);
     }
 
-    public boolean hasDataFileExpired() {
+    boolean hasDataFileExpired() {
         rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_CHECKING_DATA));
 
         // Read the last modified date from the data file
@@ -160,7 +160,7 @@ public class SettingsManager implements Constants {
         return lastModified.plusHours(1).isBefore(LocalDateTime.now()) && lastModified.isAfter(lastIndexed);
     }
 
-    public LocalDateTime getLastIndexedDate() {
+    LocalDateTime getLastIndexedDate() {
         LocalDateTime lastIndexed = null;
         File lastIndexedFile = getFileFromConfigDirectory(appProperties.getLastIndexedFile());
 
@@ -180,7 +180,7 @@ public class SettingsManager implements Constants {
         return lastIndexed;
     }
 
-    public void setLastIndexedDate(LocalDateTime localDateTime) {
+    void setLastIndexedDate(LocalDateTime localDateTime) {
         File lastIndexedFile = getFileFromConfigDirectory(appProperties.getLastIndexedFile());
         boolean alreadyExists = lastIndexedFile.exists();
 
@@ -204,11 +204,11 @@ public class SettingsManager implements Constants {
         }
     }
 
-    public void loadWindowSettings(Stage stage) {
+    void loadWindowSettings(Stage stage) {
         log.debug("Loading window settings");
 
         File settingsFile = getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
-        Window window = null;
+        Window window;
 
         if (settingsFile.exists()) {
             // Read the file
@@ -234,7 +234,7 @@ public class SettingsManager implements Constants {
         stage.setHeight(window.getHeight());
     }
 
-    public void saveWindowSettings(Stage stage) {
+    void saveWindowSettings(Stage stage) {
         log.debug("Saving window settings");
 
         Window window = new Window(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
@@ -249,7 +249,7 @@ public class SettingsManager implements Constants {
         }
     }
 
-    public void loadSystemSettings() {
+    void loadSystemSettings() {
         log.debug("Loading system settings");
 
         rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_LOADING_SYSTEM_SETTINGS));
@@ -275,8 +275,6 @@ public class SettingsManager implements Constants {
             systemSettings.setCacheSizeMb(appProperties.getCacheSizeMb());
 
             saveSystemSettings();
-
-            return;
         }
     }
 
@@ -296,7 +294,7 @@ public class SettingsManager implements Constants {
         }
     }
 
-    public boolean isNewVersion() {
+    boolean isNewVersion() {
         boolean isNewVersion = version.compareTo(new Version(systemSettings.getVersion())) > 0;
 
         log.debug("Is new version - {}", isNewVersion);
@@ -304,7 +302,7 @@ public class SettingsManager implements Constants {
         return isNewVersion;
     }
 
-    public void loadUserSettings() {
+    void loadUserSettings() {
         log.debug("Loading user settings");
 
         File userSettingsFile = getFileFromConfigDirectory(appProperties.getUserSettingsFile());
@@ -316,7 +314,7 @@ public class SettingsManager implements Constants {
         }
 
         // Read the file
-        Settings settings = null;
+        Settings settings;
 
         try (FileReader fileReader = new FileReader(userSettingsFile)) {
             settings = gson.fromJson(fileReader, Settings.class);
@@ -366,7 +364,7 @@ public class SettingsManager implements Constants {
         userSettingsLoaded = true;
     }
 
-    public void saveUserSettings() {
+    void saveUserSettings() {
         log.debug("Saving user settings");
 
         // Don't save settings if they weren't loaded successfully
@@ -405,7 +403,9 @@ public class SettingsManager implements Constants {
         boolean alreadyExists = userSettingsFile.exists();
 
         if (alreadyExists) {
-            userSettingsFile.renameTo(getFileFromConfigDirectory(appProperties.getUserSettingsFile() + ".bak"));
+            if (!userSettingsFile.renameTo(getFileFromConfigDirectory(appProperties.getUserSettingsFile() + ".bak"))) {
+                log.warn("Unable to rename user settings file - {}", userSettingsFile);
+            }
         }
 
         try (FileWriter fileWriter = new FileWriter(userSettingsFile)) {
@@ -413,13 +413,19 @@ public class SettingsManager implements Constants {
         } catch (Exception e) {
             log.error("Unable to save user settings file", e);
 
-            userSettingsFile.delete();
+            if (!userSettingsFile.delete()) {
+                log.warn("Unable to delete user settings file - {}", userSettingsFile);
+            }
 
             if (alreadyExists) {
-                getFileFromConfigDirectory(appProperties.getUserSettingsFile() + ".bak").renameTo(userSettingsFile);
+                if (!getFileFromConfigDirectory(appProperties.getUserSettingsFile() + ".bak").renameTo(userSettingsFile)) {
+                    log.warn("Unable to rename backed up user settings file");
+                }
             }
         } finally {
-            getFileFromConfigDirectory(appProperties.getUserSettingsFile() + ".bak").delete();
+            if (!getFileFromConfigDirectory(appProperties.getUserSettingsFile() + ".bak").delete()) {
+                log.warn("Unable to delete backed up user settings file");
+            }
         }
     }
 }

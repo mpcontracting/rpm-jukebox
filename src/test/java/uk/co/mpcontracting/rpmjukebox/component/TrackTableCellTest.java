@@ -9,7 +9,7 @@ public class TrackTableCellTest extends AbstractGUITest {
 
     @Test
     public void shouldUpdateItem() {
-        TrackTableCell<String, String> trackTableCell = new TrackTableCell<>();
+        TrackTableCell<String> trackTableCell = new TrackTableCell<>();
         trackTableCell.updateItem("Value", false);
 
         assertThat(trackTableCell.getText()).isEqualTo("Value");
@@ -17,7 +17,7 @@ public class TrackTableCellTest extends AbstractGUITest {
 
     @Test
     public void shouldUpdateItemAsEmpty() {
-        TrackTableCell<String, String> trackTableCell = new TrackTableCell<>();
+        TrackTableCell<String> trackTableCell = new TrackTableCell<>();
         trackTableCell.updateItem("Value", true);
 
         assertThat(trackTableCell.getText()).isNull();
@@ -25,7 +25,7 @@ public class TrackTableCellTest extends AbstractGUITest {
 
     @Test
     public void shouldUpdateItemAsNull() {
-        TrackTableCell<String, String> trackTableCell = new TrackTableCell<>();
+        TrackTableCell<String> trackTableCell = new TrackTableCell<>();
         trackTableCell.updateItem(null, false);
 
         assertThat(trackTableCell.getText()).isNull();

@@ -7,13 +7,11 @@ import javafx.beans.property.StringProperty;
 import lombok.Getter;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 
+@Getter
 public class PlaylistTableModel {
 
-    @Getter
     private Playlist playlist;
-    @Getter
     private BooleanProperty selected;
-    @Getter
     private StringProperty name;
 
     public PlaylistTableModel(Playlist playlist) {

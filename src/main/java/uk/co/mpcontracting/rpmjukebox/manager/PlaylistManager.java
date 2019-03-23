@@ -30,7 +30,6 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     private TrackTableController trackTableController;
 
     private final Map<Integer, Playlist> playlistMap = new LinkedHashMap<>();
-    ;
 
     @Getter
     private int currentPlaylistId;
@@ -347,7 +346,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
         mediaManager.resumePlayback();
     }
 
-    public void restartTrack() {
+    void restartTrack() {
         log.debug("Restarting current track");
 
         mediaManager.setSeekPositionPercent(0);

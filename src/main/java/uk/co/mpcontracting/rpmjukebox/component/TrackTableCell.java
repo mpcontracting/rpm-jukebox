@@ -2,7 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.component;
 
 import javafx.scene.control.TableCell;
 
-public class TrackTableCell<S, T> extends TableCell<TrackTableModel, T> {
+public class TrackTableCell<T> extends TableCell<TrackTableModel, T> {
 
     @Override
     protected void updateItem(T value, boolean empty) {

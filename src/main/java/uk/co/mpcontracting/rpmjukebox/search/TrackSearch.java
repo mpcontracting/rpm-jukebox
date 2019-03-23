@@ -3,13 +3,12 @@ package uk.co.mpcontracting.rpmjukebox.search;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@Getter
 @EqualsAndHashCode
 public class TrackSearch {
-    @Getter
+
     private String keywords;
-    @Getter
     private TrackFilter trackFilter;
-    @Getter
     private TrackSort trackSort;
 
     public TrackSearch(String keywords) {
@@ -20,11 +19,11 @@ public class TrackSearch {
         this(keywords, trackFilter, TrackSort.DEFAULTSORT);
     }
 
-    public TrackSearch(String keywords, TrackSort trackSort) {
+    TrackSearch(String keywords, TrackSort trackSort) {
         this(keywords, new TrackFilter(null, null), trackSort);
     }
 
-    public TrackSearch(String keywords, TrackFilter trackFilter, TrackSort trackSort) {
+    TrackSearch(String keywords, TrackFilter trackFilter, TrackSort trackSort) {
         this.keywords = keywords;
         this.trackFilter = trackFilter;
         this.trackSort = trackSort;

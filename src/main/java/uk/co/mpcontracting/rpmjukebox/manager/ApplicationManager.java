@@ -1,9 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
-import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -12,12 +13,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
@@ -26,6 +23,9 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.view.AbstractModalView;
+
+import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
 @Slf4j
 @Component
@@ -67,7 +67,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext context) throws BeansException {
+    public void setApplicationContext(@NonNull ApplicationContext context) throws BeansException {
         this.context = context;
     }
 
@@ -86,9 +86,7 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
             CountDownLatch latch = new CountDownLatch(1);
 
             threadRunner.runOnGui(() -> {
-                context.getBeansOfType(AbstractModalView.class).forEach((name, view) -> {
-                    view.initialise();
-                });
+                context.getBeansOfType(AbstractModalView.class).forEach((name, view) -> view.initialise());
 
                 latch.countDown();
             });

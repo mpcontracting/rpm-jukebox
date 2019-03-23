@@ -93,7 +93,7 @@ public class SettingsController extends EventAwareObject implements Constants {
             .addListener((observable, oldValue, newValue) -> focusChanged(newValue));
     }
 
-    public void bindSystemSettings() {
+    void bindSystemSettings() {
         SystemSettings systemSettings = settingsManager.getSystemSettings();
 
         versionLabel.setText(messageManager.getMessage(MESSAGE_SETTINGS_COPYRIGHT_2, settingsManager.getVersion()));
@@ -187,8 +187,7 @@ public class SettingsController extends EventAwareObject implements Constants {
         SystemSettings systemSettings = settingsManager.getSystemSettings();
         systemSettings.setCacheSizeMb(Integer.parseInt(cacheSizeMbTextField.getText()));
         systemSettings.setProxyHost(proxyHostTextField.getText());
-        systemSettings.setProxyPort(
-            !proxyPortTextField.getText().isEmpty() ? Integer.parseInt(proxyPortTextField.getText()) : null);
+        systemSettings.setProxyPort(!proxyPortTextField.getText().isEmpty() ? Integer.parseInt(proxyPortTextField.getText()) : null);
         systemSettings.setProxyRequiresAuthentication(proxyAuthCheckBox.isSelected());
         systemSettings.setProxyUsername(proxyUsernameTextField.getText());
         systemSettings.setProxyPassword(proxyPasswordTextField.getText());

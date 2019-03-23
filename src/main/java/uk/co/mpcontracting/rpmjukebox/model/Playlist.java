@@ -1,19 +1,15 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
+import lombok.*;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Synchronized;
-import lombok.ToString;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
-
-@ToString(includeFieldNames = true)
+@ToString
 @EqualsAndHashCode(of = { "playlistId" })
 public class Playlist implements Cloneable, Iterable<Track>, Constants {
     @Getter

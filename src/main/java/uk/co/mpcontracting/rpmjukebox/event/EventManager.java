@@ -28,7 +28,7 @@ public class EventManager {
         instance = new EventManager();
     }
 
-    public void addEventListener(EventListener eventListener) {
+    void addEventListener(EventListener eventListener) {
         eventListeners.add(eventListener);
     }
 

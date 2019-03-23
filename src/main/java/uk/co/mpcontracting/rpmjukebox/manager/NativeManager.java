@@ -39,7 +39,9 @@ public class NativeManager {
         File nativeDirectory = settingsManager.getFileFromConfigDirectory("native");
 
         if (!nativeDirectory.exists()) {
-            nativeDirectory.mkdirs();
+            if (!nativeDirectory.mkdirs()) {
+                log.warn("Unable to mkdirs - {}", nativeDirectory);
+            }
         }
 
         // Copy any native libraries to the config directory and load them
@@ -73,6 +75,6 @@ public class NativeManager {
 
     // Package level for testing purposes
     interface NsUserNotificationsBridge extends Library {
-        int sendNotification(String title, String subtitle, String text, int timeoffset);
+        void sendNotification(String title, String subtitle, String text, int timeoffset);
     }
 }

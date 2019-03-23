@@ -73,15 +73,6 @@ public class RpmJukeboxTest extends AbstractGUITest {
     }
 
     @Test
-    public void shouldNotCallStartOnApplicationManagerInBeforeInitialViewWithNullApplicationManager() {
-        reset(mockContext);
-
-        rpmJukebox.beforeInitialView(null, mockContext);
-
-        verify(mockApplicationManager, never()).start(any());
-    }
-
-    @Test
     public void shouldUpdateSplashProgress() throws Exception {
         ReflectionTestUtils.setField(rpmJukebox, "splashScreen", mockSplashScreen);
 

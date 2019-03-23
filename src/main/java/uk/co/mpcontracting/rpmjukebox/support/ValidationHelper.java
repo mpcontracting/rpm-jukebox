@@ -4,8 +4,7 @@ import javafx.scene.control.TextField;
 
 public abstract class ValidationHelper implements Constants {
 
-    private ValidationHelper() {
-    }
+    private ValidationHelper() {}
 
     public static String nullAsBlank(String string) {
         if (string == null) {
@@ -31,9 +30,8 @@ public abstract class ValidationHelper implements Constants {
         return bool;
     }
 
-    public static boolean validateTextField(TextField textField, boolean required, Integer minLength,
-        Integer maxLength) {
-        boolean isValid = false;
+    public static boolean validateTextField(TextField textField, boolean required, Integer minLength, Integer maxLength) {
+        boolean isValid;
 
         if (!required && textField.getText().isEmpty()) {
             isValid = true;
@@ -66,8 +64,7 @@ public abstract class ValidationHelper implements Constants {
         return isValid;
     }
 
-    public static boolean validateIntegerField(TextField textField, boolean required, Integer minValue,
-        Integer maxValue) {
+    public static boolean validateIntegerField(TextField textField, boolean required, Integer minValue, Integer maxValue) {
         boolean isValid = false;
 
         if (!required && textField.getText().isEmpty()) {

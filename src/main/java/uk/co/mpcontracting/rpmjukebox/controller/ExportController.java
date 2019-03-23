@@ -100,9 +100,7 @@ public class ExportController implements Constants {
 
         // Cell factories
         selectColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectColumn));
-        playlistColumn.setCellFactory(tableColumn -> {
-            return new PlaylistTableCell<>();
-        });
+        playlistColumn.setCellFactory(tableColumn -> new PlaylistTableCell<>());
 
         // Cell value factories
         selectColumn.setCellValueFactory(cellData -> cellData.getValue().getSelected());
@@ -115,7 +113,7 @@ public class ExportController implements Constants {
         playlistExtensionFilter = "*." + appProperties.getPlaylistFileExtension();
     }
 
-    public void bindPlaylists() {
+    void bindPlaylists() {
         observablePlaylists.clear();
         playlistsToExport.clear();
 

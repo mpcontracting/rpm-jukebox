@@ -3,11 +3,10 @@ package uk.co.mpcontracting.rpmjukebox.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public class YearFilter {
-    @Getter
     private String display;
-    @Getter
     private String year;
 
     @Override

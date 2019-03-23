@@ -117,8 +117,6 @@ public class NativeManagerTest {
         NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
             notificationSent.set(true);
             latch.countDown();
-
-            return 0;
         };
 
         setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
@@ -153,8 +151,6 @@ public class NativeManagerTest {
         NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
             notificationSent.set(true);
             latch.countDown();
-
-            return 0;
         };
 
         setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
@@ -174,8 +170,6 @@ public class NativeManagerTest {
         NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
             notificationSent.set(true);
             latch.countDown();
-
-            return 0;
         };
 
         setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);

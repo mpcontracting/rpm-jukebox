@@ -1,30 +1,26 @@
 package uk.co.mpcontracting.rpmjukebox;
 
+import de.felixroske.jfxsupport.AbstractJavaFxApplicationSupport;
+import javafx.application.Platform;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
+import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
+import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
-
-import javafx.application.Platform;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-
-import de.felixroske.jfxsupport.AbstractJavaFxApplicationSupport;
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
-import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
-import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
 import static java.util.Optional.ofNullable;
 
@@ -49,22 +45,14 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
         this.context = context;
 
         if (context != null) {
-            ApplicationManager applicationManager = context.getBean(ApplicationManager.class);
-
-            if (applicationManager != null) {
-                applicationManager.start(stage);
-            }
+            context.getBean(ApplicationManager.class).start(stage);
         }
     }
 
     @Override
     public void stop() throws Exception {
         if (context != null) {
-            ApplicationManager applicationManager = context.getBean(ApplicationManager.class);
-
-            if (applicationManager != null) {
-                applicationManager.stop();
-            }
+            context.getBean(ApplicationManager.class).stop();
         }
 
         super.stop();
@@ -76,8 +64,7 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
 
     public void updateSplashProgress(String message) {
         try {
-            Platform.runLater(() -> ofNullable(splashScreen)
-                    .ifPresent(splashScreen -> splashScreen.updateProgress(message)));
+            Platform.runLater(() -> ofNullable(splashScreen).ifPresent(splashScreen -> splashScreen.updateProgress(message)));
         } catch (IllegalStateException e) {
             log.warn("JavaFX toolkit not initialized");
         }

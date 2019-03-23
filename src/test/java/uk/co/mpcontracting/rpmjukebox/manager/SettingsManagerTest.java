@@ -41,7 +41,6 @@ import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 
-//@RunWith(MockitoJUnitRunner.class)
 public class SettingsManagerTest extends AbstractGUITest implements Constants {
 
     @Mock
@@ -68,14 +67,12 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @Mock
     private URL mockDataFile;
 
-    private SettingsManager settingsManager;
     private SettingsManager spySettingsManager;
 
     @Before
     @SneakyThrows
     public void setup() {
-        settingsManager = new SettingsManager(mockAppProperties, mockRpmJukebox, mockMessageManager);
-        spySettingsManager = spy(settingsManager);
+        spySettingsManager = spy(new SettingsManager(mockAppProperties, mockRpmJukebox, mockMessageManager));
         spySettingsManager.wireSearchManager(mockSearchManager);
         spySettingsManager.wirePlaylistManager(mockPlaylistManager);
         spySettingsManager.wireMediaManager(mockMediaManager);
@@ -92,7 +89,6 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
 
         when(mockAppProperties.getLastIndexedFile()).thenReturn("last-indexed");
         when(spySettingsManager.getFileFromConfigDirectory("last-indexed")).thenReturn(new File(getConfigDirectory(), "last-indexed"));
-
 
         when(mockAppProperties.getWindowSettingsFile()).thenReturn("window.json");
         when(spySettingsManager.getFileFromConfigDirectory("window.json")).thenReturn(new File(getConfigDirectory(), "window.json"));
