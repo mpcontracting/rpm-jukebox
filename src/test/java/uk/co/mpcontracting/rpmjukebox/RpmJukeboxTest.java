@@ -1,15 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.util.Collection;
 import javafx.scene.image.Image;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +10,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
 import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+
+import java.io.File;
+import java.util.Collection;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class RpmJukeboxTest extends AbstractTest {
 
@@ -40,17 +38,17 @@ public class RpmJukeboxTest extends AbstractTest {
         when(mockContext.getBean(ApplicationManager.class)).thenReturn(mockApplicationManager);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldRunMain() {
-        RpmJukebox.main(null);
+        assertThatThrownBy(() -> RpmJukebox.main(null)).isInstanceOf(IllegalStateException.class);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldRunMainWhereLoggingFileAlreadyExists() throws Exception {
         File loggingFile = new File(RpmJukebox.getConfigDirectory(), "logback.xml");
         loggingFile.createNewFile();
 
-        RpmJukebox.main(null);
+        assertThatThrownBy(() -> RpmJukebox.main(null)).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
