@@ -1,7 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.input.KeyCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.component.LoveButtonTableCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableModel;
@@ -44,11 +43,15 @@ public class TrackTableController extends EventAwareObject {
     @FXML
     private TableColumn<TrackTableModel, String> genresColumn;
 
-    @Autowired
     private PlaylistManager playlistManager;
 
     private ObservableList<TrackTableModel> observableTracks;
     private int visiblePlaylistId;
+
+    @Autowired
+    private void wirePlaylistManager(PlaylistManager playlistManager) {
+        this.playlistManager = playlistManager;
+    }
 
     @FXML
     public void initialize() {

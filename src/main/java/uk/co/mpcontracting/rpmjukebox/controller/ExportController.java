@@ -53,22 +53,30 @@ public class ExportController implements Constants {
     private Button cancelButton;
 
     private final AppProperties appProperties;
+    private final MessageManager messageManager;
 
-    @Autowired
     private ExportView exportView;
-
-    @Autowired
-    private MessageManager messageManager;
-
-    @Autowired
     private SettingsManager settingsManager;
-
-    @Autowired
     private PlaylistManager playlistManager;
 
     private ObservableList<PlaylistTableModel> observablePlaylists;
     private Set<Integer> playlistsToExport;
     private String playlistExtensionFilter;
+
+    @Autowired
+    private void wireExportView(ExportView exportView) {
+        this.exportView = exportView;
+    }
+
+    @Autowired
+    private void wireSettingsManaager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
+
+    @Autowired
+    private void wirePlaylistManager(PlaylistManager playlistManager) {
+        this.playlistManager = playlistManager;
+    }
 
     @FXML
     public void initialize() {

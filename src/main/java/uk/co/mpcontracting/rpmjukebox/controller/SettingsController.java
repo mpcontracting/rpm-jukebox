@@ -1,17 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
@@ -53,23 +48,34 @@ public class SettingsController extends EventAwareObject implements Constants {
     private Button cancelButton;
 
     private final ThreadRunner threadRunner;
+    private final MessageManager messageManager;
 
-    @Autowired
     private SettingsView settingsView;
-
-    @Autowired
-    private MessageManager messageManager;
-
-    @Autowired
     private SettingsManager settingsManager;
-
-    @Autowired
     private SearchManager searchManager;
-
-    @Autowired
     private MainPanelController mainPanelController;
 
     private boolean isReindexing;
+
+    @Autowired
+    private void wireSettingsView(SettingsView settingsView) {
+        this.settingsView = settingsView;
+    }
+
+    @Autowired
+    private void wireSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
+
+    @Autowired
+    private void wireSearchManager(SearchManager searchManager) {
+        this.searchManager = searchManager;
+    }
+
+    @Autowired
+    private void wireMainPanelController(MainPanelController mainPanelController) {
+        this.mainPanelController = mainPanelController;
+    }
 
     @FXML
     public void initialize() {

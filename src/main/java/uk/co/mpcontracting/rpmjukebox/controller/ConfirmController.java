@@ -1,7 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
 
 @Slf4j
@@ -21,11 +20,15 @@ public class ConfirmController {
     @FXML
     private Button cancelButton;
 
-    @Autowired
     private ConfirmView confirmView;
 
     private Runnable okRunnable;
     private Runnable cancelRunnable;
+
+    @Autowired
+    private void wireConfirmView(ConfirmView confirmView) {
+        this.confirmView = confirmView;
+    }
 
     public void setRunnables(Runnable okRunnable, Runnable cancelRunnable) {
         this.okRunnable = okRunnable;

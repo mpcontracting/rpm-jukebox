@@ -129,62 +129,109 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
     private final AppProperties appProperties;
     private final ThreadRunner threadRunner;
+    private final MessageManager messageManager;
 
-    @Autowired
     private EqualizerView equalizerView;
-
-    @Autowired
     private SettingsView settingsView;
-
-    @Autowired
     private ExportView exportView;
-
-    @Autowired
     private MessageView messageView;
-
-    @Autowired
     private ConfirmView confirmView;
-
-    @Autowired
     private TrackTableView trackTableView;
-
-    @Autowired
     private EqualizerController equalizerController;
-
-    @Autowired
     private SettingsController settingsController;
-
-    @Autowired
     private ExportController exportController;
-
-    @Autowired
-    private MessageManager messageManager;
-
-    @Autowired
     private SettingsManager settingsManager;
-
-    @Autowired
     private SearchManager searchManager;
-
-    @Autowired
     private PlaylistManager playlistManager;
-
-    @Autowired
     private MediaManager mediaManager;
-
-    @Autowired
     private CacheManager cacheManager;
-
-    @Autowired
     private NativeManager nativeManager;
-
-    @Autowired
     private UpdateManager updateManager;
 
     private ObservableList<Playlist> observablePlaylists;
 
     private String playlistExtensionFilter;
     private int currentSelectedPlaylistId;
+
+    @Autowired
+    private void wireEqualizerView(EqualizerView equalizerView) {
+        this.equalizerView = equalizerView;
+    }
+
+    @Autowired
+    private void wireSettingsView(SettingsView settingsView) {
+        this.settingsView = settingsView;
+    }
+
+    @Autowired
+    private void wireExportView(ExportView exportView) {
+        this.exportView = exportView;
+    }
+
+    @Autowired
+    private void wireMessageView(MessageView messageView) {
+        this.messageView = messageView;
+    }
+
+    @Autowired
+    private void wireConfirmView(ConfirmView confirmView) {
+        this.confirmView = confirmView;
+    }
+
+    @Autowired
+    private void wireTrackTableView(TrackTableView trackTableView) {
+        this.trackTableView = trackTableView;
+    }
+
+    @Autowired
+    private void wireEqualizerController(EqualizerController equalizerController) {
+        this.equalizerController = equalizerController;
+    }
+
+    @Autowired
+    private void wireSettingsController(SettingsController settingsController) {
+        this.settingsController = settingsController;
+    }
+
+    @Autowired
+    private void wireExportController(ExportController exportController) {
+        this.exportController = exportController;
+    }
+
+    @Autowired
+    private void wireSettingsManager(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
+    }
+
+    @Autowired
+    private void wireSearchManager(SearchManager searchManager) {
+        this.searchManager = searchManager;
+    }
+
+    @Autowired
+    private void wirePlaylistManager(PlaylistManager playlistManager) {
+        this.playlistManager = playlistManager;
+    }
+
+    @Autowired
+    private void wireMediaManager(MediaManager mediaManager) {
+        this.mediaManager = mediaManager;
+    }
+
+    @Autowired
+    private void wireCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+
+    @Autowired
+    private void wireNativeManager(NativeManager nativeManager) {
+        this.nativeManager = nativeManager;
+    }
+
+    @Autowired
+    private void wireUpdateManager(UpdateManager updateManager) {
+        this.updateManager = updateManager;
+    }
 
     @FXML
     public void initialize() {

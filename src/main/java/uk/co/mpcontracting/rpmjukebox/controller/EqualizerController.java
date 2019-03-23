@@ -1,13 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MediaManager;
@@ -21,11 +20,18 @@ public class EqualizerController extends EventAwareObject {
     @FXML
     private HBox sliderHbox;
 
-    @Autowired
     private EqualizerView equalizerView;
+    private MediaManager mediaManager;
 
     @Autowired
-    private MediaManager mediaManager;
+    private void wireEqualizerView(EqualizerView equalizerView) {
+        this.equalizerView = equalizerView;
+    }
+
+    @Autowired
+    private void wireMediaManager(MediaManager mediaManager) {
+        this.mediaManager = mediaManager;
+    }
 
     @FXML
     public void initialize() {
