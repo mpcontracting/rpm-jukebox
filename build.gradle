@@ -6,7 +6,7 @@ buildscript {
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE'
-        classpath 'org.owasp:dependency-check-gradle:3.3.2'
+        classpath 'org.owasp:dependency-check-gradle:4.0.2'
         classpath 'de.dynamicfiles.projects.gradle.plugins:javafx-gradle-plugin:8.8.2'
     }
 }
