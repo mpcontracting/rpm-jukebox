@@ -1,19 +1,23 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import static org.mockito.Mockito.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 import de.felixroske.jfxsupport.GUIState;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
 
@@ -32,8 +36,8 @@ public class ConfirmViewTest extends AbstractTest {
     public void setup() {
         spyConfirmView = spy(confirmView);
         originalStage = GUIState.getStage();
-        ReflectionTestUtils.setField(GUIState.class, "stage", mock(Stage.class));
-        ReflectionTestUtils.setField(spyConfirmView, "confirmController", mockConfirmController);
+        setField(GUIState.class, "stage", mock(Stage.class));
+        setField(spyConfirmView, "confirmController", mockConfirmController);
     }
 
     @Test
@@ -64,7 +68,7 @@ public class ConfirmViewTest extends AbstractTest {
 
     @Test
     public void shouldShow() {
-        ReflectionTestUtils.setField(spyConfirmView, "stage", mock(Stage.class));
+        setField(spyConfirmView, "stage", mock(Stage.class));
 
         spyConfirmView.show(false);
 
@@ -73,6 +77,6 @@ public class ConfirmViewTest extends AbstractTest {
 
     @After
     public void cleanup() {
-        ReflectionTestUtils.setField(GUIState.class, "stage", originalStage);
+        setField(GUIState.class, "stage", originalStage);
     }
 }

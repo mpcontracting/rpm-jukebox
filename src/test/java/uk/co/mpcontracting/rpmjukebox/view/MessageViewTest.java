@@ -1,6 +1,19 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyDouble;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
+
 import de.felixroske.jfxsupport.GUIState;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -12,15 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 public class MessageViewTest extends AbstractTest {
 
@@ -37,7 +41,7 @@ public class MessageViewTest extends AbstractTest {
     public void setup() {
         spyMessageView = spy(messageView);
         originalStage = GUIState.getStage();
-        ReflectionTestUtils.setField(GUIState.class, "stage", mock(Stage.class));
+        setField(GUIState.class, "stage", mock(Stage.class));
     }
 
     // Testing the AbstractModelView here as SureFire doesn't pick
@@ -45,8 +49,8 @@ public class MessageViewTest extends AbstractTest {
 
     @Test
     public void shouldInitialiseViewWithNewScene() throws Exception {
-        ReflectionTestUtils.setField(spyMessageView, "owner", null);
-        ReflectionTestUtils.setField(spyMessageView, "stage", null);
+        setField(spyMessageView, "owner", null);
+        setField(spyMessageView, "stage", null);
         CountDownLatch latch1 = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
@@ -59,11 +63,11 @@ public class MessageViewTest extends AbstractTest {
         Stage owner = (Stage)ReflectionTestUtils.getField(spyMessageView, "owner");
         Stage stage = (Stage)ReflectionTestUtils.getField(spyMessageView, "stage");
 
-        assertThat("Owner should not be null", owner, notNullValue());
-        assertThat("Stage should not be null", stage, notNullValue());
+        assertThat(owner).isNotNull();
+        assertThat(stage).isNotNull();
 
         Stage spyStage = spy(stage);
-        ReflectionTestUtils.setField(spyMessageView, "stage", spyStage);
+        setField(spyMessageView, "stage", spyStage);
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
@@ -80,8 +84,8 @@ public class MessageViewTest extends AbstractTest {
 
     @Test
     public void shouldInitialiseViewWithExistingScene() throws Exception {
-        ReflectionTestUtils.setField(spyMessageView, "owner", null);
-        ReflectionTestUtils.setField(spyMessageView, "stage", null);
+        setField(spyMessageView, "owner", null);
+        setField(spyMessageView, "stage", null);
 
         Parent mockParent = mock(Parent.class);
         Scene mockScene = mock(Scene.class);
@@ -100,8 +104,8 @@ public class MessageViewTest extends AbstractTest {
         Stage owner = (Stage)ReflectionTestUtils.getField(spyMessageView, "owner");
         Stage stage = (Stage)ReflectionTestUtils.getField(spyMessageView, "stage");
 
-        assertThat("Owner should not be null", owner, notNullValue());
-        assertThat("Stage should not be null", stage, notNullValue());
+        assertThat(owner).isNotNull();
+        assertThat(stage).isNotNull();
     }
 
     @Test
@@ -109,11 +113,11 @@ public class MessageViewTest extends AbstractTest {
         Stage mockStage = mock(Stage.class);
         when(mockStage.isShowing()).thenReturn(true);
 
-        ReflectionTestUtils.setField(spyMessageView, "stage", mockStage);
+        setField(spyMessageView, "stage", mockStage);
 
         boolean result = spyMessageView.isShowing();
 
-        assertThat("Result should be true", result, equalTo(true));
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -128,14 +132,14 @@ public class MessageViewTest extends AbstractTest {
 
         Stage mockStage = mock(Stage.class);
 
-        ReflectionTestUtils.setField(spyMessageView, "owner", mockOwner);
-        ReflectionTestUtils.setField(spyMessageView, "stage", mockStage);
+        setField(spyMessageView, "owner", mockOwner);
+        setField(spyMessageView, "stage", mockStage);
 
         spyMessageView.show(true);
 
         boolean blurBackground = (boolean)ReflectionTestUtils.getField(spyMessageView, "blurBackground");
 
-        assertThat("Blur background should be true", blurBackground, equalTo(true));
+        assertThat(blurBackground).isTrue();
         verify(mockParent, times(1)).setEffect(any());
         verify(mockStage, times(1)).show();
     }
@@ -152,14 +156,14 @@ public class MessageViewTest extends AbstractTest {
 
         Stage mockStage = mock(Stage.class);
 
-        ReflectionTestUtils.setField(spyMessageView, "owner", mockOwner);
-        ReflectionTestUtils.setField(spyMessageView, "stage", mockStage);
+        setField(spyMessageView, "owner", mockOwner);
+        setField(spyMessageView, "stage", mockStage);
 
         spyMessageView.show(false);
 
         boolean blurBackground = (boolean)ReflectionTestUtils.getField(spyMessageView, "blurBackground");
 
-        assertThat("Blur background should be false", blurBackground, equalTo(false));
+        assertThat(blurBackground).isFalse();
         verify(mockParent, never()).setEffect(any());
         verify(mockStage, times(1)).show();
     }
@@ -176,9 +180,9 @@ public class MessageViewTest extends AbstractTest {
 
         Stage mockStage = mock(Stage.class);
 
-        ReflectionTestUtils.setField(spyMessageView, "owner", mockOwner);
-        ReflectionTestUtils.setField(spyMessageView, "stage", mockStage);
-        ReflectionTestUtils.setField(spyMessageView, "blurBackground", true);
+        setField(spyMessageView, "owner", mockOwner);
+        setField(spyMessageView, "stage", mockStage);
+        setField(spyMessageView, "blurBackground", true);
 
         spyMessageView.close();
 
@@ -198,9 +202,9 @@ public class MessageViewTest extends AbstractTest {
 
         Stage mockStage = mock(Stage.class);
 
-        ReflectionTestUtils.setField(spyMessageView, "owner", mockOwner);
-        ReflectionTestUtils.setField(spyMessageView, "stage", mockStage);
-        ReflectionTestUtils.setField(spyMessageView, "blurBackground", false);
+        setField(spyMessageView, "owner", mockOwner);
+        setField(spyMessageView, "stage", mockStage);
+        setField(spyMessageView, "blurBackground", false);
 
         spyMessageView.close();
 
@@ -229,6 +233,6 @@ public class MessageViewTest extends AbstractTest {
 
     @After
     public void cleanup() {
-        ReflectionTestUtils.setField(GUIState.class, "stage", originalStage);
+        setField(GUIState.class, "stage", originalStage);
     }
 }

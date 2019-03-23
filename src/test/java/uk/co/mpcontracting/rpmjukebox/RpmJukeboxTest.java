@@ -1,21 +1,22 @@
 package uk.co.mpcontracting.rpmjukebox;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.Collection;
-
+import javafx.scene.image.Image;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import javafx.scene.image.Image;
 import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
 import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
@@ -56,7 +57,7 @@ public class RpmJukeboxTest extends AbstractTest {
     public void shouldReturnEmptyListForDefaultIcons() {
         Collection<Image> defaultIcons = rpmJukebox.loadDefaultIcons();
 
-        assertThat("Default icons should be empty", defaultIcons, hasSize(0));
+        assertThat(defaultIcons).isEmpty();
     }
 
     @Test
