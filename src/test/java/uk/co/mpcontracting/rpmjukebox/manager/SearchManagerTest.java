@@ -40,7 +40,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDirectory;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SearchManagerTest implements Constants {
@@ -98,7 +98,7 @@ public class SearchManagerTest implements Constants {
         when(mockAppProperties.getArtistIndexDirectory()).thenReturn("artistIndex");
         when(mockAppProperties.getTrackIndexDirectory()).thenReturn("trackIndex");
         when(mockSettingsManager.getFileFromConfigDirectory("artistIndex"))
-            .thenReturn(new File(getConfigDirectory(), "artistIndex"));
+                .thenReturn(new File(getConfigDirectory(), "artistIndex"));
         when(mockSettingsManager.getFileFromConfigDirectory("trackIndex"))
                 .thenReturn(new File(getConfigDirectory(), "trackIndex"));
 
@@ -406,27 +406,21 @@ public class SearchManagerTest implements Constants {
     @Test
     @SneakyThrows
     public void shouldAddArtist() {
-        spySearchManager.addArtist(Artist.builder()
-                .artistId("123")
-                .artistName("Artist Name")
-                .artistImage("Artist Image")
-                .biography(null)
-                .members("Members")
-                .build());
+        spySearchManager.addArtist(generateArtist(1));
 
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockArtistWriter, times(1)).addDocument(document.capture());
 
         assertThat(document.getValue().getField(ArtistField.ARTISTID.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(ArtistField.ARTISTID.name()).stringValue()).isEqualTo("123");
+        assertThat(document.getValue().getField(ArtistField.ARTISTID.name()).stringValue()).isEqualTo("1231");
         assertThat(document.getValue().getField(ArtistField.ARTISTNAME.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(ArtistField.ARTISTNAME.name()).stringValue()).isEqualTo("Artist Name");
+        assertThat(document.getValue().getField(ArtistField.ARTISTNAME.name()).stringValue()).isEqualTo("Artist Name 1");
         assertThat(document.getValue().getField(ArtistField.ARTISTIMAGE.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(ArtistField.ARTISTIMAGE.name()).stringValue()).isEqualTo("Artist Image");
+        assertThat(document.getValue().getField(ArtistField.ARTISTIMAGE.name()).stringValue()).isEqualTo("Artist Image 1");
         assertThat(document.getValue().getField(ArtistField.BIOGRAPHY.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(ArtistField.BIOGRAPHY.name()).stringValue()).isEqualTo("");
+        assertThat(document.getValue().getField(ArtistField.BIOGRAPHY.name()).stringValue()).isEqualTo("Biography 1");
         assertThat(document.getValue().getField(ArtistField.MEMBERS.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(ArtistField.MEMBERS.name()).stringValue()).isEqualTo("Members");
+        assertThat(document.getValue().getField(ArtistField.MEMBERS.name()).stringValue()).isEqualTo("Members 1");
     }
 
     @Test
@@ -435,13 +429,7 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldNotAddArtistOnException()")).when(mockArtistWriter)
             .addDocument(any());
 
-        spySearchManager.addArtist(Artist.builder()
-                .artistId("123")
-                .artistName("Artist Name")
-                .artistImage("Artist Image")
-                .biography(null)
-                .members("Members")
-                .build());
+        spySearchManager.addArtist(generateArtist(1));
 
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockArtistWriter, times(1)).addDocument(document.capture());
@@ -452,36 +440,35 @@ public class SearchManagerTest implements Constants {
     @Test
     @SneakyThrows
     public void shouldAddTrack() {
-        spySearchManager.addTrack(new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image",
-            2000, "789", "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2")));
+        spySearchManager.addTrack(generateTrack(1, "Genre 1", "Genre 2"));
 
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockTrackWriter, times(1)).addDocument(document.capture());
 
         assertThat(document.getValue().getField(TrackField.KEYWORDS.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.KEYWORDS.name()).stringValue()).isEqualTo("artist name album name track name");
+        assertThat(document.getValue().getField(TrackField.KEYWORDS.name()).stringValue()).isEqualTo("artist name 1 album name 1 track name 1");
         assertThat(document.getValue().getField(TrackField.ARTISTID.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ARTISTID.name()).stringValue()).isEqualTo("123");
+        assertThat(document.getValue().getField(TrackField.ARTISTID.name()).stringValue()).isEqualTo("1231");
         assertThat(document.getValue().getField(TrackField.ARTISTNAME.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ARTISTNAME.name()).stringValue()).isEqualTo("Artist Name");
+        assertThat(document.getValue().getField(TrackField.ARTISTNAME.name()).stringValue()).isEqualTo("Artist Name 1");
         assertThat(document.getValue().getField(TrackField.ARTISTIMAGE.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ARTISTIMAGE.name()).stringValue()).isEqualTo("Artist Image");
+        assertThat(document.getValue().getField(TrackField.ARTISTIMAGE.name()).stringValue()).isEqualTo("Artist Image 1");
         assertThat(document.getValue().getField(TrackField.ALBUMID.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ALBUMID.name()).stringValue()).isEqualTo("456");
+        assertThat(document.getValue().getField(TrackField.ALBUMID.name()).stringValue()).isEqualTo("4561");
         assertThat(document.getValue().getField(TrackField.ALBUMNAME.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ALBUMNAME.name()).stringValue()).isEqualTo("Album Name");
+        assertThat(document.getValue().getField(TrackField.ALBUMNAME.name()).stringValue()).isEqualTo("Album Name 1");
         assertThat(document.getValue().getField(TrackField.ALBUMIMAGE.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ALBUMIMAGE.name()).stringValue()).isEqualTo("Album Image");
+        assertThat(document.getValue().getField(TrackField.ALBUMIMAGE.name()).stringValue()).isEqualTo("Album Image 1");
         assertThat(document.getValue().getField(TrackField.YEAR.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.YEAR.name()).stringValue()).isEqualTo("2000");
+        assertThat(document.getValue().getField(TrackField.YEAR.name()).stringValue()).isEqualTo("2001");
         assertThat(document.getValue().getField(TrackField.TRACKID.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.TRACKID.name()).stringValue()).isEqualTo("789");
+        assertThat(document.getValue().getField(TrackField.TRACKID.name()).stringValue()).isEqualTo("7891");
         assertThat(document.getValue().getField(TrackField.TRACKNAME.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.TRACKNAME.name()).stringValue()).isEqualTo("Track Name");
+        assertThat(document.getValue().getField(TrackField.TRACKNAME.name()).stringValue()).isEqualTo("Track Name 1");
         assertThat(document.getValue().getField(TrackField.NUMBER.name()).fieldType().stored()).isTrue();
         assertThat(document.getValue().getField(TrackField.NUMBER.name()).stringValue()).isEqualTo("1");
         assertThat(document.getValue().getField(TrackField.LOCATION.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.LOCATION.name()).stringValue()).isEqualTo("Location");
+        assertThat(document.getValue().getField(TrackField.LOCATION.name()).stringValue()).isEqualTo("Location 1");
         assertThat(document.getValue().getField(TrackField.ISPREFERRED.name()).fieldType().stored()).isTrue();
         assertThat(document.getValue().getField(TrackField.ISPREFERRED.name()).stringValue()).isEqualTo("true");
 
@@ -491,10 +478,10 @@ public class SearchManagerTest implements Constants {
         assertThat(document.getValue().getFields(TrackField.GENRE.name())[1].fieldType().stored()).isTrue();
         assertThat(document.getValue().getFields(TrackField.GENRE.name())[1].stringValue()).isEqualTo("Genre 2");
 
-        assertThat(document.getValue().getBinaryValue(TrackSort.DEFAULTSORT.name()).utf8ToString()).isEqualTo("ArtistName0000002000AlbumName0000000001");
-        assertThat(document.getValue().getBinaryValue(TrackSort.ARTISTSORT.name()).utf8ToString()).isEqualTo("0000002000ArtistName");
-        assertThat(document.getValue().getBinaryValue(TrackSort.ALBUMSORT.name()).utf8ToString()).isEqualTo("0000002000AlbumName");
-        assertThat(document.getValue().getBinaryValue(TrackSort.TRACKSORT.name()).utf8ToString()).isEqualTo("0000002000TrackName");
+        assertThat(document.getValue().getBinaryValue(TrackSort.DEFAULTSORT.name()).utf8ToString()).isEqualTo("ArtistName10000002001AlbumName10000000001");
+        assertThat(document.getValue().getBinaryValue(TrackSort.ARTISTSORT.name()).utf8ToString()).isEqualTo("0000002001ArtistName1");
+        assertThat(document.getValue().getBinaryValue(TrackSort.ALBUMSORT.name()).utf8ToString()).isEqualTo("0000002001AlbumName1");
+        assertThat(document.getValue().getBinaryValue(TrackSort.TRACKSORT.name()).utf8ToString()).isEqualTo("0000002001TrackName1");
     }
 
     @Test
@@ -503,8 +490,7 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldNotAddTrackOnException()")).when(mockTrackWriter)
             .addDocument(any());
 
-        spySearchManager.addTrack(new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image",
-            2000, "789", "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2")));
+        spySearchManager.addTrack(generateTrack(1, "Genre 1", "Genre 2"));
 
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockTrackWriter, times(1)).addDocument(document.capture());

@@ -105,14 +105,21 @@ public class DataManager implements Constants {
                             ParserModelTrack parserModelTrack = parseTrack(rowData);
                             String trackKey = getTrackKey(parserModelArtist, parserModelAlbum, parserModelTrack);
 
-                            searchManager.addTrack(new Track(Integer.toString(parserModelArtist.getArtistId()),
-                                    parserModelArtist.getArtistName(), parserModelArtist.getArtistImage(),
-                                    Integer.toString(parserModelAlbum.getAlbumId()), parserModelAlbum.getAlbumName(),
-                                    parserModelAlbum.getAlbumImage(), parserModelAlbum.getYear(),
-                                    hashGenerator.generateHash(trackKey),
-                                    parserModelTrack.getTrackName(),
-                                    parserModelTrack.getNumber(), appProperties.getS3BucketUrl() + trackKey,
-                                    parserModelTrack.isPreferred(), parserModelArtist.getGenres()));
+                            searchManager.addTrack(Track.builder()
+                                    .artistId(Integer.toString(parserModelArtist.getArtistId()))
+                                    .artistName(parserModelArtist.getArtistName())
+                                    .artistImage(parserModelArtist.getArtistImage())
+                                    .albumId(Integer.toString(parserModelAlbum.getAlbumId()))
+                                    .albumName(parserModelAlbum.getAlbumName())
+                                    .albumImage(parserModelAlbum.getAlbumImage())
+                                    .year(parserModelAlbum.getYear())
+                                    .trackId(hashGenerator.generateHash(trackKey))
+                                    .trackName(parserModelTrack.getTrackName())
+                                    .number(parserModelTrack.getNumber())
+                                    .location(appProperties.getS3BucketUrl() + trackKey)
+                                    .isPreferred(parserModelTrack.isPreferred())
+                                    .genres(parserModelArtist.getGenres())
+                                    .build());
                         }
                     } catch (Exception e) {
                         log.warn("Error parsing line record - {} - ignoring", e.getMessage(), e);

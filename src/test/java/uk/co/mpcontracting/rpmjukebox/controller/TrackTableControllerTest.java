@@ -11,7 +11,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableModel;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
-import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 import uk.co.mpcontracting.rpmjukebox.view.TrackTableView;
@@ -22,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getKeyEvent;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 
 public class TrackTableControllerTest extends AbstractGUITest {
 
@@ -95,8 +94,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 1);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
 
         trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, 1, track);
 
@@ -112,8 +110,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 1);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
 
         trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, 1);
 
@@ -129,8 +126,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 1);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
 
         trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, (Object[])null);
 
@@ -146,8 +142,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 1);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
 
         trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED);
 
@@ -163,8 +158,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
 
         trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, 1, track);
 
@@ -180,8 +174,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_CREATED, 1);
@@ -198,8 +191,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_CREATED, (Object[])null);
@@ -216,8 +208,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_CREATED);
@@ -234,8 +225,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 1);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_CREATED, 1);
@@ -252,8 +242,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_DELETED, 1);
@@ -270,8 +259,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_DELETED, (Object[])null);
@@ -288,8 +276,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_DELETED);
@@ -306,8 +293,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 1);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_DELETED, 1);
@@ -324,8 +310,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_SELECTED, 1);
@@ -342,8 +327,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_SELECTED, (Object[])null);
@@ -360,8 +344,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 2);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_SELECTED);
@@ -378,8 +361,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(generatePlaylist());
         setField(trackTableController, "visiblePlaylistId", 1);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
         trackTableController.eventReceived(Event.PLAYLIST_SELECTED, 1);
@@ -395,8 +377,8 @@ public class TrackTableControllerTest extends AbstractGUITest {
     public void shouldQueueTrackForPlayingFromEvent() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(1);
         setField(trackTableController, "visiblePlaylistId", 1);
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+
+        Track track = generateTrack(1);
         track.setPlaylistId(1);
 
         trackTableController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
@@ -408,8 +390,8 @@ public class TrackTableControllerTest extends AbstractGUITest {
     public void shouldQueueTrackForPlayingFromEventWithNullPayload() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(1);
         setField(trackTableController, "visiblePlaylistId", 1);
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+
+        Track track = generateTrack(1);
         track.setPlaylistId(1);
 
         trackTableController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[])null);
@@ -421,8 +403,8 @@ public class TrackTableControllerTest extends AbstractGUITest {
     public void shouldQueueTrackForPlayingFromEventWithEmptyPayload() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(1);
         setField(trackTableController, "visiblePlaylistId", 1);
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+
+        Track track = generateTrack(1);
         track.setPlaylistId(1);
 
         trackTableController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING);
@@ -434,8 +416,8 @@ public class TrackTableControllerTest extends AbstractGUITest {
     public void shouldQueueTrackForPlayingFromEventWithDifferentVisiblePlaylistId() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(1);
         setField(trackTableController, "visiblePlaylistId", 2);
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+
+        Track track = generateTrack(1);
         track.setPlaylistId(1);
 
         trackTableController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
@@ -447,8 +429,8 @@ public class TrackTableControllerTest extends AbstractGUITest {
     public void shouldQueueTrackForPlayingFromEventWithDifferentCurrentPlaylistId() {
         when(mockPlaylistManager.getCurrentPlaylistId()).thenReturn(2);
         setField(trackTableController, "visiblePlaylistId", 1);
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+
+        Track track = generateTrack(1);
         track.setPlaylistId(1);
 
         trackTableController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
@@ -463,8 +445,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
 
         spyTrackTableView.getSelectionModel().select(1);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         track.setPlaylistId(1);
 
         spyTrackTableView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.BACK_SPACE));
@@ -479,8 +460,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
 
         spyTrackTableView.getSelectionModel().clearSelection();
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         track.setPlaylistId(1);
 
         spyTrackTableView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.BACK_SPACE));
@@ -495,8 +475,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
 
         spyTrackTableView.getSelectionModel().select(1);
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         track.setPlaylistId(1);
 
         spyTrackTableView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.DELETE));
@@ -511,23 +490,11 @@ public class TrackTableControllerTest extends AbstractGUITest {
 
         spyTrackTableView.getSelectionModel().clearSelection();
 
-        Track track = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 1, "Location 1", true, null);
+        Track track = generateTrack(1);
         track.setPlaylistId(1);
 
         spyTrackTableView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.DELETE));
 
         verify(mockPlaylistManager, never()).removeTrackFromPlaylist(track.getPlaylistId(), track);
-    }
-
-    private Playlist generatePlaylist() {
-        Playlist playlist = new Playlist(1, "Playlist", 10);
-        for (int i = 0; i < 10; i++) {
-            playlist
-                .addTrack(new Track("123" + i, "Artist Name " + i, "Artist Image " + i, "456" + i, "Album Name " + i,
-                    "Album Image " + i, 2000 + i, "789" + i, "Track Name " + i, (i + 1), "Location " + i, true, null));
-        }
-
-        return playlist;
     }
 }

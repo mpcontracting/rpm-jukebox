@@ -16,8 +16,6 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
-import java.util.Arrays;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -47,7 +45,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldSinglePrimaryClickOnCell() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         tableCell.onMouseClickedProperty().get()
@@ -59,7 +57,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldDoublePrimaryClickOnCell() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         tableCell.onMouseClickedProperty().get()
@@ -71,7 +69,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldSinglePrimaryClickOnCellItemIsNull() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
 
@@ -84,7 +82,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldDoublePrimaryClickOnCellItemIsNull() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
 
@@ -97,7 +95,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldClickCreatePlaylistFromAlbumItem() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         MenuItem createPlaylistFromAlbumItem = tableCell.getContextMenu().getItems().get(0);
@@ -110,7 +108,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldClickCreatePlaylistFromAlbumItemItemIsNull() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
 
@@ -124,7 +122,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldClickDeleteTrackFromPlaylistItem() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         MenuItem deleteTrackFromPlaylistItem = tableCell.getContextMenu().getItems().get(1);
@@ -137,7 +135,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldClickDeleteTrackFromPlaylistItemItemIsNull() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
 
@@ -151,7 +149,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldOpenContextMenuOnSearchPlaylist() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         track.setPlaylistId(PLAYLIST_ID_SEARCH);
         updateTableCell(tableCell, track);
 
@@ -167,7 +165,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldOpenContextMenuOnNonSearchPlaylist() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         tableCell.onContextMenuRequestedProperty().get().handle(getContextMenuEvent(tableCell));
@@ -182,7 +180,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldOpenContextMenuWhenItemIsNull() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
 
@@ -198,7 +196,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldTriggerDragOver() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -215,7 +213,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldNotTriggerDragOverWithSameSource() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -232,7 +230,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldNotTriggerDragOverWithNoContent() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -250,7 +248,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @SuppressWarnings("unchecked")
     public void shouldNotTriggerDragOverWithNoTrackTableModel() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.getTableRow().setItem(null);
 
@@ -268,7 +266,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldNotTriggerDragOverWithSearchPlaylist() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         track.setPlaylistId(PLAYLIST_ID_SEARCH);
         updateTableCell(tableCell, track);
 
@@ -286,7 +284,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldTriggerDragEntered() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -304,7 +302,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldNotTriggerDragEnteredWithSameSource() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -321,7 +319,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldNotTriggerDragEnteredWithNoContent() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -340,7 +338,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @SuppressWarnings("unchecked")
     public void shouldNotTriggerDragEnteredWithNoTrackTableModel() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.getTableRow().setItem(null);
 
@@ -359,7 +357,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldNotTriggerDragEnteredWithSearchPlaylist() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         track.setPlaylistId(PLAYLIST_ID_SEARCH);
         updateTableCell(tableCell, track);
 
@@ -378,7 +376,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldTriggerDragExited() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track track = getTrack();
+        Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.getTableRow().setStyle("some-style");
 
@@ -397,11 +395,10 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldTriggerDragDropped() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track target = getTrack();
+        Track target = getTargetTrack();
         updateTableCell(tableCell, target);
 
-        Track source = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 2, "Location 1", true, Arrays.asList("Genre 1", "Genre 2"));
+        Track source = generateTrack(1, "Genre 1", "Genre 2");
         source.setPlaylistId(2);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -421,11 +418,10 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldNotTriggerDragDroppedWithNoContent() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track target = getTrack();
+        Track target = getTargetTrack();
         updateTableCell(tableCell, target);
 
-        Track source = new Track("1231", "Artist Name 1", "Artist Image 1", "4561", "Album Name 1", "Album Image 1",
-            2001, "7891", "Track Name 1", 2, "Location 1", true, Arrays.asList("Genre 1", "Genre 2"));
+        Track source = generateTrack(1, "Genre 1", "Genre 2");;
         source.setPlaylistId(2);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -444,7 +440,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Test
     public void shouldTriggerDragDone() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
-        Track target = getTrack();
+        Track target = getTargetTrack();
         updateTableCell(tableCell, target);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -457,9 +453,8 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         verify(spyDragEvent, times(1)).consume();
     }
 
-    private Track getTrack() {
-        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
-            "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2"));
+    private Track getTargetTrack() {
+        Track track = generateTrack(1, "Genre 1", "Genre 2");;
         track.setPlaylistId(1);
 
         return track;

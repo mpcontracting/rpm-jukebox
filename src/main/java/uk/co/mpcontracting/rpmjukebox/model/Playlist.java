@@ -24,8 +24,7 @@ public class Playlist implements Cloneable, Iterable<Track>, Constants {
 
     private SecureRandom random;
 
-    private Playlist() {
-    }
+    private Playlist() {}
 
     public Playlist(int playlistId, String name, int maxPlaylistSize) {
         this.playlistId = playlistId;

@@ -15,10 +15,9 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
-import java.util.Arrays;
-
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.generateTrack;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getMouseEvent;
 
 public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements Constants {
@@ -42,8 +41,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem("trackId");
 
-        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
-            "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2"));
+        Track track = generateTrack(1, "Genre 1", "Genre 2");
         track.setPlaylistId(999);
         TrackTableModel trackTableModel = new TrackTableModel(track);
 
@@ -68,8 +66,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem("trackId");
 
-        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
-            "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2"));
+        Track track = generateTrack(1, "Genre 1", "Genre 2");
         track.setPlaylistId(999);
         TrackTableModel trackTableModel = new TrackTableModel(track);
 
@@ -94,8 +91,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem(null);
 
-        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
-            "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2"));
+        Track track = generateTrack(1, "Genre 1", "Genre 2");;
         track.setPlaylistId(999);
 
         tableCell.onMouseClickedProperty().get()
@@ -111,8 +107,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem(null);
 
-        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
-            "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2"));
+        Track track = generateTrack(1, "Genre 1", "Genre 2");
         track.setPlaylistId(999);
 
         tableCell.onMouseClickedProperty().get()
@@ -128,8 +123,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem(null);
 
-        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
-            "Track Name", 1, "Location", true, Arrays.asList("Genre 1", "Genre 2"));
+        Track track = generateTrack(1, "Genre 1", "Genre 2");
         track.setPlaylistId(999);
 
         tableCell.onMouseClickedProperty().get()

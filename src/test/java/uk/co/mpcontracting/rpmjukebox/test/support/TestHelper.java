@@ -3,6 +3,9 @@ package uk.co.mpcontracting.rpmjukebox.test.support;
 import javafx.event.EventType;
 import javafx.scene.input.*;
 import org.springframework.core.io.ClassPathResource;
+import uk.co.mpcontracting.rpmjukebox.model.Artist;
+import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,6 +13,8 @@ import java.io.FileReader;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+
+import static java.util.Arrays.asList;
 
 public abstract class TestHelper {
 
@@ -60,5 +65,42 @@ public abstract class TestHelper {
     public static DragEvent getDragEvent(EventType<DragEvent> eventType, Dragboard dragboard, TransferMode transferMode,
                                      Object gestureSource) {
         return new DragEvent(eventType, dragboard, 0, 0, 0, 0, transferMode, gestureSource, null, null);
+    }
+
+    public static Playlist generatePlaylist() {
+        Playlist playlist = new Playlist(1, "Playlist", 10);
+        for (int i = 0; i < 10; i++) {
+            playlist .addTrack(generateTrack(i));
+        }
+
+        return playlist;
+    }
+
+    public static Artist generateArtist(int index) {
+        return Artist.builder()
+                .artistId("123" + index)
+                .artistName("Artist Name " + index)
+                .artistImage("Artist Image " + index)
+                .biography("Biography " + index)
+                .members("Members " + index)
+                .build();
+    }
+
+    public static Track generateTrack(int index, String... genres) {
+        return Track.builder()
+                .artistId("123" + index)
+                .artistName("Artist Name " + index)
+                .artistImage("Artist Image " + index)
+                .albumId("456" + index)
+                .albumName("Album Name " + index)
+                .albumImage("Album Image " + index)
+                .year(2000 + index)
+                .trackId("789" + index)
+                .trackName("Track Name " + index)
+                .number(index)
+                .location("Location " + index)
+                .isPreferred(true)
+                .genres(genres.length < 1 ? null : asList(genres))
+                .build();
     }
 }

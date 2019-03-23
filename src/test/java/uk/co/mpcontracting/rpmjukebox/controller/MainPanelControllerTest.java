@@ -55,6 +55,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.generateTrack;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getKeyEvent;
 
 public class MainPanelControllerTest extends AbstractGUITest implements Constants {
@@ -1850,8 +1851,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Label playingTrackLabel = find("#playingTrackLabel");
         Label playingAlbumLabel = find("#playingAlbumLabel");
         Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", "Album Image", 2000, "789",
-            "Track Name", 1, "Location", true, null);
+        Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
             .thenReturn("http://www.example.com/image.png");
@@ -1890,8 +1890,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Label playingTrackLabel = find("#playingTrackLabel");
         Label playingAlbumLabel = find("#playingAlbumLabel");
         Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = new Track("123", "Artist Name", "Artist Image", "456", "Album Name", null, 2000, "789",
-            "Track Name", 1, "Location", true, null);
+        Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
             .thenReturn("http://www.example.com/image.png");
@@ -1930,8 +1929,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Label playingTrackLabel = find("#playingTrackLabel");
         Label playingAlbumLabel = find("#playingAlbumLabel");
         Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = new Track("123", "Artist Name", null, "456", "Album Name", null, 2000, "789", "Track Name", 1,
-            "Location", true, null);
+        Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
             .thenReturn("http://www.example.com/image.png");
@@ -1970,8 +1968,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Label playingTrackLabel = find("#playingTrackLabel");
         Label playingAlbumLabel = find("#playingAlbumLabel");
         Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = new Track("123", "Artist Name", null, "456", "Album Name", null, 2000, "789", "Track Name", 1,
-            "Location", true, null);
+        Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
             .thenReturn("http://www.example.com/image.png");
@@ -2010,8 +2007,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Label playingTrackLabel = find("#playingTrackLabel");
         Label playingAlbumLabel = find("#playingAlbumLabel");
         Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = new Track("123", "Artist Name", null, "456", "Album Name", null, 2000, "789", "Track Name", 1,
-            "Location", true, null);
+        Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
             .thenReturn("http://www.example.com/image.png");

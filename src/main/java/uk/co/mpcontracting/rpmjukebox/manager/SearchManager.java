@@ -593,13 +593,22 @@ public class SearchManager extends EventAwareObject implements Constants {
 
     private Track getTrackByDocId(IndexSearcher trackSearcher, int docId) throws Exception {
         Document document = trackSearcher.doc(docId);
-        return new Track(document.get(TrackField.ARTISTID.name()), document.get(TrackField.ARTISTNAME.name()),
-            document.get(TrackField.ARTISTIMAGE.name()), document.get(TrackField.ALBUMID.name()),
-            document.get(TrackField.ALBUMNAME.name()), document.get(TrackField.ALBUMIMAGE.name()),
-            Integer.parseInt(document.get(TrackField.YEAR.name())), document.get(TrackField.TRACKID.name()),
-            document.get(TrackField.TRACKNAME.name()), Integer.parseInt(document.get(TrackField.NUMBER.name())),
-            document.get(TrackField.LOCATION.name()), Boolean.parseBoolean(document.get(TrackField.ISPREFERRED.name())),
-            Arrays.asList(document.getValues(TrackField.GENRE.name())));
+
+        return Track.builder()
+                .artistId(document.get(TrackField.ARTISTID.name()))
+                .artistName(document.get(TrackField.ARTISTNAME.name()))
+                .artistImage(document.get(TrackField.ARTISTIMAGE.name()))
+                .albumId(document.get(TrackField.ALBUMID.name()))
+                .albumName(document.get(TrackField.ALBUMNAME.name()))
+                .albumImage(document.get(TrackField.ALBUMIMAGE.name()))
+                .year(Integer.parseInt(document.get(TrackField.YEAR.name())))
+                .trackId(document.get(TrackField.TRACKID.name()))
+                .trackName(document.get(TrackField.TRACKNAME.name()))
+                .number(Integer.parseInt(document.get(TrackField.NUMBER.name())))
+                .location(document.get(TrackField.LOCATION.name()))
+                .isPreferred(Boolean.parseBoolean(document.get(TrackField.ISPREFERRED.name())))
+                .genres(Arrays.asList(document.getValues(TrackField.GENRE.name())))
+                .build();
     }
 
     private Query buildKeywordsQuery(String keywords, Query trackFilter) {

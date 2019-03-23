@@ -7,6 +7,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.generateTrack;
 
 public class TrackTableViewTest extends AbstractGUITest {
 
@@ -15,8 +16,7 @@ public class TrackTableViewTest extends AbstractGUITest {
         TrackTableView<Track> trackTableView = new TrackTableView<>();
         trackTableView.setItems(getTrackTableModels());
 
-        trackTableView.highlightTrack(
-            new Track("1235", null, null, "4565", null, null, 2005, "7895", null, 5, null, false, null));
+        trackTableView.highlightTrack(generateTrack(5));
 
         int selectedIndex = trackTableView.getSelectionModel().getSelectedIndex();
         int focussedIndex = trackTableView.getFocusModel().getFocusedIndex();
@@ -44,8 +44,7 @@ public class TrackTableViewTest extends AbstractGUITest {
         TrackTableView<Track> trackTableView = new TrackTableView<>();
         trackTableView.setItems(null);
 
-        trackTableView.highlightTrack(
-            new Track("1235", null, null, "4565", null, null, 2005, "7895", null, 5, null, false, null));
+        trackTableView.highlightTrack(generateTrack(5));
 
         int selectedIndex = trackTableView.getSelectionModel().getSelectedIndex();
         int focussedIndex = trackTableView.getFocusModel().getFocusedIndex();
@@ -59,8 +58,12 @@ public class TrackTableViewTest extends AbstractGUITest {
         TrackTableView<Track> trackTableView = new TrackTableView<>();
         trackTableView.setItems(getTrackTableModels());
 
-        trackTableView.highlightTrack(
-            new Track("12350", null, null, "45650", null, null, 2005, "78950", null, 5, null, false, null));
+        Track track = generateTrack(5);
+        track.setArtistId("12350");
+        track.setAlbumId("45650");
+        track.setTrackId("78950");
+
+        trackTableView.highlightTrack(track);
 
         int selectedIndex = trackTableView.getSelectionModel().getSelectedIndex();
         int focussedIndex = trackTableView.getFocusModel().getFocusedIndex();
@@ -73,8 +76,7 @@ public class TrackTableViewTest extends AbstractGUITest {
         ObservableList<TrackTableModel> trackTableModels = FXCollections.observableArrayList();
 
         for (int i = 0; i < 10; i++) {
-            trackTableModels.add(new TrackTableModel(new Track("123" + i, null, null, "456" + i, null, null, 2000 + i,
-                "789" + i, null, i, null, false, null)));
+            trackTableModels.add(new TrackTableModel(generateTrack(i)));
         }
 
         return trackTableModels;

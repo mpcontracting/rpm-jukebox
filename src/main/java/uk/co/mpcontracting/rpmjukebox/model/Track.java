@@ -1,35 +1,20 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
 
-@Getter
-@ToString
-@EqualsAndHashCode(of = { "artistId", "albumId", "trackId" })
-public class Track implements Serializable, Cloneable {
-    public Track(String artistId, String artistName, String artistImage, String albumId, String albumName,
-        String albumImage, int year, String trackId, String trackName, int number, String location, boolean isPreferred,
-        List<String> genres) {
-        this.artistId = artistId;
-        this.artistName = artistName;
-        this.artistImage = artistImage;
-        this.albumId = albumId;
-        this.albumName = albumName;
-        this.albumImage = albumImage;
-        this.year = year;
-        this.trackId = trackId;
-        this.trackName = trackName;
-        this.number = number;
-        this.location = location;
-        this.isPreferred = isPreferred;
-        this.genres = genres;
-    }
+import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
+import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
 
+/*@Getter
+@ToString
+@EqualsAndHashCode(of = { "artistId", "albumId", "trackId" })*/
+@Data
+@Builder
+public class Track implements Serializable, Cloneable {
     private String artistId;
     private String artistName;
     private String artistImage;
@@ -44,16 +29,61 @@ public class Track implements Serializable, Cloneable {
     private boolean isPreferred;
     private List<String> genres;
 
-    @Setter
     private int playlistId;
-
-    @Setter
     private int playlistIndex;
 
     @Override
+    public int hashCode() {
+        return reflectionHashCode(this,
+                "artistName",
+                "artistImage",
+                "albumName",
+                "albumImage",
+                "year",
+                "trackName",
+                "number",
+                "location",
+                "isPreferred",
+                "genres",
+                "playlistId",
+                "playlistIndex");
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return reflectionEquals(this, object,
+                "artistName",
+                "artistImage",
+                "albumName",
+                "albumImage",
+                "year",
+                "trackName",
+                "number",
+                "location",
+                "isPreferred",
+                "genres",
+                "playlistId",
+                "playlistIndex");
+    }
+
+    @Override
     public Track clone() {
-        Track clone = new Track(artistId, artistName, artistImage, albumId, albumName, albumImage, year, trackId,
-            trackName, number, location, isPreferred, genres);
+        Track clone = Track.builder()
+                .artistId(artistId)
+                .artistName(artistName)
+                .artistImage(artistImage)
+                .albumId(albumId)
+                .albumName(albumName)
+                .albumImage(albumImage)
+                .year(year)
+                .trackId(trackId)
+                .trackName(trackName)
+                .number(number)
+                .location(location)
+                .isPreferred(isPreferred)
+                .genres(genres)
+                .build();
+
         clone.setPlaylistId(playlistId);
         clone.setPlaylistIndex(playlistIndex);
 
