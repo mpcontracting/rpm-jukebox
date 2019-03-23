@@ -18,18 +18,18 @@ public class Artist {
     @Override
     public int hashCode() {
         return reflectionHashCode(this,
-                artistName,
-                artistImage,
-                biography,
-                members);
+                "artistName",
+                "artistImage",
+                "biography",
+                "members");
     }
 
     @Override
     public boolean equals(Object object) {
         return reflectionEquals(this, object,
-                artistName,
-                artistImage,
-                biography,
-                members);
+                "artistName",
+                "artistImage",
+                "biography",
+                "members");
     }
 }
