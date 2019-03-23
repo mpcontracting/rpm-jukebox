@@ -4,15 +4,15 @@ import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.igormaznitsa.commons.version.Version;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
@@ -23,6 +23,7 @@ import uk.co.mpcontracting.rpmjukebox.settings.Settings;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.settings.Window;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -40,8 +41,8 @@ import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SettingsManagerTest implements Constants {
+//@RunWith(MockitoJUnitRunner.class)
+public class SettingsManagerTest extends AbstractGUITest implements Constants {
 
     @Mock
     private AppProperties mockAppProperties;
@@ -329,7 +330,7 @@ public class SettingsManagerTest implements Constants {
         assertThat(lastIndexed).isEqualTo(originalLastIndexed);
     }
 
-    /*@Test
+    @Test
     public void shouldLoadWindowSettingsFromDefault() {
         Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
         double width = (bounds.getWidth() / 100d) * 75d;
@@ -344,7 +345,7 @@ public class SettingsManagerTest implements Constants {
         verify(mockStage, times(1)).setY(y);
         verify(mockStage, times(1)).setWidth(width);
         verify(mockStage, times(1)).setHeight(height);
-    }*/
+    }
 
     @Test
     @SneakyThrows
