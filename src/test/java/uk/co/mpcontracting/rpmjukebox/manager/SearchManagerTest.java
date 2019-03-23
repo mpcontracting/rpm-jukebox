@@ -406,7 +406,13 @@ public class SearchManagerTest implements Constants {
     @Test
     @SneakyThrows
     public void shouldAddArtist() {
-        spySearchManager.addArtist(new Artist("123", "Artist Name", "Artist Image", null, "Members"));
+        spySearchManager.addArtist(Artist.builder()
+                .artistId("123")
+                .artistName("Artist Name")
+                .artistImage("Artist Image")
+                .biography(null)
+                .members("Members")
+                .build());
 
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockArtistWriter, times(1)).addDocument(document.capture());
@@ -429,7 +435,13 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldNotAddArtistOnException()")).when(mockArtistWriter)
             .addDocument(any());
 
-        spySearchManager.addArtist(new Artist("123", "Artist Name", "Artist Image", null, "Members"));
+        spySearchManager.addArtist(Artist.builder()
+                .artistId("123")
+                .artistName("Artist Name")
+                .artistImage("Artist Image")
+                .biography(null)
+                .members("Members")
+                .build());
 
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockArtistWriter, times(1)).addDocument(document.capture());

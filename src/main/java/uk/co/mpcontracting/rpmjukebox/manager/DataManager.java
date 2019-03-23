@@ -89,9 +89,13 @@ public class DataManager implements Constants {
                             parserModelData.setArtist(parserModelArtist);
                             trackIndex.set(1);
 
-                            searchManager.addArtist(new Artist(Integer.toString(parserModelArtist.getArtistId()),
-                                    parserModelArtist.getArtistName(), parserModelArtist.getArtistImage(),
-                                    parserModelArtist.getBiography(), parserModelArtist.getMembers()));
+                            searchManager.addArtist(Artist.builder()
+                                    .artistId(Integer.toString(parserModelArtist.getArtistId()))
+                                    .artistName(parserModelArtist.getArtistName())
+                                    .artistImage(parserModelArtist.getArtistImage())
+                                    .biography(parserModelArtist.getBiography())
+                                    .members(parserModelArtist.getMembers())
+                                    .build());
                         } else if ("A".equals(getRowData(rowData, 0))) {
                             parserModelData.setAlbum(parseAlbum(rowData));
                             trackIndex.set(1);

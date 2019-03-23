@@ -581,9 +581,14 @@ public class SearchManager extends EventAwareObject implements Constants {
 
     private Artist getArtistByDocId(IndexSearcher artistSearcher, int docId) throws Exception {
         Document document = artistSearcher.doc(docId);
-        return new Artist(document.get(ArtistField.ARTISTID.name()), document.get(ArtistField.ARTISTNAME.name()),
-            document.get(ArtistField.ARTISTIMAGE.name()), document.get(ArtistField.BIOGRAPHY.name()),
-            document.get(ArtistField.MEMBERS.name()));
+
+        return Artist.builder()
+                .artistId(document.get(ArtistField.ARTISTID.name()))
+                .artistName(document.get(ArtistField.ARTISTNAME.name()))
+                .artistImage(document.get(ArtistField.ARTISTIMAGE.name()))
+                .biography(document.get(ArtistField.BIOGRAPHY.name()))
+                .members(document.get(ArtistField.MEMBERS.name()))
+                .build();
     }
 
     private Track getTrackByDocId(IndexSearcher trackSearcher, int docId) throws Exception {
