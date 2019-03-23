@@ -4,17 +4,20 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="270.0" styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.ConfirmController">
-   <center>
-      <Label id="message" textAlignment="LEFT" wrapText="true" BorderPane.alignment="TOP_LEFT" />
-   </center>
-   <bottom>
-      <HBox styleClass="buttonHbox">
-         <children>
-            <Button styleClass="focusableButton" fx:id="okButton" id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" onKeyPressed="#handleOkButtonKeyPressed" text="%button.ok" />
-            <Button styleClass="focusableButton" fx:id="cancelButton" id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" onKeyPressed="#handleCancelButtonKeyPressed" text="%button.cancel" />
-         </children>
-      </HBox>
-   </bottom>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0"
+            prefWidth="270.0" styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css"
+            xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="uk.co.mpcontracting.rpmjukebox.controller.ConfirmController">
+    <center>
+        <Label id="message" wrapText="true" BorderPane.alignment="TOP_LEFT"/>
+    </center>
+    <bottom>
+        <HBox styleClass="buttonHbox">
+            <Button styleClass="focusableButton" fx:id="okButton" id="okButton" mnemonicParsing="false"
+                    onAction="#handleOkButtonAction" onKeyPressed="#handleOkButtonKeyPressed" text="%button.ok"/>
+            <Button styleClass="focusableButton" id="cancelButton" mnemonicParsing="false"
+                    onAction="#handleCancelButtonAction" onKeyPressed="#handleCancelButtonKeyPressed"
+                    text="%button.cancel"/>
+        </HBox>
+    </bottom>
 </BorderPane>

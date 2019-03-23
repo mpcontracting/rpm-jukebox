@@ -1,124 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.co.mpcontracting.rpmjukebox.controller.SettingsController">
-	<center>
-		<GridPane BorderPane.alignment="CENTER">
-			<columnConstraints>
-				<ColumnConstraints />
-				<ColumnConstraints />
-			</columnConstraints>
-			<rowConstraints>
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-				<RowConstraints />
-			</rowConstraints>
-			<children>
-				<VBox styleClass="buttonHbox" GridPane.columnSpan="2">
-					<children>
-						<Label styleClass="copyright1" text="%settings.copyright.1" />
-						<Label fx:id="versionLabel" styleClass="copyright2" text="%settings.copyright.2" />
-						<Label styleClass="copyright3" text="%settings.copyright.3" />
-					</children>
-				</VBox>
-				<HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-				<HBox styleClass="labelHbox" GridPane.rowIndex="2">
-					<children>
-						<Label text="%settings.label.cacheSizeMb" />
-					</children>
-				</HBox>
-				<HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="2">
-					<children>
-						<TextField fx:id="cacheSizeMbTextField" HBox.hgrow="ALWAYS" />
-					</children>
-				</HBox>
-				<HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="3" />
-				<HBox styleClass="labelHbox" GridPane.rowIndex="4">
-					<children>
-						<Label text="%settings.label.proxyHost" />
-					</children>
-				</HBox>
-				<HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="4">
-					<children>
-						<TextField fx:id="proxyHostTextField" HBox.hgrow="ALWAYS" />
-					</children>
-				</HBox>
-				<HBox styleClass="labelHbox" GridPane.rowIndex="5">
-					<children>
-						<Label text="%settings.label.proxyPort" />
-					</children>
-				</HBox>
-				<HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="5">
-					<children>
-						<TextField fx:id="proxyPortTextField" HBox.hgrow="ALWAYS" />
-					</children>
-				</HBox>
-				<HBox styleClass="labelHbox" GridPane.columnSpan="2" GridPane.rowIndex="6">
-					<children>
-						<CheckBox fx:id="proxyAuthCheckBox" mnemonicParsing="false" text="%settings.label.requiresAuthentication" />
-					</children>
-				</HBox>
-				<HBox styleClass="labelHbox" GridPane.rowIndex="7">
-					<children>
-						<Label text="%settings.label.proxyUsername" />
-					</children>
-				</HBox>
-				<HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="7">
-					<children>
-						<TextField fx:id="proxyUsernameTextField" HBox.hgrow="ALWAYS" />
-					</children>
-				</HBox>
-				<HBox styleClass="labelHbox" GridPane.rowIndex="8">
-					<children>
-						<Label text="%settings.label.proxyPassword" />
-					</children>
-				</HBox>
-				<HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="8">
-					<children>
-						<PasswordField fx:id="proxyPasswordTextField" HBox.hgrow="ALWAYS" />
-					</children>
-				</HBox>
-				<HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="9" />
-				<HBox prefWidth="250.0" styleClass="labelHbox" GridPane.rowIndex="10">
-					<children>
-						<Label text="%settings.label.reindex" wrapText="true" />
-					</children>
-				</HBox>
-				<HBox prefWidth="250.0" styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="10">
-					<children>
-						<Button id="reindexButton" mnemonicParsing="false" onAction="#handleReindexButtonAction" text="%settings.button.reindex" />
-					</children>
-				</HBox>
-				<HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="11" />
-			</children>
-		</GridPane>
-	</center>
-	<bottom>
-		<HBox styleClass="buttonHbox" BorderPane.alignment="CENTER">
-			<children>
-				<Button id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok" />
-				<Button id="cancelButton" fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel" />
-			</children>
-		</HBox>
-	</bottom>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.111"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="uk.co.mpcontracting.rpmjukebox.controller.SettingsController">
+    <center>
+        <GridPane BorderPane.alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints/>
+                <ColumnConstraints/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+            </rowConstraints>
+            <VBox styleClass="buttonHbox" GridPane.columnSpan="2">
+                <Label styleClass="copyright1" text="%settings.copyright.1"/>
+                <Label fx:id="versionLabel" styleClass="copyright2" text="%settings.copyright.2"/>
+                <Label styleClass="copyright3" text="%settings.copyright.3"/>
+            </VBox>
+            <HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="1"/>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="2">
+                <Label text="%settings.label.cacheSizeMb"/>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                <TextField fx:id="cacheSizeMbTextField" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="3"/>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="4">
+                <Label text="%settings.label.proxyHost"/>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                <TextField fx:id="proxyHostTextField" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="5">
+                <Label text="%settings.label.proxyPort"/>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                <TextField fx:id="proxyPortTextField" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <HBox styleClass="labelHbox" GridPane.columnSpan="2" GridPane.rowIndex="6">
+                <CheckBox fx:id="proxyAuthCheckBox" mnemonicParsing="false"
+                          text="%settings.label.requiresAuthentication"/>
+            </HBox>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="7">
+                <Label text="%settings.label.proxyUsername"/>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                <TextField fx:id="proxyUsernameTextField" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <HBox styleClass="labelHbox" GridPane.rowIndex="8">
+                <Label text="%settings.label.proxyPassword"/>
+            </HBox>
+            <HBox styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="8">
+                <PasswordField fx:id="proxyPasswordTextField" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="9"/>
+            <HBox prefWidth="250.0" styleClass="labelHbox" GridPane.rowIndex="10">
+                <Label text="%settings.label.reindex" wrapText="true"/>
+            </HBox>
+            <HBox prefWidth="250.0" styleClass="buttonHbox" GridPane.columnIndex="1" GridPane.rowIndex="10">
+                <Button id="reindexButton" mnemonicParsing="false" onAction="#handleReindexButtonAction"
+                        text="%settings.button.reindex"/>
+            </HBox>
+            <HBox prefHeight="10.0" GridPane.columnSpan="2" GridPane.rowIndex="11"/>
+        </GridPane>
+    </center>
+    <bottom>
+        <HBox styleClass="buttonHbox" BorderPane.alignment="CENTER">
+            <Button id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok"/>
+            <Button id="cancelButton" fx:id="cancelButton" mnemonicParsing="false"
+                    onAction="#handleCancelButtonAction" text="%button.cancel"/>
+        </HBox>
+    </bottom>
 </BorderPane>
