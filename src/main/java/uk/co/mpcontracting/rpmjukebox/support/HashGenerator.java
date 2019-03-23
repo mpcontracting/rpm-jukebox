@@ -1,19 +1,15 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-@Slf4j
 @Component
 public class HashGenerator {
 
     public String generateHash(Object... objects) throws Exception {
-        log.debug("Generating hash for - {}", objectsAsString(objects));
-
         if (objects == null || objects.length == 0) {
             throw new IllegalArgumentException("Objects for hash generation must have at least one value");
         }
