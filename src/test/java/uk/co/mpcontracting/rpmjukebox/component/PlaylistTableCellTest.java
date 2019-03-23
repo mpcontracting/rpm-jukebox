@@ -1,11 +1,11 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
 import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PlaylistTableCellTest extends AbstractTest {
+public class PlaylistTableCellTest extends AbstractGUITest {
 
     @Test
     public void shouldUpdateItem() {

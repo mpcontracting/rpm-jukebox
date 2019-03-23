@@ -36,7 +36,7 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 import uk.co.mpcontracting.rpmjukebox.view.*;
 
 import javax.annotation.PostConstruct;
@@ -57,7 +57,7 @@ import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getKeyEvent;
 
-public class MainPanelControllerTest extends AbstractTest implements Constants {
+public class MainPanelControllerTest extends AbstractGUITest implements Constants {
 
     @Autowired
     private AppProperties appProperties;

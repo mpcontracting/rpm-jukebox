@@ -4,11 +4,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TrackTableViewTest extends AbstractTest {
+public class TrackTableViewTest extends AbstractGUITest {
 
     @Test
     public void shouldHighlightTrack() {

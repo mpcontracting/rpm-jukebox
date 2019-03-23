@@ -1,9 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.test.support;
 
 import de.roskenet.jfxsupport.test.GuiTest;
-import javafx.event.EventType;
 import javafx.scene.Node;
-import javafx.scene.input.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -13,26 +11,20 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
 import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Locale;
 
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public abstract class AbstractTest extends GuiTest {
+public abstract class AbstractGUITest extends GuiTest {
 
     static {
         System.setProperty("JAVAFX_HEADLESS", "true");

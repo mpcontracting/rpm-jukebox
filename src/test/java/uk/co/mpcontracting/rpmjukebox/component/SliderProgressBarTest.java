@@ -1,11 +1,11 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
 import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SliderProgressBarTest extends AbstractTest {
+public class SliderProgressBarTest extends AbstractGUITest {
 
     @Test
     public void shouldGetSliderValueProperty() {

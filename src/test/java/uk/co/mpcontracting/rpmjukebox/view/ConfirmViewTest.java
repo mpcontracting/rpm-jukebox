@@ -1,13 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
-
 import de.felixroske.jfxsupport.GUIState;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -19,9 +11,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
-public class ConfirmViewTest extends AbstractTest {
+import static org.mockito.Mockito.*;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
+
+public class ConfirmViewTest extends AbstractGUITest {
 
     @Autowired
     private ConfirmView confirmView;

@@ -2,13 +2,13 @@ package uk.co.mpcontracting.rpmjukebox.component;
 
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TrackTableModelTest extends AbstractTest {
+public class TrackTableModelTest extends AbstractGUITest {
 
     @Test
     public void shouldInitialise() {

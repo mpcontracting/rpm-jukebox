@@ -1,12 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
 import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class PercentageTableColumnTest extends AbstractTest {
+public class PercentageTableColumnTest extends AbstractGUITest {
 
     @Test
     public void shouldGetPercentageWidthProperty() {

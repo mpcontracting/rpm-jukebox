@@ -1,12 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import javafx.scene.control.TextField;
 import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
-public class ValidationHelperTest extends AbstractTest implements Constants {
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ValidationHelperTest extends AbstractGUITest implements Constants {
 
     @Test
     public void shouldReturnNullStringAsBlank() {

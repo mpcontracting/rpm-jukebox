@@ -2,14 +2,14 @@ package uk.co.mpcontracting.rpmjukebox.component;
 
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 
-public class PlaylistStringConverterTest extends AbstractTest {
+public class PlaylistStringConverterTest extends AbstractGUITest {
 
     @Test
     public void shouldSetPlaylist() {

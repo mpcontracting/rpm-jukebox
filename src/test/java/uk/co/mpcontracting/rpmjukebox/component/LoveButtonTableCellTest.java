@@ -5,12 +5,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-public class LoveButtonTableCellTest extends AbstractTest implements Constants {
+public class LoveButtonTableCellTest extends AbstractGUITest implements Constants {
 
     @Mock
     private PlaylistManager mockPlaylistManager;

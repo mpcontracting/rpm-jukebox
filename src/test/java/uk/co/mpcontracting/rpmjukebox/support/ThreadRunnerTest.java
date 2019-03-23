@@ -1,15 +1,16 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
-public class ThreadRunnerTest extends AbstractTest {
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ThreadRunnerTest extends AbstractGUITest {
 
     @Autowired
     private ThreadRunner threadRunner;

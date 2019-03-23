@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractTest;
+import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
 
 import javax.annotation.PostConstruct;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-public class ConfirmControllerTest extends AbstractTest {
+public class ConfirmControllerTest extends AbstractGUITest {
 
     @Autowired
     private ThreadRunner threadRunner;
