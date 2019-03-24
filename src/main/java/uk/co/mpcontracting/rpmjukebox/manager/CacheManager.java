@@ -78,9 +78,7 @@ public class CacheManager implements Constants {
             if (file.exists()) {
                 log.debug("Found cached file : Cache type - {}, ID - {}", cacheType, id);
 
-                if (!file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())) {
-                    log.warn("Unable set last modified date on file - {}", file);
-                }
+                file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 
                 return file;
             }
@@ -102,9 +100,7 @@ public class CacheManager implements Constants {
                     (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
 
             if (file.exists()) {
-                if (!file.delete()) {
-                    log.warn("Unable to delete file - {}", file);
-                }
+                file.delete();
             }
 
             try (FileOutputStream outputStream = new FileOutputStream(file)) {

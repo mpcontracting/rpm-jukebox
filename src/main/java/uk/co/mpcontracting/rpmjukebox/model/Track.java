@@ -9,9 +9,6 @@ import java.util.List;
 import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
 
-/*@Getter
-@ToString
-@EqualsAndHashCode(of = { "artistId", "albumId", "trackId" })*/
 @Data
 @Builder
 public class Track implements Serializable, Cloneable {
