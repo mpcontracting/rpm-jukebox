@@ -1,8 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
 import de.felixroske.jfxsupport.SplashScreen;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
@@ -10,6 +7,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 @Slf4j
 public class ProgressSplashScreen extends SplashScreen implements Constants {
@@ -34,8 +34,8 @@ public class ProgressSplashScreen extends SplashScreen implements Constants {
     private String loadStyle() {
         StringBuilder builder = new StringBuilder();
 
-        try (BufferedReader reader = new BufferedReader(
-            new InputStreamReader(getClass().getResourceAsStream("/css/splash-screen.style")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                getClass().getResourceAsStream("/css/splash-screen.style")))) {
             reader.lines().forEach(line -> builder.append(line).append(' '));
         } catch (Exception e) {
             log.error("Unable to load splash screen CSS", e);

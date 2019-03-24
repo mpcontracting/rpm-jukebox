@@ -17,6 +17,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static uk.co.mpcontracting.rpmjukebox.event.Event.APPLICATION_INITIALISED;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -84,15 +86,8 @@ public class UpdateManager extends EventAwareObject implements Constants {
 
     @Override
     public void eventReceived(Event event, Object... payload) {
-        switch (event) {
-            case APPLICATION_INITIALISED: {
-                threadRunner.run(this::checkForUpdates);
-
-                break;
-            }
-            default: {
-                // Nothing
-            }
+        if (event == APPLICATION_INITIALISED) {
+            threadRunner.run(this::checkForUpdates);
         }
     }
 }

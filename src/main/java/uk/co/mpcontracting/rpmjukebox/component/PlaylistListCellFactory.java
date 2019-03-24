@@ -9,7 +9,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
@@ -17,6 +16,9 @@ import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
+
+import static java.util.Optional.ofNullable;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_SELECTED;
 
 public class PlaylistListCellFactory extends EventAwareObject
     implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
@@ -41,15 +43,11 @@ public class PlaylistListCellFactory extends EventAwareObject
             if (event.getButton() == MouseButton.PRIMARY) {
                 if (event.getClickCount() == 1) {
                     // Single click
-                    if (listCell.getItem() != null) {
-                        fireEvent(Event.PLAYLIST_SELECTED, listCell.getItem().getPlaylistId());
-                    }
+                    ofNullable(listCell.getItem()).ifPresent(item -> fireEvent(PLAYLIST_SELECTED, item.getPlaylistId()));
                 }
             } else if (event.getButton() == MouseButton.SECONDARY && event.getClickCount() < 2) {
                 // Right click
-                if (listCell.getItem() != null) {
-                    fireEvent(Event.PLAYLIST_SELECTED, listCell.getItem().getPlaylistId());
-                }
+                ofNullable(listCell.getItem()).ifPresent(item -> fireEvent(PLAYLIST_SELECTED, item.getPlaylistId()));
             }
         });
 
@@ -65,15 +63,13 @@ public class PlaylistListCellFactory extends EventAwareObject
         });
         contextMenu.getItems().add(newPlaylistItem);
 
-        final MenuItem deletePlaylistItem = new MenuItem(
-            messageManager.getMessage(MESSAGE_PLAYLIST_CONTEXT_DELETE_PLAYLIST));
+        final MenuItem deletePlaylistItem = new MenuItem(messageManager.getMessage(MESSAGE_PLAYLIST_CONTEXT_DELETE_PLAYLIST));
         deletePlaylistItem.setOnAction(event -> {
             Playlist playlist = listView.getSelectionModel().getSelectedItem();
 
-            ContextHelper.getBean(MainPanelController.class).showConfirmView(
-                messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), true, () -> {
-                    playlistManager.deletePlaylist(playlist.getPlaylistId());
-                }, null);
+            ContextHelper.getBean(MainPanelController.class)
+                    .showConfirmView(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()),
+                            true, () -> playlistManager.deletePlaylist(playlist.getPlaylistId()), null);
         });
         contextMenu.getItems().add(deletePlaylistItem);
 
@@ -111,8 +107,8 @@ public class PlaylistListCellFactory extends EventAwareObject
         });
 
         listCell.setOnDragEntered(event -> {
-            if (event.getGestureSource() != listCell && listCell.getItem() != null
-                && listCell.getItem().getPlaylistId() > -1 && event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT)) {
+            if (event.getGestureSource() != listCell && listCell.getItem() != null &&
+                    listCell.getItem().getPlaylistId() > -1 && event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT)) {
                 listCell.setStyle("-fx-background-color: -jb-foreground-color; -fx-text-fill: -jb-background-color");
             }
 

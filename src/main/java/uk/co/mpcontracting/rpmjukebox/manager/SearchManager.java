@@ -64,8 +64,6 @@ public class SearchManager extends EventAwareObject implements Constants {
     @Getter
     private List<TrackSort> trackSortList;
 
-    //private Analyzer analyzer;
-
     private Directory artistDirectory;
     private IndexWriter artistWriter;
     private SearcherManager artistManager;
@@ -306,7 +304,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
                 if (terms != null) {
                     TermsEnum termsEnum = terms.iterator();
-                    BytesRef bytesRef = null;
+                    BytesRef bytesRef;
 
                     while ((bytesRef = termsEnum.next()) != null) {
                         fieldValues.add(bytesRef.utf8ToString());
@@ -356,14 +354,8 @@ public class SearchManager extends EventAwareObject implements Constants {
                         .stripAccents(nullSafeTrim(stripWhitespace(trackSearch.getKeywords(), true)).toLowerCase()),
                     trackSearch.getTrackFilter().getFilter()),
                 appProperties.getMaxSearchHits(), new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
-            ScoreDoc[] scoreDocs = results.scoreDocs;
-            List<Track> tracks = new ArrayList<>();
 
-            for (ScoreDoc scoreDoc : scoreDocs) {
-                tracks.add(getTrackByDocId(trackSearcher, scoreDoc.doc));
-            }
-
-            return tracks;
+            return getTracksFromScoreDocs(trackSearcher, results.scoreDocs);
         } catch (Exception e) {
             log.error("Unable to run track search", e);
 
@@ -543,14 +535,8 @@ public class SearchManager extends EventAwareObject implements Constants {
             trackSearcher = trackManager.acquire();
             TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.ALBUMID.name(), albumId)),
                 appProperties.getMaxSearchHits(), new Sort(new SortField(TrackSort.DEFAULTSORT.name(), SortField.Type.STRING)));
-            ScoreDoc[] scoreDocs = results.scoreDocs;
-            List<Track> tracks = new ArrayList<>();
 
-            for (ScoreDoc scoreDoc : scoreDocs) {
-                tracks.add(getTrackByDocId(trackSearcher, scoreDoc.doc));
-            }
-
-            return of(tracks);
+            return of(getTracksFromScoreDocs(trackSearcher, results.scoreDocs));
         } catch (Exception e) {
             log.error("Unable to run get album by id", e);
 
@@ -574,6 +560,16 @@ public class SearchManager extends EventAwareObject implements Constants {
                 .biography(document.get(ArtistField.BIOGRAPHY.name()))
                 .members(document.get(ArtistField.MEMBERS.name()))
                 .build();
+    }
+
+    private List<Track> getTracksFromScoreDocs(IndexSearcher trackSearcher, ScoreDoc[] scoreDocs) throws Exception {
+        List<Track> tracks = new ArrayList<>();
+
+        for (ScoreDoc scoreDoc : scoreDocs) {
+            tracks.add(getTrackByDocId(trackSearcher, scoreDoc.doc));
+        }
+
+        return tracks;
     }
 
     private Track getTrackByDocId(IndexSearcher trackSearcher, int docId) throws Exception {

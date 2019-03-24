@@ -11,6 +11,8 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 
+import static java.util.Optional.ofNullable;
+
 public class LoveButtonTableCellFactory<S, T> extends EventAwareObject
     implements Callback<TableColumn<TrackTableModel, String>, TableCell<TrackTableModel, String>>, Constants {
 
@@ -32,7 +34,7 @@ public class LoveButtonTableCellFactory<S, T> extends EventAwareObject
             if (event.getButton() == MouseButton.PRIMARY) {
                 if (event.getClickCount() == 1) {
                     // Single click
-                    if (tableCell.getItem() != null) {
+                    ofNullable(tableCell.getItem()).ifPresent(item -> {
                         Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
 
                         if (playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, track.getTrackId())) {
@@ -42,7 +44,7 @@ public class LoveButtonTableCellFactory<S, T> extends EventAwareObject
                         }
 
                         fireEvent(Event.PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
-                    }
+                    });
                 }
             }
         });
