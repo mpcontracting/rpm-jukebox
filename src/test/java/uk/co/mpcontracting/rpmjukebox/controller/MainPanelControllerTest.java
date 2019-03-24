@@ -50,6 +50,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -458,7 +460,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             when(mockTrack.getTrackId()).thenReturn(Integer.toString(i));
 
             playlist.addTrack(mockTrack);
-            when(mockSearchManager.getTrackById(Integer.toString(i))).thenReturn(mockTrack);
+            when(mockSearchManager.getTrackById(Integer.toString(i))).thenReturn(of(mockTrack));
         }
 
         List<PlaylistSettings> playlistSettings = new ArrayList<>();
@@ -529,7 +531,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         playlistSettings.add(new PlaylistSettings(playlist));
 
         when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
-        when(mockSearchManager.getTrackById(any())).thenReturn(null);
+        when(mockSearchManager.getTrackById(any())).thenReturn(empty());
 
         CountDownLatch latch2 = new CountDownLatch(1);
 

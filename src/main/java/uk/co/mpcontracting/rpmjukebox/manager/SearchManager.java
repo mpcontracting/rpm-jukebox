@@ -39,6 +39,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -99,15 +102,13 @@ public class SearchManager extends EventAwareObject implements Constants {
             Analyzer analyzer = new WhitespaceAnalyzer();
             BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
 
-            artistDirectory = FSDirectory.open(
-                    settingsManager.getFileFromConfigDirectory(appProperties.getArtistIndexDirectory()).toPath());
+            artistDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(appProperties.getArtistIndexDirectory()).toPath());
             IndexWriterConfig artistWriterConfig = new IndexWriterConfig(analyzer);
             artistWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             artistWriter = new IndexWriter(artistDirectory, artistWriterConfig);
             artistManager = new SearcherManager(artistWriter, null);
 
-            trackDirectory = FSDirectory.open(
-                    settingsManager.getFileFromConfigDirectory(appProperties.getTrackIndexDirectory()).toPath());
+            trackDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(appProperties.getTrackIndexDirectory()).toPath());
             IndexWriterConfig trackWriterConfig = new IndexWriterConfig(analyzer);
             trackWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
             trackWriter = new IndexWriter(trackDirectory, trackWriterConfig);
@@ -116,8 +117,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             random = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
 
             // See if we already have valid indexes, if not, build them
-            if (settingsManager.hasDataFileExpired() || settingsManager.isNewVersion() || !isIndexValid(artistManager)
-                || !isIndexValid(trackManager)) {
+            if (settingsManager.hasDataFileExpired() || settingsManager.isNewVersion() || !isIndexValid(artistManager) || !isIndexValid(trackManager)) {
                 indexData();
             }
 
@@ -160,7 +160,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     }
 
     @SneakyThrows
-    public void shutdown() {
+    void shutdown() {
         artistWriter.close();
         artistDirectory.close();
         trackWriter.close();
@@ -220,15 +220,13 @@ public class SearchManager extends EventAwareObject implements Constants {
         }
     }
 
-    public void addArtist(Artist artist) {
+    void addArtist(Artist artist) {
         Document document = new Document();
 
         document.add(new StringField(ArtistField.ARTISTID.name(), artist.getArtistId(), Field.Store.YES));
         document.add(new StringField(ArtistField.ARTISTNAME.name(), artist.getArtistName(), Field.Store.YES));
-        document.add(
-            new StringField(ArtistField.ARTISTIMAGE.name(), nullIsBlank(artist.getArtistImage()), Field.Store.YES));
-        document
-            .add(new StringField(ArtistField.BIOGRAPHY.name(), nullIsBlank(artist.getBiography()), Field.Store.YES));
+        document.add(new StringField(ArtistField.ARTISTIMAGE.name(), nullIsBlank(artist.getArtistImage()), Field.Store.YES));
+        document.add(new StringField(ArtistField.BIOGRAPHY.name(), nullIsBlank(artist.getBiography()), Field.Store.YES));
         document.add(new StringField(ArtistField.MEMBERS.name(), nullIsBlank(artist.getMembers()), Field.Store.YES));
 
         try {
@@ -238,33 +236,29 @@ public class SearchManager extends EventAwareObject implements Constants {
         }
     }
 
-    public void addTrack(Track track) {
+    void addTrack(Track track) {
         Document document = new Document();
 
         // Keywords
         document.add(new TextField(TrackField.KEYWORDS.name(),
-            StringUtils
-                .stripAccents(nullSafeTrim(track.getArtistName()).toLowerCase() + " "
-                    + nullSafeTrim(track.getAlbumName()).toLowerCase() + " " + nullSafeTrim(track.getTrackName()))
-                .toLowerCase(),
+            StringUtils.stripAccents(nullSafeTrim(track.getArtistName()).toLowerCase() + " "
+                    + nullSafeTrim(track.getAlbumName()).toLowerCase() + " "
+                    + nullSafeTrim(track.getTrackName())).toLowerCase(),
             Field.Store.YES));
 
         // Result data
         document.add(new StringField(TrackField.ARTISTID.name(), track.getArtistId(), Field.Store.YES));
         document.add(new StringField(TrackField.ARTISTNAME.name(), track.getArtistName(), Field.Store.YES));
-        document
-            .add(new StringField(TrackField.ARTISTIMAGE.name(), nullIsBlank(track.getArtistImage()), Field.Store.YES));
+        document.add(new StringField(TrackField.ARTISTIMAGE.name(), nullIsBlank(track.getArtistImage()), Field.Store.YES));
         document.add(new StringField(TrackField.ALBUMID.name(), track.getAlbumId(), Field.Store.YES));
         document.add(new StringField(TrackField.ALBUMNAME.name(), track.getAlbumName(), Field.Store.YES));
-        document
-            .add(new StringField(TrackField.ALBUMIMAGE.name(), nullIsBlank(track.getAlbumImage()), Field.Store.YES));
+        document.add(new StringField(TrackField.ALBUMIMAGE.name(), nullIsBlank(track.getAlbumImage()), Field.Store.YES));
         document.add(new StringField(TrackField.YEAR.name(), Integer.toString(track.getYear()), Field.Store.YES));
         document.add(new StringField(TrackField.TRACKID.name(), track.getTrackId(), Field.Store.YES));
         document.add(new StringField(TrackField.TRACKNAME.name(), track.getTrackName(), Field.Store.YES));
         document.add(new StoredField(TrackField.NUMBER.name(), track.getNumber()));
         document.add(new StringField(TrackField.LOCATION.name(), track.getLocation(), Field.Store.YES));
-        document.add(
-            new StringField(TrackField.ISPREFERRED.name(), Boolean.toString(track.isPreferred()), Field.Store.YES));
+        document.add(new StringField(TrackField.ISPREFERRED.name(), Boolean.toString(track.isPreferred()), Field.Store.YES));
 
         for (String genre : track.getGenres()) {
             document.add(new StringField(TrackField.GENRE.name(), genre, Field.Store.YES));
@@ -382,7 +376,6 @@ public class SearchManager extends EventAwareObject implements Constants {
                 log.warn("Unable to release track searcher");
             }
 
-            trackSearcher = null;
             long queryTime = System.currentTimeMillis() - startTime;
 
             log.debug("Search query time - {} milliseconds", queryTime);
@@ -473,7 +466,6 @@ public class SearchManager extends EventAwareObject implements Constants {
                 log.warn("Unable to release track searcher");
             }
 
-            trackSearcher = null;
             long queryTime = System.currentTimeMillis() - startTime;
 
             log.debug("Shuffled playlist query time - {} milliseconds", queryTime);
@@ -481,7 +473,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     }
 
     @Synchronized
-    public Artist getArtistById(String artistId) {
+    Optional<Artist> getArtistById(String artistId) {
         if (artistManager == null) {
             throw new RuntimeException("Cannot search before artist index is initialised");
         }
@@ -493,27 +485,25 @@ public class SearchManager extends EventAwareObject implements Constants {
             TopDocs results = artistSearcher.search(new TermQuery(new Term(ArtistField.ARTISTID.name(), artistId)), 1);
 
             if (results.totalHits < 1) {
-                return null;
+                return empty();
             }
 
-            return getArtistByDocId(artistSearcher, results.scoreDocs[0].doc);
+            return of(getArtistByDocId(artistSearcher, results.scoreDocs[0].doc));
         } catch (Exception e) {
             log.error("Unable to run get artist by id", e);
 
-            return null;
+            return empty();
         } finally {
             try {
                 artistManager.release(artistSearcher);
             } catch (Exception e) {
                 log.warn("Unable to release artist searcher");
             }
-
-            artistSearcher = null;
         }
     }
 
     @Synchronized
-    public Track getTrackById(String trackId) {
+    public Optional<Track> getTrackById(String trackId) {
         if (trackManager == null) {
             throw new RuntimeException("Cannot search before track index is initialised");
         }
@@ -525,27 +515,25 @@ public class SearchManager extends EventAwareObject implements Constants {
             TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.TRACKID.name(), trackId)), 1);
 
             if (results.totalHits < 1) {
-                return null;
+                return empty();
             }
 
-            return getTrackByDocId(trackSearcher, results.scoreDocs[0].doc);
+            return of(getTrackByDocId(trackSearcher, results.scoreDocs[0].doc));
         } catch (Exception e) {
             log.error("Unable to run get track by id", e);
 
-            return null;
+            return empty();
         } finally {
             try {
                 trackManager.release(trackSearcher);
             } catch (Exception e) {
                 log.warn("Unable to release track searcher");
             }
-
-            trackSearcher = null;
         }
     }
 
     @Synchronized
-    public List<Track> getAlbumById(String albumId) {
+    List<Track> getAlbumById(String albumId) {
         if (trackManager == null) {
             throw new RuntimeException("Cannot search before track index is initialised");
         }
@@ -574,8 +562,6 @@ public class SearchManager extends EventAwareObject implements Constants {
             } catch (Exception e) {
                 log.warn("Unable to release track searcher");
             }
-
-            trackSearcher = null;
         }
     }
 

@@ -465,13 +465,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
                         Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(),
                             appProperties.getMaxPlaylistSize());
 
-                        playlistSettings.getTracks().forEach(trackId -> {
-                            Track track = searchManager.getTrackById(trackId);
-
-                            if (track != null) {
-                                playlist.addTrack(track);
-                            }
-                        });
+                        playlistSettings.getTracks().forEach(trackId ->
+                            searchManager.getTrackById(trackId).ifPresent(playlist::addTrack));
 
                         playlistManager.addPlaylist(playlist);
                     });

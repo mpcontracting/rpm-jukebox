@@ -34,6 +34,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -617,7 +618,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
 
         Track mockTrack = mock(Track.class);
         when(mockSearchManager.getTrackById("92f9b8ad82601ab97c121239518730108eefa18055ead908e5cdaf369023984b"))
-            .thenReturn(mockTrack);
+            .thenReturn(of(mockTrack));
 
         spySettingsManager.loadUserSettings();
         boolean settingsLoaded = (Boolean) getField(spySettingsManager, "userSettingsLoaded");

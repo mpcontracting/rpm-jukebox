@@ -875,7 +875,7 @@ public class SearchManagerTest implements Constants {
             .thenReturn(new TopDocs(1, new ScoreDoc[] { new ScoreDoc(1, 0) }, 0));
         setArtistSearcherDocuments(mockArtistSearcher);
 
-        Artist artist = spySearchManager.getArtistById("123");
+        Artist artist = spySearchManager.getArtistById("123").orElse(null);
 
         assertThat(artist).isNotNull();
         assertThat(artist.getArtistId()).isEqualTo("1231");
@@ -898,7 +898,7 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldGetArtistByIdWhenExceptionThrownOnRelease()"))
             .when(mockArtistManager).release(any());
 
-        Artist artist = spySearchManager.getArtistById("123");
+        Artist artist = spySearchManager.getArtistById("123").orElse(null);
 
         assertThat(artist).isNotNull();
         assertThat(artist.getArtistId()).isEqualTo("1231");
@@ -917,7 +917,7 @@ public class SearchManagerTest implements Constants {
         when(mockArtistSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[] {}, 0));
         setArtistSearcherDocuments(mockArtistSearcher);
 
-        Artist artist = spySearchManager.getArtistById("123");
+        Artist artist = spySearchManager.getArtistById("123").orElse(null);
 
         assertThat(artist).isNull();
     }
@@ -931,7 +931,7 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldFailToGetArtistByIdOnException()"))
             .when(mockArtistSearcher).search(any(), anyInt());
 
-        Artist artist = spySearchManager.getArtistById("123");
+        Artist artist = spySearchManager.getArtistById("123").orElse(null);
 
         assertThat(artist).isNull();
     }
@@ -953,7 +953,7 @@ public class SearchManagerTest implements Constants {
             .thenReturn(new TopDocs(1, new ScoreDoc[] { new ScoreDoc(1, 0) }, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
-        Track track = spySearchManager.getTrackById("123");
+        Track track = spySearchManager.getTrackById("123").orElse(null);
 
         assertThat(track).isNotNull();
         assertThat(track.getArtistId()).isEqualTo("1231");
@@ -986,7 +986,7 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldGetTrackByIdWhenExceptionThrownOnRelease()"))
             .when(mockTrackManager).release(any());
 
-        Track track = spySearchManager.getTrackById("123");
+        Track track = spySearchManager.getTrackById("123").orElse(null);
 
         assertThat(track).isNotNull();
         assertThat(track.getArtistId()).isEqualTo("1231");
@@ -1015,7 +1015,7 @@ public class SearchManagerTest implements Constants {
         when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[] {}, 0));
         setArtistSearcherDocuments(mockTrackSearcher);
 
-        Track track = spySearchManager.getTrackById("123");
+        Track track = spySearchManager.getTrackById("123").orElse(null);
 
         assertThat(track).isNull();
     }
@@ -1029,7 +1029,7 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldFailToGetTrackByIdOnException()")).when(mockTrackSearcher)
             .search(any(), anyInt());
 
-        Track track = spySearchManager.getTrackById("123");
+        Track track = spySearchManager.getTrackById("123").orElse(null);
 
         assertThat(track).isNull();
     }

@@ -16,7 +16,6 @@ import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.settings.*;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
@@ -348,13 +347,8 @@ public class SettingsManager implements Constants {
                     playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES));
                 }
 
-                playlistSettings.getTracks().forEach(trackId -> {
-                    Track track = searchManager.getTrackById(trackId);
-
-                    if (track != null) {
-                        playlist.addTrack(track);
-                    }
-                });
+                playlistSettings.getTracks().forEach(trackId ->
+                    searchManager.getTrackById(trackId).ifPresent(playlist::addTrack));
 
                 playlists.add(playlist);
             }));
