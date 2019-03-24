@@ -154,10 +154,8 @@ public class PlaylistManager extends EventAwareObject implements Constants {
 
         searchManager.getAlbumById(track.getAlbumId())
                 .filter(tracks -> !tracks.isEmpty())
-                .ifPresent(tracks -> {
-                    Playlist playlist = createPlaylist(track.getArtistName() + " - " + track.getAlbumName(), false);
-                    playlist.setTracks(tracks);
-                });
+                .ifPresent(tracks -> createPlaylist(track.getArtistName() + " - " + track.getAlbumName(),
+                        false).setTracks(tracks));
     }
 
     public Optional<Playlist> getPlaylist(int playlistId) {
@@ -333,8 +331,8 @@ public class PlaylistManager extends EventAwareObject implements Constants {
             log.debug("Playing playlist - {}, Track playlist - {}, Track - {}", playingPlaylist.getPlaylistId(),
                 selectedTrack.getPlaylistId(), selectedTrack.getTrackName());
 
-            if (playingPlaylist.getPlaylistId() != selectedTrack.getPlaylistId()
-                || (currentTrack != null && !currentTrack.equals(selectedTrack))) {
+            if (playingPlaylist.getPlaylistId() != selectedTrack.getPlaylistId() ||
+                    (currentTrack != null && !currentTrack.equals(selectedTrack))) {
                 playTrack(selectedTrack);
 
                 return;
