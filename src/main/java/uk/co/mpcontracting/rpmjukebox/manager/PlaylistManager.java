@@ -149,12 +149,12 @@ public class PlaylistManager extends EventAwareObject implements Constants {
         log.debug("Creating playlist from album : Track - {} - {} - {}", track.getArtistName(), track.getAlbumName(),
             track.getTrackName());
 
-        List<Track> tracks = searchManager.getAlbumById(track.getAlbumId());
-
-        if (tracks != null && !tracks.isEmpty()) {
-            Playlist playlist = createPlaylist(track.getArtistName() + " - " + track.getAlbumName(), false);
-            playlist.setTracks(tracks);
-        }
+        searchManager.getAlbumById(track.getAlbumId())
+                .filter(tracks -> !tracks.isEmpty())
+                .ifPresent(tracks -> {
+                    Playlist playlist = createPlaylist(track.getArtistName() + " - " + track.getAlbumName(), false);
+                    playlist.setTracks(tracks);
+                });
     }
 
     public Playlist getPlaylist(int playlistId) {

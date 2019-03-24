@@ -39,6 +39,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.shuffle;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
@@ -185,8 +187,6 @@ public class SearchManager extends EventAwareObject implements Constants {
             } catch (Exception e) {
                 log.warn("Unable to release track searcher");
             }
-
-            indexSearcher = null;
         }
     }
 
@@ -318,7 +318,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         } catch (Exception e) {
             log.error("Unable to get distinct track field values - {}", trackField, e);
 
-            return Collections.emptyList();
+            return emptyList();
         } finally {
             try {
                 trackManager.release(trackSearcher);
@@ -326,7 +326,6 @@ public class SearchManager extends EventAwareObject implements Constants {
                 log.warn("Unable to release track searcher");
             }
 
-            trackSearcher = null;
             long queryTime = System.currentTimeMillis() - startTime;
 
             log.debug("Distinct track field values query time - {} milliseconds", queryTime);
@@ -344,7 +343,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         }
 
         if (trackSearch == null || trackSearch.getKeywords() == null || trackSearch.getKeywords().trim().length() < 1) {
-            return Collections.emptyList();
+            return emptyList();
         }
 
         IndexSearcher trackSearcher = null;
@@ -368,7 +367,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         } catch (Exception e) {
             log.error("Unable to run track search", e);
 
-            return Collections.emptyList();
+            return emptyList();
         } finally {
             try {
                 trackManager.release(trackSearcher);
@@ -402,7 +401,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
             log.debug("Max search hits - {}", maxSearchHits);
 
-            Query query = null;
+            Query query;
 
             if (yearFilter != null) {
                 query = new BooleanQuery.Builder()
@@ -451,14 +450,14 @@ public class SearchManager extends EventAwareObject implements Constants {
                     playlist.add(getTrackByDocId(trackSearcher, scoreDoc.doc));
                 }
 
-                Collections.shuffle(playlist);
+                shuffle(playlist);
             }
 
             return playlist;
         } catch (Exception e) {
             log.error("Unable to get shuffled playlist", e);
 
-            return Collections.emptyList();
+            return emptyList();
         } finally {
             try {
                 trackManager.release(trackSearcher);
@@ -533,7 +532,7 @@ public class SearchManager extends EventAwareObject implements Constants {
     }
 
     @Synchronized
-    List<Track> getAlbumById(String albumId) {
+    Optional<List<Track>> getAlbumById(String albumId) {
         if (trackManager == null) {
             throw new RuntimeException("Cannot search before track index is initialised");
         }
@@ -551,11 +550,11 @@ public class SearchManager extends EventAwareObject implements Constants {
                 tracks.add(getTrackByDocId(trackSearcher, scoreDoc.doc));
             }
 
-            return tracks;
+            return of(tracks);
         } catch (Exception e) {
             log.error("Unable to run get album by id", e);
 
-            return null;
+            return empty();
         } finally {
             try {
                 trackManager.release(trackSearcher);

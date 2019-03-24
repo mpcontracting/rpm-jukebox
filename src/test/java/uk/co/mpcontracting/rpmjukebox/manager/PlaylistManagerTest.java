@@ -16,7 +16,10 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 import java.util.*;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -171,7 +174,7 @@ public class PlaylistManagerTest implements Constants {
             mockAlbum.add(mock(Track.class));
         }
 
-        when(mockSearchManager.getAlbumById(any())).thenReturn(mockAlbum);
+        when(mockSearchManager.getAlbumById(any())).thenReturn(of(mockAlbum));
 
         spyPlaylistManager.createPlaylistFromAlbum(mockTrack);
 
@@ -200,7 +203,7 @@ public class PlaylistManagerTest implements Constants {
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
 
-        when(mockSearchManager.getAlbumById(any())).thenReturn(null);
+        when(mockSearchManager.getAlbumById(any())).thenReturn(empty());
 
         spyPlaylistManager.createPlaylistFromAlbum(mock(Track.class));
 
@@ -225,7 +228,7 @@ public class PlaylistManagerTest implements Constants {
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
 
-        when(mockSearchManager.getAlbumById(any())).thenReturn(Collections.emptyList());
+        when(mockSearchManager.getAlbumById(any())).thenReturn(of(emptyList()));
 
         spyPlaylistManager.createPlaylistFromAlbum(mock(Track.class));
 

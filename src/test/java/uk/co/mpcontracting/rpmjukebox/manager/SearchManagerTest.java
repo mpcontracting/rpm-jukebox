@@ -1057,7 +1057,7 @@ public class SearchManagerTest implements Constants {
             .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
-        List<Track> tracks = spySearchManager.getAlbumById("123");
+        List<Track> tracks = spySearchManager.getAlbumById("123").orElse(null);
 
         assertThat(tracks).hasSize(9);
     }
@@ -1081,7 +1081,7 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldGetAlbumByIdWhenExceptionThrownOnRelease()"))
             .when(mockTrackManager).release(any());
 
-        List<Track> tracks = spySearchManager.getAlbumById("123");
+        List<Track> tracks = spySearchManager.getAlbumById("123").orElse(null);
 
         assertThat(tracks).hasSize(9);
     }
@@ -1096,7 +1096,7 @@ public class SearchManagerTest implements Constants {
             .thenReturn(new TopFieldDocs(0, new ScoreDoc[] {}, null, 0));
         setArtistSearcherDocuments(mockTrackSearcher);
 
-        List<Track> tracks = spySearchManager.getAlbumById("123");
+        List<Track> tracks = spySearchManager.getAlbumById("123").orElse(null);
 
         assertThat(tracks).isEmpty();
     }
@@ -1110,7 +1110,7 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldFailToGetAlbumByIdOnException()")).when(mockTrackSearcher)
             .search(any(), anyInt(), any());
 
-        List<Track> tracks = spySearchManager.getAlbumById("123");
+        List<Track> tracks = spySearchManager.getAlbumById("123").orElse(null);
 
         assertThat(tracks).isNull();
     }
