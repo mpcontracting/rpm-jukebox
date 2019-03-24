@@ -44,7 +44,7 @@ group 'uk.co.mpcontracting'
 version = '3.0.0'
 
 jar {
-    archivesBaseName = 'rpm-jukebox'
+    archivesBaseName = "${project.name}"
 }
 
 dependencies {
@@ -120,7 +120,7 @@ jfx {
     vendor = 'Matt Parker'
     nativeReleaseVersion = "${version}"
     mainClass = 'uk.co.mpcontracting.rpmjukebox.RpmJukebox'
-    jfxMainAppJarName = "${jar.archiveBaseName}-${version}.jar"
+    jfxMainAppJarName = "${project.name}-${version}.jar"
     jvmArgs = ['-Xmx128m']
     //verbose = true
     bundleArguments = [
