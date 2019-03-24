@@ -20,6 +20,8 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 import javax.annotation.PostConstruct;
 
+import static uk.co.mpcontracting.rpmjukebox.event.Event.EQUALIZER_UPDATED;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -99,11 +101,7 @@ public class MediaManager extends EventAwareObject implements Constants {
 
         boolean currentMuted = muted;
 
-        if (volume > 0) {
-            muted = false;
-        } else {
-            muted = true;
-        }
+        muted = !(volume > 0);
 
         if (muted != currentMuted) {
             fireEvent(Event.MUTE_UPDATED);
@@ -239,15 +237,8 @@ public class MediaManager extends EventAwareObject implements Constants {
 
     @Override
     public void eventReceived(Event event, Object... payload) {
-        switch (event) {
-            case EQUALIZER_UPDATED: {
-                setEqualizerGain((Integer)payload[0], (Double)payload[1]);
-
-                break;
-            }
-            default: {
-                // Nothing
-            }
+        if (event == EQUALIZER_UPDATED) {
+            setEqualizerGain((Integer)payload[0], (Double)payload[1]);
         }
     }
 }
