@@ -17,12 +17,11 @@ import java.io.FileOutputStream;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 @Slf4j
 @Component
@@ -69,7 +68,7 @@ public class CacheManager implements Constants {
     }
 
     @Synchronized
-    public File readCache(CacheType cacheType, String id) {
+    public Optional<File> readCache(CacheType cacheType, String id) {
         log.debug("Reading cache : Cache type - {}, ID - {}", cacheType, id);
 
         try {
@@ -80,7 +79,7 @@ public class CacheManager implements Constants {
 
                 file.setLastModified(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 
-                return file;
+                return of(file);
             }
 
             log.debug("Cached file not found : Cache type - {}, ID - {}", cacheType, id);
@@ -88,7 +87,7 @@ public class CacheManager implements Constants {
             log.error("Unable to read cache : Cache type - {}, ID - {}", cacheType, id, e);
         }
 
-        return null;
+        return empty();
     }
 
     @Synchronized

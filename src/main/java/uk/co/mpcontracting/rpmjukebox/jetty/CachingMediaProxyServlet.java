@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Optional;
 
 @Slf4j
 public class CachingMediaProxyServlet extends HttpServlet {
@@ -28,18 +29,18 @@ public class CachingMediaProxyServlet extends HttpServlet {
             log.debug("Getting file : Cache type - {}, ID - {}, HTTP - {}, URL - {}", cacheType, id,
                 request.getMethod(), url);
 
-            File cachedFile = ContextHelper.getBean(CacheManager.class).readCache(cacheType, id);
+            Optional<File> cachedFile = ContextHelper.getBean(CacheManager.class).readCache(cacheType, id);
 
-            if (cachedFile != null) {
-                response.setContentLengthLong(cachedFile.length());
+            if (cachedFile.isPresent()) {
+                response.setContentLengthLong(cachedFile.get().length());
 
                 if (!request.getMethod().equals("HEAD")) {
-                    openDataStream(request, response, cacheType, id, true, getFileInputStream(cachedFile));
+                    openDataStream(request, response, cacheType, id, true, getFileInputStream(cachedFile.get()));
                 }
             } else {
                 URL location = new URL(url);
                 HttpURLConnection connection = (HttpURLConnection)ContextHelper.getBean(InternetManager.class)
-                    .openConnection(location);
+                        .openConnection(location);
 
                 if (connection.getResponseCode() == 200) {
                     response.setContentLength(connection.getContentLength());
@@ -61,8 +62,8 @@ public class CachingMediaProxyServlet extends HttpServlet {
         String trackId, boolean isCached, InputStream inputStream) throws IOException {
         AsyncContext asyncContext = request.startAsync();
         ServletOutputStream outputStream = response.getOutputStream();
-        outputStream.setWriteListener(
-            new CachingDataStream(cacheType, trackId, isCached, inputStream, asyncContext, outputStream));
+        outputStream.setWriteListener(new CachingDataStream(cacheType, trackId, isCached, inputStream,
+                asyncContext, outputStream));
     }
 
     // Package level for testing purposes

@@ -18,6 +18,7 @@ import java.io.*;
 
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDirectory;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getDateTimeInMillis;
@@ -61,30 +62,31 @@ public class CacheManagerTest {
         assertThat(result).isEqualTo("http://localhost:43125/cache?cacheType=IMAGE&id=12345&url=http%3A%2F%2Fwww.example.com");
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldThrowExceptionConstructingInternalUrl() {
         doThrow(new RuntimeException("CacheManagerTest.shouldThrowExceptionConstructingInternalUrl"))
                 .when(mockAppProperties).getJettyPort();
 
-        cacheManager.constructInternalUrl(CacheType.TRACK, "12345", "http://www.example.com");
+        assertThatThrownBy(() -> cacheManager.constructInternalUrl(CacheType.TRACK, "12345", "http://www.example.com"))
+                .isInstanceOf(RuntimeException.class);
     }
 
     @Test
-    public void shouldReadImageCache() throws Exception {
+    public void shouldReadImageCache() {
         CacheType cacheType = CacheType.IMAGE;
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldReadImageCache()";
 
         writeCacheFile(cacheType, id, cacheContent);
 
-        File file = cacheManager.readCache(cacheType, id);
+        File file = cacheManager.readCache(cacheType, id).orElse(null);
         String result = readCacheFile(file);
 
         assertThat(result).isEqualTo(cacheContent);
     }
 
     @Test
-    public void shouldFailToReadImageCacheOnException() throws Exception {
+    public void shouldFailToReadImageCacheOnException() {
         CacheType cacheType = CacheType.IMAGE;
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldFailToReadImageCacheOnException()";
@@ -93,27 +95,28 @@ public class CacheManagerTest {
 
         ReflectionTestUtils.setField(cacheManager, "cacheDirectory", mock(File.class));
 
-        File file = cacheManager.readCache(cacheType, id);
+        File file = cacheManager.readCache(cacheType, id).orElse(null);
 
         assertThat(file).isNull();
     }
 
     @Test
-    public void shouldReadTrackCache() throws Exception {
+    public void shouldReadTrackCache() {
         CacheType cacheType = CacheType.TRACK;
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldReadTrackCache()";
 
         writeCacheFile(cacheType, id, cacheContent);
 
-        File file = cacheManager.readCache(cacheType, id);
+        File file = cacheManager.readCache(cacheType, id).orElse(null);
         String result = readCacheFile(file);
 
         assertThat(result).isEqualTo(cacheContent);
     }
 
     @Test
-    public void shouldWriteImageCache() throws Exception {
+    @SneakyThrows
+    public void shouldWriteImageCache() {
         CacheType cacheType = CacheType.IMAGE;
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldWriteImageCache()";
@@ -127,7 +130,8 @@ public class CacheManagerTest {
     }
 
     @Test
-    public void shouldFailToWriteImageCacheOnException() throws Exception {
+    @SneakyThrows
+    public void shouldFailToWriteImageCacheOnException() {
         CacheType cacheType = CacheType.IMAGE;
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldFailToWriteImageCacheOnException()";
@@ -142,7 +146,7 @@ public class CacheManagerTest {
     }
 
     @Test
-    public void shouldWriteTrackCache() throws Exception {
+    public void shouldWriteTrackCache() {
         CacheType cacheType = CacheType.TRACK;
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldWriteTrackCache()";
@@ -157,13 +161,13 @@ public class CacheManagerTest {
 
     @Test
     public void shouldReturnCacheMiss() {
-        File file = cacheManager.readCache(CacheType.IMAGE, "12345");
+        File file = cacheManager.readCache(CacheType.IMAGE, "12345").orElse(null);
 
         assertThat(file).isNull();
     }
 
     @Test
-    public void shouldOverwriteExistingCacheFile() throws Exception {
+    public void shouldOverwriteExistingCacheFile() {
         CacheType cacheType = CacheType.TRACK;
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldOverwriteExistingCacheFile()";
@@ -181,7 +185,8 @@ public class CacheManagerTest {
     }
 
     @Test
-    public void shouldTrimOlderFilesOnCacheWrite() throws Exception {
+    @SneakyThrows
+    public void shouldTrimOlderFilesOnCacheWrite() {
         CacheType cacheType = CacheType.TRACK;
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldTrimOlderFilesOnCacheWrite()";
@@ -198,14 +203,15 @@ public class CacheManagerTest {
 
         cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
-        File cachedFile = cacheManager.readCache(cacheType, id);
+        File cachedFile = cacheManager.readCache(cacheType, id).orElse(null);
 
         assertThat(cacheDirectory.listFiles().length).isEqualTo(21);
         assertThat(cachedFile).isNotNull();
     }
 
     @Test
-    public void shouldTrimOlderFilesWithEqualTimestampsOnCacheWrite() throws Exception {
+    @SneakyThrows
+    public void shouldTrimOlderFilesWithEqualTimestampsOnCacheWrite() {
         CacheType cacheType = CacheType.TRACK;
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldTrimOlderFilesOnCacheWrite()";
@@ -222,7 +228,7 @@ public class CacheManagerTest {
 
         cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
 
-        File cachedFile = cacheManager.readCache(cacheType, id);
+        File cachedFile = cacheManager.readCache(cacheType, id).orElse(null);
 
         assertThat(requireNonNull(cacheDirectory.listFiles()).length).isEqualTo(21);
         assertThat(cachedFile).isNotNull();
@@ -234,7 +240,8 @@ public class CacheManagerTest {
         FileUtils.deleteDirectory(getConfigDirectory());
     }
 
-    private void writeCacheFile(CacheType cacheType, String id, String cacheContent) throws Exception {
+    @SneakyThrows
+    private void writeCacheFile(CacheType cacheType, String id, String cacheContent) {
         File file = new File(cacheDirectory,
                 (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
@@ -242,7 +249,8 @@ public class CacheManagerTest {
         }
     }
 
-    private String readCacheFile(File file) throws Exception {
+    @SneakyThrows
+    private String readCacheFile(File file) {
         StringBuilder builder = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             reader.lines().forEach(builder::append);

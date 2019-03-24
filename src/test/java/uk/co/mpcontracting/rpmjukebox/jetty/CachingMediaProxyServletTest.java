@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.HttpURLConnection;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
@@ -64,7 +66,7 @@ public class CachingMediaProxyServletTest {
         File mockCachedFile = mock(File.class);
         when(mockCachedFile.length()).thenReturn(1000L);
 
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(mockCachedFile);
+        when(mockCacheManager.readCache(any(), anyString())).thenReturn(of(mockCachedFile));
         doReturn(mock(FileInputStream.class)).when(spyServlet).getFileInputStream(any());
 
         spyServlet.doGet(mockServletRequest, mockServletResponse);
@@ -83,7 +85,7 @@ public class CachingMediaProxyServletTest {
         File mockCachedFile = mock(File.class);
         when(mockCachedFile.length()).thenReturn(1000L);
 
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(mockCachedFile);
+        when(mockCacheManager.readCache(any(), anyString())).thenReturn(of(mockCachedFile));
 
         spyServlet.doGet(mockServletRequest, mockServletResponse);
 
@@ -97,7 +99,7 @@ public class CachingMediaProxyServletTest {
         when(mockServletRequest.getParameter("id")).thenReturn("123");
         when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
         when(mockServletRequest.getMethod()).thenReturn("GET");
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(null);
+        when(mockCacheManager.readCache(any(), anyString())).thenReturn(empty());
 
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockConnection.getResponseCode()).thenReturn(200);
@@ -118,7 +120,7 @@ public class CachingMediaProxyServletTest {
         when(mockServletRequest.getParameter("id")).thenReturn("123");
         when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
         when(mockServletRequest.getMethod()).thenReturn("HEAD");
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(null);
+        when(mockCacheManager.readCache(any(), anyString())).thenReturn(empty());
 
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockConnection.getResponseCode()).thenReturn(200);
@@ -139,7 +141,7 @@ public class CachingMediaProxyServletTest {
         when(mockServletRequest.getParameter("id")).thenReturn("123");
         when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
         when(mockServletRequest.getMethod()).thenReturn("GET");
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(null);
+        when(mockCacheManager.readCache(any(), anyString())).thenReturn(empty());
 
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
         when(mockConnection.getResponseCode()).thenReturn(404);
