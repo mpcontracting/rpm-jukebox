@@ -224,7 +224,12 @@ public class SettingsManager implements Constants {
             double width = (bounds.getWidth() / 100d) * 75d;
             double height = (bounds.getHeight() / 100d) * 75d;
 
-            window = new Window((bounds.getWidth() - width) / 2d, (bounds.getHeight() - height) / 2d, width, height);
+            window = Window.builder()
+                    .x((bounds.getWidth() - width) / 2d)
+                    .y((bounds.getHeight() - height) / 2d)
+                    .width(width)
+                    .height(height)
+                    .build();
         }
 
         stage.setX(window.getX());
@@ -236,7 +241,12 @@ public class SettingsManager implements Constants {
     void saveWindowSettings(Stage stage) {
         log.debug("Saving window settings");
 
-        Window window = new Window(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
+        Window window = Window.builder()
+                .x(stage.getX())
+                .y(stage.getY())
+                .width(stage.getWidth())
+                .height(stage.getHeight())
+                .build();
 
         // Write the file
         File settingsFile = getFileFromConfigDirectory(appProperties.getWindowSettingsFile());
@@ -256,8 +266,9 @@ public class SettingsManager implements Constants {
         File systemSettingsFile = getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
 
         if (!systemSettingsFile.exists()) {
-            systemSettings = new SystemSettings();
-            systemSettings.setCacheSizeMb(appProperties.getCacheSizeMb());
+            systemSettings = SystemSettings.builder()
+                    .cacheSizeMb(appProperties.getCacheSizeMb())
+                    .build();
 
             saveSystemSettings();
 
@@ -270,8 +281,9 @@ public class SettingsManager implements Constants {
         } catch (Exception e) {
             log.error("Unable to load system settings file", e);
 
-            systemSettings = new SystemSettings();
-            systemSettings.setCacheSizeMb(appProperties.getCacheSizeMb());
+            systemSettings = SystemSettings.builder()
+                    .cacheSizeMb(appProperties.getCacheSizeMb())
+                    .build();
 
             saveSystemSettings();
         }
@@ -367,22 +379,16 @@ public class SettingsManager implements Constants {
             return;
         }
 
-        // Build the setting object before serializing it to disk
-        Settings settings = new Settings();
-
-        // General settings
-        settings.setShuffle(playlistManager.isShuffle());
-        settings.setRepeat(playlistManager.getRepeat());
-
         // Equalizer
         Equalizer equalizer = mediaManager.getEqualizer();
         List<EqBand> eqBands = new ArrayList<>();
 
         for (int i = 0; i < equalizer.getNumberOfBands(); i++) {
-            eqBands.add(new EqBand(i, equalizer.getGain(i)));
+            eqBands.add(EqBand.builder()
+                    .band(i)
+                    .value(equalizer.getGain(i))
+                    .build());
         }
-
-        settings.setEqBands(eqBands);
 
         // Playlists
         List<PlaylistSettings> playlists = new ArrayList<>();
@@ -390,7 +396,12 @@ public class SettingsManager implements Constants {
         playlistManager.getPlaylists().stream().filter(playlist -> playlist.getPlaylistId() != PLAYLIST_ID_SEARCH)
             .forEach(playlist -> playlists.add(new PlaylistSettings(playlist)));
 
-        settings.setPlaylists(playlists);
+        Settings settings = Settings.builder()
+                .shuffle(playlistManager.isShuffle())
+                .repeat(playlistManager.getRepeat())
+                .eqBands(eqBands)
+                .playlists(playlists)
+                .build();
 
         // Write the file
         File userSettingsFile = getFileFromConfigDirectory(appProperties.getUserSettingsFile());

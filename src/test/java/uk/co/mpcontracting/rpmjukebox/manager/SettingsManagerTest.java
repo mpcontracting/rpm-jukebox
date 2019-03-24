@@ -348,7 +348,12 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @SneakyThrows
     public void shouldLoadWindowSettingsFromFile() {
         File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getWindowSettingsFile());
-        Window window = new Window(100, 200, 300, 400);
+        Window window = Window.builder()
+                .x(100)
+                .y(200)
+                .width(300)
+                .height(400)
+                .build();
 
         try (FileWriter fileWriter = new FileWriter(settingsFile)) {
             fileWriter.write(new Gson().toJson(window));
@@ -367,7 +372,12 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @SneakyThrows
     public void shouldNotLoadWindowSettingsFromFileOnException() {
         File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getWindowSettingsFile());
-        Window window = new Window(100, 200, 300, 400);
+        Window window = Window.builder()
+                .x(100)
+                .y(200)
+                .width(300)
+                .height(400)
+                .build();
 
         try (FileWriter fileWriter = new FileWriter(settingsFile)) {
             fileWriter.write(new Gson().toJson(window));
@@ -507,7 +517,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @Test
     @SneakyThrows
     public void shouldSaveSystemSettings() {
-        setField(spySettingsManager, "systemSettings", new SystemSettings());
+        setField(spySettingsManager, "systemSettings", SystemSettings.builder().build());
 
         SystemSettings systemSettings = spySettingsManager.getSystemSettings();
         systemSettings.setCacheSizeMb(123);
@@ -542,7 +552,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
             .toJson(any(SystemSettings.class));
 
         setField(spySettingsManager, "gson", mockGson);
-        setField(spySettingsManager, "systemSettings", new SystemSettings());
+        setField(spySettingsManager, "systemSettings", SystemSettings.builder().build());
 
         File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
         settingsFile.delete();

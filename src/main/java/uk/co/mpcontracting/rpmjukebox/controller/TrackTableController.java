@@ -96,8 +96,8 @@ public class TrackTableController extends EventAwareObject {
 
         observableTracks.clear();
 
-        playlistManager.getPlaylist(playlistId)
-                .ifPresent(playlist -> playlist.forEach(track -> observableTracks.add(new TrackTableModel(track))));
+        playlistManager.getPlaylist(playlistId).ifPresent(playlist -> playlist
+                .forEach(track -> observableTracks.add(new TrackTableModel(track))));
     }
 
     public Track getSelectedTrack() {

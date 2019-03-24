@@ -22,6 +22,7 @@ import javax.annotation.PostConstruct;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -87,7 +88,7 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        boolean valid = invokeMethod(settingsController, "validate");
+        boolean valid = requireNonNull(invokeMethod(settingsController, "validate"));
 
         assertThat(valid).isTrue();
     }

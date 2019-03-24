@@ -48,7 +48,7 @@ public class InternetManagerTest {
 
     @Test
     public void shouldOpenConnectionNoProxy() throws Exception {
-        when(mockSettingsManager.getSystemSettings()).thenReturn(new SystemSettings());
+        when(mockSettingsManager.getSystemSettings()).thenReturn(SystemSettings.builder().build());
 
         URL mockUrl = mock(URL.class);
         HttpURLConnection mockConnection = mock(HttpURLConnection.class);
@@ -63,8 +63,9 @@ public class InternetManagerTest {
 
     @Test
     public void shouldOpenConnectionNoProxyMissingPort() throws Exception {
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.setProxyHost("localhost");
+        SystemSettings systemSettings = SystemSettings.builder()
+                .proxyHost("localhost")
+                .build();
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
@@ -81,8 +82,9 @@ public class InternetManagerTest {
 
     @Test
     public void shouldOpenConnectionNoProxyMissingHost() throws Exception {
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.setProxyPort(8080);
+        SystemSettings systemSettings = SystemSettings.builder()
+                .proxyPort(8080)
+                .build();
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
@@ -99,9 +101,10 @@ public class InternetManagerTest {
 
     @Test
     public void shouldOpenConnectionUnauthenticatedProxy() throws Exception {
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.setProxyHost("localhost");
-        systemSettings.setProxyPort(8080);
+        SystemSettings systemSettings = SystemSettings.builder()
+                .proxyHost("localhost")
+                .proxyPort(8080)
+                .build();
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
@@ -118,10 +121,11 @@ public class InternetManagerTest {
 
     @Test
     public void shouldOpenConnectionUnauthenticatedProxyAuthenticatedFalse() throws Exception {
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.setProxyHost("localhost");
-        systemSettings.setProxyPort(8080);
-        systemSettings.setProxyRequiresAuthentication(false);
+        SystemSettings systemSettings = SystemSettings.builder()
+                .proxyHost("localhost")
+                .proxyPort(8080)
+                .proxyRequiresAuthentication(false)
+                .build();
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 
@@ -138,12 +142,13 @@ public class InternetManagerTest {
 
     @Test
     public void shouldOpenConnectionAuthenticatedProxy() throws Exception {
-        SystemSettings systemSettings = new SystemSettings();
-        systemSettings.setProxyHost("localhost");
-        systemSettings.setProxyPort(8080);
-        systemSettings.setProxyRequiresAuthentication(true);
-        systemSettings.setProxyUsername("username");
-        systemSettings.setProxyPassword("password");
+        SystemSettings systemSettings = SystemSettings.builder()
+                .proxyHost("localhost")
+                .proxyPort(8080)
+                .proxyRequiresAuthentication(true)
+                .proxyUsername("username")
+                .proxyPassword("password")
+                .build();
 
         when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
 

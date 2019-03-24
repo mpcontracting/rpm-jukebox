@@ -83,14 +83,16 @@ public class SettingsController extends EventAwareObject implements Constants {
 
         isReindexing = false;
 
-        cacheSizeMbTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
-        proxyHostTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
-        proxyPortTextField.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
-        proxyAuthCheckBox.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
-        proxyUsernameTextField.focusedProperty()
-            .addListener((observable, oldValue, newValue) -> focusChanged(newValue));
-        proxyPasswordTextField.focusedProperty()
-            .addListener((observable, oldValue, newValue) -> focusChanged(newValue));
+        addFocusListener(cacheSizeMbTextField);
+        addFocusListener(proxyHostTextField);
+        addFocusListener(proxyPortTextField);
+        addFocusListener(proxyAuthCheckBox);
+        addFocusListener(proxyUsernameTextField);
+        addFocusListener(proxyPasswordTextField);
+    }
+
+    private void addFocusListener(Control control) {
+        control.focusedProperty().addListener((observable, oldValue, newValue) -> focusChanged(newValue));
     }
 
     void bindSystemSettings() {
@@ -204,18 +206,9 @@ public class SettingsController extends EventAwareObject implements Constants {
 
     @Override
     public void eventReceived(Event event, Object... payload) {
-        switch (event) {
-            case DATA_INDEXED: {
-                if (isReindexing) {
-                    mainPanelController.closeMessageView();
-                    isReindexing = false;
-                }
-
-                break;
-            }
-            default: {
-                // Nothing
-            }
+        if (event == Event.DATA_INDEXED && isReindexing) {
+            mainPanelController.closeMessageView();
+            isReindexing = false;
         }
     }
 }

@@ -44,15 +44,7 @@ public abstract class ValidationHelper implements Constants {
                 validLength = false;
             }
 
-            if (minLength != null && length < minLength) {
-                validLength = false;
-            }
-
-            if (maxLength != null && length > maxLength) {
-                validLength = false;
-            }
-
-            isValid = validLength;
+            isValid = validLength && isValidRange(minLength, maxLength, length);
         }
 
         if (!isValid) {
@@ -76,18 +68,7 @@ public abstract class ValidationHelper implements Constants {
                 if (minValue == null && maxValue == null) {
                     isValid = true;
                 } else {
-                    int value = Integer.parseInt(text);
-                    boolean validRange = true;
-
-                    if (minValue != null && value < minValue) {
-                        validRange = false;
-                    }
-
-                    if (maxValue != null && value > maxValue) {
-                        validRange = false;
-                    }
-
-                    isValid = validRange;
+                    isValid = isValidRange(minValue, maxValue, Integer.parseInt(text));
                 }
             }
         }
@@ -99,5 +80,19 @@ public abstract class ValidationHelper implements Constants {
         }
 
         return isValid;
+    }
+
+    private static boolean isValidRange(Integer minValue, Integer maxValue, int value) {
+        boolean validRange = true;
+
+        if (minValue != null && value < minValue) {
+            validRange = false;
+        }
+
+        if (maxValue != null && value > maxValue) {
+            validRange = false;
+        }
+
+        return validRange;
     }
 }

@@ -1,14 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.settings;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
+@Data
+@Builder
 public class SystemSettings {
     private String version;
     private int cacheSizeMb;

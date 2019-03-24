@@ -11,6 +11,8 @@ import javafx.stage.WindowEvent;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 
+import static java.util.Optional.ofNullable;
+
 @Slf4j
 public abstract class AbstractModalView extends AbstractFxmlView {
 
@@ -26,16 +28,7 @@ public abstract class AbstractModalView extends AbstractFxmlView {
         stage = new Stage(StageStyle.TRANSPARENT);
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initOwner(owner);
-
-        Scene scene;
-
-        if (getView().getScene() != null) {
-            scene = getView().getScene();
-        } else {
-            scene = new Scene(getView(), Color.TRANSPARENT);
-        }
-
-        stage.setScene(scene);
+        stage.setScene(ofNullable(getView().getScene()).orElse(new Scene(getView(), Color.TRANSPARENT)));
         stage.addEventHandler(WindowEvent.WINDOW_SHOWN, windowEvent -> {
             stage.setX((owner.getX() + owner.getWidth() / 2) - stage.getWidth() / 2);
             stage.setY((owner.getY() + owner.getHeight() / 2) - stage.getHeight() / 2);

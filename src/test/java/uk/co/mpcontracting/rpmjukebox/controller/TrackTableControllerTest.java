@@ -17,6 +17,7 @@ import uk.co.mpcontracting.rpmjukebox.view.TrackTableView;
 
 import javax.annotation.PostConstruct;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
@@ -48,10 +49,10 @@ public class TrackTableControllerTest extends AbstractGUITest {
         setField(trackTableController, "playlistManager", mockPlaylistManager);
 
         spyTrackTableView = spy(
-                (uk.co.mpcontracting.rpmjukebox.component.TrackTableView<TrackTableModel>) getField(trackTableController, "trackTableView"));
+                requireNonNull((uk.co.mpcontracting.rpmjukebox.component.TrackTableView<TrackTableModel>) getField(trackTableController, "trackTableView")));
         setField(trackTableController, "trackTableView", spyTrackTableView);
 
-        ((ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks")).clear();
+        requireNonNull(((ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks"))).clear();
     }
 
     @Test

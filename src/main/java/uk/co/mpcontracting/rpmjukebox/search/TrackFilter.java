@@ -1,20 +1,19 @@
 package uk.co.mpcontracting.rpmjukebox.search;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.TermsQuery;
 import org.apache.lucene.search.Query;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
+import java.util.ArrayList;
+import java.util.List;
 
 @EqualsAndHashCode
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TrackFilter {
-    private String genre;
-    private String year;
+    private final String genre;
+    private final String year;
 
     public Query getFilter() {
         boolean hasFilters = false;

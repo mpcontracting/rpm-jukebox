@@ -1,14 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.settings;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@Builder
 public class EqBand {
     private int band;
     private double value;

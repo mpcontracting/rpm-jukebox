@@ -1,15 +1,13 @@
 package uk.co.mpcontracting.rpmjukebox.settings;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@ToString
+@Data
 @NoArgsConstructor
 public class PlaylistSettings {
     private int id;
