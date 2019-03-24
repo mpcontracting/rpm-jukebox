@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -157,10 +158,10 @@ public class ExportControllerTest extends AbstractGUITest {
     @Test
     public void shouldClickOkButton() throws Exception {
         List<Playlist> playlists = generatePlaylists();
-        when(mockPlaylistManager.getPlaylist(1)).thenReturn(playlists.get(3));
-        when(mockPlaylistManager.getPlaylist(2)).thenReturn(playlists.get(4));
+        when(mockPlaylistManager.getPlaylist(1)).thenReturn(of(playlists.get(3)));
+        when(mockPlaylistManager.getPlaylist(2)).thenReturn(of(playlists.get(4)));
 
-        Set<Integer> playlistsToExport = new HashSet<>(Arrays.asList(new Integer[] { 1, 2 }));
+        Set<Integer> playlistsToExport = new HashSet<>(Arrays.asList(1, 2));
         setField(spyExportController, "playlistsToExport", playlistsToExport);
 
         FileChooser mockFileChooser = mock(FileChooser.class);
@@ -190,10 +191,10 @@ public class ExportControllerTest extends AbstractGUITest {
     @Test
     public void shouldClickOkButtonWithExceptionThrownFromFileWriter() throws Exception {
         List<Playlist> playlists = generatePlaylists();
-        when(mockPlaylistManager.getPlaylist(1)).thenReturn(playlists.get(3));
-        when(mockPlaylistManager.getPlaylist(2)).thenReturn(playlists.get(4));
+        when(mockPlaylistManager.getPlaylist(1)).thenReturn(of(playlists.get(3)));
+        when(mockPlaylistManager.getPlaylist(2)).thenReturn(of(playlists.get(4)));
 
-        Set<Integer> playlistsToExport = new HashSet<>(Arrays.asList(new Integer[] { 1, 2 }));
+        Set<Integer> playlistsToExport = new HashSet<>(Arrays.asList(1, 2));
         setField(spyExportController, "playlistsToExport", playlistsToExport);
 
         FileChooser mockFileChooser = mock(FileChooser.class);

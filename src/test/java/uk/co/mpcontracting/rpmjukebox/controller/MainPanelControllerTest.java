@@ -723,7 +723,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldClickPlayPauseButton() {
         Playlist mockPlaylist = mock(Playlist.class);
         when(mockPlaylist.isEmpty()).thenReturn(true);
-        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(mockPlaylist);
+        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(of(mockPlaylist));
 
         clickOnNode("#playPauseButton");
 
@@ -761,7 +761,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldClickPlayPauseButtonWhenPlaylistSelected() {
         Playlist mockPlaylist = mock(Playlist.class);
         when(mockPlaylist.isEmpty()).thenReturn(false);
-        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(mockPlaylist);
+        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(of(mockPlaylist));
         when(mockPlaylistManager.getSelectedTrack()).thenReturn(null);
 
         clickOnNode("#playPauseButton");
@@ -776,7 +776,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldClickPlayPauseButtonWhenPlaylistAndTrackSelected() {
         Playlist mockPlaylist = mock(Playlist.class);
         when(mockPlaylist.isEmpty()).thenReturn(false);
-        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(mockPlaylist);
+        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(of(mockPlaylist));
         when(mockPlaylistManager.getSelectedTrack()).thenReturn(mock(Track.class));
 
         clickOnNode("#playPauseButton");
@@ -1449,8 +1449,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
         when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
         when(mockMediaManager.isPlaying()).thenReturn(false);
         when(mockMediaManager.isPaused()).thenReturn(false);
 
@@ -1497,8 +1497,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
         when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
         when(mockMediaManager.isPlaying()).thenReturn(false);
         when(mockMediaManager.isPaused()).thenReturn(false);
 
@@ -1545,8 +1545,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
         when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
         when(mockMediaManager.isPlaying()).thenReturn(false);
         when(mockMediaManager.isPaused()).thenReturn(false);
 
@@ -1593,8 +1593,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
         when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
         when(mockMediaManager.isPlaying()).thenReturn(false);
         when(mockMediaManager.isPaused()).thenReturn(false);
 
@@ -1642,8 +1642,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
         favourites.addTrack(mock(Track.class));
         when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
         when(mockMediaManager.isPlaying()).thenReturn(false);
         when(mockMediaManager.isPaused()).thenReturn(false);
 
@@ -1690,8 +1690,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
         when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
         when(mockMediaManager.isPlaying()).thenReturn(false);
         when(mockMediaManager.isPaused()).thenReturn(false);
 
@@ -1738,8 +1738,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
         when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
         when(mockMediaManager.isPlaying()).thenReturn(false);
         when(mockMediaManager.isPaused()).thenReturn(false);
 
@@ -1786,8 +1786,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
         when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(search);
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(favourites);
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
         when(mockMediaManager.isPlaying()).thenReturn(false);
         when(mockMediaManager.isPaused()).thenReturn(false);
 

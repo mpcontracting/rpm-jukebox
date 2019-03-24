@@ -13,8 +13,10 @@ import java.io.FileReader;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static java.util.Optional.of;
 
 public abstract class TestHelper {
 
@@ -67,13 +69,13 @@ public abstract class TestHelper {
         return new DragEvent(eventType, dragboard, 0, 0, 0, 0, transferMode, gestureSource, null, null);
     }
 
-    public static Playlist generatePlaylist() {
+    public static Optional<Playlist> generatePlaylist() {
         Playlist playlist = new Playlist(1, "Playlist", 10);
         for (int i = 0; i < 10; i++) {
             playlist .addTrack(generateTrack(i));
         }
 
-        return playlist;
+        return of(playlist);
     }
 
     public static Artist generateArtist(int index) {

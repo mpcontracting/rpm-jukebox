@@ -161,8 +161,8 @@ public class ExportController implements Constants {
             if (file != null) {
                 List<PlaylistSettings> playlists = new ArrayList<>();
 
-                playlistsToExport.forEach(
-                    playlistId -> playlists.add(new PlaylistSettings(playlistManager.getPlaylist(playlistId))));
+                playlistsToExport.forEach(playlistId -> playlistManager.getPlaylist(playlistId)
+                        .ifPresent(playlist -> playlists.add(new PlaylistSettings(playlist))));
 
                 try (FileWriter fileWriter = constructFileWriter(file)) {
                     fileWriter.write(settingsManager.getGson().toJson(playlists));

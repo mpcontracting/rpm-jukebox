@@ -243,7 +243,7 @@ public class PlaylistManagerTest implements Constants {
 
     @Test
     public void shouldGetPlaylist() {
-        Playlist playlist = spyPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH);
+        Playlist playlist = spyPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH).orElse(null);
 
         assertThat(playlist).isNotNull();
         assertThat(playlist.getPlaylistId()).isEqualTo(PLAYLIST_ID_SEARCH);

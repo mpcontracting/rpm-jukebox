@@ -17,6 +17,9 @@ import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import javax.annotation.PostConstruct;
 import java.util.*;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Optional.ofNullable;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -97,7 +100,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
             playlists = new ArrayList<>(playlistMap.values());
         }
 
-        return Collections.unmodifiableList(playlists);
+        return unmodifiableList(playlists);
     }
 
     public void addPlaylist(Playlist playlist) {
@@ -157,11 +160,11 @@ public class PlaylistManager extends EventAwareObject implements Constants {
                 });
     }
 
-    public Playlist getPlaylist(int playlistId) {
+    public Optional<Playlist> getPlaylist(int playlistId) {
         log.debug("Getting playlist - {}", playlistId);
 
         synchronized (playlistMap) {
-            return playlistMap.get(playlistId);
+            return ofNullable(playlistMap.get(playlistId));
         }
     }
 
@@ -250,13 +253,8 @@ public class PlaylistManager extends EventAwareObject implements Constants {
         }
 
         synchronized (playlistMap) {
-            Playlist playlist = playlistMap.get(playlistId);
-
-            if (playlist == null) {
-                return false;
-            }
-
-            return playlist.isTrackInPlaylist(trackId);
+            return ofNullable(playlistMap.get(playlistId))
+                    .filter(playlist -> playlist.isTrackInPlaylist(trackId)).isPresent();
         }
     }
 
