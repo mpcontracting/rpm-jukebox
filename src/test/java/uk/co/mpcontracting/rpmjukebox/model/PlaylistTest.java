@@ -18,6 +18,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.generateTrack;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getNonNullField;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlaylistTest {
@@ -27,10 +28,10 @@ public class PlaylistTest {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
 
         @SuppressWarnings("unchecked")
-        List<Track> tracks = (List<Track>) getField(playlist, "tracks");
+        List<Track> tracks = (List<Track>) getNonNullField(playlist, "tracks");
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
+        List<Track> shuffledTracks = (List<Track>) getNonNullField(playlist, "shuffledTracks");
 
         Track track = spy(tracks.get(0));
         tracks.set(0, track);
@@ -307,10 +308,10 @@ public class PlaylistTest {
         SecureRandom cloneRandom = (SecureRandom) getField(clone, "random");
 
         @SuppressWarnings("unchecked")
-        List<Track> playlistShuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
+        List<Track> playlistShuffledTracks = (List<Track>) getNonNullField(playlist, "shuffledTracks");
 
         @SuppressWarnings("unchecked")
-        List<Track> cloneShuffledTracks = (List<Track>) getField(clone, "shuffledTracks");
+        List<Track> cloneShuffledTracks = (List<Track>) getNonNullField(clone, "shuffledTracks");
 
         assertThat(clone).isNotSameAs(playlist);
         assertThat(clone.getPlaylistId()).isEqualTo(playlist.getPlaylistId());

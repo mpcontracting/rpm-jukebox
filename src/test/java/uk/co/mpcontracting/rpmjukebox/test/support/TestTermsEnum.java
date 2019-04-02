@@ -1,11 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.test.support;
 
-import java.io.IOException;
-import java.util.Iterator;
-
 import org.apache.lucene.index.PostingsEnum;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.util.BytesRef;
+
+import java.util.Iterator;
 
 public class TestTermsEnum extends TermsEnum {
 
@@ -16,7 +15,7 @@ public class TestTermsEnum extends TermsEnum {
     }
 
     @Override
-    public BytesRef next() throws IOException {
+    public BytesRef next() {
         if (iterator.hasNext()) {
             return iterator.next();
         }
@@ -25,36 +24,36 @@ public class TestTermsEnum extends TermsEnum {
     }
 
     @Override
-    public int docFreq() throws IOException {
+    public int docFreq() {
         return 0;
     }
 
     @Override
-    public long ord() throws IOException {
+    public long ord() {
         return 0;
     }
 
     @Override
-    public PostingsEnum postings(PostingsEnum reuse, int flags) throws IOException {
+    public PostingsEnum postings(PostingsEnum reuse, int flags) {
         return null;
     }
 
     @Override
-    public SeekStatus seekCeil(BytesRef text) throws IOException {
+    public SeekStatus seekCeil(BytesRef text) {
         return null;
     }
 
     @Override
-    public void seekExact(long ord) throws IOException {
+    public void seekExact(long ord) {
     }
 
     @Override
-    public BytesRef term() throws IOException {
+    public BytesRef term() {
         return null;
     }
 
     @Override
-    public long totalTermFreq() throws IOException {
+    public long totalTermFreq() {
         return 0;
     }
 }

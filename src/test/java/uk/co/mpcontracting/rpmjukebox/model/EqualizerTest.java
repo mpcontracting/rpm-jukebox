@@ -3,12 +3,11 @@ package uk.co.mpcontracting.rpmjukebox.model;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getNonNullField;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EqualizerTest {
@@ -25,7 +24,7 @@ public class EqualizerTest {
         Equalizer equalizer = new Equalizer(10);
         equalizer.setGain(5, 5);
 
-        double gain = ((double[]) requireNonNull(getField(equalizer, "gain")))[5];
+        double gain = ((double[]) getNonNullField(equalizer, "gain"))[5];
 
         assertThat(gain).isEqualTo(5d);
     }
@@ -50,7 +49,7 @@ public class EqualizerTest {
         double[] gain = new double[10];
         gain[5] = 5d;
 
-        ReflectionTestUtils.setField(equalizer, "gain", gain);
+        setField(equalizer, "gain", gain);
 
         double result = equalizer.getGain(5);
 
