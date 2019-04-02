@@ -112,7 +112,7 @@ public class SearchManagerTest implements Constants {
 
     @Test
     @SneakyThrows
-    public void shouldInitialise() throws Exception {
+    public void shouldInitialise() {
         try {
             doReturn(true).when(spySearchManager).isIndexValid(any());
             doReturn(Collections.emptyList()).when(spySearchManager).search(any());
@@ -161,7 +161,8 @@ public class SearchManagerTest implements Constants {
     }
 
     @Test
-    public void shouldInitialiseAndIndexWhenDataFileHasExpired() throws Exception {
+    @SneakyThrows
+    public void shouldInitialiseAndIndexWhenDataFileHasExpired() {
         try {
             doNothing().when(spySearchManager).indexData();
             doReturn(Collections.emptyList()).when(spySearchManager).search(any());
@@ -210,7 +211,8 @@ public class SearchManagerTest implements Constants {
     }
 
     @Test
-    public void shouldInitialiseAndIndexWhenIndexIsInvalid() throws Exception {
+    @SneakyThrows
+    public void shouldInitialiseAndIndexWhenIndexIsInvalid() {
         try {
             doNothing().when(spySearchManager).indexData();
             doReturn(false).when(spySearchManager).isIndexValid(any());
@@ -260,7 +262,8 @@ public class SearchManagerTest implements Constants {
     }
 
     @Test
-    public void shouldNotInitialiseIfAlreadyInitialised() throws Exception {
+    @SneakyThrows
+    public void shouldNotInitialiseIfAlreadyInitialised() {
         try {
             doNothing().when(spySearchManager).indexData();
             doReturn(false).when(spySearchManager).isIndexValid(any());
@@ -285,7 +288,8 @@ public class SearchManagerTest implements Constants {
     }
 
     @Test
-    public void shouldThrowExceptionOnInitialise() throws Exception {
+    @SneakyThrows
+    public void shouldThrowExceptionOnInitialise() {
         try {
             doThrow(new RuntimeException("SearchManagerTest.shouldThrowExceptionOnInitialise()")).when(spySearchManager)
                 .indexData();
@@ -545,7 +549,7 @@ public class SearchManagerTest implements Constants {
         when(mockIndexSearcher.getIndexReader()).thenReturn(mockIndexReader);
 
         LeafReaderContext mockLeafReaderContext = mock(LeafReaderContext.class);
-        List<LeafReaderContext> mockLeafReaderContexts = Arrays.asList(mockLeafReaderContext);
+        List<LeafReaderContext> mockLeafReaderContexts = singletonList(mockLeafReaderContext);
         when(mockIndexReader.leaves()).thenReturn(mockLeafReaderContexts);
 
         LeafReader mockLeafReader = mock(LeafReader.class);
@@ -581,7 +585,7 @@ public class SearchManagerTest implements Constants {
         when(mockIndexSearcher.getIndexReader()).thenReturn(mockIndexReader);
 
         LeafReaderContext mockLeafReaderContext = mock(LeafReaderContext.class);
-        List<LeafReaderContext> mockLeafReaderContexts = Arrays.asList(mockLeafReaderContext);
+        List<LeafReaderContext> mockLeafReaderContexts = singletonList(mockLeafReaderContext);
         when(mockIndexReader.leaves()).thenReturn(mockLeafReaderContexts);
 
         LeafReader mockLeafReader = mock(LeafReader.class);
@@ -727,7 +731,7 @@ public class SearchManagerTest implements Constants {
         for (int i = 1; i < 10; i++) {
             scoreDocsList.add(new ScoreDoc(i, 0));
         }
-        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
@@ -759,7 +763,7 @@ public class SearchManagerTest implements Constants {
         for (int i = 1; i < 10; i++) {
             scoreDocsList.add(new ScoreDoc(i, 0));
         }
-        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
@@ -791,7 +795,7 @@ public class SearchManagerTest implements Constants {
         for (int i = 1; i < 10; i++) {
             scoreDocsList.add(new ScoreDoc(i, 0));
         }
-        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
@@ -826,7 +830,7 @@ public class SearchManagerTest implements Constants {
         for (int i = 1; i < 10; i++) {
             scoreDocsList.add(new ScoreDoc(i, 0));
         }
-        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
@@ -1051,7 +1055,7 @@ public class SearchManagerTest implements Constants {
         for (int i = 1; i < 10; i++) {
             scoreDocsList.add(new ScoreDoc(i, 0));
         }
-        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(mockTrackSearcher.search(any(), anyInt(), any()))
             .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
@@ -1072,7 +1076,7 @@ public class SearchManagerTest implements Constants {
         for (int i = 1; i < 10; i++) {
             scoreDocsList.add(new ScoreDoc(i, 0));
         }
-        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[scoreDocsList.size()]);
+        ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(mockTrackSearcher.search(any(), anyInt(), any()))
             .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
@@ -1128,7 +1132,8 @@ public class SearchManagerTest implements Constants {
         FileUtils.deleteDirectory(getConfigDirectory());
     }
 
-    private void setArtistSearcherDocuments(IndexSearcher mockArtistSearcher) throws Exception {
+    @SneakyThrows
+    private void setArtistSearcherDocuments(IndexSearcher mockArtistSearcher) {
         for (int i = 1; i < 10; i++) {
             Document document = mock(Document.class);
             when(document.get(ArtistField.ARTISTID.name())).thenReturn("123" + i);
@@ -1141,7 +1146,8 @@ public class SearchManagerTest implements Constants {
         }
     }
 
-    private void setTrackSearcherDocuments(IndexSearcher mockTrackSearcher) throws Exception {
+    @SneakyThrows
+    private void setTrackSearcherDocuments(IndexSearcher mockTrackSearcher) {
         for (int i = 1; i < 10; i++) {
             Document document = mock(Document.class);
             when(document.get(TrackField.ARTISTID.name())).thenReturn("123" + i);

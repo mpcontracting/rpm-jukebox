@@ -407,7 +407,7 @@ public class MediaManagerTest {
     }
 
     @Test
-    public void shouldSetEqualizerGainOnEqualizerUpdatedEvent() throws Exception {
+    public void shouldSetEqualizerGainOnEqualizerUpdatedEvent() {
         doNothing().when(spyMediaManager).setEqualizerGain(anyInt(), anyDouble());
 
         spyMediaManager.eventReceived(Event.EQUALIZER_UPDATED, 1, 1d);

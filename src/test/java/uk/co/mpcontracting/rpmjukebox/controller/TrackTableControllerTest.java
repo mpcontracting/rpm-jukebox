@@ -3,6 +3,7 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -17,7 +18,6 @@ import uk.co.mpcontracting.rpmjukebox.view.TrackTableView;
 
 import javax.annotation.PostConstruct;
 
-import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
@@ -37,8 +37,9 @@ public class TrackTableControllerTest extends AbstractGUITest {
 
     private uk.co.mpcontracting.rpmjukebox.component.TrackTableView<TrackTableModel> spyTrackTableView;
 
+    @SneakyThrows
     @PostConstruct
-    public void constructView() throws Exception {
+    public void constructView() {
         init(trackTableView);
     }
 
@@ -49,10 +50,10 @@ public class TrackTableControllerTest extends AbstractGUITest {
         setField(trackTableController, "playlistManager", mockPlaylistManager);
 
         spyTrackTableView = spy(
-                requireNonNull((uk.co.mpcontracting.rpmjukebox.component.TrackTableView<TrackTableModel>) getField(trackTableController, "trackTableView")));
+                (uk.co.mpcontracting.rpmjukebox.component.TrackTableView<TrackTableModel>) getNonNullField(trackTableController, "trackTableView"));
         setField(trackTableController, "trackTableView", spyTrackTableView);
 
-        requireNonNull(((ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks"))).clear();
+        ((ObservableList<TrackTableModel>) getNonNullField(trackTableController, "observableTracks")).clear();
     }
 
     @Test

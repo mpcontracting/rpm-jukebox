@@ -63,7 +63,8 @@ public class JettyServerTest implements Constants {
     }
 
     @Test
-    public void shouldShutdownApplicationIfBindExceptionThrownOnServerStart() throws Exception {
+    @SneakyThrows
+    public void shouldShutdownApplicationIfBindExceptionThrownOnServerStart() {
         doThrow(new BindException("JettyServerTest.shouldShutdownApplicationIfBindExceptionThrownOnServerStart()"))
                 .when(mockServer).start();
 
@@ -74,9 +75,9 @@ public class JettyServerTest implements Constants {
     }
 
     @Test
-    public void shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart() throws Exception {
-        doThrow(
-                new IllegalStateException("JettyServerTest.shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart()"))
+    @SneakyThrows
+    public void shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart() {
+        doThrow(new IllegalStateException("JettyServerTest.shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart()"))
                 .when(mockServer).start();
 
         assertThatThrownBy(() -> spyJettyServer.initialise()).isInstanceOf(IllegalStateException.class);
@@ -85,7 +86,8 @@ public class JettyServerTest implements Constants {
     }
 
     @Test
-    public void shouldStopJettyServer() throws Exception {
+    @SneakyThrows
+    public void shouldStopJettyServer() {
         spyJettyServer.initialise();
         spyJettyServer.stop();
 
@@ -94,7 +96,8 @@ public class JettyServerTest implements Constants {
     }
 
     @Test
-    public void shouldStopJettyServerWhenServerIsNull() throws Exception {
+    @SneakyThrows
+    public void shouldStopJettyServerWhenServerIsNull() {
         spyJettyServer.stop();
 
         verify(mockServer, never()).stop();

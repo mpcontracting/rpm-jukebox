@@ -16,6 +16,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import lombok.SneakyThrows;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,8 +58,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.generateTrack;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getKeyEvent;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 
 public class MainPanelControllerTest extends AbstractGUITest implements Constants {
 
@@ -126,22 +126,22 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     private UpdateManager mockUpdateManager;
 
     private Stage existingStage;
-    private Stage mockStage;
-    private Scene mockScene;
     private Parent mockRoot;
 
+    @SneakyThrows
     @PostConstruct
-    public void constructView() throws Exception {
+    public void constructView() {
         init(mainPanelView);
     }
 
     @Before
+    @SneakyThrows
     @SuppressWarnings("unchecked")
-    public void setup() throws Exception {
+    public void setup() {
         existingStage = GUIState.getStage();
 
-        mockStage = mock(Stage.class);
-        mockScene = mock(Scene.class);
+        Stage mockStage = mock(Stage.class);
+        Scene mockScene = mock(Scene.class);
         mockRoot = mock(Parent.class);
         when(mockStage.getScene()).thenReturn(mockScene);
         when(mockScene.getRoot()).thenReturn(mockRoot);
@@ -168,11 +168,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         CountDownLatch latch = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
-            ((TextField) getField(mainPanelController, "searchTextField")).setText(null);
-            ((ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox")).getItems()
-                .clear();
-            ((ListView<Playlist>) getField(mainPanelController, "playlistPanelListView")).getItems()
-                .clear();
+            ((TextField) getNonNullField(mainPanelController, "searchTextField")).setText(null);
+            ((ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox")).getItems().clear();
+            ((ListView<Playlist>) getNonNullField(mainPanelController, "playlistPanelListView")).getItems().clear();
             latch.countDown();
         });
 
@@ -183,7 +181,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldShowMessageView() throws Exception {
+    @SneakyThrows
+    public void shouldShowMessageView() {
         mainPanelController.showMessageView("Message", true);
 
         // Wait for the UI thread
@@ -194,7 +193,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldShowMessageViewAlreadyShowing() throws Exception {
+    @SneakyThrows
+    public void shouldShowMessageViewAlreadyShowing() {
         when(mockMessageView.isShowing()).thenReturn(true);
 
         mainPanelController.showMessageView("Message", true);
@@ -207,7 +207,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldCloseMessageView() throws Exception {
+    @SneakyThrows
+    public void shouldCloseMessageView() {
         mainPanelController.closeMessageView();
 
         // Wait for the UI thread
@@ -217,7 +218,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldShowConfirmView() throws Exception {
+    @SneakyThrows
+    public void shouldShowConfirmView() {
         Runnable okRunnable = mock(Runnable.class);
         Runnable cancelRunnable = mock(Runnable.class);
 
@@ -232,7 +234,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldShowConfirmViewAlreadyShowing() throws Exception {
+    @SneakyThrows
+    public void shouldShowConfirmViewAlreadyShowing() {
         when(mockConfirmView.isShowing()).thenReturn(true);
 
         Runnable okRunnable = mock(Runnable.class);
@@ -249,8 +252,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldUpdateSearchTextSearchCriteria() throws Exception {
-        TextField searchTextField = (TextField) getField(mainPanelController, "searchTextField");
+    @SneakyThrows
+    public void shouldUpdateSearchTextSearchCriteria() {
+        TextField searchTextField = (TextField) getNonNullField(mainPanelController, "searchTextField");
         CountDownLatch latch = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
@@ -267,9 +271,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldUpdateYearFilterSearchCriteria() throws Exception {
+    @SneakyThrows
+    public void shouldUpdateYearFilterSearchCriteria() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
@@ -288,14 +293,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldUpdateYearFilterAndSearchTextSearchCriteria() throws Exception {
+    @SneakyThrows
+    public void shouldUpdateYearFilterAndSearchTextSearchCriteria() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
 
-        TextField searchTextField = (TextField) getField(mainPanelController, "searchTextField");
+        TextField searchTextField = (TextField) getNonNullField(mainPanelController, "searchTextField");
         CountDownLatch latch = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
@@ -316,9 +322,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldUpdatePlayingPlaylistOnYearFilterUpdate() throws Exception {
+    @SneakyThrows
+    public void shouldUpdatePlayingPlaylistOnYearFilterUpdate() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
@@ -360,7 +367,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickDeletePlaylistButton() throws Exception {
+    @SneakyThrows
+    public void shouldClickDeletePlaylistButton() {
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(1, "Playlist 1", 10);
 
@@ -389,7 +397,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickDeletePlaylistButtonWithReservedPlaylist() throws Exception {
+    @SneakyThrows
+    public void shouldClickDeletePlaylistButtonWithReservedPlaylist() {
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(PLAYLIST_ID_SEARCH, "Playlist 1", 10);
 
@@ -409,7 +418,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickDeletePlaylistButtonWithNullPlaylist() throws Exception {
+    @SneakyThrows
+    public void shouldClickDeletePlaylistButtonWithNullPlaylist() {
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -427,7 +437,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickImportPlaylistButton() throws Exception {
+    @SneakyThrows
+    public void shouldClickImportPlaylistButton() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
@@ -492,7 +503,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickImportPlaylistButtonWithNullTracksFromSearch() throws Exception {
+    @SneakyThrows
+    public void shouldClickImportPlaylistButtonWithNullTracksFromSearch() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
@@ -557,7 +569,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickImportPlaylistButtonWithNullPlaylistSettings() throws Exception {
+    @SneakyThrows
+    public void shouldClickImportPlaylistButtonWithNullPlaylistSettings() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
@@ -601,7 +614,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickImportPlaylistButtonWithNullFile() throws Exception {
+    @SneakyThrows
+    public void shouldClickImportPlaylistButtonWithNullFile() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
@@ -636,7 +650,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickImportPlaylistButtonWhenExceptionThrown() throws Exception {
+    @SneakyThrows
+    public void shouldClickImportPlaylistButtonWhenExceptionThrown() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
@@ -887,9 +902,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickRandomButtonWithYearFilter() throws Exception {
+    @SneakyThrows
+    public void shouldClickRandomButtonWithYearFilter() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -914,9 +930,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldClickRandomButtonWithNoYearFilter() throws Exception {
+    @SneakyThrows
+    public void shouldClickRandomButtonWithNoYearFilter() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -941,7 +958,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveApplicationInitialised() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveApplicationInitialised() {
         find("#yearFilterComboBox").setDisable(true);
         find("#searchTextField").setDisable(true);
         find("#addPlaylistButton").setDisable(true);
@@ -1013,7 +1031,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveApplicationInitialisedWithEmptyYearList() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveApplicationInitialisedWithEmptyYearList() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
             new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
         when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
@@ -1038,7 +1057,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveApplicationInitialisedWithYearList() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveApplicationInitialisedWithYearList() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
             new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
         when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
@@ -1063,7 +1083,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveApplicationInitialisedWithNoPlaylists() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveApplicationInitialisedWithNoPlaylists() {
         when(mockPlaylistManager.getPlaylists()).thenReturn(Collections.emptyList());
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
         when(mockPlaylistManager.isShuffle()).thenReturn(false);
@@ -1085,7 +1106,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveDataIndexed() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveDataIndexed() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -1101,7 +1123,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveNewUpdateAvailable() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveNewUpdateAvailable() {
         Button newVersionButton = find("#newVersionButton");
         Version version = new Version("99.99.99");
 
@@ -1124,7 +1147,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveMuteUpdated() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveMuteUpdated() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -1140,7 +1164,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveTimeUpdated() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveTimeUpdated() {
         Duration mediaDuration = new Duration(30000);
         Duration currentTime = new Duration(15000);
         SliderProgressBar timeSlider = find("#timeSlider");
@@ -1165,7 +1190,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveTimeUpdatedMediaDurationUnknown() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveTimeUpdatedMediaDurationUnknown() {
         Duration mediaDuration = Duration.UNKNOWN;
         Duration currentTime = new Duration(15000);
         SliderProgressBar timeSlider = find("#timeSlider");
@@ -1190,7 +1216,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveTimeUpdatedZeroMediaDuration() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveTimeUpdatedZeroMediaDuration() {
         Duration mediaDuration = Duration.ZERO;
         Duration currentTime = new Duration(15000);
         SliderProgressBar timeSlider = find("#timeSlider");
@@ -1215,7 +1242,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveBufferUpdated() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveBufferUpdated() {
         Duration mediaDuration = new Duration(30000);
         Duration bufferProgressTime = new Duration(15000);
         SliderProgressBar timeSlider = find("#timeSlider");
@@ -1236,8 +1264,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveBufferUpdatedWithNullMediaDuration() throws Exception {
-        Duration mediaDuration = null;
+    @SneakyThrows
+    public void shouldReceiveBufferUpdatedWithNullMediaDuration() {
         Duration bufferProgressTime = new Duration(15000);
         SliderProgressBar timeSlider = find("#timeSlider");
 
@@ -1246,7 +1274,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
-            mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
+            mainPanelController.eventReceived(Event.BUFFER_UPDATED, null, bufferProgressTime);
 
             latch.countDown();
         });
@@ -1257,9 +1285,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveBufferUpdatedWithNullBufferProgressTime() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveBufferUpdatedWithNullBufferProgressTime() {
         Duration mediaDuration = new Duration(30000);
-        Duration bufferProgressTime = null;
         SliderProgressBar timeSlider = find("#timeSlider");
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -1267,7 +1295,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
-            mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
+            mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, null);
 
             latch.countDown();
         });
@@ -1278,7 +1306,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveMediaPlaying() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveMediaPlaying() {
         Button playPauseButton = find("#playPauseButton");
         Button previousButton = find("#previousButton");
         Button nextButton = find("#nextButton");
@@ -1305,7 +1334,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveMediaPaused() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveMediaPaused() {
         Button playPauseButton = find("#playPauseButton");
         Button previousButton = find("#previousButton");
         Button nextButton = find("#nextButton");
@@ -1332,7 +1362,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveMediaStopped() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveMediaStopped() {
         Button playPauseButton = find("#playPauseButton");
         Button previousButton = find("#previousButton");
         Button nextButton = find("#nextButton");
@@ -1367,7 +1398,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveEndOfMedia() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveEndOfMedia() {
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
 
         Button playPauseButton = find("#playPauseButton");
@@ -1404,7 +1436,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveEndOfMediaWithRepeatOne() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveEndOfMediaWithRepeatOne() {
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ONE);
 
         Button playPauseButton = find("#playPauseButton");
@@ -1441,7 +1474,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceivePlaylistSelected() throws Exception {
+    @SneakyThrows
+    public void shouldReceivePlaylistSelected() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
@@ -1455,7 +1489,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1476,7 +1510,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
@@ -1489,7 +1523,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceivePlaylistSelectedWithNullPayload() throws Exception {
+    @SneakyThrows
+    public void shouldReceivePlaylistSelectedWithNullPayload() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
@@ -1503,7 +1538,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1524,7 +1559,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, never()).clearSelectedTrack();
@@ -1537,7 +1572,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceivePlaylistSelectedWithEmptyPayload() throws Exception {
+    @SneakyThrows
+    public void shouldReceivePlaylistSelectedWithEmptyPayload() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
@@ -1551,7 +1587,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1565,14 +1601,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(false);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, new Object[] {});
+            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED);
 
             latch.countDown();
         });
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, never()).clearSelectedTrack();
@@ -1585,7 +1621,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceivePlaylistSelectedExistingPlaylist() throws Exception {
+    @SneakyThrows
+    public void shouldReceivePlaylistSelectedExistingPlaylist() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
@@ -1599,7 +1636,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1620,7 +1657,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, never()).clearSelectedTrack();
@@ -1633,7 +1670,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceivePlaylistSelectedPlaylistIsNotEmpty() throws Exception {
+    @SneakyThrows
+    public void shouldReceivePlaylistSelectedPlaylistIsNotEmpty() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
@@ -1648,7 +1686,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1669,7 +1707,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, never()).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
@@ -1682,7 +1720,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceivePlaylistDeleted() throws Exception {
+    @SneakyThrows
+    public void shouldReceivePlaylistDeleted() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
@@ -1696,7 +1735,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1717,7 +1756,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, times(1)).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
@@ -1730,7 +1769,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceivePlaylistCreatedWithEdit() throws Exception {
+    @SneakyThrows
+    public void shouldReceivePlaylistCreatedWithEdit() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
@@ -1744,7 +1784,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1765,7 +1805,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, times(1)).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
@@ -1778,7 +1818,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceivePlaylistCreatedWithoutEdit() throws Exception {
+    @SneakyThrows
+    public void shouldReceivePlaylistCreatedWithoutEdit() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
@@ -1792,7 +1833,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1813,7 +1854,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        int currentSelectedPlaylistId = (Integer) getField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
         verify(spyMainPanelController, times(1)).updateObservablePlaylists();
         verify(mockPlaylistManager, times(1)).clearSelectedTrack();
@@ -1826,7 +1867,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveTrackSelected() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveTrackSelected() {
         Button playPauseButton = find("#playPauseButton");
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -1845,7 +1887,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveTrackQueuedForPlaying() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveTrackQueuedForPlaying() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         Button playPauseButton = find("#playPauseButton");
@@ -1884,7 +1927,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveTrackQueuedForPlayingNoAlbumImage() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveTrackQueuedForPlayingNoAlbumImage() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         Button playPauseButton = find("#playPauseButton");
@@ -1923,7 +1967,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveTrackQueuedForPlayingNoImages() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveTrackQueuedForPlayingNoImages() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         Button playPauseButton = find("#playPauseButton");
@@ -1962,7 +2007,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveTrackQueuedForPlayingNullPayload() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveTrackQueuedForPlayingNullPayload() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         Button playPauseButton = find("#playPauseButton");
@@ -2001,7 +2047,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldReceiveTrackQueuedForPlayingEmptyPayload() throws Exception {
+    @SneakyThrows
+    public void shouldReceiveTrackQueuedForPlayingEmptyPayload() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
         Button playPauseButton = find("#playPauseButton");
@@ -2023,7 +2070,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playingAlbumLabel.setText(null);
             playingArtistLabel.setText(null);
 
-            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, new Object[] {});
+            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING);
 
             latch.countDown();
         });
@@ -2040,7 +2087,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithBackSpace() throws Exception {
+    @SneakyThrows
+    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithBackSpace() {
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(1, "Playlist 1", 10);
 
@@ -2074,7 +2122,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithDelete() throws Exception {
+    @SneakyThrows
+    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithDelete() {
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(1, "Playlist 1", 10);
 
@@ -2107,7 +2156,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
-    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithUnknownKey() throws Exception {
+    @SneakyThrows
+    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithUnknownKey() {
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.A));

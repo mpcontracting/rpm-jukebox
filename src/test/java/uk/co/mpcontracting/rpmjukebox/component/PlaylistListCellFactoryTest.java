@@ -344,7 +344,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
     @Test
     public void shouldTriggerDragExited() {
         ListCell<Playlist> listCell = cellFactory.call(getListView());
-        listCell.setStyle("some-style");
+        listCell.setStyle("some-style: style");
 
         Dragboard mockDragboard = mock(Dragboard.class);
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);

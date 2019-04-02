@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
+import lombok.SneakyThrows;
 import org.eclipse.jetty.io.EofException;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,8 @@ public class CachingDataStreamTest {
     }
 
     @Test
-    public void shouldWriteToOutputStreamAlreadyCached() throws Exception {
+    @SneakyThrows
+    public void shouldWriteToOutputStreamAlreadyCached() {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte)255);
 
@@ -51,7 +53,8 @@ public class CachingDataStreamTest {
     }
 
     @Test
-    public void shouldWriteToOutputStreamNotCached() throws Exception {
+    @SneakyThrows
+    public void shouldWriteToOutputStreamNotCached() {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte)255);
 
@@ -81,7 +84,8 @@ public class CachingDataStreamTest {
     }
 
     @Test
-    public void shouldNotWriteToOutputStreamWhenNotReady() throws Exception {
+    @SneakyThrows
+    public void shouldNotWriteToOutputStreamWhenNotReady() {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte)255);
 
@@ -98,7 +102,8 @@ public class CachingDataStreamTest {
     }
 
     @Test
-    public void shouldDealWithAnError() throws Exception {
+    @SneakyThrows
+    public void shouldDealWithAnError() {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte)255);
 
@@ -114,7 +119,8 @@ public class CachingDataStreamTest {
     }
 
     @Test
-    public void shouldDealWithAnErrorWhenAsyncContextThrowsAnException() throws Exception {
+    @SneakyThrows
+    public void shouldDealWithAnErrorWhenAsyncContextThrowsAnException() {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte)255);
 

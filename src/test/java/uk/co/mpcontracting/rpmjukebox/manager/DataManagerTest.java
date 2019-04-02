@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +39,8 @@ public class DataManagerTest {
     }
 
     @Test
-    public void shouldParseDataFile() throws Exception {
+    @SneakyThrows
+    public void shouldParseDataFile() {
         URL dataFile = new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath());
         URLConnection mockUrlConnection = mock(URLConnection.class);
 
@@ -52,7 +54,8 @@ public class DataManagerTest {
     }
 
     @Test
-    public void shouldNotParseDataFileOnException() throws Exception {
+    @SneakyThrows
+    public void shouldNotParseDataFileOnException() {
         doThrow(new RuntimeException("DataManagerTest.shouldNotParseDataFileOnException()")).when(mockInternetManager)
                 .openConnection(any());
 

@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractEventTest;
@@ -22,7 +23,8 @@ public class EventManagerTest extends AbstractEventTest {
     }
 
     @Test
-    public void shouldFireEventOnAnEventListener() throws Exception {
+    @SneakyThrows
+    public void shouldFireEventOnAnEventListener() {
         EventManager eventManager = EventManager.getInstance();
         eventManager.addEventListener((event, payload) -> {
             receivedEvent = event;

@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import javafx.scene.control.Slider;
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -31,8 +32,9 @@ public class EqualizerControllerTest extends AbstractGUITest {
 
     private EqualizerView spyEqualizerView;
 
+    @SneakyThrows
     @PostConstruct
-    public void constructView() throws Exception {
+    public void constructView() {
         spyEqualizerView = spy(equalizerView);
 
         setField(equalizerController, "equalizerView", spyEqualizerView);

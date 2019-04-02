@@ -378,7 +378,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
-        tableCell.getTableRow().setStyle("some-style");
+        tableCell.getTableRow().setStyle("some-style: style");
 
         Dragboard mockDragboard = mock(Dragboard.class);
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
@@ -421,7 +421,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         Track target = getTargetTrack();
         updateTableCell(tableCell, target);
 
-        Track source = generateTrack(1, "Genre 1", "Genre 2");;
+        Track source = generateTrack(1, "Genre 1", "Genre 2");
         source.setPlaylistId(2);
 
         Dragboard mockDragboard = mock(Dragboard.class);
@@ -454,7 +454,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     }
 
     private Track getTargetTrack() {
-        Track track = generateTrack(1, "Genre 1", "Genre 2");;
+        Track track = generateTrack(1, "Genre 1", "Genre 2");
         track.setPlaylistId(1);
 
         return track;

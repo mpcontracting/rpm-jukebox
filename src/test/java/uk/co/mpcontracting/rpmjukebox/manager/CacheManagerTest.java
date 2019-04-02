@@ -205,7 +205,7 @@ public class CacheManagerTest {
 
         File cachedFile = cacheManager.readCache(cacheType, id).orElse(null);
 
-        assertThat(cacheDirectory.listFiles().length).isEqualTo(21);
+        assertThat(requireNonNull(cacheDirectory.listFiles()).length).isEqualTo(21);
         assertThat(cachedFile).isNotNull();
     }
 
@@ -242,8 +242,8 @@ public class CacheManagerTest {
 
     @SneakyThrows
     private void writeCacheFile(CacheType cacheType, String id, String cacheContent) {
-        File file = new File(cacheDirectory,
-                (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
+        File file = new File(cacheDirectory, (cacheType == CacheType.TRACK ? id : hashGenerator.generateHash(id)));
+
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(cacheContent.getBytes());
         }
@@ -252,6 +252,7 @@ public class CacheManagerTest {
     @SneakyThrows
     private String readCacheFile(File file) {
         StringBuilder builder = new StringBuilder();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             reader.lines().forEach(builder::append);
         }

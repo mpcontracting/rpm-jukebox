@@ -50,7 +50,8 @@ public class NativeManagerTest {
     }
 
     @Test
-    public void shouldInitialiseNativeBridgeSuccessfullyOnOsx() throws Exception {
+    @SneakyThrows
+    public void shouldInitialiseNativeBridgeSuccessfullyOnOsx() {
         // This test only runs when being built on OSX
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
             when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
@@ -67,7 +68,8 @@ public class NativeManagerTest {
     }
 
     @Test
-    public void shouldInitialiseNativeBridgeSuccessfullyOnOsxDirectoryExists() throws Exception {
+    @SneakyThrows
+    public void shouldInitialiseNativeBridgeSuccessfullyOnOsxDirectoryExists() {
         // This test only runs when being built on OSX
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
             when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
@@ -85,7 +87,7 @@ public class NativeManagerTest {
     }
 
     @Test
-    public void shouldNotInitialiseNativeBridgeOnWindows() throws Exception {
+    public void shouldNotInitialiseNativeBridgeOnWindows() {
         when(mockSettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
 
         nativeManager.initialise();
@@ -97,7 +99,7 @@ public class NativeManagerTest {
     }
 
     @Test
-    public void shouldNotInitialiseNativeBridgeOnLinux() throws Exception {
+    public void shouldNotInitialiseNativeBridgeOnLinux() {
         when(mockSettingsManager.getOsType()).thenReturn(OsType.LINUX);
 
         nativeManager.initialise();
@@ -109,7 +111,8 @@ public class NativeManagerTest {
     }
 
     @Test
-    public void shouldDisplayNotificationOnOsx() throws Exception {
+    @SneakyThrows
+    public void shouldDisplayNotificationOnOsx() {
         when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
 
         AtomicBoolean notificationSent = new AtomicBoolean(false);
@@ -128,7 +131,8 @@ public class NativeManagerTest {
     }
 
     @Test
-    public void shouldHandleExceptionInDisplayNotificationOnOsx() throws Exception {
+    @SneakyThrows
+    public void shouldHandleExceptionInDisplayNotificationOnOsx() {
         when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -143,7 +147,8 @@ public class NativeManagerTest {
     }
 
     @Test
-    public void shouldNotDisplayNotificationOnWindows() throws Exception {
+    @SneakyThrows
+    public void shouldNotDisplayNotificationOnWindows() {
         when(mockSettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
 
         AtomicBoolean notificationSent = new AtomicBoolean(false);
@@ -162,7 +167,8 @@ public class NativeManagerTest {
     }
 
     @Test
-    public void shouldNotDisplayNotificationOnLinux() throws Exception {
+    @SneakyThrows
+    public void shouldNotDisplayNotificationOnLinux() {
         when(mockSettingsManager.getOsType()).thenReturn(OsType.LINUX);
 
         AtomicBoolean notificationSent = new AtomicBoolean(false);

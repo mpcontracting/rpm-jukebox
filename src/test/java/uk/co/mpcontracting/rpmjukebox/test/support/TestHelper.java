@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.test.support;
 
 import javafx.event.EventType;
 import javafx.scene.input.*;
+import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
 import uk.co.mpcontracting.rpmjukebox.model.Artist;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
@@ -16,7 +17,9 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
+import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 public abstract class TestHelper {
 
@@ -34,11 +37,13 @@ public abstract class TestHelper {
         return getLocalDateTimeInMillis(LocalDateTime.of(year, month, day, hour, minute));
     }
 
-    public static File getTestResourceFile(String path) throws Exception {
+    @SneakyThrows
+    public static File getTestResourceFile(String path) {
         return new ClassPathResource(path).getFile();
     }
 
-    public static String getTestResourceContent(String path) throws Exception {
+    @SneakyThrows
+    public static String getTestResourceContent(String path) {
         StringBuilder builder = new StringBuilder();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(getTestResourceFile(path)))) {
@@ -76,6 +81,10 @@ public abstract class TestHelper {
         }
 
         return of(playlist);
+    }
+
+    public static Object getNonNullField(Object object, String field) {
+        return requireNonNull(getField(object, field));
     }
 
     public static Artist generateArtist(int index) {

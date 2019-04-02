@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
+import lombok.SneakyThrows;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +38,8 @@ public class CachingMediaProxyServletTest {
     private CachingMediaProxyServlet spyServlet;
 
     @Before
-    public void setup() throws Exception {
+    @SneakyThrows
+    public void setup() {
         mockServletRequest = mock(HttpServletRequest.class);
         mockServletResponse = mock(HttpServletResponse.class);
         mockCacheManager = mock(CacheManager.class);
@@ -57,7 +59,8 @@ public class CachingMediaProxyServletTest {
     }
 
     @Test
-    public void shouldGetCachedFile() throws Exception {
+    @SneakyThrows
+    public void shouldGetCachedFile() {
         when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
         when(mockServletRequest.getParameter("id")).thenReturn("123");
         when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
@@ -71,12 +74,12 @@ public class CachingMediaProxyServletTest {
 
         spyServlet.doGet(mockServletRequest, mockServletResponse);
 
-        verify(mockServletResponse, times(1)).setContentLengthLong(1000l);
+        verify(mockServletResponse, times(1)).setContentLengthLong(1000L);
         verify(mockServletOutputStream, times(1)).setWriteListener(any());
     }
 
     @Test
-    public void shouldNotGetCachedFileWhenRequestMethodIsHead() throws Exception {
+    public void shouldNotGetCachedFileWhenRequestMethodIsHead() {
         when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
         when(mockServletRequest.getParameter("id")).thenReturn("123");
         when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
@@ -94,7 +97,8 @@ public class CachingMediaProxyServletTest {
     }
 
     @Test
-    public void shouldGetFileFromUrl() throws Exception {
+    @SneakyThrows
+    public void shouldGetFileFromUrl() {
         when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
         when(mockServletRequest.getParameter("id")).thenReturn("123");
         when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
@@ -115,7 +119,8 @@ public class CachingMediaProxyServletTest {
     }
 
     @Test
-    public void shouldNotGetFileFromUrlWhenRequestMethodIsHead() throws Exception {
+    @SneakyThrows
+    public void shouldNotGetFileFromUrlWhenRequestMethodIsHead() {
         when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
         when(mockServletRequest.getParameter("id")).thenReturn("123");
         when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
@@ -136,7 +141,8 @@ public class CachingMediaProxyServletTest {
     }
 
     @Test
-    public void shouldNotGetFileFromUrlWhenHttpError() throws Exception {
+    @SneakyThrows
+    public void shouldNotGetFileFromUrlWhenHttpError() {
         when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
         when(mockServletRequest.getParameter("id")).thenReturn("123");
         when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");

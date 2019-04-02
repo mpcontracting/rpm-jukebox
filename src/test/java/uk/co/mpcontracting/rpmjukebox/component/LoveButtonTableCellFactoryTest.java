@@ -91,7 +91,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         tableCell.setItem(null);
 
-        Track track = generateTrack(1, "Genre 1", "Genre 2");;
+        Track track = generateTrack(1, "Genre 1", "Genre 2");
         track.setPlaylistId(999);
 
         tableCell.onMouseClickedProperty().get()

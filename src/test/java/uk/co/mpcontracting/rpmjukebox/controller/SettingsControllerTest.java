@@ -4,6 +4,7 @@ import com.igormaznitsa.commons.version.Version;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,8 +51,9 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
 
     private SettingsView spySettingsView;
 
+    @SneakyThrows
     @PostConstruct
-    public void constructView() throws Exception {
+    public void constructView() {
         init(settingsView);
     }
 
@@ -69,7 +71,8 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
     }
 
     @Test
-    public void shouldBindSystemSettings() throws Exception {
+    @SneakyThrows
+    public void shouldBindSystemSettings() {
         SystemSettings mockSystemSettings = mock(SystemSettings.class);
         when(mockSystemSettings.getCacheSizeMb()).thenReturn(250);
         when(mockSystemSettings.getProxyHost()).thenReturn("localhost");
@@ -94,7 +97,8 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
     }
 
     @Test
-    public void shouldClickReindexButton() throws Exception {
+    @SneakyThrows
+    public void shouldClickReindexButton() {
         clickOn("#reindexButton");
 
         // Wait for reindex to kick off
@@ -109,7 +113,8 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
     }
 
     @Test
-    public void shouldClickReindexButtonAndThrowExceptionOnIndexData() throws Exception {
+    @SneakyThrows
+    public void shouldClickReindexButtonAndThrowExceptionOnIndexData() {
         doThrow(new RuntimeException("SettingsControllerTest.shouldClickReindexButtonAndThrowExceptionOnIndexData()"))
             .when(mockSearchManager).indexData();
 

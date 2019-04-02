@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.stage.FileChooser;
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,6 +35,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getNonNullField;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestResourceContent;
 
 public class ExportControllerTest extends AbstractGUITest {
@@ -56,8 +59,9 @@ public class ExportControllerTest extends AbstractGUITest {
     private ExportView spyExportView;
     private Button spyCancelButton;
 
+    @SneakyThrows
     @PostConstruct
-    public void constructView() throws Exception {
+    public void constructView() {
         init(exportView);
     }
 
@@ -77,7 +81,8 @@ public class ExportControllerTest extends AbstractGUITest {
     }
 
     @Test
-    public void shouldBindPlaylists() throws Exception {
+    @SneakyThrows
+    public void shouldBindPlaylists() {
         when(mockPlaylistManager.getPlaylists()).thenReturn(generatePlaylists());
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -97,7 +102,8 @@ public class ExportControllerTest extends AbstractGUITest {
     }
 
     @Test
-    public void shouldAddPlaylistToExport() throws Exception {
+    @SneakyThrows
+    public void shouldAddPlaylistToExport() {
         when(mockPlaylistManager.getPlaylists()).thenReturn(generatePlaylists());
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -110,9 +116,9 @@ public class ExportControllerTest extends AbstractGUITest {
         latch.await(2000, TimeUnit.MILLISECONDS);
 
         @SuppressWarnings("unchecked")
-        PlaylistTableModel playlistTableModel1 = ((ObservableList<PlaylistTableModel>) getField(spyExportController, "observablePlaylists")).get(0);
+        PlaylistTableModel playlistTableModel1 = ((ObservableList<PlaylistTableModel>) getNonNullField(spyExportController, "observablePlaylists")).get(0);
         @SuppressWarnings("unchecked")
-        PlaylistTableModel playlistTableModel2 = ((ObservableList<PlaylistTableModel>) getField(spyExportController, "observablePlaylists")).get(1);
+        PlaylistTableModel playlistTableModel2 = ((ObservableList<PlaylistTableModel>) getNonNullField(spyExportController, "observablePlaylists")).get(1);
 
         playlistTableModel1.getSelected().set(true);
         playlistTableModel2.getSelected().set(true);
@@ -122,11 +128,12 @@ public class ExportControllerTest extends AbstractGUITest {
             "playlistsToExport");
 
         assertThat(playlistsToExport).hasSize(2);
-        assertThat(playlistsToExport.toString()).isEqualTo("[-2, 1]");
+        assertThat(requireNonNull(playlistsToExport).toString()).isEqualTo("[-2, 1]");
     }
 
     @Test
-    public void shouldRemovePlaylistToExport() throws Exception {
+    @SneakyThrows
+    public void shouldRemovePlaylistToExport() {
         when(mockPlaylistManager.getPlaylists()).thenReturn(generatePlaylists());
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -139,9 +146,9 @@ public class ExportControllerTest extends AbstractGUITest {
         latch.await(2000, TimeUnit.MILLISECONDS);
 
         @SuppressWarnings("unchecked")
-        PlaylistTableModel playlistTableModel1 = ((ObservableList<PlaylistTableModel>) getField(spyExportController, "observablePlaylists")).get(0);
+        PlaylistTableModel playlistTableModel1 = ((ObservableList<PlaylistTableModel>) getNonNullField(spyExportController, "observablePlaylists")).get(0);
         @SuppressWarnings("unchecked")
-        PlaylistTableModel playlistTableModel2 = ((ObservableList<PlaylistTableModel>) getField(spyExportController, "observablePlaylists")).get(1);
+        PlaylistTableModel playlistTableModel2 = ((ObservableList<PlaylistTableModel>) getNonNullField(spyExportController, "observablePlaylists")).get(1);
 
         playlistTableModel1.getSelected().set(true);
         playlistTableModel2.getSelected().set(true);
@@ -152,11 +159,12 @@ public class ExportControllerTest extends AbstractGUITest {
             "playlistsToExport");
 
         assertThat(playlistsToExport).hasSize(1);
-        assertThat(playlistsToExport.toString()).isEqualTo("[1]");
+        assertThat(requireNonNull(playlistsToExport).toString()).isEqualTo("[1]");
     }
 
     @Test
-    public void shouldClickOkButton() throws Exception {
+    @SneakyThrows
+    public void shouldClickOkButton() {
         List<Playlist> playlists = generatePlaylists();
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(of(playlists.get(3)));
         when(mockPlaylistManager.getPlaylist(2)).thenReturn(of(playlists.get(4)));
@@ -189,7 +197,8 @@ public class ExportControllerTest extends AbstractGUITest {
     }
 
     @Test
-    public void shouldClickOkButtonWithExceptionThrownFromFileWriter() throws Exception {
+    @SneakyThrows
+    public void shouldClickOkButtonWithExceptionThrownFromFileWriter() {
         List<Playlist> playlists = generatePlaylists();
         when(mockPlaylistManager.getPlaylist(1)).thenReturn(of(playlists.get(3)));
         when(mockPlaylistManager.getPlaylist(2)).thenReturn(of(playlists.get(4)));
@@ -217,7 +226,7 @@ public class ExportControllerTest extends AbstractGUITest {
 
     @Test
     public void shouldClickOkButtonWithNullFileReturnedFromFileChooser() {
-        Set<Integer> playlistsToExport = new HashSet<>(Arrays.asList(new Integer[] { 1, 2 }));
+        Set<Integer> playlistsToExport = new HashSet<>(Arrays.asList(1, 2));
         setField(spyExportController, "playlistsToExport", playlistsToExport);
 
         FileChooser mockFileChooser = mock(FileChooser.class);

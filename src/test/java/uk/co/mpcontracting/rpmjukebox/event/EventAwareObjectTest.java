@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractEventTest;
@@ -22,7 +23,8 @@ public class EventAwareObjectTest extends AbstractEventTest {
     }
 
     @Test
-    public void shouldFireAnEventOnAnEventAwareObject() throws Exception {
+    @SneakyThrows
+    public void shouldFireAnEventOnAnEventAwareObject() {
         EventAwareObject eventAwareObject = new EventAwareObject() {
             @Override
             public void eventReceived(Event event, Object... payload) {

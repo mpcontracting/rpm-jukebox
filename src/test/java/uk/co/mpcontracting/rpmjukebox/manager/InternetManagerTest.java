@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +38,8 @@ public class InternetManagerTest {
     }
 
     @Test
-    public void shouldOpenConnectionToFile() throws Exception {
+    @SneakyThrows
+    public void shouldOpenConnectionToFile() {
         URL spyDataFile = spy(new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath()));
 
         internetManager.openConnection(spyDataFile);
@@ -47,7 +49,8 @@ public class InternetManagerTest {
     }
 
     @Test
-    public void shouldOpenConnectionNoProxy() throws Exception {
+    @SneakyThrows
+    public void shouldOpenConnectionNoProxy() {
         when(mockSettingsManager.getSystemSettings()).thenReturn(SystemSettings.builder().build());
 
         URL mockUrl = mock(URL.class);
@@ -62,7 +65,8 @@ public class InternetManagerTest {
     }
 
     @Test
-    public void shouldOpenConnectionNoProxyMissingPort() throws Exception {
+    @SneakyThrows
+    public void shouldOpenConnectionNoProxyMissingPort() {
         SystemSettings systemSettings = SystemSettings.builder()
                 .proxyHost("localhost")
                 .build();
@@ -81,7 +85,8 @@ public class InternetManagerTest {
     }
 
     @Test
-    public void shouldOpenConnectionNoProxyMissingHost() throws Exception {
+    @SneakyThrows
+    public void shouldOpenConnectionNoProxyMissingHost() {
         SystemSettings systemSettings = SystemSettings.builder()
                 .proxyPort(8080)
                 .build();
@@ -100,7 +105,8 @@ public class InternetManagerTest {
     }
 
     @Test
-    public void shouldOpenConnectionUnauthenticatedProxy() throws Exception {
+    @SneakyThrows
+    public void shouldOpenConnectionUnauthenticatedProxy() {
         SystemSettings systemSettings = SystemSettings.builder()
                 .proxyHost("localhost")
                 .proxyPort(8080)
@@ -120,7 +126,8 @@ public class InternetManagerTest {
     }
 
     @Test
-    public void shouldOpenConnectionUnauthenticatedProxyAuthenticatedFalse() throws Exception {
+    @SneakyThrows
+    public void shouldOpenConnectionUnauthenticatedProxyAuthenticatedFalse() {
         SystemSettings systemSettings = SystemSettings.builder()
                 .proxyHost("localhost")
                 .proxyPort(8080)
@@ -141,7 +148,8 @@ public class InternetManagerTest {
     }
 
     @Test
-    public void shouldOpenConnectionAuthenticatedProxy() throws Exception {
+    @SneakyThrows
+    public void shouldOpenConnectionAuthenticatedProxy() {
         SystemSettings systemSettings = SystemSettings.builder()
                 .proxyHost("localhost")
                 .proxyPort(8080)

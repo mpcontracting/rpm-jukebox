@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import javafx.scene.input.KeyCode;
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,9 @@ public class ConfirmControllerTest extends AbstractGUITest {
 
     private ConfirmView spyConfirmView;
 
+    @SneakyThrows
     @PostConstruct
-    public void constructView() throws Exception {
+    public void constructView() {
         spyConfirmView = spy(confirmView);
 
         setField(confirmController, "confirmView", spyConfirmView);
@@ -63,7 +65,7 @@ public class ConfirmControllerTest extends AbstractGUITest {
     }
 
     @Test
-    public void shouldPressEnterKeyOnFocusedOkButton() throws Exception {
+    public void shouldPressEnterKeyOnFocusedOkButton() {
         Runnable mockOkRunnable = mock(Runnable.class);
         confirmController.setRunnables(mockOkRunnable, null);
         setOkFocused();
@@ -75,7 +77,7 @@ public class ConfirmControllerTest extends AbstractGUITest {
     }
 
     @Test
-    public void shouldPressNonEnterKeyOnFocusedOkButton() throws Exception {
+    public void shouldPressNonEnterKeyOnFocusedOkButton() {
         Runnable mockOkRunnable = mock(Runnable.class);
         confirmController.setRunnables(mockOkRunnable, null);
         setOkFocused();
@@ -107,7 +109,7 @@ public class ConfirmControllerTest extends AbstractGUITest {
     }
 
     @Test
-    public void shouldPressEnterKeyOnFocusedCancelButton() throws Exception {
+    public void shouldPressEnterKeyOnFocusedCancelButton() {
         Runnable mockCancelRunnable = mock(Runnable.class);
         confirmController.setRunnables(null, mockCancelRunnable);
         setOkFocused();
@@ -119,7 +121,7 @@ public class ConfirmControllerTest extends AbstractGUITest {
     }
 
     @Test
-    public void shouldPressNonEnterKeyOnFocusedCancelButton() throws Exception {
+    public void shouldPressNonEnterKeyOnFocusedCancelButton() {
         Runnable mockCancelRunnable = mock(Runnable.class);
         confirmController.setRunnables(null, mockCancelRunnable);
         setOkFocused();
@@ -130,7 +132,8 @@ public class ConfirmControllerTest extends AbstractGUITest {
         verify(spyConfirmView, never()).close();
     }
 
-    private void setOkFocused() throws Exception {
+    @SneakyThrows
+    private void setOkFocused() {
         CountDownLatch latch = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
