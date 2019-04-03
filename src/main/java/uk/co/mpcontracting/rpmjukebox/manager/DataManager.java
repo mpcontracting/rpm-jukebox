@@ -218,7 +218,7 @@ public class DataManager implements Constants {
         }
 
         try {
-            return toTitleCase(genre.replaceAll("&amp;", "&"));
+            return toTitleCase(genre.replaceAll("&amp;", "&")).trim();
         } catch (Exception e) {
             return UNSPECIFIED_GENRE;
         }
