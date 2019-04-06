@@ -47,7 +47,7 @@ public class UpdateManager extends EventAwareObject implements Constants {
         log.debug("Version url - {}", appProperties.getVersionUrl());
 
         try {
-            HttpURLConnection connection = (HttpURLConnection)internetManager.openConnection(
+            HttpURLConnection connection = (HttpURLConnection) internetManager.openConnection(
                     new URL(appProperties.getVersionUrl()));
 
             if (connection.getResponseCode() == 200) {

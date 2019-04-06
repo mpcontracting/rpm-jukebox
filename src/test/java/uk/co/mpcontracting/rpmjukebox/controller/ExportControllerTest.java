@@ -124,7 +124,7 @@ public class ExportControllerTest extends AbstractGUITest {
 
         @SuppressWarnings("unchecked")
         Set<Integer> playlistsToExport = (Set<Integer>) getField(spyExportController,
-            "playlistsToExport");
+                "playlistsToExport");
 
         assertThat(playlistsToExport).hasSize(2);
         assertThat(requireNonNull(playlistsToExport).toString()).isEqualTo("[-2, 1]");
@@ -155,7 +155,7 @@ public class ExportControllerTest extends AbstractGUITest {
 
         @SuppressWarnings("unchecked")
         Set<Integer> playlistsToExport = (Set<Integer>) getField(spyExportController,
-            "playlistsToExport");
+                "playlistsToExport");
 
         assertThat(playlistsToExport).hasSize(1);
         assertThat(requireNonNull(playlistsToExport).toString()).isEqualTo("[1]");
@@ -214,7 +214,7 @@ public class ExportControllerTest extends AbstractGUITest {
 
         FileWriter mockFileWriter = mock(FileWriter.class);
         doThrow(new RuntimeException("ExportControllerTest.shouldClickOkButtonWithExceptionThrownFromFileWriter()"))
-            .when(mockFileWriter).write(anyString());
+                .when(mockFileWriter).write(anyString());
         doReturn(mockFileWriter).when(spyExportController).constructFileWriter(any());
 
         spyExportController.handleOkButtonAction();

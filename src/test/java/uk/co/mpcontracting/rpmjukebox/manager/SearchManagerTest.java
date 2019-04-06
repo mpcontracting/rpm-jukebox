@@ -292,7 +292,7 @@ public class SearchManagerTest implements Constants {
     public void shouldThrowExceptionOnInitialise() {
         try {
             doThrow(new RuntimeException("SearchManagerTest.shouldThrowExceptionOnInitialise()")).when(spySearchManager)
-                .indexData();
+                    .indexData();
             doReturn(false).when(spySearchManager).isIndexValid(any());
 
             assertThatThrownBy(() -> spySearchManager.initialise()).isInstanceOf(RuntimeException.class);
@@ -324,7 +324,7 @@ public class SearchManagerTest implements Constants {
         IndexSearcher mockIndexSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockIndexSearcher);
         doThrow(new RuntimeException("SearchManagerTest.shouldReturnIndexValidWhenExceptionOnRelease()"))
-            .when(mockArtistManager).release(mockIndexSearcher);
+                .when(mockArtistManager).release(mockIndexSearcher);
 
         List<Track> tracks = new ArrayList<>();
         tracks.add(mock(Track.class));
@@ -369,7 +369,7 @@ public class SearchManagerTest implements Constants {
         when(mockArtistManager.acquire()).thenReturn(mockIndexSearcher);
         doNothing().when(mockArtistManager).release(mockIndexSearcher);
         doThrow(new RuntimeException("SearchManagerTest.shouldReturnIndexInvalidOnException()")).when(spySearchManager)
-            .search(any());
+                .search(any());
 
         boolean isValid = spySearchManager.isIndexValid(mockArtistManager);
 
@@ -394,7 +394,7 @@ public class SearchManagerTest implements Constants {
     @SneakyThrows
     public void shouldIndexDataButNotCommitOnException() {
         doThrow(new RuntimeException("SearchManagerTest.shouldIndexDataButNotCommitOnException()"))
-            .when(mockArtistWriter).commit();
+                .when(mockArtistWriter).commit();
 
         spySearchManager.indexData();
 
@@ -431,7 +431,7 @@ public class SearchManagerTest implements Constants {
     @SneakyThrows
     public void shouldNotAddArtistOnException() {
         doThrow(new RuntimeException("SearchManagerTest.shouldNotAddArtistOnException()")).when(mockArtistWriter)
-            .addDocument(any());
+                .addDocument(any());
 
         spySearchManager.addArtist(generateArtist(1));
 
@@ -492,7 +492,7 @@ public class SearchManagerTest implements Constants {
     @SneakyThrows
     public void shouldNotAddTrackOnException() {
         doThrow(new RuntimeException("SearchManagerTest.shouldNotAddTrackOnException()")).when(mockTrackWriter)
-            .addDocument(any());
+                .addDocument(any());
 
         spySearchManager.addTrack(generateTrack(1, "Genre 1", "Genre 2"));
 
@@ -519,7 +519,7 @@ public class SearchManagerTest implements Constants {
         when(mockLeafReaderContext.reader()).thenReturn(mockLeafReader);
 
         Iterator<BytesRef> bytesRefIterator = Arrays
-            .asList(new BytesRef("Ref 1"), new BytesRef("Ref 1"), new BytesRef("Ref 2")).iterator();
+                .asList(new BytesRef("Ref 1"), new BytesRef("Ref 1"), new BytesRef("Ref 2")).iterator();
         Terms mockTerms = mock(Terms.class);
         when(mockLeafReader.terms(anyString())).thenReturn(mockTerms);
         when(mockTerms.iterator()).thenReturn(new TestTermsEnum(bytesRefIterator));
@@ -565,7 +565,7 @@ public class SearchManagerTest implements Constants {
     @SneakyThrows
     public void shouldGetEmptyDistinctTrackFieldValuesWhenExceptionThrown() {
         doThrow(new RuntimeException("SearchManagerTest.shouldGetEmptyDistinctTrackFieldValuesWhenExceptionThrown()"))
-            .when(mockTrackManager).acquire();
+                .when(mockTrackManager).acquire();
 
         List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
 
@@ -576,7 +576,7 @@ public class SearchManagerTest implements Constants {
     @SneakyThrows
     public void shouldGetDistinctTrackFieldValuesIsExceptionThrownOnRelease() {
         doThrow(new RuntimeException("SearchManagerTest.shouldGetDistinctTrackFieldValuesIsExceptionThrownOnRelease()"))
-            .when(mockTrackManager).release(any());
+                .when(mockTrackManager).release(any());
 
         IndexSearcher mockIndexSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockIndexSearcher);
@@ -592,7 +592,7 @@ public class SearchManagerTest implements Constants {
         when(mockLeafReaderContext.reader()).thenReturn(mockLeafReader);
 
         Iterator<BytesRef> bytesRefIterator = Arrays
-            .asList(new BytesRef("Ref 1"), new BytesRef("Ref 1"), new BytesRef("Ref 2")).iterator();
+                .asList(new BytesRef("Ref 1"), new BytesRef("Ref 1"), new BytesRef("Ref 2")).iterator();
         Terms mockTerms = mock(Terms.class);
         when(mockLeafReader.terms(anyString())).thenReturn(mockTerms);
         when(mockTerms.iterator()).thenReturn(new TestTermsEnum(bytesRefIterator));
@@ -610,9 +610,9 @@ public class SearchManagerTest implements Constants {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
-        ScoreDoc[] scoreDocs = { new ScoreDoc(1, 0), new ScoreDoc(2, 0) };
+        ScoreDoc[] scoreDocs = {new ScoreDoc(1, 0), new ScoreDoc(2, 0)};
         when(mockTrackSearcher.search(any(), anyInt(), any()))
-            .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+                .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
         List<Track> result = spySearchManager.search(new TrackSearch("keywords"));
@@ -691,7 +691,7 @@ public class SearchManagerTest implements Constants {
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetEmptySearchResultsOnException()"))
-            .when(mockTrackSearcher).search(any(), anyInt(), any());
+                .when(mockTrackSearcher).search(any(), anyInt(), any());
 
         List<Track> result = spySearchManager.search(new TrackSearch("keywords"));
 
@@ -704,13 +704,13 @@ public class SearchManagerTest implements Constants {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
-        ScoreDoc[] scoreDocs = { new ScoreDoc(1, 0), new ScoreDoc(2, 0) };
+        ScoreDoc[] scoreDocs = {new ScoreDoc(1, 0), new ScoreDoc(2, 0)};
         when(mockTrackSearcher.search(any(), anyInt(), any()))
-            .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+                .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetSearchResultsWhenExceptionThrownOnRelease()"))
-            .when(mockTrackManager).release(any());
+                .when(mockTrackManager).release(any());
 
         List<Track> result = spySearchManager.search(new TrackSearch("keywords"));
 
@@ -738,7 +738,7 @@ public class SearchManagerTest implements Constants {
 
         setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
         setField(spySearchManager, "random",
-            new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
+                new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
 
         List<Track> result = spySearchManager.getShuffledPlaylist(3, null);
 
@@ -770,7 +770,7 @@ public class SearchManagerTest implements Constants {
 
         setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
         setField(spySearchManager, "random",
-            new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
+                new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
 
         List<Track> result = spySearchManager.getShuffledPlaylist(3, "2001");
 
@@ -802,10 +802,10 @@ public class SearchManagerTest implements Constants {
 
         setField(spySearchManager, "executorService", Executors.newSingleThreadExecutor());
         setField(spySearchManager, "random",
-            new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
+                new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes()));
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetShuffledPlaylistWhenExceptionThrownOnRelease()"))
-            .when(mockTrackManager).release(any());
+                .when(mockTrackManager).release(any());
 
         List<Track> result = spySearchManager.getShuffledPlaylist(3, null);
 
@@ -862,7 +862,7 @@ public class SearchManagerTest implements Constants {
         when(mockIndexReader.maxDoc()).thenReturn(100);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetEmptyShuffledPlaylistOnException()"))
-            .when(mockTrackSearcher).search(any(), anyInt());
+                .when(mockTrackSearcher).search(any(), anyInt());
 
         List<Track> result = spySearchManager.getShuffledPlaylist(3, null);
 
@@ -876,7 +876,7 @@ public class SearchManagerTest implements Constants {
         when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
 
         when(mockArtistSearcher.search(any(), anyInt()))
-            .thenReturn(new TopDocs(1, new ScoreDoc[] { new ScoreDoc(1, 0) }, 0));
+                .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
         setArtistSearcherDocuments(mockArtistSearcher);
 
         Artist artist = spySearchManager.getArtistById("123").orElse(null);
@@ -896,11 +896,11 @@ public class SearchManagerTest implements Constants {
         when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
 
         when(mockArtistSearcher.search(any(), anyInt()))
-            .thenReturn(new TopDocs(1, new ScoreDoc[] { new ScoreDoc(1, 0) }, 0));
+                .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
         setArtistSearcherDocuments(mockArtistSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetArtistByIdWhenExceptionThrownOnRelease()"))
-            .when(mockArtistManager).release(any());
+                .when(mockArtistManager).release(any());
 
         Artist artist = spySearchManager.getArtistById("123").orElse(null);
 
@@ -918,7 +918,7 @@ public class SearchManagerTest implements Constants {
         IndexSearcher mockArtistSearcher = mock(IndexSearcher.class);
         when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
 
-        when(mockArtistSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[] {}, 0));
+        when(mockArtistSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[]{}, 0));
         setArtistSearcherDocuments(mockArtistSearcher);
 
         Artist artist = spySearchManager.getArtistById("123").orElse(null);
@@ -933,7 +933,7 @@ public class SearchManagerTest implements Constants {
         when(mockArtistManager.acquire()).thenReturn(mockArtistSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldFailToGetArtistByIdOnException()"))
-            .when(mockArtistSearcher).search(any(), anyInt());
+                .when(mockArtistSearcher).search(any(), anyInt());
 
         Artist artist = spySearchManager.getArtistById("123").orElse(null);
 
@@ -954,7 +954,7 @@ public class SearchManagerTest implements Constants {
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
         when(mockTrackSearcher.search(any(), anyInt()))
-            .thenReturn(new TopDocs(1, new ScoreDoc[] { new ScoreDoc(1, 0) }, 0));
+                .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
         Track track = spySearchManager.getTrackById("123").orElse(null);
@@ -984,11 +984,11 @@ public class SearchManagerTest implements Constants {
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
         when(mockTrackSearcher.search(any(), anyInt()))
-            .thenReturn(new TopDocs(1, new ScoreDoc[] { new ScoreDoc(1, 0) }, 0));
+                .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetTrackByIdWhenExceptionThrownOnRelease()"))
-            .when(mockTrackManager).release(any());
+                .when(mockTrackManager).release(any());
 
         Track track = spySearchManager.getTrackById("123").orElse(null);
 
@@ -1016,7 +1016,7 @@ public class SearchManagerTest implements Constants {
         IndexSearcher mockTrackSearcher = mock(IndexSearcher.class);
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
-        when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[] {}, 0));
+        when(mockTrackSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[]{}, 0));
         setArtistSearcherDocuments(mockTrackSearcher);
 
         Track track = spySearchManager.getTrackById("123").orElse(null);
@@ -1031,7 +1031,7 @@ public class SearchManagerTest implements Constants {
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldFailToGetTrackByIdOnException()")).when(mockTrackSearcher)
-            .search(any(), anyInt());
+                .search(any(), anyInt());
 
         Track track = spySearchManager.getTrackById("123").orElse(null);
 
@@ -1058,7 +1058,7 @@ public class SearchManagerTest implements Constants {
         ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(mockTrackSearcher.search(any(), anyInt(), any()))
-            .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+                .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
         List<Track> tracks = spySearchManager.getAlbumById("123").orElse(null);
@@ -1079,11 +1079,11 @@ public class SearchManagerTest implements Constants {
         ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(mockTrackSearcher.search(any(), anyInt(), any()))
-            .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+                .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
         setTrackSearcherDocuments(mockTrackSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetAlbumByIdWhenExceptionThrownOnRelease()"))
-            .when(mockTrackManager).release(any());
+                .when(mockTrackManager).release(any());
 
         List<Track> tracks = spySearchManager.getAlbumById("123").orElse(null);
 
@@ -1097,7 +1097,7 @@ public class SearchManagerTest implements Constants {
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
         when(mockTrackSearcher.search(any(), anyInt(), any()))
-            .thenReturn(new TopFieldDocs(0, new ScoreDoc[] {}, null, 0));
+                .thenReturn(new TopFieldDocs(0, new ScoreDoc[]{}, null, 0));
         setArtistSearcherDocuments(mockTrackSearcher);
 
         List<Track> tracks = spySearchManager.getAlbumById("123").orElse(null);
@@ -1112,7 +1112,7 @@ public class SearchManagerTest implements Constants {
         when(mockTrackManager.acquire()).thenReturn(mockTrackSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldFailToGetAlbumByIdOnException()")).when(mockTrackSearcher)
-            .search(any(), anyInt(), any());
+                .search(any(), anyInt(), any());
 
         List<Track> tracks = spySearchManager.getAlbumById("123").orElse(null);
 
@@ -1163,7 +1163,7 @@ public class SearchManagerTest implements Constants {
             when(document.get(TrackField.LOCATION.name())).thenReturn("Location " + i);
             when(document.get(TrackField.ISPREFERRED.name())).thenReturn((i % 2 == 0) ? "false" : "true");
             when(document.getValues(TrackField.GENRE.name()))
-                .thenReturn(new String[] { "Genre 1 " + i, "Genre 2 " + i });
+                    .thenReturn(new String[]{"Genre 1 " + i, "Genre 2 " + i});
 
             when(mockTrackSearcher.doc(i)).thenReturn(document);
         }

@@ -18,10 +18,10 @@ public abstract class StringHelper {
 
             if (duration.hours > 0) {
                 return String.format("%d:%02d:%02d/%d:%02d:%02d", elapsed.hours, elapsed.minutes, elapsed.seconds,
-                    duration.hours, duration.minutes, duration.seconds);
+                        duration.hours, duration.minutes, duration.seconds);
             } else {
                 return String.format("%02d:%02d/%02d:%02d", elapsed.minutes, elapsed.seconds, duration.minutes,
-                    duration.seconds);
+                        duration.seconds);
             }
         } else {
             if (elapsed.hours > 0) {
@@ -33,7 +33,7 @@ public abstract class StringHelper {
     }
 
     private static HoursMinutesSeconds getHoursMinutesSeconds(Duration duration) {
-        int intDuration = (int)Math.floor(duration.toSeconds());
+        int intDuration = (int) Math.floor(duration.toSeconds());
         int hours = intDuration / (60 * 60);
 
         if (hours > 0) {

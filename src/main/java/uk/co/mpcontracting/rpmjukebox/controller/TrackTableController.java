@@ -115,13 +115,13 @@ public class TrackTableController extends EventAwareObject {
         switch (event) {
             case PLAYLIST_CONTENT_UPDATED: {
                 if (payload != null && payload.length > 0) {
-                    Integer playlistId = (Integer)payload[0];
+                    Integer playlistId = (Integer) payload[0];
 
                     if (playlistId.equals(visiblePlaylistId)) {
                         updateObservableTracks(playlistId);
 
                         if (payload.length > 1) {
-                            trackTableView.highlightTrack((Track)payload[1]);
+                            trackTableView.highlightTrack((Track) payload[1]);
                         }
                     }
                 }
@@ -132,7 +132,7 @@ public class TrackTableController extends EventAwareObject {
             case PLAYLIST_DELETED:
             case PLAYLIST_SELECTED: {
                 if (payload != null && payload.length > 0) {
-                    Integer playlistId = (Integer)payload[0];
+                    Integer playlistId = (Integer) payload[0];
 
                     if (!playlistId.equals(visiblePlaylistId)) {
                         visiblePlaylistId = playlistId;
@@ -146,7 +146,7 @@ public class TrackTableController extends EventAwareObject {
             }
             case TRACK_QUEUED_FOR_PLAYING: {
                 if (payload != null && payload.length > 0) {
-                    Track track = (Track)payload[0];
+                    Track track = (Track) payload[0];
 
                     // Set the track as selected in the table view
                     if (track.getPlaylistId() == visiblePlaylistId &&

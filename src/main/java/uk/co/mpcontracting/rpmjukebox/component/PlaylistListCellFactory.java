@@ -21,7 +21,7 @@ import static java.util.Optional.ofNullable;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_SELECTED;
 
 public class PlaylistListCellFactory extends EventAwareObject
-    implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
+        implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
 
     private MessageManager messageManager;
     private PlaylistManager playlistManager;
@@ -74,7 +74,7 @@ public class PlaylistListCellFactory extends EventAwareObject
         listCell.setContextMenu(contextMenu);
         listCell.setOnContextMenuRequested(event -> {
             @SuppressWarnings("unchecked")
-            ListCell<Playlist> sourceCell = (ListCell<Playlist>)event.getSource();
+            ListCell<Playlist> sourceCell = (ListCell<Playlist>) event.getSource();
 
             if (listView.getItems().size() > sourceCell.getIndex()) {
                 Playlist playlist = listView.getItems().get(sourceCell.getIndex());
@@ -124,7 +124,7 @@ public class PlaylistListCellFactory extends EventAwareObject
 
             if (dragboard.hasContent(DND_TRACK_DATA_FORMAT)) {
                 playlistManager.addTrackToPlaylist(listCell.getItem().getPlaylistId(),
-                    ((Track)dragboard.getContent(DND_TRACK_DATA_FORMAT)).clone());
+                        ((Track) dragboard.getContent(DND_TRACK_DATA_FORMAT)).clone());
 
                 event.setDropCompleted(true);
             }

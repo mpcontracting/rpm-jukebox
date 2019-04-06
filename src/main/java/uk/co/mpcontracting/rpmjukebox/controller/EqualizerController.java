@@ -37,12 +37,12 @@ public class EqualizerController extends EventAwareObject {
         log.info("Initialising EqualizerController");
 
         sliderHbox.getChildren().forEach(node -> {
-            final Slider slider = (Slider)node;
+            final Slider slider = (Slider) node;
 
             slider.valueProperty().addListener(observable -> {
                 if (slider.isValueChanging()) {
                     fireEvent(Event.EQUALIZER_UPDATED, Integer.parseInt(slider.getId().substring(2)),
-                        slider.getValue());
+                            slider.getValue());
                 }
             });
         });
@@ -52,7 +52,7 @@ public class EqualizerController extends EventAwareObject {
         Equalizer equalizer = mediaManager.getEqualizer();
 
         sliderHbox.getChildren().forEach(node -> {
-            final Slider slider = (Slider)node;
+            final Slider slider = (Slider) node;
 
             slider.setValue(equalizer.getGain(Integer.parseInt(slider.getId().substring(2))));
         });
@@ -66,7 +66,7 @@ public class EqualizerController extends EventAwareObject {
     @FXML
     protected void handleResetButtonAction() {
         sliderHbox.getChildren().forEach(node -> {
-            final Slider slider = (Slider)node;
+            final Slider slider = (Slider) node;
 
             slider.setValue(0);
 

@@ -38,11 +38,11 @@ public class CachingDataStreamTest {
     @SneakyThrows
     public void shouldWriteToOutputStreamAlreadyCached() {
         byte[] array = new byte[20000];
-        Arrays.fill(array, (byte)255);
+        Arrays.fill(array, (byte) 255);
 
         ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
         CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
-            mockAsyncContext, mockServletOutputStream);
+                mockAsyncContext, mockServletOutputStream);
         when(mockServletOutputStream.isReady()).thenReturn(true);
 
         dataStream.onWritePossible();
@@ -56,7 +56,7 @@ public class CachingDataStreamTest {
     @SneakyThrows
     public void shouldWriteToOutputStreamNotCached() {
         byte[] array = new byte[20000];
-        Arrays.fill(array, (byte)255);
+        Arrays.fill(array, (byte) 255);
 
         ApplicationContext originalContext = (ApplicationContext) getField(ContextHelper.class, "applicationContext");
         ApplicationContext mockContext = mock(ApplicationContext.class);
@@ -69,7 +69,7 @@ public class CachingDataStreamTest {
             ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
 
             CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", false, spyInputStream,
-                mockAsyncContext, mockServletOutputStream);
+                    mockAsyncContext, mockServletOutputStream);
             when(mockServletOutputStream.isReady()).thenReturn(true);
 
             dataStream.onWritePossible();
@@ -87,11 +87,11 @@ public class CachingDataStreamTest {
     @SneakyThrows
     public void shouldNotWriteToOutputStreamWhenNotReady() {
         byte[] array = new byte[20000];
-        Arrays.fill(array, (byte)255);
+        Arrays.fill(array, (byte) 255);
 
         ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
         CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
-            mockAsyncContext, mockServletOutputStream);
+                mockAsyncContext, mockServletOutputStream);
         when(mockServletOutputStream.isReady()).thenReturn(false);
 
         dataStream.onWritePossible();
@@ -105,11 +105,11 @@ public class CachingDataStreamTest {
     @SneakyThrows
     public void shouldDealWithAnError() {
         byte[] array = new byte[20000];
-        Arrays.fill(array, (byte)255);
+        Arrays.fill(array, (byte) 255);
 
         ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
         CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
-            mockAsyncContext, mockServletOutputStream);
+                mockAsyncContext, mockServletOutputStream);
 
         dataStream.onError(new Exception("CachingDataStreamTest.shouldDealWithAnError()"));
 
@@ -122,16 +122,16 @@ public class CachingDataStreamTest {
     @SneakyThrows
     public void shouldDealWithAnErrorWhenAsyncContextThrowsAnException() {
         byte[] array = new byte[20000];
-        Arrays.fill(array, (byte)255);
+        Arrays.fill(array, (byte) 255);
 
         ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
         CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
-            mockAsyncContext, mockServletOutputStream);
+                mockAsyncContext, mockServletOutputStream);
         doThrow(new RuntimeException("CachingDataStreamTest.shouldDealWithAnErrorWhenAsyncContextThrowsAnException()"))
-            .when(mockAsyncContext).complete();
+                .when(mockAsyncContext).complete();
 
         dataStream.onError(
-            new EofException("CachingDataStreamTest.shouldDealWithAnErrorWhenAsyncContextThrowsAnException()"));
+                new EofException("CachingDataStreamTest.shouldDealWithAnErrorWhenAsyncContextThrowsAnException()"));
 
         verify(mockAsyncContext, times(1)).complete();
         verify(mockServletOutputStream, never()).write(any(), anyInt(), anyInt());

@@ -61,7 +61,7 @@ public class NativeManagerTest {
             nativeManager.initialise();
 
             NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
-                "nsUserNotificationsBridge");
+                    "nsUserNotificationsBridge");
 
             assertThat(result).isNotNull();
         }
@@ -80,7 +80,7 @@ public class NativeManagerTest {
             nativeManager.initialise();
 
             NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
-                "nsUserNotificationsBridge");
+                    "nsUserNotificationsBridge");
 
             assertThat(result).isNotNull();
         }
@@ -93,7 +93,7 @@ public class NativeManagerTest {
         nativeManager.initialise();
 
         NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
-            "nsUserNotificationsBridge");
+                "nsUserNotificationsBridge");
 
         assertThat(result).isNull();
     }
@@ -105,7 +105,7 @@ public class NativeManagerTest {
         nativeManager.initialise();
 
         NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
-            "nsUserNotificationsBridge");
+                "nsUserNotificationsBridge");
 
         assertThat(result).isNull();
     }

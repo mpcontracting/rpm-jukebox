@@ -44,14 +44,14 @@ public class JettyServer implements Constants {
         ServerConnector connector = constructServerConnector(server);
         connector.setPort(appProperties.getJettyPort());
 
-        server.setConnectors(new Connector[] { connector });
+        server.setConnectors(new Connector[]{connector});
 
         ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
         context.addServlet(CachingMediaProxyServlet.class, "/cache");
 
         HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(new Handler[] { context, new DefaultHandler() });
+        handlers.setHandlers(new Handler[]{context, new DefaultHandler()});
 
         server.setHandler(handlers);
 

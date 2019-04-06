@@ -386,7 +386,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
         verify(mockConfirmView, times(1))
-            .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
+                .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
         verify(mockConfirmView, times(1)).setRunnables(okRunnable.capture(), any());
         verify(mockConfirmView, times(1)).show(anyBoolean());
 
@@ -672,7 +672,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
 
         doThrow(new RuntimeException("MainPanelControllerTest.shouldClickImportPlaylistButtonWhenExceptionThrown()"))
-            .when(spyMainPanelController).constructFileReader(any());
+                .when(spyMainPanelController).constructFileReader(any());
 
         CountDownLatch latch2 = new CountDownLatch(1);
 
@@ -715,7 +715,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Test
     public void shouldClickPreviousButtonWhenPlayingLessThanEqualCutoff() {
-        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn((double)appProperties.getPreviousSecondsCutoff());
+        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn((double) appProperties.getPreviousSecondsCutoff());
 
         clickOnNode("#previousButton");
 
@@ -917,7 +917,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         latch.await(2000, TimeUnit.MILLISECONDS);
 
         @SuppressWarnings("unchecked")
-        List<Track> mockTracks = (List<Track>)mock(List.class);
+        List<Track> mockTracks = (List<Track>) mock(List.class);
 
         when(mockSearchManager.getShuffledPlaylist(anyInt(), anyString())).thenReturn(mockTracks);
 
@@ -945,7 +945,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         latch.await(2000, TimeUnit.MILLISECONDS);
 
         @SuppressWarnings("unchecked")
-        List<Track> mockTracks = (List<Track>)mock(List.class);
+        List<Track> mockTracks = (List<Track>) mock(List.class);
 
         when(mockSearchManager.getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), null)).thenReturn(mockTracks);
 
@@ -975,7 +975,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         find("#randomButton").setDisable(true);
 
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
-            new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
+                new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
         when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
         when(mockPlaylistManager.isShuffle()).thenReturn(false);
@@ -1033,7 +1033,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @SneakyThrows
     public void shouldReceiveApplicationInitialisedWithEmptyYearList() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
-            new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
+                new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
         when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
         when(mockPlaylistManager.isShuffle()).thenReturn(false);
@@ -1059,7 +1059,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @SneakyThrows
     public void shouldReceiveApplicationInitialisedWithYearList() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
-            new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
+                new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
         when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
         when(mockPlaylistManager.isShuffle()).thenReturn(false);
@@ -1551,7 +1551,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(false);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, (Object[])null);
+            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, (Object[]) null);
 
             latch.countDown();
         });
@@ -1898,7 +1898,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
-            .thenReturn("http://www.example.com/image.png");
+                .thenReturn("http://www.example.com/image.png");
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -1938,7 +1938,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
-            .thenReturn("http://www.example.com/image.png");
+                .thenReturn("http://www.example.com/image.png");
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -1978,7 +1978,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
-            .thenReturn("http://www.example.com/image.png");
+                .thenReturn("http://www.example.com/image.png");
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -2018,7 +2018,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
-            .thenReturn("http://www.example.com/image.png");
+                .thenReturn("http://www.example.com/image.png");
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -2029,7 +2029,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playingAlbumLabel.setText(null);
             playingArtistLabel.setText(null);
 
-            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[])null);
+            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[]) null);
 
             latch.countDown();
         });
@@ -2058,7 +2058,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Track track = generateTrack(1);
 
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
-            .thenReturn("http://www.example.com/image.png");
+                .thenReturn("http://www.example.com/image.png");
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -2103,7 +2103,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         latch.await(2000, TimeUnit.MILLISECONDS);
 
         playlistPanelListView.onKeyPressedProperty().get()
-            .handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.BACK_SPACE));
+                .handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.BACK_SPACE));
 
         // Wait for the UI thread
         Thread.sleep(250);
@@ -2111,7 +2111,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
         verify(mockConfirmView, times(1))
-            .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
+                .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
         verify(mockConfirmView, times(1)).setRunnables(okRunnable.capture(), any());
         verify(mockConfirmView, times(1)).show(anyBoolean());
 
@@ -2145,7 +2145,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
         verify(mockConfirmView, times(1))
-            .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
+                .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
         verify(mockConfirmView, times(1)).setRunnables(okRunnable.capture(), any());
         verify(mockConfirmView, times(1)).show(anyBoolean());
 

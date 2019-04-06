@@ -27,7 +27,7 @@ public class TrackFilterTest {
     @Test
     public void shouldInitialiseWithGenre() {
         TrackFilter trackFilter = new TrackFilter("Genre", null);
-        TermsQuery termsQuery = (TermsQuery)trackFilter.getFilter();
+        TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
 
         assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
     }
@@ -35,7 +35,7 @@ public class TrackFilterTest {
     @Test
     public void shouldInitialiseWithYear() {
         TrackFilter trackFilter = new TrackFilter(null, "2000");
-        TermsQuery termsQuery = (TermsQuery)trackFilter.getFilter();
+        TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
 
         assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
     }
@@ -43,7 +43,7 @@ public class TrackFilterTest {
     @Test
     public void shouldInitialiseWithGenreAndYear() {
         TrackFilter trackFilter = new TrackFilter("Genre", "2000");
-        TermsQuery termsQuery = (TermsQuery)trackFilter.getFilter();
+        TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
 
         assertThat(termsQuery.getTermData().size()).isEqualTo(2L);
     }

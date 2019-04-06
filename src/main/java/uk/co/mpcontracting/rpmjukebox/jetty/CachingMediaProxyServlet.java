@@ -27,7 +27,7 @@ public class CachingMediaProxyServlet extends HttpServlet {
 
         try {
             log.debug("Getting file : Cache type - {}, ID - {}, HTTP - {}, URL - {}", cacheType, id,
-                request.getMethod(), url);
+                    request.getMethod(), url);
 
             Optional<File> cachedFile = ContextHelper.getBean(CacheManager.class).readCache(cacheType, id);
 
@@ -39,7 +39,7 @@ public class CachingMediaProxyServlet extends HttpServlet {
                 }
             } else {
                 URL location = new URL(url);
-                HttpURLConnection connection = (HttpURLConnection)ContextHelper.getBean(InternetManager.class)
+                HttpURLConnection connection = (HttpURLConnection) ContextHelper.getBean(InternetManager.class)
                         .openConnection(location);
 
                 if (connection.getResponseCode() == 200) {
@@ -54,12 +54,12 @@ public class CachingMediaProxyServlet extends HttpServlet {
             }
         } catch (Exception e) {
             log.error("Error getting file : Cache type - {}, ID - {}, HTTP - {}, URL - {}", cacheType, id,
-                request.getMethod(), url);
+                    request.getMethod(), url);
         }
     }
 
     private void openDataStream(HttpServletRequest request, HttpServletResponse response, CacheType cacheType,
-        String trackId, boolean isCached, InputStream inputStream) throws IOException {
+                                String trackId, boolean isCached, InputStream inputStream) throws IOException {
         AsyncContext asyncContext = request.startAsync();
         ServletOutputStream outputStream = response.getOutputStream();
         outputStream.setWriteListener(new CachingDataStream(cacheType, trackId, isCached, inputStream,

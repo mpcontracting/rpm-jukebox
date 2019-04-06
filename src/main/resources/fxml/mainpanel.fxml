@@ -11,25 +11,23 @@
     <BorderPane id="searchPanel" minHeight="40.0" prefHeight="40.0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
         <right>
             <HBox>
-                <children>
-                    <HBox styleClass="buttonHbox">
-                        <Button id="newVersionButton" fx:id="newVersionButton" disable="true"
-                                focusTraversable="false" mnemonicParsing="false"
-                                onAction="#handleNewVersionButtonAction" text="%message.newVersionAvailable"
-                                visible="false"/>
-                    </HBox>
-                    <HBox styleClass="buttonHbox">
-                        <ComboBox id="yearFilterComboBox" fx:id="yearFilterComboBox" disable="true"
-                                  prefWidth="90.0">
-                            <tooltip>
-                                <Tooltip text="%tooltip.yearFilter"/>
-                            </tooltip>
-                        </ComboBox>
-                    </HBox>
-                    <HBox id="searchTextHBox">
-                        <TextField id="searchTextField" fx:id="searchTextField" disable="true"/>
-                    </HBox>
-                </children>
+                <HBox styleClass="buttonHbox">
+                    <Button id="newVersionButton" fx:id="newVersionButton" disable="true"
+                            focusTraversable="false" mnemonicParsing="false"
+                            onAction="#handleNewVersionButtonAction" text="%message.newVersionAvailable"
+                            visible="false"/>
+                </HBox>
+                <HBox styleClass="buttonHbox">
+                    <ComboBox id="yearFilterComboBox" fx:id="yearFilterComboBox" disable="true"
+                              prefWidth="90.0">
+                        <tooltip>
+                            <Tooltip text="%tooltip.yearFilter"/>
+                        </tooltip>
+                    </ComboBox>
+                </HBox>
+                <HBox id="searchTextHBox">
+                    <TextField id="searchTextField" fx:id="searchTextField" disable="true"/>
+                </HBox>
             </HBox>
         </right>
     </BorderPane>
@@ -143,12 +141,10 @@
                            HBox.hgrow="ALWAYS"/>
         <Label id="playTimeLabel" fx:id="playTimeLabel" minWidth="100.0" prefWidth="100.0"/>
         <HBox id="volumeHBox">
-            <children>
-                <Button id="volumeButton" fx:id="volumeButton" disable="true" minWidth="17.0"
-                        mnemonicParsing="false" onAction="#handleVolumeButtonAction" prefHeight="17.0"
-                        prefWidth="17.0"/>
-                <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="70.0" prefWidth="70.0"/>
-            </children>
+            <Button id="volumeButton" fx:id="volumeButton" disable="true" minWidth="17.0"
+                    mnemonicParsing="false" onAction="#handleVolumeButtonAction" prefHeight="17.0"
+                    prefWidth="17.0"/>
+            <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="70.0" prefWidth="70.0"/>
         </HBox>
     </HBox>
     <HBox id="optionsPanel" minHeight="40.0" prefHeight="40.0" prefWidth="105.0" styleClass="border-panel"

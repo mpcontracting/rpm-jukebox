@@ -30,17 +30,17 @@ public class InternetManager extends EventAwareObject {
 
             if (systemSettings.getProxyHost() != null && systemSettings.getProxyPort() != null) {
                 log.debug("Using proxy : Host - {}, Port - {}", systemSettings.getProxyHost(),
-                    systemSettings.getProxyPort());
+                        systemSettings.getProxyPort());
 
-                HttpURLConnection connection = (HttpURLConnection)url.openConnection(new Proxy(Proxy.Type.HTTP,
-                    new InetSocketAddress(systemSettings.getProxyHost(), systemSettings.getProxyPort())));
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection(new Proxy(Proxy.Type.HTTP,
+                        new InetSocketAddress(systemSettings.getProxyHost(), systemSettings.getProxyPort())));
 
                 ofNullable(systemSettings.getProxyRequiresAuthentication()).ifPresent(requiresAuthentication -> {
                     if (requiresAuthentication) {
                         log.debug("Using proxy authentication for user - {}", systemSettings.getProxyUsername());
 
                         String authorization = systemSettings.getProxyUsername() + ":"
-                            + systemSettings.getProxyPassword();
+                                + systemSettings.getProxyPassword();
                         String authToken = Base64.getEncoder().encodeToString(authorization.getBytes());
 
                         connection.setRequestProperty("Proxy-Authorization", "Basic " + authToken);

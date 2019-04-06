@@ -89,7 +89,7 @@ public class ExportController implements Constants {
 
         // Hide the table header
         playlistTableView.widthProperty().addListener((observable, oldValue, newValue) -> {
-            Pane header = (Pane)playlistTableView.lookup("TableHeaderRow");
+            Pane header = (Pane) playlistTableView.lookup("TableHeaderRow");
             header.setMaxHeight(0);
             header.setMinHeight(0);
             header.setPrefHeight(0);
@@ -123,7 +123,7 @@ public class ExportController implements Constants {
                 PlaylistTableModel tableModel = new PlaylistTableModel(playlist);
 
                 tableModel.getSelected().addListener((observable, oldValue, newValue) ->
-                    setPlaylistToExport(tableModel.getPlaylist().getPlaylistId(), newValue));
+                        setPlaylistToExport(tableModel.getPlaylist().getPlaylistId(), newValue));
 
                 observablePlaylists.add(tableModel);
             }
@@ -150,9 +150,9 @@ public class ExportController implements Constants {
             FileChooser fileChooser = constructFileChooser();
             fileChooser.setTitle(messageManager.getMessage(MESSAGE_EXPORT_PLAYLIST_TITLE));
             fileChooser.getExtensionFilters()
-                .add(new ExtensionFilter(
-                    messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter),
-                    playlistExtensionFilter));
+                    .add(new ExtensionFilter(
+                            messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter),
+                            playlistExtensionFilter));
 
             File file = fileChooser.showSaveDialog(RpmJukebox.getStage());
 

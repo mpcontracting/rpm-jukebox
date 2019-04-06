@@ -31,7 +31,7 @@ public abstract class AbstractGUITest extends GuiTest {
         System.setProperty("directory.config", ".rpmjukeboxtest");
         System.setProperty("spring.profiles.active", "test");
         setField(RpmJukebox.class, "configDirectory",
-            new File(System.getProperty("user.home") + File.separator + ".rpmjukeboxtest"));
+                new File(System.getProperty("user.home") + File.separator + ".rpmjukeboxtest"));
         Locale.setDefault(Locale.UK);
     }
 

@@ -4,7 +4,8 @@ import javafx.scene.control.TextField;
 
 public abstract class ValidationHelper implements Constants {
 
-    private ValidationHelper() {}
+    private ValidationHelper() {
+    }
 
     public static String nullAsBlank(String string) {
         if (string == null) {

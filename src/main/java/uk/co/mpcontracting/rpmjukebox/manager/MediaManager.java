@@ -59,11 +59,11 @@ public class MediaManager extends EventAwareObject implements Constants {
 
     void playTrack(Track track) {
         log.debug("Playing track : {} - {} - {} - {}", track.getArtistName(), track.getAlbumName(),
-            track.getTrackName(), track.getLocation());
+                track.getTrackName(), track.getLocation());
 
         currentTrack = track;
         currentMedia = new Media(cacheManager.constructInternalUrl(CacheType.TRACK, track.getTrackId(),
-            track.getLocation().replace("%2Emp3", ".mp3")));
+                track.getLocation().replace("%2Emp3", ".mp3")));
 
         createNewMediaPlayer();
 
@@ -238,7 +238,7 @@ public class MediaManager extends EventAwareObject implements Constants {
     @Override
     public void eventReceived(Event event, Object... payload) {
         if (event == EQUALIZER_UPDATED) {
-            setEqualizerGain((Integer)payload[0], (Double)payload[1]);
+            setEqualizerGain((Integer) payload[0], (Double) payload[1]);
         }
     }
 }

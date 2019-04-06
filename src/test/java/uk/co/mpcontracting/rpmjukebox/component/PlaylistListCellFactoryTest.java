@@ -90,7 +90,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
         listCell.setItem(playlist);
 
         listCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
 
         verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_SELECTED, playlist.getPlaylistId());
     }
@@ -104,7 +104,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
         listCell.setItem(playlist);
 
         listCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 2));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 2));
 
         verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_SELECTED, playlist.getPlaylistId());
     }
@@ -125,7 +125,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
         listCell.setItem(null);
 
         listCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
 
         verify(getMockEventManager(), never()).fireEvent(any());
     }
@@ -153,7 +153,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
         verify(mockMainPanelController, times(1)).showConfirmView(anyString(), anyBoolean(), okRunnable.capture(),
-            any());
+                any());
 
         okRunnable.getValue().run();
 
@@ -350,7 +350,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_EXITED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_EXITED, mockDragboard, TransferMode.COPY, new Object()));
 
         listCell.onDragExitedProperty().get().handle(spyDragEvent);
 
@@ -371,7 +371,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
         when(mockDragboard.getContent(DND_TRACK_DATA_FORMAT)).thenReturn(mockTrack);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
 
         listCell.onDragDroppedProperty().get().handle(spyDragEvent);
 
@@ -389,7 +389,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
 
         listCell.onDragDroppedProperty().get().handle(spyDragEvent);
 

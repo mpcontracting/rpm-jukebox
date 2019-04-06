@@ -46,7 +46,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         TrackTableModel trackTableModel = new TrackTableModel(track);
 
         @SuppressWarnings("unchecked")
-        TableRow<TrackTableModel> mockTableRow = (TableRow<TrackTableModel>)mock(TableRow.class);
+        TableRow<TrackTableModel> mockTableRow = (TableRow<TrackTableModel>) mock(TableRow.class);
         when(mockTableRow.getItem()).thenReturn(trackTableModel);
 
         ReflectionTestUtils.invokeMethod(tableCell, "setTableRow", mockTableRow);
@@ -54,7 +54,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         when(mockPlaylistManager.isTrackInPlaylist(anyInt(), anyString())).thenReturn(true);
 
         tableCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
         verify(mockPlaylistManager, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
         verify(mockPlaylistManager, times(1)).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
@@ -71,7 +71,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         TrackTableModel trackTableModel = new TrackTableModel(track);
 
         @SuppressWarnings("unchecked")
-        TableRow<TrackTableModel> mockTableRow = (TableRow<TrackTableModel>)mock(TableRow.class);
+        TableRow<TrackTableModel> mockTableRow = (TableRow<TrackTableModel>) mock(TableRow.class);
         when(mockTableRow.getItem()).thenReturn(trackTableModel);
 
         ReflectionTestUtils.invokeMethod(tableCell, "setTableRow", mockTableRow);
@@ -79,7 +79,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         when(mockPlaylistManager.isTrackInPlaylist(anyInt(), anyString())).thenReturn(false);
 
         tableCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
         verify(mockPlaylistManager, times(1)).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
         verify(mockPlaylistManager, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
@@ -95,7 +95,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         track.setPlaylistId(999);
 
         tableCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
         verify(mockPlaylistManager, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
         verify(mockPlaylistManager, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
@@ -111,7 +111,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         track.setPlaylistId(999);
 
         tableCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
 
         verify(mockPlaylistManager, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
         verify(mockPlaylistManager, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
@@ -127,7 +127,7 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
         track.setPlaylistId(999);
 
         tableCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
 
         verify(mockPlaylistManager, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
         verify(mockPlaylistManager, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);

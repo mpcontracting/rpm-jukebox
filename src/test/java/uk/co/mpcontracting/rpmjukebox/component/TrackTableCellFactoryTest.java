@@ -49,7 +49,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         updateTableCell(tableCell, track);
 
         tableCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
         verify(getMockEventManager(), times(1)).fireEvent(Event.TRACK_SELECTED, track);
     }
@@ -61,7 +61,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         updateTableCell(tableCell, track);
 
         tableCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
 
         verify(mockPlaylistManager, times(1)).playTrack(track);
     }
@@ -74,7 +74,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         tableCell.setItem(null);
 
         tableCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
         verify(getMockEventManager(), never()).fireEvent(Event.TRACK_SELECTED, track);
     }
@@ -87,7 +87,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         tableCell.setItem(null);
 
         tableCell.onMouseClickedProperty().get()
-            .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
 
         verify(mockPlaylistManager, never()).playTrack(track);
     }
@@ -291,7 +291,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
 
         tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
@@ -326,7 +326,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
 
         tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
@@ -346,7 +346,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
 
         tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
@@ -365,7 +365,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
 
         tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
 
@@ -384,7 +384,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_EXITED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_EXITED, mockDragboard, TransferMode.COPY, new Object()));
 
         tableCell.onDragExitedProperty().get().handle(spyDragEvent);
 
@@ -406,7 +406,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         when(mockDragboard.getContent(DND_TRACK_DATA_FORMAT)).thenReturn(source);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
 
         tableCell.onDragDroppedProperty().get().handle(spyDragEvent);
 
@@ -428,7 +428,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
 
         DragEvent spyDragEvent = spy(
-            getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
+                getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
 
         tableCell.onDragDroppedProperty().get().handle(spyDragEvent);
 

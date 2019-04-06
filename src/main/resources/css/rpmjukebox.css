@@ -1,79 +1,79 @@
 .root {
-	-fx-alignment: center;
-	
-	-jb-background-color: #474747;
-	-jb-border-color: #555555;
-	-jb-foreground-color: #c3c3c3;
-	-jb-error-color: #cf0000;
-	-jb-pressed-opacity: 0.6;
-	
-	/* Button toggle colour 5d9bc3 */
-	
-	-fx-background-color: -jb-background-color;
-	-fx-opacity: 1;
+    -fx-alignment: center;
+
+    -jb-background-color: #474747;
+    -jb-border-color: #555555;
+    -jb-foreground-color: #c3c3c3;
+    -jb-error-color: #cf0000;
+    -jb-pressed-opacity: 0.6;
+
+    /* Button toggle colour 5d9bc3 */
+
+    -fx-background-color: -jb-background-color;
+    -fx-opacity: 1;
 }
 
 /* Standard Component Styles */
 
 .border-panel {
-	-fx-background-color: transparent;
-	-fx-border-color: -jb-border-color;
+    -fx-background-color: transparent;
+    -fx-border-color: -jb-border-color;
     -fx-border-style: solid;
 }
 
 .tooltip {
-	-fx-background-color: -jb-foreground-color;
-	-fx-text-fill: -jb-background-color;
+    -fx-background-color: -jb-foreground-color;
+    -fx-text-fill: -jb-background-color;
 }
 
 .button {
-	-fx-background-repeat: no-repeat;
-	-fx-background-color: transparent;
-	-fx-min-height: 10;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: transparent;
+    -fx-min-height: 10;
 }
 
 .button:pressed {
-	-fx-opacity: -jb-pressed-opacity;
+    -fx-opacity: -jb-pressed-opacity;
 }
 
 .label {
-	-fx-text-fill: -jb-foreground-color;
-	-fx-min-height: 10;
+    -fx-text-fill: -jb-foreground-color;
+    -fx-min-height: 10;
 }
 
 .text-field {
-	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
-	-fx-background-insets: 0, 1, 1;
+    -fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+    -fx-background-insets: 0, 1, 1;
     -fx-background-radius: 0, 0, 0;
-	-fx-text-fill: -jb-foreground-color;
-	-fx-highlight-fill: -jb-foreground-color;
+    -fx-text-fill: -jb-foreground-color;
+    -fx-highlight-fill: -jb-foreground-color;
     -fx-highlight-text-fill: -jb-background-color;
 }
 
 .text-field:focused {
-	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+    -fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
 }
 
 .password-field {
-	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
-	-fx-background-insets: 0, 1, 1;
+    -fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+    -fx-background-insets: 0, 1, 1;
     -fx-background-radius: 0, 0, 0;
-	-fx-text-fill: -jb-foreground-color;
-	-fx-highlight-fill: -jb-foreground-color;
+    -fx-text-fill: -jb-foreground-color;
+    -fx-highlight-fill: -jb-foreground-color;
     -fx-highlight-text-fill: -jb-background-color;
 }
 
 .password-field:focused {
-	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+    -fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
 }
 
 .check-box {
-	-fx-text-fill: -jb-foreground-color;
+    -fx-text-fill: -jb-foreground-color;
 }
 
 .check-box .box {
-	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
-	-fx-background-insets: 0, 1, 1;
+    -fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+    -fx-background-insets: 0, 1, 1;
     -fx-background-radius: 0, 0, 0;
 }
 
@@ -82,38 +82,38 @@
 }
 
 .context-menu {
-	-fx-background-color: -jb-background-color;
-	-fx-border-color: -jb-border-color;
+    -fx-background-color: -jb-background-color;
+    -fx-border-color: -jb-border-color;
     -fx-border-style: solid;
     -fx-border-width: 1;
     -fx-padding: 3 3 3 3;
 }
 
-.context-menu .menu-item  {
-	-fx-background-color: -jb-background-color;
+.context-menu .menu-item {
+    -fx-background-color: -jb-background-color;
 }
 
 .context-menu .menu-item .label {
-	-fx-text-fill: -jb-foreground-color;
+    -fx-text-fill: -jb-foreground-color;
 }
 
 .context-menu .menu-item:focused {
-	-fx-background-color: -jb-foreground-color;
+    -fx-background-color: -jb-foreground-color;
 }
 
 .context-menu .menu-item:focused .label {
-	-fx-text-fill: -jb-background-color;
+    -fx-text-fill: -jb-background-color;
 }
 
 .scroll-bar:vertical .track {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-background-radius: 2em;
-    -fx-border-radius:2em;
+    -fx-border-radius: 2em;
 }
 
 .scroll-bar:vertical .track-background {
-	-fx-background-color: -jb-background-color;
+    -fx-background-color: -jb-background-color;
 }
 
 .scroll-bar:vertical .thumb {
@@ -121,15 +121,16 @@
     -fx-background-insets: 4, 0, 0;
     -fx-background-radius: 2em;
 }
+
 .scroll-bar:vertical .increment-button, .scroll-bar:vertical .decrement-button {
-	-fx-background-color:transparent;
+    -fx-background-color: transparent;
     -fx-background-radius: 0em;
     -fx-padding: 0 8 0 8;
 }
 
 .scroll-bar:vertical .increment-arrow, .scroll-bar:vertical .decrement-arrow {
-	-fx-background-color:transparent;
-	-fx-shape: null;
+    -fx-background-color: transparent;
+    -fx-shape: null;
     -fx-padding: 0;
 }
 
@@ -141,7 +142,7 @@
     -fx-padding: 0;
 }
 
-.scroll-bar:horizontal .increment-arrow, 
+.scroll-bar:horizontal .increment-arrow,
 .scroll-bar:horizontal .decrement-arrow {
     -fx-background-color: null;
     -fx-background-radius: 0;
@@ -151,14 +152,14 @@
 }
 
 .list-view {
-	-fx-background-color: transparent;
-	-fx-background-insets: 0;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
     -fx-padding: 0;
 }
 
 .list-cell {
-	-fx-background-color: transparent;
-	-fx-text-fill: -jb-foreground-color;
+    -fx-background-color: transparent;
+    -fx-text-fill: -jb-foreground-color;
 }
 
 .list-cell:empty {
@@ -166,17 +167,17 @@
 }
 
 .list-cell:selected {
-	-fx-background-color: -jb-border-color;
+    -fx-background-color: -jb-border-color;
 }
 
 .list-cell .text-field {
-	-fx-background-color: -jb-border-color, -jb-border-color, -jb-border-color;
-	-fx-padding: 0;
+    -fx-background-color: -jb-border-color, -jb-border-color, -jb-border-color;
+    -fx-padding: 0;
 }
 
 .table-view {
-	-fx-background-color: transparent;
-	-fx-background-insets: 0;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
     -fx-padding: 0;
     -fx-size: 25;
 }
@@ -190,7 +191,7 @@
 }
 
 .table-view .column-header {
-	-fx-background-color: transparent;
+    -fx-background-color: transparent;
     -fx-border-color: -jb-border-color;
     -fx-border-style: solid;
     -fx-border-width: 1 1 1 0;
@@ -207,15 +208,15 @@
 }
 
 .table-view .table-row-cell {
-	-fx-background-color: -jb-background-color;
+    -fx-background-color: -jb-background-color;
 }
 
 .table-view .table-row-cell:selected {
-	-fx-background-color: -jb-border-color;
+    -fx-background-color: -jb-border-color;
 }
 
 .table-view .table-cell {
-	-fx-border-color: -jb-border-color;
+    -fx-border-color: -jb-border-color;
     -fx-border-width: 0 1 0 0;
     -fx-text-fill: -jb-foreground-color;
 }
@@ -263,24 +264,24 @@
 }
 
 .combo-box {
-	-fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
-	-fx-background-insets: 0, 1, 1;
+    -fx-background-color: -jb-border-color, -jb-border-color, -jb-background-color;
+    -fx-background-insets: 0, 1, 1;
     -fx-background-radius: 0, 0, 0;
-	-fx-text-fill: -jb-foreground-color;
-	-fx-highlight-fill: -jb-foreground-color;
+    -fx-text-fill: -jb-foreground-color;
+    -fx-highlight-fill: -jb-foreground-color;
     -fx-highlight-text-fill: -jb-background-color;
 }
 
 .combo-box > .list-cell {
-	-fx-background-color: -jb-background-color;
-	-fx-border-color: -jb-border-color;
+    -fx-background-color: -jb-background-color;
+    -fx-border-color: -jb-border-color;
     -fx-border-width: 1;
     -fx-alignment: center;
 }
 
 .combo-box-popup .list-view {
-	-fx-background-color: -jb-background-color;
-	-fx-border-color: -jb-border-color;
+    -fx-background-color: -jb-background-color;
+    -fx-border-color: -jb-border-color;
     -fx-border-width: 1;
 }
 
@@ -292,56 +293,56 @@
 /* Custom Style Classes */
 
 .popUpPanel {
-	-fx-background-color: -jb-background-color;
-	-fx-border-color: -jb-border-color;
+    -fx-background-color: -jb-background-color;
+    -fx-border-color: -jb-border-color;
     -fx-border-style: solid;
     -fx-border-width: 1;
     -fx-padding: 5;
 }
 
 .popUpPanel .button {
-	-fx-background-color: -jb-background-color;
-	-fx-border-color: -jb-border-color;
+    -fx-background-color: -jb-background-color;
+    -fx-border-color: -jb-border-color;
     -fx-border-style: solid;
     -fx-border-width: 1;
     -fx-text-fill: -jb-foreground-color;
 }
 
 .labelHbox {
-	-fx-alignment: center-left;
-	-fx-padding: 5 5 5 5;
-	-fx-spacing: 5;
+    -fx-alignment: center-left;
+    -fx-padding: 5 5 5 5;
+    -fx-spacing: 5;
 }
 
 .buttonHbox {
-	-fx-alignment: center;
-	-fx-padding: 5 5 5 5;
-	-fx-spacing: 5;
+    -fx-alignment: center;
+    -fx-padding: 5 5 5 5;
+    -fx-spacing: 5;
 }
 
 .buttonHbox .focusableButton:focused {
-	-fx-background-color: -jb-foreground-color;
-	-fx-background-insets: 0;
+    -fx-background-color: -jb-foreground-color;
+    -fx-background-insets: 0;
     -fx-background-radius: 0;
-	-fx-text-fill: -jb-background-color;
+    -fx-text-fill: -jb-background-color;
 }
 
 .sliderHbox {
-	-fx-padding: 5 5 5 5;
-	-fx-spacing: 5;
+    -fx-padding: 5 5 5 5;
+    -fx-spacing: 5;
 }
 
 .copyright1 {
-	-fx-font-size: 18pt;
-	-fx-font-weight: bold;
+    -fx-font-size: 18pt;
+    -fx-font-weight: bold;
 }
 
 .copyright2 {
-	-fx-font-size: 13pt;
+    -fx-font-size: 13pt;
 }
 
 .copyright3 {
-	-fx-font-size: 8pt;
+    -fx-font-size: 8pt;
 }
 
 .playlistTableView .table-cell {
@@ -351,23 +352,23 @@
 /* Styles By Id */
 
 #newVersionButton {
-	-fx-text-fill: -jb-foreground-color;
+    -fx-text-fill: -jb-foreground-color;
 }
 
 #searchPanel {
-	-fx-background-image: url("../images/header.png");
-	-fx-background-repeat: no-repeat;
-	-fx-alignment: center;
+    -fx-background-image: url("../images/header.png");
+    -fx-background-repeat: no-repeat;
+    -fx-alignment: center;
 }
 
 #searchPanel #searchTextHBox {
-	-fx-alignment: center-right;
-	-fx-padding: 0 5 0 0;
+    -fx-alignment: center-right;
+    -fx-padding: 0 5 0 0;
 }
 
 #searchPanel .text-field {
-	-fx-background-image: url("../images/search.png");
-	-fx-background-repeat: no-repeat;
+    -fx-background-image: url("../images/search.png");
+    -fx-background-repeat: no-repeat;
     -fx-background-position: 5 center;
     -fx-padding: 5 5 5 25;
 }
@@ -381,41 +382,41 @@
 }
 
 #playlistPanel #plusMinusHBox {
-	-fx-alignment: center;
+    -fx-alignment: center;
     -fx-spacing: 5;
     -fx-padding: 0 0 0 5;
 }
 
 #playlistPanel #importExportHBox {
-	-fx-alignment: center;
+    -fx-alignment: center;
     -fx-spacing: 5;
     -fx-padding: 0;
 }
 
 #playlistPanel #saveSettingsHBox {
-	-fx-alignment: center;
+    -fx-alignment: center;
     -fx-spacing: 5;
     -fx-padding: 0 5 0 0;
 }
 
 #playlistPanel #addPlaylistButton {
-	-fx-background-image: url('../images/plus.png');
+    -fx-background-image: url('../images/plus.png');
 }
 
 #playlistPanel #deletePlaylistButton {
-	-fx-background-image: url('../images/minus.png');
+    -fx-background-image: url('../images/minus.png');
 }
 
 #playlistPanel #importPlaylistButton {
-	-fx-background-image: url('../images/import.png');
+    -fx-background-image: url('../images/import.png');
 }
 
 #playlistPanel #exportPlaylistButton {
-	-fx-background-image: url('../images/export.png');
+    -fx-background-image: url('../images/export.png');
 }
 
 #playlistPanel #settingsButton {
-	-fx-background-image: url('../images/settings.png');
+    -fx-background-image: url('../images/settings.png');
 }
 
 #mainPanel {
@@ -423,15 +424,15 @@
 }
 
 #loveButtonOn {
-	-fx-background-image: url('../images/love-on.png');
-	-fx-background-repeat: no-repeat;
-	-fx-background-position: center;
+    -fx-background-image: url('../images/love-on.png');
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
 }
 
 #loveButtonOff {
-	-fx-background-image: url('../images/love-off.png');
-	-fx-background-repeat: no-repeat;
-	-fx-background-position: center;
+    -fx-background-image: url('../images/love-off.png');
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
 }
 
 #playingPanel {
@@ -439,77 +440,77 @@
 }
 
 #playingPanel .image-view {
-	-fx-image: url('../images/no-artwork.png');
+    -fx-image: url('../images/no-artwork.png');
 }
 
 #playingPanel #playingLabelPanel {
-	-fx-border-width: 1 0 0 0;
-	-fx-padding: 0 3 0 3;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 0 3 0 3;
 }
 
 #controlPanel {
-	-fx-alignment: center;
+    -fx-alignment: center;
     -fx-border-width: 1 0 0 0;
     -fx-spacing: 5;
 }
 
 #controlPanel #previousButton {
-	-fx-background-image: url('../images/previous.png');
+    -fx-background-image: url('../images/previous.png');
 }
 
 #controlPanel #playPauseButton {
-	-fx-background-image: url('../images/play.png');
+    -fx-background-image: url('../images/play.png');
 }
 
 #controlPanel #nextButton {
-	-fx-background-image: url('../images/next.png');
+    -fx-background-image: url('../images/next.png');
 }
 
 #progressPanel {
-	-fx-alignment: center;
+    -fx-alignment: center;
     -fx-border-width: 1 0 0 0;
     -fx-padding: 5 5 5 5;
     -fx-spacing: 5;
 }
 
 #progressPanel #volumeHBox {
-	-fx-alignment: center;
-	-fx-spacing: 3;
+    -fx-alignment: center;
+    -fx-spacing: 3;
 }
 
 #progressPanel #volumeButtonOn {
-	-fx-background-image: url('../images/volume-on.png');
-	-fx-padding: 0 5 0 0;
+    -fx-background-image: url('../images/volume-on.png');
+    -fx-padding: 0 5 0 0;
 }
 
 #progressPanel #volumeButtonOff {
-	-fx-background-image: url('../images/volume-off.png');
-	-fx-padding: 0 5 0 0;
+    -fx-background-image: url('../images/volume-off.png');
+    -fx-padding: 0 5 0 0;
 }
 
 #timeSlider .slider .track {
-    -fx-background-color:null;
+    -fx-background-color: null;
 }
 
 #optionsPanel {
-	-fx-alignment: center;
-	-fx-padding: 0 5 0 5;
+    -fx-alignment: center;
+    -fx-padding: 0 5 0 5;
     -fx-border-width: 1 0 0 0;
     -fx-spacing: 5;
 }
 
 #optionsPanel #shuffleButton {
-	-fx-background-image: url('../images/shuffle-off.png');
+    -fx-background-image: url('../images/shuffle-off.png');
 }
 
 #optionsPanel #repeatButton {
-	-fx-background-image: url('../images/repeat-off.png');
+    -fx-background-image: url('../images/repeat-off.png');
 }
 
 #optionsPanel #eqButton {
-	-fx-background-image: url('../images/eq.png');
+    -fx-background-image: url('../images/eq.png');
 }
 
 #optionsPanel #randomButton {
-	-fx-background-image: url('../images/random.png');
+    -fx-background-image: url('../images/random.png');
 }

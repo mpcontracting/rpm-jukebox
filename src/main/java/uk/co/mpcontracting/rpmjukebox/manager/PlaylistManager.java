@@ -150,7 +150,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
 
     public void createPlaylistFromAlbum(Track track) {
         log.debug("Creating playlist from album : Track - {} - {} - {}", track.getArtistName(), track.getAlbumName(),
-            track.getTrackName());
+                track.getTrackName());
 
         searchManager.getAlbumById(track.getAlbumId())
                 .filter(tracks -> !tracks.isEmpty())
@@ -209,7 +209,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
 
     public void addTrackToPlaylist(int playlistId, Track track) {
         log.debug("Adding track : Playlist - {}, Track - {} - {} - {}", playlistId, track.getArtistName(),
-            track.getAlbumName(), track.getTrackName());
+                track.getAlbumName(), track.getTrackName());
 
         synchronized (playlistMap) {
             playlistMap.get(playlistId).addTrack(track);
@@ -220,7 +220,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
 
     public void removeTrackFromPlaylist(int playlistId, Track track) {
         log.debug("Removing track : Playlist - {}, Track - {} - {} - {}", playlistId, track.getArtistName(),
-            track.getAlbumName(), track.getTrackName());
+                track.getAlbumName(), track.getTrackName());
 
         synchronized (playlistMap) {
             playlistMap.get(playlistId).removeTrack(track);
@@ -233,7 +233,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
 
     public void moveTracksInPlaylist(int playlistId, Track source, Track target) {
         log.debug("Moving tracks : Playist - {}, Source - {}, Target {}", playlistId, source.getTrackName(),
-            target.getTrackName());
+                target.getTrackName());
 
         synchronized (playlistMap) {
             Playlist playlist = playlistMap.get(playlistId);
@@ -272,7 +272,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
 
     public void playTrack(Track track) {
         log.debug("Playing track : Playlist - {}, Index - {}, Track - {} - {} - {}", track.getPlaylistId(),
-            track.getPlaylistIndex(), track.getArtistName(), track.getAlbumName(), track.getTrackName());
+                track.getPlaylistIndex(), track.getArtistName(), track.getAlbumName(), track.getTrackName());
 
         synchronized (playlistMap) {
             currentPlaylistId = track.getPlaylistId();
@@ -329,7 +329,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
 
         if (selectedTrack != null) {
             log.debug("Playing playlist - {}, Track playlist - {}, Track - {}", playingPlaylist.getPlaylistId(),
-                selectedTrack.getPlaylistId(), selectedTrack.getTrackName());
+                    selectedTrack.getPlaylistId(), selectedTrack.getTrackName());
 
             if (playingPlaylist.getPlaylistId() != selectedTrack.getPlaylistId() ||
                     (currentTrack != null && !currentTrack.equals(selectedTrack))) {
@@ -501,7 +501,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
         switch (event) {
             case TRACK_SELECTED: {
                 if (payload != null && payload.length > 0) {
-                    Track track = (Track)payload[0];
+                    Track track = (Track) payload[0];
 
                     selectedTrack = track;
 

@@ -23,7 +23,8 @@ import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 public abstract class TestHelper {
 
-    private TestHelper() {}
+    private TestHelper() {
+    }
 
     public static File getConfigDirectory() {
         return new File(System.getProperty("user.home") + File.separator + ".rpmjukeboxtest");
@@ -70,14 +71,14 @@ public abstract class TestHelper {
     }
 
     public static DragEvent getDragEvent(EventType<DragEvent> eventType, Dragboard dragboard, TransferMode transferMode,
-                                     Object gestureSource) {
+                                         Object gestureSource) {
         return new DragEvent(eventType, dragboard, 0, 0, 0, 0, transferMode, gestureSource, null, null);
     }
 
     public static Optional<Playlist> generatePlaylist() {
         Playlist playlist = new Playlist(1, "Playlist", 10);
         for (int i = 0; i < 10; i++) {
-            playlist .addTrack(generateTrack(i));
+            playlist.addTrack(generateTrack(i));
         }
 
         return of(playlist);

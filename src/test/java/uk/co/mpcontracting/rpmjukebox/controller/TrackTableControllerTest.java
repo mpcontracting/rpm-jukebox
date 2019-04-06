@@ -130,7 +130,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
 
         Track track = generateTrack(1);
 
-        trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, (Object[])null);
+        trackTableController.eventReceived(Event.PLAYLIST_CONTENT_UPDATED, (Object[]) null);
 
         @SuppressWarnings("unchecked")
         ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
@@ -196,7 +196,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
-        trackTableController.eventReceived(Event.PLAYLIST_CREATED, (Object[])null);
+        trackTableController.eventReceived(Event.PLAYLIST_CREATED, (Object[]) null);
 
         @SuppressWarnings("unchecked")
         ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
@@ -264,7 +264,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
-        trackTableController.eventReceived(Event.PLAYLIST_DELETED, (Object[])null);
+        trackTableController.eventReceived(Event.PLAYLIST_DELETED, (Object[]) null);
 
         @SuppressWarnings("unchecked")
         ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
@@ -332,7 +332,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         Track track = generateTrack(1);
         when(mockPlaylistManager.getTrackAtPlayingPlaylistIndex()).thenReturn(track);
 
-        trackTableController.eventReceived(Event.PLAYLIST_SELECTED, (Object[])null);
+        trackTableController.eventReceived(Event.PLAYLIST_SELECTED, (Object[]) null);
 
         @SuppressWarnings("unchecked")
         ObservableList<TrackTableModel> observableTracks = (ObservableList<TrackTableModel>) getField(trackTableController, "observableTracks");
@@ -396,7 +396,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         Track track = generateTrack(1);
         track.setPlaylistId(1);
 
-        trackTableController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[])null);
+        trackTableController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[]) null);
 
         verify(spyTrackTableView, never()).highlightTrack(track);
     }

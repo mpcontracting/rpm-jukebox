@@ -50,7 +50,7 @@ public class NativeManager {
                 String userNotifications = "/native/NsUserNotificationsBridge.dylib";
                 File userNotificationsFile = settingsManager.getFileFromConfigDirectory(userNotifications);
                 Files.copy(getClass().getResourceAsStream(userNotifications), userNotificationsFile.toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
+                        StandardCopyOption.REPLACE_EXISTING);
 
                 nsUserNotificationsBridge = Native.loadLibrary(userNotificationsFile.getAbsolutePath(),
                         NsUserNotificationsBridge.class);
@@ -65,7 +65,7 @@ public class NativeManager {
             threadRunner.run(() -> {
                 try {
                     nsUserNotificationsBridge.sendNotification(track.getTrackName(), track.getArtistName(),
-                        track.getAlbumName(), 0);
+                            track.getAlbumName(), 0);
                 } catch (Throwable e) {
                     log.warn("Unable to send OSX notification", e);
                 }

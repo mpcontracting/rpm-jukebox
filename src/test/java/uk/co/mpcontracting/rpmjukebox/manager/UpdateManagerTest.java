@@ -94,7 +94,7 @@ public class UpdateManagerTest {
     @SneakyThrows
     public void shouldNotFindUpdatesOnConnectionError() {
         doThrow(new RuntimeException("UpdateManagerTest.shouldNotFindUpdatesOnConnectionError()")).when(mockInternetManager)
-            .openConnection(any());
+                .openConnection(any());
 
         invokeMethod(updateManager, "checkForUpdates");
 
@@ -117,7 +117,7 @@ public class UpdateManagerTest {
     @SneakyThrows
     public void shouldNotFindUpdatesAvailableOnEmptyVersionString() {
         when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
-        when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[] {}));
+        when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{}));
 
         invokeMethod(updateManager, "checkForUpdates");
 

@@ -135,25 +135,25 @@ public class SettingsController extends EventAwareObject implements Constants {
 
         // Proxy host field
         if (!ValidationHelper.validateTextField(proxyHostTextField,
-            !ValidationHelper.nullAsBlank(proxyPortTextField.getText()).isEmpty(), null, 255)) {
+                !ValidationHelper.nullAsBlank(proxyPortTextField.getText()).isEmpty(), null, 255)) {
             isFormValid = false;
         }
 
         // Proxy port field
         if (!ValidationHelper.validateIntegerField(proxyPortTextField,
-            !ValidationHelper.nullAsBlank(proxyHostTextField.getText()).isEmpty(), 80, 65535)) {
+                !ValidationHelper.nullAsBlank(proxyHostTextField.getText()).isEmpty(), 80, 65535)) {
             isFormValid = false;
         }
 
         // Proxy username field
         if (!ValidationHelper.validateTextField(proxyUsernameTextField,
-            ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
+                ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
             isFormValid = false;
         }
 
         // Proxy password field
         if (!ValidationHelper.validateTextField(proxyPasswordTextField,
-            ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
+                ValidationHelper.nullAsFalse(proxyAuthCheckBox.isSelected()), null, 255)) {
             isFormValid = false;
         }
 

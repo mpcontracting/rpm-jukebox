@@ -116,7 +116,7 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
     @SneakyThrows
     public void shouldClickReindexButtonAndThrowExceptionOnIndexData() {
         doThrow(new RuntimeException("SettingsControllerTest.shouldClickReindexButtonAndThrowExceptionOnIndexData()"))
-            .when(mockSearchManager).indexData();
+                .when(mockSearchManager).indexData();
 
         clickOn("#reindexButton");
 

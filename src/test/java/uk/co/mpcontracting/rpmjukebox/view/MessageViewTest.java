@@ -55,8 +55,8 @@ public class MessageViewTest extends AbstractGUITest {
 
         latch1.await(2000, TimeUnit.MILLISECONDS);
 
-        Stage owner = (Stage)ReflectionTestUtils.getField(spyMessageView, "owner");
-        Stage stage = (Stage)ReflectionTestUtils.getField(spyMessageView, "stage");
+        Stage owner = (Stage) ReflectionTestUtils.getField(spyMessageView, "owner");
+        Stage stage = (Stage) ReflectionTestUtils.getField(spyMessageView, "stage");
 
         assertThat(owner).isNotNull();
         assertThat(stage).isNotNull();
@@ -96,8 +96,8 @@ public class MessageViewTest extends AbstractGUITest {
 
         latch.await(2000, TimeUnit.MILLISECONDS);
 
-        Stage owner = (Stage)ReflectionTestUtils.getField(spyMessageView, "owner");
-        Stage stage = (Stage)ReflectionTestUtils.getField(spyMessageView, "stage");
+        Stage owner = (Stage) ReflectionTestUtils.getField(spyMessageView, "owner");
+        Stage stage = (Stage) ReflectionTestUtils.getField(spyMessageView, "stage");
 
         assertThat(owner).isNotNull();
         assertThat(stage).isNotNull();
@@ -132,7 +132,7 @@ public class MessageViewTest extends AbstractGUITest {
 
         spyMessageView.show(true);
 
-        boolean blurBackground = (boolean)ReflectionTestUtils.getField(spyMessageView, "blurBackground");
+        boolean blurBackground = (boolean) ReflectionTestUtils.getField(spyMessageView, "blurBackground");
 
         assertThat(blurBackground).isTrue();
         verify(mockParent, times(1)).setEffect(any());
@@ -156,7 +156,7 @@ public class MessageViewTest extends AbstractGUITest {
 
         spyMessageView.show(false);
 
-        boolean blurBackground = (boolean)ReflectionTestUtils.getField(spyMessageView, "blurBackground");
+        boolean blurBackground = (boolean) ReflectionTestUtils.getField(spyMessageView, "blurBackground");
 
         assertThat(blurBackground).isFalse();
         verify(mockParent, never()).setEffect(any());

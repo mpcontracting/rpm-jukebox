@@ -130,11 +130,11 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         when(mockDataFile.getProtocol()).thenReturn("http");
         when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
         when(mockConnection.getLastModified())
-            .thenReturn(getLocalDateTimeInMillis(LocalDateTime.now().minusMinutes(30)));
+                .thenReturn(getLocalDateTimeInMillis(LocalDateTime.now().minusMinutes(30)));
         doReturn(LocalDateTime.of(1971, 1, 1, 0, 0)).when(spySettingsManager).getLastIndexedDate();
 
         boolean result = spySettingsManager.hasDataFileExpired();
-        
+
         assertThat(result).isFalse();
     }
 
@@ -148,7 +148,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         doReturn(LocalDateTime.of(1975, 1, 1, 0, 0)).when(spySettingsManager).getLastIndexedDate();
 
         boolean result = spySettingsManager.hasDataFileExpired();
-        
+
         assertThat(result).isFalse();
     }
 
@@ -159,7 +159,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         when(mockDataFile.getProtocol()).thenReturn("http");
         when(mockInternetManager.openConnection(mockDataFile)).thenReturn(mockConnection);
         doThrow(new RuntimeException("SettingsManagerTest.shouldShowHttpDataFileHasNotExpiredOnLastModifiedError()"))
-            .when(mockConnection).getLastModified();
+                .when(mockConnection).getLastModified();
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
@@ -171,7 +171,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     public void shouldShowHttpDataFileHasNotExpiredOnConnectionError() {
         when(mockDataFile.getProtocol()).thenReturn("http");
         doThrow(new RuntimeException("SettingsManagerTest.shouldShowHttpDataFileHasNotExpiredOnConnectionError()"))
-            .when(mockInternetManager).openConnection(mockDataFile);
+                .when(mockInternetManager).openConnection(mockDataFile);
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
@@ -198,7 +198,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     public void shouldShowFileSystemDataFileHasNotExpiredOnFileReadError() {
         when(mockDataFile.getProtocol()).thenReturn("file");
         doThrow(new RuntimeException("SettingsManagerTest.shouldShowFileSystemDataFileHasNotExpiredOnFileReadError()"))
-            .when(mockDataFile).toURI();
+                .when(mockDataFile).toURI();
 
         boolean result = spySettingsManager.hasDataFileExpired();
 
@@ -217,7 +217,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         }
 
         LocalDateTime result = spySettingsManager.getLastIndexedDate();
-        
+
         assertThat(result).isEqualTo(now);
     }
 
@@ -256,7 +256,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
-                ZoneId.systemDefault());
+                    ZoneId.systemDefault());
         }
 
         assertThat(lastIndexed).isEqualTo(now);
@@ -281,7 +281,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
-                ZoneId.systemDefault());
+                    ZoneId.systemDefault());
         }
 
         assertThat(lastIndexed).isEqualTo(now);
@@ -291,7 +291,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     public void shouldNotSetLastIndexedDateOnExceptionIfNotAlreadyExists() {
         LocalDateTime mockLocalDateTime = mock(LocalDateTime.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSetLastIndexDateOnException()"))
-            .when(mockLocalDateTime).atZone(any());
+                .when(mockLocalDateTime).atZone(any());
 
         spySettingsManager.setLastIndexedDate(mockLocalDateTime);
 
@@ -313,7 +313,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
 
         LocalDateTime mockLocalDateTime = mock(LocalDateTime.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSetLastIndexDateOnException()"))
-            .when(mockLocalDateTime).atZone(any());
+                .when(mockLocalDateTime).atZone(any());
 
         spySettingsManager.setLastIndexedDate(mockLocalDateTime);
 
@@ -321,7 +321,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         File readLastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(readLastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
-                ZoneId.systemDefault());
+                    ZoneId.systemDefault());
         }
 
         assertThat(lastIndexed).isEqualTo(originalLastIndexed);
@@ -386,7 +386,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         Gson mockGson = mock(Gson.class);
         Stage mockStage = mock(Stage.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotLoadWindowSettingsFromFileOnException()"))
-            .when(mockGson).fromJson(any(FileReader.class), (Class<?>)any(Class.class));
+                .when(mockGson).fromJson(any(FileReader.class), (Class<?>) any(Class.class));
 
         setField(spySettingsManager, "gson", mockGson);
 
@@ -433,7 +433,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
 
         Gson mockGson = mock(Gson.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveWindowSettingsOnException()")).when(mockGson)
-            .toJson(any(Window.class));
+                .toJson(any(Window.class));
 
         setField(spySettingsManager, "gson", mockGson);
 
@@ -495,7 +495,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         doNothing().when(spySettingsManager).saveSystemSettings();
 
         File testSettings = getTestResourceFile(
-            "json/settingsManager-shouldNotLoadSystemSettingsFromAnInvalidFile.json");
+                "json/settingsManager-shouldNotLoadSystemSettingsFromAnInvalidFile.json");
         File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
@@ -549,7 +549,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     public void shouldNotSaveSystemSettingsOnException() {
         Gson mockGson = mock(Gson.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveSystemSettingsOnException()")).when(mockGson)
-            .toJson(any(SystemSettings.class));
+                .toJson(any(SystemSettings.class));
 
         setField(spySettingsManager, "gson", mockGson);
         setField(spySettingsManager, "systemSettings", SystemSettings.builder().build());
@@ -574,7 +574,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @SneakyThrows
     public void shouldReturnNewVersionWhenSystemVersionIsNull() {
         File testSettings = getTestResourceFile(
-            "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsNull.json");
+                "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsNull.json");
         File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
@@ -590,7 +590,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @SneakyThrows
     public void shouldReturnNewVersionWhenSystemVersionIsLower() {
         File testSettings = getTestResourceFile(
-            "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsLower.json");
+                "json/settingsManager-shouldReturnNewVersionWhenSystemVersionIsLower.json");
         File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
@@ -606,7 +606,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @SneakyThrows
     public void shouldNotReturnNewVersionWhenSystemVersionIsEqual() {
         File testSettings = getTestResourceFile(
-            "json/settingsManager-shouldNotReturnNewVersionWhenSystemVersionIsEqual.json");
+                "json/settingsManager-shouldNotReturnNewVersionWhenSystemVersionIsEqual.json");
         File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getSystemSettingsFile());
 
         Files.copy(testSettings, settingsFile);
@@ -628,7 +628,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
 
         Track mockTrack = mock(Track.class);
         when(mockSearchManager.getTrackById("92f9b8ad82601ab97c121239518730108eefa18055ead908e5cdaf369023984b"))
-            .thenReturn(of(mockTrack));
+                .thenReturn(of(mockTrack));
 
         spySettingsManager.loadUserSettings();
         boolean settingsLoaded = (Boolean) getField(spySettingsManager, "userSettingsLoaded");
@@ -678,7 +678,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @SneakyThrows
     public void shouldLoadUserSettingsWithNoPlaylistsFromFile() {
         File testSettings = getTestResourceFile(
-            "json/settingsManager-shouldLoadUserSettingsWithNoPlaylistsFromFile.json");
+                "json/settingsManager-shouldLoadUserSettingsWithNoPlaylistsFromFile.json");
         File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getUserSettingsFile());
 
         Files.copy(testSettings, settingsFile);
@@ -729,7 +729,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         Playlist mockFavouritesPlaylist = mock(Playlist.class);
         when(mockFavouritesPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
 
-        List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] { mockSearchPlaylist, mockFavouritesPlaylist });
+        List<Playlist> mockPlaylists = Arrays.asList(new Playlist[]{mockSearchPlaylist, mockFavouritesPlaylist});
         when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
 
         spySettingsManager.saveUserSettings();
@@ -778,12 +778,12 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         Playlist mockFavouritesPlaylist = mock(Playlist.class);
         when(mockFavouritesPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
 
-        List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] { mockSearchPlaylist, mockFavouritesPlaylist });
+        List<Playlist> mockPlaylists = Arrays.asList(new Playlist[]{mockSearchPlaylist, mockFavouritesPlaylist});
         when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
 
         Gson mockGson = mock(Gson.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveUserSettingsOnException()")).when(mockGson)
-            .toJson(any(Settings.class));
+                .toJson(any(Settings.class));
 
         setField(spySettingsManager, "gson", mockGson);
 
@@ -815,12 +815,12 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         Playlist mockFavouritesPlaylist = mock(Playlist.class);
         when(mockFavouritesPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_FAVOURITES);
 
-        List<Playlist> mockPlaylists = Arrays.asList(new Playlist[] { mockSearchPlaylist, mockFavouritesPlaylist });
+        List<Playlist> mockPlaylists = Arrays.asList(new Playlist[]{mockSearchPlaylist, mockFavouritesPlaylist});
         when(mockPlaylistManager.getPlaylists()).thenReturn(mockPlaylists);
 
         Gson mockGson = mock(Gson.class);
         doThrow(new RuntimeException("SettingsManagerTest.shouldNotSaveSettingsOnException()")).when(mockGson)
-            .toJson(any(Settings.class));
+                .toJson(any(Settings.class));
 
         setField(spySettingsManager, "gson", mockGson);
 

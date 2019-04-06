@@ -125,7 +125,7 @@ public class SettingsManager implements Constants {
         if ("file".equals(dataFile.getProtocol())) {
             try {
                 lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(new File(dataFile.toURI()).lastModified()),
-                    ZoneId.systemDefault());
+                        ZoneId.systemDefault());
             } catch (Exception e) {
                 log.error("Unable to determine if local data file has expired", e);
             }
@@ -133,9 +133,9 @@ public class SettingsManager implements Constants {
             HttpURLConnection connection = null;
 
             try {
-                connection = (HttpURLConnection)internetManager.openConnection(dataFile);
+                connection = (HttpURLConnection) internetManager.openConnection(dataFile);
                 lastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(connection.getLastModified()),
-                    ZoneId.systemDefault());
+                        ZoneId.systemDefault());
             } catch (Exception e) {
                 log.error("Unable to determine if data file has expired", e);
             } finally {
@@ -166,7 +166,7 @@ public class SettingsManager implements Constants {
         if (lastIndexedFile.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
                 lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
-                    ZoneId.systemDefault());
+                        ZoneId.systemDefault());
             } catch (Exception e) {
                 log.error("Unable to read last indexed file", e);
             }
@@ -341,29 +341,29 @@ public class SettingsManager implements Constants {
 
         // Equalizer
         ofNullable(settings.getEqBands()).ifPresent(
-            eqBands -> eqBands.forEach(eqBand -> mediaManager.setEqualizerGain(eqBand.getBand(), eqBand.getValue())));
+                eqBands -> eqBands.forEach(eqBand -> mediaManager.setEqualizerGain(eqBand.getBand(), eqBand.getValue())));
 
         // Playlists
         List<Playlist> playlists = new ArrayList<>();
 
         ofNullable(settings.getPlaylists())
-            .ifPresent(playlistSettingsList -> playlistSettingsList.forEach(playlistSettings -> {
-                Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(),
-                        appProperties.getMaxPlaylistSize());
+                .ifPresent(playlistSettingsList -> playlistSettingsList.forEach(playlistSettings -> {
+                    Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(),
+                            appProperties.getMaxPlaylistSize());
 
-                // Override the name of the search results and favourites
-                // playlists
-                if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
-                    playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH));
-                } else if (playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
-                    playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES));
-                }
+                    // Override the name of the search results and favourites
+                    // playlists
+                    if (playlist.getPlaylistId() == PLAYLIST_ID_SEARCH) {
+                        playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH));
+                    } else if (playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
+                        playlist.setName(messageManager.getMessage(MESSAGE_PLAYLIST_FAVOURITES));
+                    }
 
-                playlistSettings.getTracks().forEach(trackId ->
-                    searchManager.getTrackById(trackId).ifPresent(playlist::addTrack));
+                    playlistSettings.getTracks().forEach(trackId ->
+                            searchManager.getTrackById(trackId).ifPresent(playlist::addTrack));
 
-                playlists.add(playlist);
-            }));
+                    playlists.add(playlist);
+                }));
 
         playlistManager.setPlaylists(playlists);
 
@@ -394,7 +394,7 @@ public class SettingsManager implements Constants {
         List<PlaylistSettings> playlists = new ArrayList<>();
 
         playlistManager.getPlaylists().stream().filter(playlist -> playlist.getPlaylistId() != PLAYLIST_ID_SEARCH)
-            .forEach(playlist -> playlists.add(new PlaylistSettings(playlist)));
+                .forEach(playlist -> playlists.add(new PlaylistSettings(playlist)));
 
         Settings settings = Settings.builder()
                 .shuffle(playlistManager.isShuffle())

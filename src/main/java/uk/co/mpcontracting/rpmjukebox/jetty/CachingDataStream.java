@@ -25,7 +25,7 @@ public class CachingDataStream implements WriteListener {
     private ByteArrayOutputStream byteStream;
 
     CachingDataStream(CacheType cacheType, String id, boolean isCached, InputStream inputStream,
-        AsyncContext asyncContext, ServletOutputStream outputStream) {
+                      AsyncContext asyncContext, ServletOutputStream outputStream) {
         this.cacheType = cacheType;
         this.id = id;
         this.isCached = isCached;

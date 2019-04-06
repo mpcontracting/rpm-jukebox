@@ -237,7 +237,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
         log.info("Initialising MainPanelController");
 
         yearFilterComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) ->
-                searchParametersUpdated(searchTextField.getText(), yearFilterComboBox.getSelectionModel().getSelectedItem(),false));
+                searchParametersUpdated(searchTextField.getText(), yearFilterComboBox.getSelectionModel().getSelectedItem(), false));
 
         searchTextField.textProperty().addListener((observable, oldValue, newValue) ->
                 searchParametersUpdated(newValue, yearFilterComboBox.getSelectionModel().getSelectedItem(), true));
@@ -278,7 +278,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                 Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
 
                 showConfirmView(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()),
-                    true, () -> playlistManager.deletePlaylist(playlist.getPlaylistId()), null);
+                        true, () -> playlistManager.deletePlaylist(playlist.getPlaylistId()), null);
             }
         });
 
@@ -333,7 +333,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
             playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, searchManager.search(trackSearch));
         } else if (playlistManager.getPlayingPlaylist() != null
-            && playlistManager.getPlayingPlaylist().getPlaylistId() == PLAYLIST_ID_SEARCH) {
+                && playlistManager.getPlayingPlaylist().getPlaylistId() == PLAYLIST_ID_SEARCH) {
             playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, playlistManager.getPlayingPlaylist().getTracks());
         } else {
             playlistManager.setPlaylistTracks(PLAYLIST_ID_SEARCH, Collections.emptyList());
@@ -352,7 +352,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
         yearFilters.add(new YearFilter(messageManager.getMessage(MESSAGE_YEAR_FILTER_NONE), null));
 
         ofNullable(searchManager.getYearList())
-            .ifPresent(years -> years.forEach(year -> yearFilters.add(new YearFilter(year, year))));
+                .ifPresent(years -> years.forEach(year -> yearFilters.add(new YearFilter(year, year))));
 
         ofNullable(yearFilterComboBox).ifPresent(comboBox -> {
             comboBox.getItems().clear();
@@ -424,7 +424,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
         if (playlist != null && playlist.getPlaylistId() > 0) {
             showConfirmView(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()), true,
-                () -> playlistManager.deletePlaylist(playlist.getPlaylistId()), null);
+                    () -> playlistManager.deletePlaylist(playlist.getPlaylistId()), null);
         }
     }
 
@@ -435,9 +435,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
         FileChooser fileChooser = constructFileChooser();
         fileChooser.setTitle(messageManager.getMessage(MESSAGE_IMPORT_PLAYLIST_TITLE));
         fileChooser.getExtensionFilters()
-            .add(new ExtensionFilter(
-                messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter),
-                playlistExtensionFilter));
+                .add(new ExtensionFilter(
+                        messageManager.getMessage(MESSAGE_FILE_CHOOSER_PLAYLIST_FILTER, playlistExtensionFilter),
+                        playlistExtensionFilter));
 
         RpmJukebox.getStage().getScene().getRoot().setEffect(new BoxBlur());
 
@@ -448,15 +448,16 @@ public class MainPanelController extends EventAwareObject implements Constants {
         if (file != null) {
             try (FileReader fileReader = constructFileReader(file)) {
                 List<PlaylistSettings> playlists = settingsManager.getGson().fromJson(fileReader,
-                    new TypeToken<ArrayList<PlaylistSettings>>() {}.getType());
+                        new TypeToken<ArrayList<PlaylistSettings>>() {
+                        }.getType());
 
                 if (playlists != null) {
                     playlists.forEach(playlistSettings -> {
                         Playlist playlist = new Playlist(playlistSettings.getId(), playlistSettings.getName(),
-                            appProperties.getMaxPlaylistSize());
+                                appProperties.getMaxPlaylistSize());
 
                         playlistSettings.getTracks().forEach(trackId ->
-                            searchManager.getTrackById(trackId).ifPresent(playlist::addTrack));
+                                searchManager.getTrackById(trackId).ifPresent(playlist::addTrack));
 
                         playlistManager.addPlaylist(playlist);
                     });
@@ -631,7 +632,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                 break;
             }
             case NEW_VERSION_AVAILABLE: {
-                Version newVersion = (Version)payload[0];
+                Version newVersion = (Version) payload[0];
 
                 newVersionButton.setText(messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, newVersion));
                 newVersionButton.setDisable(false);
@@ -645,8 +646,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
                 break;
             }
             case TIME_UPDATED: {
-                Duration mediaDuration = (Duration)payload[0];
-                Duration currentTime = (Duration)payload[1];
+                Duration mediaDuration = (Duration) payload[0];
+                Duration currentTime = (Duration) payload[1];
 
                 timeSlider.setDisable(mediaDuration.isUnknown());
 
@@ -661,8 +662,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
                 break;
             }
             case BUFFER_UPDATED: {
-                Duration mediaDuration = (Duration)payload[0];
-                Duration bufferProgressTime = (Duration)payload[1];
+                Duration mediaDuration = (Duration) payload[0];
+                Duration bufferProgressTime = (Duration) payload[1];
 
                 if (mediaDuration != null && bufferProgressTime != null) {
                     timeSlider.setProgressValue(bufferProgressTime.divide(mediaDuration.toMillis()).toMillis() * 100.0);
@@ -713,7 +714,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                 }
 
                 if (payload != null && payload.length > 0) {
-                    Integer selectedPlaylistId = (Integer)payload[0];
+                    Integer selectedPlaylistId = (Integer) payload[0];
 
                     // Select the correct playlist
                     if (selectedPlaylistId != null && observablePlaylists.size() > selectedPlaylistId) {
@@ -727,7 +728,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                                 // If this is a playlist creation event, go
                                 // straight into edit mode
                                 if (event == Event.PLAYLIST_CREATED) {
-                                    if (payload.length > 1 && (Boolean)payload[1]) {
+                                    if (payload.length > 1 && (Boolean) payload[1]) {
                                         playlistPanelListView.edit(i);
                                     }
                                 }
@@ -765,7 +766,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
             }
             case TRACK_QUEUED_FOR_PLAYING: {
                 if (payload != null && payload.length > 0) {
-                    Track track = (Track)payload[0];
+                    Track track = (Track) payload[0];
 
                     playingTrackLabel.setText(track.getTrackName());
                     playingAlbumLabel.setText(track.getAlbumName());
@@ -773,10 +774,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
                     if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
                         playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE,
-                            track.getAlbumId(), track.getAlbumImage()), true));
+                                track.getAlbumId(), track.getAlbumImage()), true));
                     } else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
                         playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE,
-                            track.getAlbumId(), track.getArtistImage()), true));
+                                track.getAlbumId(), track.getArtistImage()), true));
                     } else {
                         playingImageView.setImage(new Image(IMAGE_NO_ARTWORK));
                     }

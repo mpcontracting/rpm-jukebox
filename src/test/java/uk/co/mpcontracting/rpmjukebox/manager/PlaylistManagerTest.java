@@ -61,7 +61,7 @@ public class PlaylistManagerTest implements Constants {
         setField(spyPlaylistManager, "eventManager", mockEventManager);
 
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
-            new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
+                new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
 
         Map<Integer, Playlist> playlistMap = new LinkedHashMap<>();
         playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
@@ -75,13 +75,13 @@ public class PlaylistManagerTest implements Constants {
     @Test
     public void shouldSetPlaylists() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10),
-            new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
+                new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
 
         spyPlaylistManager.setPlaylists(playlists);
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
 
         assertThat(playlistMap).hasSize(4);
     }
@@ -89,11 +89,11 @@ public class PlaylistManagerTest implements Constants {
     @Test
     public void shouldGetPlaylists() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10),
-            new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
+                new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
@@ -107,11 +107,11 @@ public class PlaylistManagerTest implements Constants {
     @Test
     public void shouldAddPlaylist() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10),
-            new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
+                new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
@@ -122,7 +122,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> newPlaylistMap = (Map<Integer, Playlist>) getField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
 
         assertThat(newPlaylistMap).hasSize(5);
         assertThat(playlist.getPlaylistId()).isEqualTo(2);
@@ -131,11 +131,11 @@ public class PlaylistManagerTest implements Constants {
     @Test
     public void shouldCreatePlaylist() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10),
-            new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
+                new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
@@ -144,7 +144,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> newPlaylistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = newPlaylistMap.get(2);
 
         assertThat(newPlaylistMap).hasSize(5);
@@ -157,11 +157,11 @@ public class PlaylistManagerTest implements Constants {
     @Test
     public void shouldCreatePlaylistFromAlbum() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10),
-            new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
+                new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
@@ -181,7 +181,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> newPlaylistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = newPlaylistMap.get(2);
 
         assertThat(newPlaylistMap).hasSize(5);
@@ -195,11 +195,11 @@ public class PlaylistManagerTest implements Constants {
     @Test
     public void shouldNotCreatePlaylistFromAlbumWithNullTracks() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10),
-            new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
+                new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
@@ -210,7 +210,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> newPlaylistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = newPlaylistMap.get(2);
 
         assertThat(newPlaylistMap).hasSize(4);
@@ -220,11 +220,11 @@ public class PlaylistManagerTest implements Constants {
     @Test
     public void shouldNotCreatePlaylistFromAlbumWithEmptyTracks() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10),
-            new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
+                new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
@@ -235,7 +235,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> newPlaylistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = newPlaylistMap.get(2);
 
         assertThat(newPlaylistMap).hasSize(4);
@@ -253,11 +253,11 @@ public class PlaylistManagerTest implements Constants {
     @Test
     public void shouldDeletePlaylist() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10),
-            new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10), new Playlist(4, "Playlist 4", 10));
+                new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10), new Playlist(4, "Playlist 4", 10));
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
@@ -266,7 +266,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> newPlaylistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
 
         assertThat(newPlaylistMap).hasSize(4);
         verify(mockEventManager, times(1)).fireEvent(Event.PLAYLIST_DELETED, 1);
@@ -275,11 +275,11 @@ public class PlaylistManagerTest implements Constants {
     @Test
     public void shouldNotDeleteAReservedPlaylist() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10),
-            new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
+                new Playlist(1, "Playlist 1", 10), new Playlist(3, "Playlist 3", 10));
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         playlists.forEach(playlist -> playlistMap.put(playlist.getPlaylistId(), playlist));
 
         setField(spyPlaylistManager, "playlistMap", playlistMap);
@@ -288,7 +288,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> newPlaylistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
 
         assertThat(newPlaylistMap).hasSize(4);
         verify(mockEventManager, never()).fireEvent(Event.PLAYLIST_DELETED, 1);
@@ -305,7 +305,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = playlistMap.get(PLAYLIST_ID_FAVOURITES);
 
         assertThat(playlist.getTracks()).hasSize(10);
@@ -318,7 +318,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = playlistMap.get(PLAYLIST_ID_FAVOURITES);
 
         assertThat(playlist.getTracks()).hasSize(1);
@@ -334,7 +334,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = playlistMap.get(PLAYLIST_ID_FAVOURITES);
         playlist.setTracks(tracks);
 
@@ -344,7 +344,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> newPlaylistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist newPlaylist = newPlaylistMap.get(PLAYLIST_ID_FAVOURITES);
 
         assertThat(newPlaylist.getTracks()).hasSize(9);
@@ -358,7 +358,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = playlistMap.get(PLAYLIST_ID_FAVOURITES);
         playlist.setTracks(Arrays.asList(track1, track2));
 
@@ -368,14 +368,14 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> newPlaylistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         List<Track> tracks = newPlaylistMap.get(PLAYLIST_ID_FAVOURITES).getTracks();
 
         assertThat(tracks).hasSize(2);
         assertThat(tracks.get(0).getTrackId()).isEqualTo("7892");
         assertThat(tracks.get(1).getTrackId()).isEqualTo("7891");
         verify(mockEventManager, times(1)).fireEvent(Event.PLAYLIST_CONTENT_UPDATED, PLAYLIST_ID_FAVOURITES,
-            track1);
+                track1);
     }
 
     @Test
@@ -384,7 +384,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = playlistMap.get(PLAYLIST_ID_FAVOURITES);
         playlist.setTracks(Collections.singletonList(track));
 
@@ -401,7 +401,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = playlistMap.get(PLAYLIST_ID_FAVOURITES);
         playlist.setTracks(Collections.singletonList(track));
 
@@ -418,7 +418,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = playlistMap.get(PLAYLIST_ID_FAVOURITES);
         playlist.setTracks(Collections.singletonList(track));
 
@@ -440,7 +440,7 @@ public class PlaylistManagerTest implements Constants {
 
         @SuppressWarnings("unchecked")
         Map<Integer, Playlist> playlistMap = (Map<Integer, Playlist>) getNonNullField(spyPlaylistManager,
-            "playlistMap");
+                "playlistMap");
         Playlist playlist = playlistMap.get(PLAYLIST_ID_FAVOURITES);
         playlist.setTracks(tracks);
 
@@ -1385,7 +1385,7 @@ public class PlaylistManagerTest implements Constants {
         setField(spyPlaylistManager, "currentPlaylistId", 0);
         setField(spyPlaylistManager, "currentPlaylistIndex", 0);
 
-        spyPlaylistManager.eventReceived(Event.TRACK_SELECTED, (Object[])null);
+        spyPlaylistManager.eventReceived(Event.TRACK_SELECTED, (Object[]) null);
 
         Track selectedTrack = spyPlaylistManager.getSelectedTrack();
         int currentPlaylistId = spyPlaylistManager.getCurrentPlaylistId();
@@ -1418,7 +1418,7 @@ public class PlaylistManagerTest implements Constants {
         doReturn(true).when(spyPlaylistManager).playNextTrack(false);
         setField(spyPlaylistManager, "currentPlaylistIndex", 5);
 
-        spyPlaylistManager.eventReceived(Event.END_OF_MEDIA, (Object[])null);
+        spyPlaylistManager.eventReceived(Event.END_OF_MEDIA, (Object[]) null);
 
         int currentPlaylistIndex = (Integer) getNonNullField(spyPlaylistManager, "currentPlaylistIndex");
 
@@ -1430,7 +1430,7 @@ public class PlaylistManagerTest implements Constants {
         doReturn(false).when(spyPlaylistManager).playNextTrack(false);
         setField(spyPlaylistManager, "currentPlaylistIndex", 5);
 
-        spyPlaylistManager.eventReceived(Event.END_OF_MEDIA, (Object[])null);
+        spyPlaylistManager.eventReceived(Event.END_OF_MEDIA, (Object[]) null);
 
         int currentPlaylistIndex = (Integer) getNonNullField(spyPlaylistManager, "currentPlaylistIndex");
 

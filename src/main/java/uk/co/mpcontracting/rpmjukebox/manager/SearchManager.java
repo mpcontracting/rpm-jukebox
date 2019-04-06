@@ -239,10 +239,10 @@ public class SearchManager extends EventAwareObject implements Constants {
 
         // Keywords
         document.add(new TextField(TrackField.KEYWORDS.name(),
-            StringUtils.stripAccents(nullSafeTrim(track.getArtistName()).toLowerCase() + " "
-                    + nullSafeTrim(track.getAlbumName()).toLowerCase() + " "
-                    + nullSafeTrim(track.getTrackName())).toLowerCase(),
-            Field.Store.YES));
+                StringUtils.stripAccents(nullSafeTrim(track.getArtistName()).toLowerCase() + " "
+                        + nullSafeTrim(track.getAlbumName()).toLowerCase() + " "
+                        + nullSafeTrim(track.getTrackName())).toLowerCase(),
+                Field.Store.YES));
 
         // Result data
         document.add(new StringField(TrackField.ARTISTID.name(), track.getArtistId(), Field.Store.YES));
@@ -264,14 +264,14 @@ public class SearchManager extends EventAwareObject implements Constants {
 
         // Sorts
         document.add(new SortedDocValuesField(TrackSort.DEFAULTSORT.name(),
-            new BytesRef(stripWhitespace(track.getArtistName(), false) + padInteger(track.getYear())
-                + stripWhitespace(track.getAlbumName(), false) + padInteger(track.getNumber()))));
+                new BytesRef(stripWhitespace(track.getArtistName(), false) + padInteger(track.getYear())
+                        + stripWhitespace(track.getAlbumName(), false) + padInteger(track.getNumber()))));
         document.add(new SortedDocValuesField(TrackSort.ARTISTSORT.name(),
-            new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getArtistName(), false))));
+                new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getArtistName(), false))));
         document.add(new SortedDocValuesField(TrackSort.ALBUMSORT.name(),
-            new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getAlbumName(), false))));
+                new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getAlbumName(), false))));
         document.add(new SortedDocValuesField(TrackSort.TRACKSORT.name(),
-            new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getTrackName(), false))));
+                new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getTrackName(), false))));
 
         try {
             trackWriter.addDocument(document);
@@ -349,11 +349,11 @@ public class SearchManager extends EventAwareObject implements Constants {
         try {
             trackSearcher = trackManager.acquire();
             TopFieldDocs results = trackSearcher.search(
-                buildKeywordsQuery(
-                    StringUtils
-                        .stripAccents(nullSafeTrim(stripWhitespace(trackSearch.getKeywords(), true)).toLowerCase()),
-                    trackSearch.getTrackFilter().getFilter()),
-                appProperties.getMaxSearchHits(), new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
+                    buildKeywordsQuery(
+                            StringUtils
+                                    .stripAccents(nullSafeTrim(stripWhitespace(trackSearch.getKeywords(), true)).toLowerCase()),
+                            trackSearch.getTrackFilter().getFilter()),
+                    appProperties.getMaxSearchHits(), new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
 
             return getTracksFromScoreDocs(trackSearcher, results.scoreDocs);
         } catch (Exception e) {
@@ -397,7 +397,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
             if (yearFilter != null) {
                 query = new BooleanQuery.Builder()
-                    .add(new TermQuery(new Term(TrackField.YEAR.name(), yearFilter)), BooleanClause.Occur.MUST).build();
+                        .add(new TermQuery(new Term(TrackField.YEAR.name(), yearFilter)), BooleanClause.Occur.MUST).build();
             } else {
                 query = new MatchAllDocsQuery();
             }
@@ -412,7 +412,7 @@ public class SearchManager extends EventAwareObject implements Constants {
                 final IndexSearcher finalSearcher = trackSearcher;
                 Future<Integer> future = executorService.submit(() -> {
                     while (playlist.size() < playlistSize) {
-                        int docId = (int)(random.nextDouble() * results.totalHits);
+                        int docId = (int) (random.nextDouble() * results.totalHits);
                         Track track = getTrackByDocId(finalSearcher, scoreDocs[docId].doc);
 
                         if (!playlist.contains(track)) {
@@ -534,7 +534,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         try {
             trackSearcher = trackManager.acquire();
             TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.ALBUMID.name(), albumId)),
-                appProperties.getMaxSearchHits(), new Sort(new SortField(TrackSort.DEFAULTSORT.name(), SortField.Type.STRING)));
+                    appProperties.getMaxSearchHits(), new Sort(new SortField(TrackSort.DEFAULTSORT.name(), SortField.Type.STRING)));
 
             return of(getTracksFromScoreDocs(trackSearcher, results.scoreDocs));
         } catch (Exception e) {
@@ -600,14 +600,14 @@ public class SearchManager extends EventAwareObject implements Constants {
         } else {
             // Split into whole words with the last word having
             // a wildcard '*' on the end
-            for (StringTokenizer tokens = new StringTokenizer(keywords, " "); tokens.hasMoreTokens();) {
+            for (StringTokenizer tokens = new StringTokenizer(keywords, " "); tokens.hasMoreTokens(); ) {
                 String token = tokens.nextToken();
 
                 if (tokens.hasMoreElements()) {
                     builder.add(new TermQuery(new Term(TrackField.KEYWORDS.name(), token)), BooleanClause.Occur.MUST);
                 } else {
                     builder.add(new WildcardQuery(new Term(TrackField.KEYWORDS.name(), (token + "*"))),
-                        BooleanClause.Occur.MUST);
+                            BooleanClause.Occur.MUST);
                 }
             }
         }

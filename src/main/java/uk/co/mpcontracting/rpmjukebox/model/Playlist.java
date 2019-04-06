@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @ToString
-@EqualsAndHashCode(of = { "playlistId" })
+@EqualsAndHashCode(of = {"playlistId"})
 public class Playlist implements Cloneable, Iterable<Track>, Constants {
     @Getter
     private int playlistId;
@@ -24,7 +24,8 @@ public class Playlist implements Cloneable, Iterable<Track>, Constants {
 
     private SecureRandom random;
 
-    private Playlist() {}
+    private Playlist() {
+    }
 
     public Playlist(int playlistId, String name, int maxPlaylistSize) {
         this.playlistId = playlistId;
@@ -114,7 +115,7 @@ public class Playlist implements Cloneable, Iterable<Track>, Constants {
             track.setPlaylistId(playlistId);
             track.setPlaylistIndex(tracks.size());
             tracks.add(track);
-            shuffledTracks.add((int)(random.nextDouble() * tracks.size()), track);
+            shuffledTracks.add((int) (random.nextDouble() * tracks.size()), track);
         }
     }
 

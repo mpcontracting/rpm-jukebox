@@ -10,7 +10,7 @@ public class ValidationHelperTest extends AbstractGUITest implements Constants {
 
     @Test
     public void shouldReturnNullStringAsBlank() {
-        String result = ValidationHelper.nullAsBlank((String)null);
+        String result = ValidationHelper.nullAsBlank((String) null);
 
         assertThat(result).isEqualTo("");
     }
@@ -24,7 +24,7 @@ public class ValidationHelperTest extends AbstractGUITest implements Constants {
 
     @Test
     public void shouldReturnNullIntegerAsBlank() {
-        String result = ValidationHelper.nullAsBlank((Integer)null);
+        String result = ValidationHelper.nullAsBlank((Integer) null);
 
         assertThat(result).isEqualTo("");
     }

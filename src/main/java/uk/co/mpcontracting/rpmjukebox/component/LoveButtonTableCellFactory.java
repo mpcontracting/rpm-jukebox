@@ -14,7 +14,7 @@ import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 import static java.util.Optional.ofNullable;
 
 public class LoveButtonTableCellFactory<S, T> extends EventAwareObject
-    implements Callback<TableColumn<TrackTableModel, String>, TableCell<TrackTableModel, String>>, Constants {
+        implements Callback<TableColumn<TrackTableModel, String>, TableCell<TrackTableModel, String>>, Constants {
 
     private PlaylistManager playlistManager;
 
@@ -35,7 +35,7 @@ public class LoveButtonTableCellFactory<S, T> extends EventAwareObject
                 if (event.getClickCount() == 1) {
                     // Single click
                     ofNullable(tableCell.getItem()).ifPresent(item -> {
-                        Track track = ((TrackTableModel)tableCell.getTableRow().getItem()).getTrack();
+                        Track track = ((TrackTableModel) tableCell.getTableRow().getItem()).getTrack();
 
                         if (playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, track.getTrackId())) {
                             playlistManager.removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);

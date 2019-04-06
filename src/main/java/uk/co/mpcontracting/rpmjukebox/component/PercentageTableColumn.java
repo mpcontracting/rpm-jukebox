@@ -30,7 +30,7 @@ public class PercentageTableColumn<S, T> extends TableColumn<S, T> {
             percentageWidthProperty().set(value);
         } else {
             throw new IllegalArgumentException(
-                String.format("The provided percentage width is not between 0.0 and 1.0. Value is: %1$s", value));
+                    String.format("The provided percentage width is not between 0.0 and 1.0. Value is: %1$s", value));
         }
     }
 }

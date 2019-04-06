@@ -69,7 +69,7 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
         when(spyPlaylistListCell.getGraphic()).thenReturn(spyTextField);
 
         @SuppressWarnings("unchecked")
-        ListView<Playlist> mockListView = (ListView<Playlist>)mock(ListView.class);
+        ListView<Playlist> mockListView = (ListView<Playlist>) mock(ListView.class);
         when(mockListView.isEditable()).thenReturn(true);
         when(spyPlaylistListCell.getListView()).thenReturn(mockListView);
 
@@ -90,7 +90,7 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
         when(spyPlaylistListCell.getGraphic()).thenReturn(spyTextField);
 
         @SuppressWarnings("unchecked")
-        ListView<Playlist> mockListView = (ListView<Playlist>)mock(ListView.class);
+        ListView<Playlist> mockListView = (ListView<Playlist>) mock(ListView.class);
         when(mockListView.isEditable()).thenReturn(true);
         when(spyPlaylistListCell.getListView()).thenReturn(mockListView);
 
@@ -106,7 +106,7 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
         PlaylistListCell spyPlaylistListCell = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
 
         @SuppressWarnings("unchecked")
-        ListView<Playlist> mockListView = (ListView<Playlist>)mock(ListView.class);
+        ListView<Playlist> mockListView = (ListView<Playlist>) mock(ListView.class);
         when(mockListView.isEditable()).thenReturn(true);
         when(spyPlaylistListCell.getListView()).thenReturn(mockListView);
 
