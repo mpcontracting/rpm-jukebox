@@ -1,7 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import de.felixroske.jfxsupport.FXMLController;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
@@ -60,12 +59,12 @@ public class EqualizerController extends EventAwareObject {
     }
 
     @FXML
-    protected void handleOkButtonAction(ActionEvent event) {
+    protected void handleOkButtonAction() {
         equalizerView.close();
     }
 
     @FXML
-    protected void handleResetButtonAction(ActionEvent event) {
+    protected void handleResetButtonAction() {
         sliderHbox.getChildren().forEach(node -> {
             final Slider slider = (Slider)node;
 

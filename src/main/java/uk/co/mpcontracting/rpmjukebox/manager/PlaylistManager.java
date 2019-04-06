@@ -67,7 +67,7 @@ public class PlaylistManager extends EventAwareObject implements Constants {
     public void initialise() {
         log.info("Initialising PlaylistManager");
 
-        playlistMap.put(PLAYLIST_ID_SEARCH,new Playlist(PLAYLIST_ID_SEARCH,
+        playlistMap.put(PLAYLIST_ID_SEARCH, new Playlist(PLAYLIST_ID_SEARCH,
                 messageManager.getMessage(MESSAGE_PLAYLIST_SEARCH),
                 appProperties.getMaxPlaylistSize()));
         playlistMap.put(PLAYLIST_ID_FAVOURITES, new Playlist(PLAYLIST_ID_FAVOURITES,

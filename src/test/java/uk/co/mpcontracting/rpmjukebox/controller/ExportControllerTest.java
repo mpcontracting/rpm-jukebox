@@ -3,7 +3,6 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 import com.google.gson.Gson;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.stage.FileChooser;
 import lombok.SneakyThrows;
@@ -184,7 +183,7 @@ public class ExportControllerTest extends AbstractGUITest {
 
         when(mockSettingsManager.getGson()).thenReturn(new Gson());
 
-        spyExportController.handleOkButtonAction(new ActionEvent());
+        spyExportController.handleOkButtonAction();
 
         ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockFileWriter, atLeastOnce()).write(jsonCaptor.capture());
@@ -218,7 +217,7 @@ public class ExportControllerTest extends AbstractGUITest {
             .when(mockFileWriter).write(anyString());
         doReturn(mockFileWriter).when(spyExportController).constructFileWriter(any());
 
-        spyExportController.handleOkButtonAction(new ActionEvent());
+        spyExportController.handleOkButtonAction();
 
         verify(mockFileWriter, never()).write(anyString());
         verify(spyExportView, times(1)).close();
@@ -234,7 +233,7 @@ public class ExportControllerTest extends AbstractGUITest {
         when(mockFileChooser.showSaveDialog(any())).thenReturn(null);
         doReturn(mockFileChooser).when(spyExportController).constructFileChooser();
 
-        spyExportController.handleOkButtonAction(new ActionEvent());
+        spyExportController.handleOkButtonAction();
 
         verify(spyExportView, never()).close();
     }
@@ -243,14 +242,14 @@ public class ExportControllerTest extends AbstractGUITest {
     public void shouldClickOkButtonWithEmptyPlaylistsToExport() {
         setField(spyExportController, "playlistsToExport", new HashSet<>());
 
-        spyExportController.handleOkButtonAction(new ActionEvent());
+        spyExportController.handleOkButtonAction();
 
         verify(spyExportView, times(1)).close();
     }
 
     @Test
     public void shouldClickCancelButton() {
-        spyExportController.handleCancelButtonAction(new ActionEvent());
+        spyExportController.handleCancelButtonAction();
 
         verify(spyExportView, times(1)).close();
     }

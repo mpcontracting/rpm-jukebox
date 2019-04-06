@@ -1,7 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import de.felixroske.jfxsupport.FXMLController;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import lombok.RequiredArgsConstructor;
@@ -162,7 +161,7 @@ public class SettingsController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleReindexButtonAction(ActionEvent event) {
+    protected void handleReindexButtonAction() {
         log.debug("Re-index data button pressed");
 
         // Don't run this on the GUI thread
@@ -179,7 +178,7 @@ public class SettingsController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleOkButtonAction(ActionEvent event) {
+    protected void handleOkButtonAction() {
         trimFields();
 
         if (!validate()) {
@@ -200,7 +199,7 @@ public class SettingsController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleCancelButtonAction(ActionEvent event) {
+    protected void handleCancelButtonAction() {
         settingsView.close();
     }
 

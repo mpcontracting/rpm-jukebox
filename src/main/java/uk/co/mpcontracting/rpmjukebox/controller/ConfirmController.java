@@ -1,7 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import de.felixroske.jfxsupport.FXMLController;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
@@ -37,7 +36,7 @@ public class ConfirmController {
     }
 
     @FXML
-    protected void handleOkButtonAction(ActionEvent event) {
+    protected void handleOkButtonAction() {
         okButtonPressed();
     }
 
@@ -59,7 +58,7 @@ public class ConfirmController {
     }
 
     @FXML
-    protected void handleCancelButtonAction(ActionEvent event) {
+    protected void handleCancelButtonAction() {
         cancelButtonPressed();
     }
 

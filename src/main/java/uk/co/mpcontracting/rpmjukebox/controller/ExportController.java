@@ -3,7 +3,6 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -123,9 +122,8 @@ public class ExportController implements Constants {
             if (playlist.getPlaylistId() > 0 || playlist.getPlaylistId() == PLAYLIST_ID_FAVOURITES) {
                 PlaylistTableModel tableModel = new PlaylistTableModel(playlist);
 
-                tableModel.getSelected().addListener((observable, oldValue, newValue) -> {
-                    setPlaylistToExport(tableModel.getPlaylist().getPlaylistId(), newValue);
-                });
+                tableModel.getSelected().addListener((observable, oldValue, newValue) ->
+                    setPlaylistToExport(tableModel.getPlaylist().getPlaylistId(), newValue));
 
                 observablePlaylists.add(tableModel);
             }
@@ -145,7 +143,7 @@ public class ExportController implements Constants {
     }
 
     @FXML
-    protected void handleOkButtonAction(ActionEvent event) {
+    protected void handleOkButtonAction() {
         log.debug("Exporting playlists - {}", playlistsToExport);
 
         if (!playlistsToExport.isEmpty()) {
@@ -178,7 +176,7 @@ public class ExportController implements Constants {
     }
 
     @FXML
-    protected void handleCancelButtonAction(ActionEvent event) {
+    protected void handleCancelButtonAction() {
         exportView.close();
     }
 

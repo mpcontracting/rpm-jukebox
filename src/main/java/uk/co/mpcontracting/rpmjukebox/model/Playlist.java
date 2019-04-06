@@ -105,7 +105,7 @@ public class Playlist implements Cloneable, Iterable<Track>, Constants {
     public void setTracks(List<Track> tracks) {
         clear();
 
-        tracks.forEach(track -> addTrack(track));
+        tracks.forEach(this::addTrack);
     }
 
     @Synchronized

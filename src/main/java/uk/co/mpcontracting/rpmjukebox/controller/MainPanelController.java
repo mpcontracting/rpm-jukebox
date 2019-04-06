@@ -5,7 +5,6 @@ import com.igormaznitsa.commons.version.Version;
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.effect.BoxBlur;
@@ -404,21 +403,21 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleNewVersionButtonAction(ActionEvent event) {
+    protected void handleNewVersionButtonAction() {
         log.debug("New version button pressed");
 
         updateManager.downloadNewVersion();
     }
 
     @FXML
-    protected void handleAddPlaylistButtonAction(ActionEvent event) {
+    protected void handleAddPlaylistButtonAction() {
         log.debug("Add playlist button pressed");
 
         playlistManager.createPlaylist();
     }
 
     @FXML
-    protected void handleDeletePlaylistButtonAction(ActionEvent event) {
+    protected void handleDeletePlaylistButtonAction() {
         log.debug("Delete playlist button pressed");
 
         Playlist playlist = playlistPanelListView.getSelectionModel().getSelectedItem();
@@ -430,7 +429,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleImportPlaylistButtonAction(ActionEvent event) {
+    protected void handleImportPlaylistButtonAction() {
         log.debug("Import playlist button pressed");
 
         FileChooser fileChooser = constructFileChooser();
@@ -492,7 +491,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleExportPlaylistButtonAction(ActionEvent event) {
+    protected void handleExportPlaylistButtonAction() {
         log.debug("Export playlist button pressed");
 
         exportController.bindPlaylists();
@@ -500,7 +499,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleSettingsButtonAction(ActionEvent event) {
+    protected void handleSettingsButtonAction() {
         log.debug("Settings button pressed");
 
         settingsController.bindSystemSettings();
@@ -508,7 +507,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handlePreviousButtonAction(ActionEvent event) {
+    protected void handlePreviousButtonAction() {
         log.debug("Previous button pressed");
 
         if (mediaManager.getPlayingTimeSeconds() > appProperties.getPreviousSecondsCutoff()) {
@@ -519,7 +518,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handlePlayPauseButtonAction(ActionEvent event) {
+    protected void handlePlayPauseButtonAction() {
         log.debug("Play/pause button pressed");
 
         if (mediaManager.isPlaying()) {
@@ -535,14 +534,14 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleNextButtonAction(ActionEvent event) {
+    protected void handleNextButtonAction() {
         log.debug("Next button pressed");
 
         playlistManager.playNextTrack(true);
     }
 
     @FXML
-    protected void handleVolumeButtonAction(ActionEvent event) {
+    protected void handleVolumeButtonAction() {
         log.debug("Volume button pressed");
 
         mediaManager.setMuted();
@@ -551,7 +550,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleShuffleButtonAction(ActionEvent event) {
+    protected void handleShuffleButtonAction() {
         log.debug("Shuffle button pressed");
 
         playlistManager.setShuffle(!playlistManager.isShuffle(), false);
@@ -560,7 +559,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleRepeatButtonAction(ActionEvent event) {
+    protected void handleRepeatButtonAction() {
         log.debug("Repeat button pressed");
 
         playlistManager.updateRepeat();
@@ -569,7 +568,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleEqButtonAction(ActionEvent event) {
+    protected void handleEqButtonAction() {
         log.debug("EQ button pressed");
 
         equalizerController.updateSliderValues();
@@ -577,7 +576,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     }
 
     @FXML
-    protected void handleRandomButtonAction(ActionEvent event) {
+    protected void handleRandomButtonAction() {
         log.debug("Random button pressed");
 
         YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();

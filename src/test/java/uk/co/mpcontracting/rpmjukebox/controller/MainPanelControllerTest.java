@@ -5,7 +5,6 @@ import com.igormaznitsa.commons.version.Version;
 import de.felixroske.jfxsupport.GUIState;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -482,7 +481,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         CountDownLatch latch2 = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            spyMainPanelController.handleImportPlaylistButtonAction();
             latch2.countDown();
         });
 
@@ -548,7 +547,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         CountDownLatch latch2 = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            spyMainPanelController.handleImportPlaylistButtonAction();
             latch2.countDown();
         });
 
@@ -601,7 +600,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         CountDownLatch latch2 = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            spyMainPanelController.handleImportPlaylistButtonAction();
             latch2.countDown();
         });
 
@@ -637,7 +636,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         CountDownLatch latch2 = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            spyMainPanelController.handleImportPlaylistButtonAction();
             latch2.countDown();
         });
 
@@ -678,7 +677,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         CountDownLatch latch2 = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction(new ActionEvent());
+            spyMainPanelController.handleImportPlaylistButtonAction();
             latch2.countDown();
         });
 

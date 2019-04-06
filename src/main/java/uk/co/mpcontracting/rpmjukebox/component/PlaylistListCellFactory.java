@@ -58,9 +58,7 @@ public class PlaylistListCellFactory extends EventAwareObject
         ContextMenu contextMenu = new ContextMenu();
 
         final MenuItem newPlaylistItem = new MenuItem(messageManager.getMessage(MESSAGE_PLAYLIST_CONTEXT_NEW_PLAYLIST));
-        newPlaylistItem.setOnAction(event -> {
-            playlistManager.createPlaylist();
-        });
+        newPlaylistItem.setOnAction(event -> playlistManager.createPlaylist());
         contextMenu.getItems().add(newPlaylistItem);
 
         final MenuItem deletePlaylistItem = new MenuItem(messageManager.getMessage(MESSAGE_PLAYLIST_CONTEXT_DELETE_PLAYLIST));

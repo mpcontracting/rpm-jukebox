@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.support;
 
 import javafx.util.Duration;
+import lombok.AllArgsConstructor;
 
 public abstract class StringHelper {
 
@@ -8,42 +9,47 @@ public abstract class StringHelper {
     }
 
     public static String formatElapsedTime(Duration mediaDuration, Duration currentTime) {
-        int intElapsed = (int)Math.floor(currentTime.toSeconds());
-        int elapsedHours = intElapsed / (60 * 60);
-
-        if (elapsedHours > 0) {
-            intElapsed -= elapsedHours * 60 * 60;
-        }
-
-        int elapsedMinutes = intElapsed / 60;
-        int elapsedSeconds = intElapsed - elapsedMinutes * 60;
+        HoursMinutesSeconds elapsed = getHoursMinutesSeconds(currentTime);
 
         if (mediaDuration.equals(Duration.ZERO) && currentTime.equals(Duration.ZERO)) {
             return "00:00/00:00";
         } else if (mediaDuration.greaterThan(Duration.ZERO)) {
-            int intDuration = (int)Math.floor(mediaDuration.toSeconds());
-            int durationHours = intDuration / (60 * 60);
+            HoursMinutesSeconds duration = getHoursMinutesSeconds(mediaDuration);
 
-            if (durationHours > 0) {
-                intDuration -= durationHours * 60 * 60;
-            }
-
-            int durationMinutes = intDuration / 60;
-            int durationSeconds = intDuration - durationMinutes * 60;
-
-            if (durationHours > 0) {
-                return String.format("%d:%02d:%02d/%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds,
-                    durationHours, durationMinutes, durationSeconds);
+            if (duration.hours > 0) {
+                return String.format("%d:%02d:%02d/%d:%02d:%02d", elapsed.hours, elapsed.minutes, elapsed.seconds,
+                    duration.hours, duration.minutes, duration.seconds);
             } else {
-                return String.format("%02d:%02d/%02d:%02d", elapsedMinutes, elapsedSeconds, durationMinutes,
-                    durationSeconds);
+                return String.format("%02d:%02d/%02d:%02d", elapsed.minutes, elapsed.seconds, duration.minutes,
+                    duration.seconds);
             }
         } else {
-            if (elapsedHours > 0) {
-                return String.format("%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds);
+            if (elapsed.hours > 0) {
+                return String.format("%d:%02d:%02d", elapsed.hours, elapsed.minutes, elapsed.seconds);
             } else {
-                return String.format("%02d:%02d", elapsedMinutes, elapsedSeconds);
+                return String.format("%02d:%02d", elapsed.minutes, elapsed.seconds);
             }
         }
+    }
+
+    private static HoursMinutesSeconds getHoursMinutesSeconds(Duration duration) {
+        int intDuration = (int)Math.floor(duration.toSeconds());
+        int hours = intDuration / (60 * 60);
+
+        if (hours > 0) {
+            intDuration -= hours * 60 * 60;
+        }
+
+        int minutes = intDuration / 60;
+        int seconds = intDuration - minutes * 60;
+
+        return new HoursMinutesSeconds(hours, minutes, seconds);
+    }
+
+    @AllArgsConstructor
+    private static class HoursMinutesSeconds {
+        private final int hours;
+        private final int minutes;
+        private final int seconds;
     }
 }

@@ -33,8 +33,7 @@ public class EventManager {
     }
 
     public void fireEvent(final Event event, final Object... payload) {
-        Platform.runLater(() -> {
-            eventListeners.forEach(eventListener -> eventListener.eventReceived(event, payload));
-        });
+        Platform.runLater(() ->
+            eventListeners.forEach(eventListener -> eventListener.eventReceived(event, payload)));
     }
 }
