@@ -6,6 +6,7 @@ A player for the RPM Challenge jukebox written in JavaFX
 ### v3.0.0
 
 * Music files now stored on AWS
+* Jukebox is now in a stand alone repository
 
 ### v2.0.5
 
