@@ -124,7 +124,7 @@ jfx {
     jvmArgs = ['-Xmx128m']
     //verbose = true
     bundleArguments = [
-            'copyright': '©2017 Matt Parker',
+            'copyright': '©2019 Matt Parker',
             'systemWide': 'true',
             'win.menuGroup': 'RPM Jukebox',
             'win.msi.productVersion': "${version}"
