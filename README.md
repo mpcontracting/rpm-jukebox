@@ -3,6 +3,10 @@ A player for the RPM Challenge jukebox written in JavaFX
 
 ## Release Notes
 
+### v3.0.0
+
+* Music files now stored on AWS
+
 ### v2.0.5
 
 * Automatically re-index data with a new version
