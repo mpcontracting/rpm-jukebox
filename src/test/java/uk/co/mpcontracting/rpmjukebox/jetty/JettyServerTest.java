@@ -44,7 +44,8 @@ public class JettyServerTest implements Constants {
 
     @Before
     public void setup() {
-        spyJettyServer = spy(new JettyServer(mockAppProperties, mockRpmJukebox, mockApplicationManager, mockMessageManager));
+        spyJettyServer = spy(new JettyServer(mockAppProperties, mockRpmJukebox, mockMessageManager));
+        spyJettyServer.wireApplicationManager(mockApplicationManager);
 
         doReturn(mockServer).when(spyJettyServer).constructServer();
         doReturn(mockServerConnector).when(spyJettyServer).constructServerConnector(mockServer);

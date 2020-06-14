@@ -10,6 +10,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
@@ -27,10 +28,16 @@ public class JettyServer implements Constants {
 
     private final AppProperties appProperties;
     private final RpmJukebox rpmJukebox;
-    private final ApplicationManager applicationManager;
     private final MessageManager messageManager;
 
+    private ApplicationManager applicationManager;
+
     private Server server;
+
+    @Autowired
+    public void wireApplicationManager(ApplicationManager applicationManager) {
+        this.applicationManager = applicationManager;
+    }
 
     @SneakyThrows
     @PostConstruct
