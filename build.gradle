@@ -41,7 +41,7 @@ dependencyCheck {
 sourceCompatibility = 1.8
 
 group 'uk.co.mpcontracting'
-version = '3.0.0'
+version = '3.0.1'
 
 jar {
     archivesBaseName = "${project.name}"
@@ -124,7 +124,7 @@ jfx {
     jvmArgs = ['-Xmx128m']
     //verbose = true
     bundleArguments = [
-            'copyright': '©2019 Matt Parker',
+            'copyright': '©2026-2020 Matt Parker',
             'systemWide': 'true',
             'win.menuGroup': 'RPM Jukebox',
             'win.msi.productVersion': "${version}"

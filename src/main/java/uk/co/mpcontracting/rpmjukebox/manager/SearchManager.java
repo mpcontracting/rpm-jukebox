@@ -221,9 +221,9 @@ public class SearchManager extends EventAwareObject implements Constants {
     void addArtist(Artist artist) {
         Document document = new Document();
 
-        document.add(new StringField(ArtistField.ARTISTID.name(), artist.getArtistId(), Field.Store.YES));
-        document.add(new StringField(ArtistField.ARTISTNAME.name(), artist.getArtistName(), Field.Store.YES));
-        document.add(new StringField(ArtistField.ARTISTIMAGE.name(), nullIsBlank(artist.getArtistImage()), Field.Store.YES));
+        document.add(new StringField(ArtistField.ARTIST_ID.name(), artist.getArtistId(), Field.Store.YES));
+        document.add(new StringField(ArtistField.ARTIST_NAME.name(), artist.getArtistName(), Field.Store.YES));
+        document.add(new StringField(ArtistField.ARTIST_IMAGE.name(), nullIsBlank(artist.getArtistImage()), Field.Store.YES));
         document.add(new StringField(ArtistField.BIOGRAPHY.name(), nullIsBlank(artist.getBiography()), Field.Store.YES));
         document.add(new StringField(ArtistField.MEMBERS.name(), nullIsBlank(artist.getMembers()), Field.Store.YES));
 
@@ -245,32 +245,31 @@ public class SearchManager extends EventAwareObject implements Constants {
                 Field.Store.YES));
 
         // Result data
-        document.add(new StringField(TrackField.ARTISTID.name(), track.getArtistId(), Field.Store.YES));
-        document.add(new StringField(TrackField.ARTISTNAME.name(), track.getArtistName(), Field.Store.YES));
-        document.add(new StringField(TrackField.ARTISTIMAGE.name(), nullIsBlank(track.getArtistImage()), Field.Store.YES));
-        document.add(new StringField(TrackField.ALBUMID.name(), track.getAlbumId(), Field.Store.YES));
-        document.add(new StringField(TrackField.ALBUMNAME.name(), track.getAlbumName(), Field.Store.YES));
-        document.add(new StringField(TrackField.ALBUMIMAGE.name(), nullIsBlank(track.getAlbumImage()), Field.Store.YES));
+        document.add(new StringField(TrackField.ARTIST_ID.name(), track.getArtistId(), Field.Store.YES));
+        document.add(new StringField(TrackField.ARTIST_NAME.name(), track.getArtistName(), Field.Store.YES));
+        document.add(new StringField(TrackField.ALBUM_ID.name(), track.getAlbumId(), Field.Store.YES));
+        document.add(new StringField(TrackField.ALBUM_NAME.name(), track.getAlbumName(), Field.Store.YES));
+        document.add(new StringField(TrackField.ALBUM_IMAGE.name(), nullIsBlank(track.getAlbumImage()), Field.Store.YES));
         document.add(new StringField(TrackField.YEAR.name(), Integer.toString(track.getYear()), Field.Store.YES));
-        document.add(new StringField(TrackField.TRACKID.name(), track.getTrackId(), Field.Store.YES));
-        document.add(new StringField(TrackField.TRACKNAME.name(), track.getTrackName(), Field.Store.YES));
+        document.add(new StringField(TrackField.TRACK_ID.name(), track.getTrackId(), Field.Store.YES));
+        document.add(new StringField(TrackField.TRACK_NAME.name(), track.getTrackName(), Field.Store.YES));
         document.add(new StoredField(TrackField.NUMBER.name(), track.getNumber()));
         document.add(new StringField(TrackField.LOCATION.name(), track.getLocation(), Field.Store.YES));
-        document.add(new StringField(TrackField.ISPREFERRED.name(), Boolean.toString(track.isPreferred()), Field.Store.YES));
+        document.add(new StringField(TrackField.IS_PREFERRED.name(), Boolean.toString(track.isPreferred()), Field.Store.YES));
 
         for (String genre : track.getGenres()) {
             document.add(new StringField(TrackField.GENRE.name(), genre, Field.Store.YES));
         }
 
         // Sorts
-        document.add(new SortedDocValuesField(TrackSort.DEFAULTSORT.name(),
+        document.add(new SortedDocValuesField(TrackSort.DEFAULT_SORT.name(),
                 new BytesRef(stripWhitespace(track.getArtistName(), false) + padInteger(track.getYear())
                         + stripWhitespace(track.getAlbumName(), false) + padInteger(track.getNumber()))));
-        document.add(new SortedDocValuesField(TrackSort.ARTISTSORT.name(),
+        document.add(new SortedDocValuesField(TrackSort.ARTIST_SORT.name(),
                 new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getArtistName(), false))));
-        document.add(new SortedDocValuesField(TrackSort.ALBUMSORT.name(),
+        document.add(new SortedDocValuesField(TrackSort.ALBUM_SORT.name(),
                 new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getAlbumName(), false))));
-        document.add(new SortedDocValuesField(TrackSort.TRACKSORT.name(),
+        document.add(new SortedDocValuesField(TrackSort.TRACK_SORT.name(),
                 new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getTrackName(), false))));
 
         try {
@@ -473,7 +472,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
         try {
             artistSearcher = artistManager.acquire();
-            TopDocs results = artistSearcher.search(new TermQuery(new Term(ArtistField.ARTISTID.name(), artistId)), 1);
+            TopDocs results = artistSearcher.search(new TermQuery(new Term(ArtistField.ARTIST_ID.name(), artistId)), 1);
 
             if (results.totalHits < 1) {
                 return empty();
@@ -503,7 +502,7 @@ public class SearchManager extends EventAwareObject implements Constants {
 
         try {
             trackSearcher = trackManager.acquire();
-            TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.TRACKID.name(), trackId)), 1);
+            TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.TRACK_ID.name(), trackId)), 1);
 
             if (results.totalHits < 1) {
                 return empty();
@@ -533,8 +532,8 @@ public class SearchManager extends EventAwareObject implements Constants {
 
         try {
             trackSearcher = trackManager.acquire();
-            TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.ALBUMID.name(), albumId)),
-                    appProperties.getMaxSearchHits(), new Sort(new SortField(TrackSort.DEFAULTSORT.name(), SortField.Type.STRING)));
+            TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.ALBUM_ID.name(), albumId)),
+                    appProperties.getMaxSearchHits(), new Sort(new SortField(TrackSort.DEFAULT_SORT.name(), SortField.Type.STRING)));
 
             return of(getTracksFromScoreDocs(trackSearcher, results.scoreDocs));
         } catch (Exception e) {
@@ -554,9 +553,9 @@ public class SearchManager extends EventAwareObject implements Constants {
         Document document = artistSearcher.doc(docId);
 
         return Artist.builder()
-                .artistId(document.get(ArtistField.ARTISTID.name()))
-                .artistName(document.get(ArtistField.ARTISTNAME.name()))
-                .artistImage(document.get(ArtistField.ARTISTIMAGE.name()))
+                .artistId(document.get(ArtistField.ARTIST_ID.name()))
+                .artistName(document.get(ArtistField.ARTIST_NAME.name()))
+                .artistImage(document.get(ArtistField.ARTIST_IMAGE.name()))
                 .biography(document.get(ArtistField.BIOGRAPHY.name()))
                 .members(document.get(ArtistField.MEMBERS.name()))
                 .build();
@@ -576,18 +575,17 @@ public class SearchManager extends EventAwareObject implements Constants {
         Document document = trackSearcher.doc(docId);
 
         return Track.builder()
-                .artistId(document.get(TrackField.ARTISTID.name()))
-                .artistName(document.get(TrackField.ARTISTNAME.name()))
-                .artistImage(document.get(TrackField.ARTISTIMAGE.name()))
-                .albumId(document.get(TrackField.ALBUMID.name()))
-                .albumName(document.get(TrackField.ALBUMNAME.name()))
-                .albumImage(document.get(TrackField.ALBUMIMAGE.name()))
+                .artistId(document.get(TrackField.ARTIST_ID.name()))
+                .artistName(document.get(TrackField.ARTIST_NAME.name()))
+                .albumId(document.get(TrackField.ALBUM_ID.name()))
+                .albumName(document.get(TrackField.ALBUM_NAME.name()))
+                .albumImage(document.get(TrackField.ALBUM_IMAGE.name()))
                 .year(Integer.parseInt(document.get(TrackField.YEAR.name())))
-                .trackId(document.get(TrackField.TRACKID.name()))
-                .trackName(document.get(TrackField.TRACKNAME.name()))
+                .trackId(document.get(TrackField.TRACK_ID.name()))
+                .trackName(document.get(TrackField.TRACK_NAME.name()))
                 .number(Integer.parseInt(document.get(TrackField.NUMBER.name())))
                 .location(document.get(TrackField.LOCATION.name()))
-                .isPreferred(Boolean.parseBoolean(document.get(TrackField.ISPREFERRED.name())))
+                .isPreferred(Boolean.parseBoolean(document.get(TrackField.IS_PREFERRED.name())))
                 .genres(Arrays.asList(document.getValues(TrackField.GENRE.name())))
                 .build();
     }

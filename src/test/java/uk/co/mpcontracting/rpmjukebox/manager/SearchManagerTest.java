@@ -415,12 +415,12 @@ public class SearchManagerTest implements Constants {
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockArtistWriter, times(1)).addDocument(document.capture());
 
-        assertThat(document.getValue().getField(ArtistField.ARTISTID.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(ArtistField.ARTISTID.name()).stringValue()).isEqualTo("1231");
-        assertThat(document.getValue().getField(ArtistField.ARTISTNAME.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(ArtistField.ARTISTNAME.name()).stringValue()).isEqualTo("Artist Name 1");
-        assertThat(document.getValue().getField(ArtistField.ARTISTIMAGE.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(ArtistField.ARTISTIMAGE.name()).stringValue()).isEqualTo("Artist Image 1");
+        assertThat(document.getValue().getField(ArtistField.ARTIST_ID.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(ArtistField.ARTIST_ID.name()).stringValue()).isEqualTo("1231");
+        assertThat(document.getValue().getField(ArtistField.ARTIST_NAME.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(ArtistField.ARTIST_NAME.name()).stringValue()).isEqualTo("Artist Name 1");
+        assertThat(document.getValue().getField(ArtistField.ARTIST_IMAGE.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(ArtistField.ARTIST_IMAGE.name()).stringValue()).isEqualTo("Artist Image 1");
         assertThat(document.getValue().getField(ArtistField.BIOGRAPHY.name()).fieldType().stored()).isTrue();
         assertThat(document.getValue().getField(ArtistField.BIOGRAPHY.name()).stringValue()).isEqualTo("Biography 1");
         assertThat(document.getValue().getField(ArtistField.MEMBERS.name()).fieldType().stored()).isTrue();
@@ -451,30 +451,28 @@ public class SearchManagerTest implements Constants {
 
         assertThat(document.getValue().getField(TrackField.KEYWORDS.name()).fieldType().stored()).isTrue();
         assertThat(document.getValue().getField(TrackField.KEYWORDS.name()).stringValue()).isEqualTo("artist name 1 album name 1 track name 1");
-        assertThat(document.getValue().getField(TrackField.ARTISTID.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ARTISTID.name()).stringValue()).isEqualTo("1231");
-        assertThat(document.getValue().getField(TrackField.ARTISTNAME.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ARTISTNAME.name()).stringValue()).isEqualTo("Artist Name 1");
-        assertThat(document.getValue().getField(TrackField.ARTISTIMAGE.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ARTISTIMAGE.name()).stringValue()).isEqualTo("Artist Image 1");
-        assertThat(document.getValue().getField(TrackField.ALBUMID.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ALBUMID.name()).stringValue()).isEqualTo("4561");
-        assertThat(document.getValue().getField(TrackField.ALBUMNAME.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ALBUMNAME.name()).stringValue()).isEqualTo("Album Name 1");
-        assertThat(document.getValue().getField(TrackField.ALBUMIMAGE.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ALBUMIMAGE.name()).stringValue()).isEqualTo("Album Image 1");
+        assertThat(document.getValue().getField(TrackField.ARTIST_ID.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ARTIST_ID.name()).stringValue()).isEqualTo("1231");
+        assertThat(document.getValue().getField(TrackField.ARTIST_NAME.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ARTIST_NAME.name()).stringValue()).isEqualTo("Artist Name 1");
+        assertThat(document.getValue().getField(TrackField.ALBUM_ID.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ALBUM_ID.name()).stringValue()).isEqualTo("4561");
+        assertThat(document.getValue().getField(TrackField.ALBUM_NAME.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ALBUM_NAME.name()).stringValue()).isEqualTo("Album Name 1");
+        assertThat(document.getValue().getField(TrackField.ALBUM_IMAGE.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.ALBUM_IMAGE.name()).stringValue()).isEqualTo("Album Image 1");
         assertThat(document.getValue().getField(TrackField.YEAR.name()).fieldType().stored()).isTrue();
         assertThat(document.getValue().getField(TrackField.YEAR.name()).stringValue()).isEqualTo("2001");
-        assertThat(document.getValue().getField(TrackField.TRACKID.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.TRACKID.name()).stringValue()).isEqualTo("7891");
-        assertThat(document.getValue().getField(TrackField.TRACKNAME.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.TRACKNAME.name()).stringValue()).isEqualTo("Track Name 1");
+        assertThat(document.getValue().getField(TrackField.TRACK_ID.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.TRACK_ID.name()).stringValue()).isEqualTo("7891");
+        assertThat(document.getValue().getField(TrackField.TRACK_NAME.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.TRACK_NAME.name()).stringValue()).isEqualTo("Track Name 1");
         assertThat(document.getValue().getField(TrackField.NUMBER.name()).fieldType().stored()).isTrue();
         assertThat(document.getValue().getField(TrackField.NUMBER.name()).stringValue()).isEqualTo("1");
         assertThat(document.getValue().getField(TrackField.LOCATION.name()).fieldType().stored()).isTrue();
         assertThat(document.getValue().getField(TrackField.LOCATION.name()).stringValue()).isEqualTo("Location 1");
-        assertThat(document.getValue().getField(TrackField.ISPREFERRED.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.ISPREFERRED.name()).stringValue()).isEqualTo("true");
+        assertThat(document.getValue().getField(TrackField.IS_PREFERRED.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.IS_PREFERRED.name()).stringValue()).isEqualTo("true");
 
         assertThat(document.getValue().getFields(TrackField.GENRE.name())).hasSize(2);
         assertThat(document.getValue().getFields(TrackField.GENRE.name())[0].fieldType().stored()).isTrue();
@@ -482,10 +480,10 @@ public class SearchManagerTest implements Constants {
         assertThat(document.getValue().getFields(TrackField.GENRE.name())[1].fieldType().stored()).isTrue();
         assertThat(document.getValue().getFields(TrackField.GENRE.name())[1].stringValue()).isEqualTo("Genre 2");
 
-        assertThat(document.getValue().getBinaryValue(TrackSort.DEFAULTSORT.name()).utf8ToString()).isEqualTo("ArtistName10000002001AlbumName10000000001");
-        assertThat(document.getValue().getBinaryValue(TrackSort.ARTISTSORT.name()).utf8ToString()).isEqualTo("0000002001ArtistName1");
-        assertThat(document.getValue().getBinaryValue(TrackSort.ALBUMSORT.name()).utf8ToString()).isEqualTo("0000002001AlbumName1");
-        assertThat(document.getValue().getBinaryValue(TrackSort.TRACKSORT.name()).utf8ToString()).isEqualTo("0000002001TrackName1");
+        assertThat(document.getValue().getBinaryValue(TrackSort.DEFAULT_SORT.name()).utf8ToString()).isEqualTo("ArtistName10000002001AlbumName10000000001");
+        assertThat(document.getValue().getBinaryValue(TrackSort.ARTIST_SORT.name()).utf8ToString()).isEqualTo("0000002001ArtistName1");
+        assertThat(document.getValue().getBinaryValue(TrackSort.ALBUM_SORT.name()).utf8ToString()).isEqualTo("0000002001AlbumName1");
+        assertThat(document.getValue().getBinaryValue(TrackSort.TRACK_SORT.name()).utf8ToString()).isEqualTo("0000002001TrackName1");
     }
 
     @Test
@@ -499,7 +497,7 @@ public class SearchManagerTest implements Constants {
         ArgumentCaptor<Document> document = ArgumentCaptor.forClass(Document.class);
         verify(mockTrackWriter, times(1)).addDocument(document.capture());
 
-        assertThat(document.getValue().getFields()).hasSize(19);
+        assertThat(document.getValue().getFields()).hasSize(18);
     }
 
     @Test
@@ -524,7 +522,7 @@ public class SearchManagerTest implements Constants {
         when(mockLeafReader.terms(anyString())).thenReturn(mockTerms);
         when(mockTerms.iterator()).thenReturn(new TestTermsEnum(bytesRefIterator));
 
-        List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
+        List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUM_ID);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0)).isEqualTo("Ref 1");
@@ -535,7 +533,7 @@ public class SearchManagerTest implements Constants {
     public void shouldFailToGetDistinctTrackFieldValuesIfTrackManagerIsNull() {
         setField(spySearchManager, "trackManager", null);
 
-        assertThatThrownBy(() -> spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID))
+        assertThatThrownBy(() -> spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUM_ID))
                 .isInstanceOf(RuntimeException.class);
     }
 
@@ -556,7 +554,7 @@ public class SearchManagerTest implements Constants {
         when(mockLeafReaderContext.reader()).thenReturn(mockLeafReader);
         when(mockLeafReader.terms(anyString())).thenReturn(null);
 
-        List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
+        List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUM_ID);
 
         assertThat(result).isEmpty();
     }
@@ -567,7 +565,7 @@ public class SearchManagerTest implements Constants {
         doThrow(new RuntimeException("SearchManagerTest.shouldGetEmptyDistinctTrackFieldValuesWhenExceptionThrown()"))
                 .when(mockTrackManager).acquire();
 
-        List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
+        List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUM_ID);
 
         assertThat(result).isEmpty();
     }
@@ -597,7 +595,7 @@ public class SearchManagerTest implements Constants {
         when(mockLeafReader.terms(anyString())).thenReturn(mockTerms);
         when(mockTerms.iterator()).thenReturn(new TestTermsEnum(bytesRefIterator));
 
-        List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUMID);
+        List<String> result = spySearchManager.getDistinctTrackFieldValues(TrackField.ALBUM_ID);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0)).isEqualTo("Ref 1");
@@ -623,7 +621,6 @@ public class SearchManagerTest implements Constants {
 
         assertThat(track1.getArtistId()).isEqualTo("1231");
         assertThat(track1.getArtistName()).isEqualTo("Artist Name 1");
-        assertThat(track1.getArtistImage()).isEqualTo("Artist Image 1");
         assertThat(track1.getAlbumId()).isEqualTo("4561");
         assertThat(track1.getAlbumName()).isEqualTo("Album Name 1");
         assertThat(track1.getAlbumImage()).isEqualTo("Album Image 1");
@@ -641,7 +638,6 @@ public class SearchManagerTest implements Constants {
 
         assertThat(track2.getArtistId()).isEqualTo("1232");
         assertThat(track2.getArtistName()).isEqualTo("Artist Name 2");
-        assertThat(track2.getArtistImage()).isEqualTo("Artist Image 2");
         assertThat(track2.getAlbumId()).isEqualTo("4562");
         assertThat(track2.getAlbumName()).isEqualTo("Album Name 2");
         assertThat(track2.getAlbumImage()).isEqualTo("Album Image 2");
@@ -962,7 +958,6 @@ public class SearchManagerTest implements Constants {
         assertThat(track).isNotNull();
         assertThat(track.getArtistId()).isEqualTo("1231");
         assertThat(track.getArtistName()).isEqualTo("Artist Name 1");
-        assertThat(track.getArtistImage()).isEqualTo("Artist Image 1");
         assertThat(track.getAlbumId()).isEqualTo("4561");
         assertThat(track.getAlbumName()).isEqualTo("Album Name 1");
         assertThat(track.getAlbumImage()).isEqualTo("Album Image 1");
@@ -995,7 +990,6 @@ public class SearchManagerTest implements Constants {
         assertThat(track).isNotNull();
         assertThat(track.getArtistId()).isEqualTo("1231");
         assertThat(track.getArtistName()).isEqualTo("Artist Name 1");
-        assertThat(track.getArtistImage()).isEqualTo("Artist Image 1");
         assertThat(track.getAlbumId()).isEqualTo("4561");
         assertThat(track.getAlbumName()).isEqualTo("Album Name 1");
         assertThat(track.getAlbumImage()).isEqualTo("Album Image 1");
@@ -1136,9 +1130,9 @@ public class SearchManagerTest implements Constants {
     private void setArtistSearcherDocuments(IndexSearcher mockArtistSearcher) {
         for (int i = 1; i < 10; i++) {
             Document document = mock(Document.class);
-            when(document.get(ArtistField.ARTISTID.name())).thenReturn("123" + i);
-            when(document.get(ArtistField.ARTISTNAME.name())).thenReturn("Artist Name " + i);
-            when(document.get(ArtistField.ARTISTIMAGE.name())).thenReturn("Artist Image " + i);
+            when(document.get(ArtistField.ARTIST_ID.name())).thenReturn("123" + i);
+            when(document.get(ArtistField.ARTIST_NAME.name())).thenReturn("Artist Name " + i);
+            when(document.get(ArtistField.ARTIST_IMAGE.name())).thenReturn("Artist Image " + i);
             when(document.get(ArtistField.BIOGRAPHY.name())).thenReturn("Biography " + i);
             when(document.get(ArtistField.MEMBERS.name())).thenReturn("Members " + i);
 
@@ -1150,18 +1144,17 @@ public class SearchManagerTest implements Constants {
     private void setTrackSearcherDocuments(IndexSearcher mockTrackSearcher) {
         for (int i = 1; i < 10; i++) {
             Document document = mock(Document.class);
-            when(document.get(TrackField.ARTISTID.name())).thenReturn("123" + i);
-            when(document.get(TrackField.ARTISTNAME.name())).thenReturn("Artist Name " + i);
-            when(document.get(TrackField.ARTISTIMAGE.name())).thenReturn("Artist Image " + i);
-            when(document.get(TrackField.ALBUMID.name())).thenReturn("456" + i);
-            when(document.get(TrackField.ALBUMNAME.name())).thenReturn("Album Name " + i);
-            when(document.get(TrackField.ALBUMIMAGE.name())).thenReturn("Album Image " + i);
+            when(document.get(TrackField.ARTIST_ID.name())).thenReturn("123" + i);
+            when(document.get(TrackField.ARTIST_NAME.name())).thenReturn("Artist Name " + i);
+            when(document.get(TrackField.ALBUM_ID.name())).thenReturn("456" + i);
+            when(document.get(TrackField.ALBUM_NAME.name())).thenReturn("Album Name " + i);
+            when(document.get(TrackField.ALBUM_IMAGE.name())).thenReturn("Album Image " + i);
             when(document.get(TrackField.YEAR.name())).thenReturn("200" + i);
-            when(document.get(TrackField.TRACKID.name())).thenReturn("789" + i);
-            when(document.get(TrackField.TRACKNAME.name())).thenReturn("Track Name " + i);
+            when(document.get(TrackField.TRACK_ID.name())).thenReturn("789" + i);
+            when(document.get(TrackField.TRACK_NAME.name())).thenReturn("Track Name " + i);
             when(document.get(TrackField.NUMBER.name())).thenReturn(Integer.toString(i));
             when(document.get(TrackField.LOCATION.name())).thenReturn("Location " + i);
-            when(document.get(TrackField.ISPREFERRED.name())).thenReturn((i % 2 == 0) ? "false" : "true");
+            when(document.get(TrackField.IS_PREFERRED.name())).thenReturn((i % 2 == 0) ? "false" : "true");
             when(document.getValues(TrackField.GENRE.name()))
                     .thenReturn(new String[]{"Genre 1 " + i, "Genre 2 " + i});
 

@@ -17,10 +17,8 @@ import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
@@ -41,12 +39,6 @@ public class DataManager implements Constants {
     private SearchManager searchManager;
     private InternetManager internetManager;
 
-    private Map<String, Integer> artistIndexMap;
-    private AtomicInteger artistIndex;
-
-    private Map<String, Integer> albumIndexMap;
-    private AtomicInteger albumIndex;
-
     private AtomicInteger trackIndex;
 
     @Autowired
@@ -61,12 +53,6 @@ public class DataManager implements Constants {
 
     @PostConstruct
     public void initialise() {
-        artistIndexMap = new HashMap<>();
-        artistIndex = new AtomicInteger(1);
-
-        albumIndexMap = new HashMap<>();
-        albumIndex = new AtomicInteger(1);
-
         trackIndex = new AtomicInteger(1);
     }
 
@@ -77,7 +63,7 @@ public class DataManager implements Constants {
             ParserModelData parserModelData = new ParserModelData();
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(
-                    internetManager.openConnection(dataFile).getInputStream()), Charset.forName("UTF-8")))) {
+                    internetManager.openConnection(dataFile).getInputStream()), StandardCharsets.UTF_8))) {
                 reader.lines().forEach(line -> {
                     try {
                         // Split the string into row data
@@ -90,9 +76,9 @@ public class DataManager implements Constants {
                             trackIndex.set(1);
 
                             searchManager.addArtist(Artist.builder()
-                                    .artistId(Integer.toString(parserModelArtist.getArtistId()))
+                                    .artistId(parserModelArtist.getArtistId())
                                     .artistName(parserModelArtist.getArtistName())
-                                    .artistImage(parserModelArtist.getArtistImage())
+                                    .artistImage(appProperties.getS3BucketUrl() + getArtistImageKey(parserModelArtist))
                                     .biography(parserModelArtist.getBiography())
                                     .members(parserModelArtist.getMembers())
                                     .build());
@@ -106,12 +92,11 @@ public class DataManager implements Constants {
                             String trackKey = getTrackKey(parserModelArtist, parserModelAlbum, parserModelTrack);
 
                             searchManager.addTrack(Track.builder()
-                                    .artistId(Integer.toString(parserModelArtist.getArtistId()))
+                                    .artistId(parserModelArtist.getArtistId())
                                     .artistName(parserModelArtist.getArtistName())
-                                    .artistImage(parserModelArtist.getArtistImage())
-                                    .albumId(Integer.toString(parserModelAlbum.getAlbumId()))
+                                    .albumId(parserModelAlbum.getAlbumId())
                                     .albumName(parserModelAlbum.getAlbumName())
-                                    .albumImage(parserModelAlbum.getAlbumImage())
+                                    .albumImage(appProperties.getS3BucketUrl() + getAlbumImageKey(parserModelArtist, parserModelAlbum))
                                     .year(parserModelAlbum.getYear())
                                     .trackId(hashGenerator.generateHash(trackKey))
                                     .trackName(parserModelTrack.getTrackName())
@@ -132,6 +117,17 @@ public class DataManager implements Constants {
         }
     }
 
+    private String getArtistImageKey(ParserModelArtist parserModelArtist) {
+        return "image/artist/" + parserModelArtist.getArtistId();
+    }
+
+    private String getAlbumImageKey(ParserModelArtist parserModelArtist, ParserModelAlbum parserModelAlbum) {
+        return "image/album/" +
+                parserModelAlbum.getYear() + "/" +
+                parserModelArtist.getArtistId() + "/" +
+                parserModelAlbum.getAlbumId();
+    }
+
     private String getTrackKey(ParserModelArtist parserModelArtist, ParserModelAlbum parserModelAlbum,
                                ParserModelTrack parserModelTrack) {
         return "music/" +
@@ -149,14 +145,8 @@ public class DataManager implements Constants {
 
     private ParserModelArtist parseArtist(String[] rowData) {
         return ParserModelArtist.builder()
-                .artistId(ofNullable(artistIndexMap.get(getRowData(rowData, 1))).orElseGet(() -> {
-                    int nextIndex = artistIndex.getAndIncrement();
-                    artistIndexMap.put(getRowData(rowData, 1), nextIndex);
-
-                    return nextIndex;
-                }))
+                .artistId(hashGenerator.generateHash(getRowData(rowData, 1)))
                 .artistName(getRowData(rowData, 2))
-                //.artistImage(getRowData(rowData, 3))
                 .biography(getRowData(rowData, 4))
                 .members(getRowData(rowData, 5))
                 .genres(ofNullable(getRowData(rowData, 6))
@@ -171,14 +161,8 @@ public class DataManager implements Constants {
 
     private ParserModelAlbum parseAlbum(String[] rowData) {
         return ParserModelAlbum.builder()
-                .albumId(ofNullable(albumIndexMap.get(getRowData(rowData, 1))).orElseGet(() -> {
-                    int nextIndex = albumIndex.getAndIncrement();
-                    albumIndexMap.put(getRowData(rowData, 1), nextIndex);
-
-                    return nextIndex;
-                }))
+                .albumId(hashGenerator.generateHash(getRowData(rowData, 1)))
                 .albumName(getRowData(rowData, 2))
-                //.albumImage(getRowData(rowData, 3))
                 .year(ofNullable(getRowData(rowData, 4)).map(Integer::valueOf).orElse(null))
                 .build();
     }
@@ -187,7 +171,7 @@ public class DataManager implements Constants {
         return ParserModelTrack.builder()
                 .number(trackIndex.getAndIncrement())
                 .trackName(getRowData(rowData, 2))
-                .isPreferred(Boolean.valueOf(getRowData(rowData, 4)))
+                .isPreferred(Boolean.parseBoolean(getRowData(rowData, 4)))
                 .build();
     }
 
@@ -241,29 +225,27 @@ public class DataManager implements Constants {
 
     @Value
     @Builder
-    private static class ParserModelAlbum {
-        private final int albumId;
-        private final String albumName;
-        private final String albumImage;
-        private final Integer year;
+    private static class ParserModelArtist {
+        String artistId;
+        String artistName;
+        String biography;
+        String members;
+        List<String> genres;
     }
 
     @Value
     @Builder
-    private static class ParserModelArtist {
-        private final int artistId;
-        private final String artistName;
-        private final String artistImage;
-        private final String biography;
-        private final String members;
-        private final List<String> genres;
+    private static class ParserModelAlbum {
+        String albumId;
+        String albumName;
+        Integer year;
     }
 
     @Value
     @Builder
     private static class ParserModelTrack {
-        private final int number;
-        private final String trackName;
-        private final boolean isPreferred;
+        int number;
+        String trackName;
+        boolean isPreferred;
     }
 }

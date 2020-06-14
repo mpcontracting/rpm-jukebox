@@ -9,11 +9,11 @@ import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCod
 @Value
 @Builder
 public class Artist {
-    private final String artistId;
-    private final String artistName;
-    private final String artistImage;
-    private final String biography;
-    private final String members;
+    String artistId;
+    String artistName;
+    String artistImage;
+    String biography;
+    String members;
 
     @Override
     public int hashCode() {

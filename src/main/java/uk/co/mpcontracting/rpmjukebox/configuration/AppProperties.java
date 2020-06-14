@@ -17,11 +17,11 @@ public class AppProperties {
 
     @URL
     @NotNull
-    private String versionUrl;
+    private String websiteUrl;
 
     @URL
     @NotNull
-    private String websiteUrl;
+    private String versionUrl;
 
     @URL
     @NotNull

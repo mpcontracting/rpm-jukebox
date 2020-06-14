@@ -67,7 +67,7 @@ public class DataManagerTest {
         assertThat(artists)
                 .allMatch(artist -> artist.getArtistId() != null)
                 .allMatch(artist -> artist.getArtistName().startsWith("Test Artist ") && artist.getArtistName().length() == 13)
-                .allMatch(artist -> artist.getArtistImage() == null)
+                .allMatch(artist -> artist.getArtistImage().equals("s3-bucket-url/image/artist/" + artist.getArtistId()))
                 .allMatch(artist -> artist.getBiography().startsWith("Test Biography ") && artist.getBiography().length() == 16)
                 .allMatch(artist -> artist.getMembers().startsWith("Test Members ") && artist.getMembers().length() == 14);
 
@@ -76,10 +76,10 @@ public class DataManagerTest {
         assertThat(tracks)
                 .allMatch(track -> track.getArtistId() != null)
                 .allMatch(track -> track.getArtistName().startsWith("Test Artist ") && track.getArtistName().length() == 13)
-                .allMatch(track -> track.getArtistImage() == null)
                 .allMatch(track -> track.getAlbumId() != null)
                 .allMatch(track -> track.getAlbumName().startsWith("Test Album ") && track.getAlbumName().length() == 12)
-                .allMatch(track -> track.getAlbumImage() == null)
+                .allMatch(track -> track.getAlbumImage().equals("s3-bucket-url/image/album/" + track.getYear() + "/" +
+                        track.getArtistId() + "/" + track.getAlbumId()))
                 .allMatch(track -> track.getYear() == 2000)
                 .allMatch(track -> track.getTrackId() != null && track.getTrackId().length() == 64)
                 .allMatch(track -> track.getTrackName().startsWith("Test Track Name ") && track.getTrackName().length() == 17)

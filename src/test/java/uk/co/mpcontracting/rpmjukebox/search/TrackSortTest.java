@@ -8,7 +8,7 @@ public class TrackSortTest {
 
     @Test
     public void shouldReturnFriendlyName() {
-        String friendlyName = TrackSort.DEFAULTSORT.getFriendlyName();
+        String friendlyName = TrackSort.DEFAULT_SORT.getFriendlyName();
 
         assertThat(friendlyName).isEqualTo("Default");
     }

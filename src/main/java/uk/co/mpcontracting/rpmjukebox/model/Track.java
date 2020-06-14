@@ -14,7 +14,6 @@ import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCod
 public class Track implements Serializable, Cloneable {
     private String artistId;
     private String artistName;
-    private String artistImage;
     private String albumId;
     private String albumName;
     private String albumImage;
@@ -33,7 +32,6 @@ public class Track implements Serializable, Cloneable {
     public int hashCode() {
         return reflectionHashCode(this,
                 "artistName",
-                "artistImage",
                 "albumName",
                 "albumImage",
                 "year",
@@ -50,7 +48,6 @@ public class Track implements Serializable, Cloneable {
     public boolean equals(Object object) {
         return reflectionEquals(this, object,
                 "artistName",
-                "artistImage",
                 "albumName",
                 "albumImage",
                 "year",
@@ -68,7 +65,6 @@ public class Track implements Serializable, Cloneable {
         Track clone = Track.builder()
                 .artistId(artistId)
                 .artistName(artistName)
-                .artistImage(artistImage)
                 .albumId(albumId)
                 .albumName(albumName)
                 .albumImage(albumImage)

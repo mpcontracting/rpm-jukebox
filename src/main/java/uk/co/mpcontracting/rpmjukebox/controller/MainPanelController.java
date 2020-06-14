@@ -32,7 +32,6 @@ import uk.co.mpcontracting.rpmjukebox.model.YearFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
-import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
@@ -772,15 +771,15 @@ public class MainPanelController extends EventAwareObject implements Constants {
                     playingAlbumLabel.setText(track.getAlbumName());
                     playingArtistLabel.setText(track.getArtistName());
 
-                    if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
+                    /*if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
                         playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE,
                                 track.getAlbumId(), track.getAlbumImage()), true));
                     } else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
                         playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE,
                                 track.getAlbumId(), track.getArtistImage()), true));
-                    } else {
+                    } else {*/
                         playingImageView.setImage(new Image(IMAGE_NO_ARTWORK));
-                    }
+                    //}
 
                     playPauseButton.setDisable(true);
 

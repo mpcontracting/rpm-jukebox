@@ -1,18 +1,18 @@
 application:
   # Version number
-  version: 3.0.0
-
-  # Version URL
-  version-url: http://www.mpcontracting.co.uk/rpmjukebox/data/latest-version
+  version: 3.0.1
 
   # Website URL
   website-url: http://www.mpcontracting.co.uk/rpmjukebox/index.html#downloads
 
+  # Version URL
+  version-url: https://rpm-archive.s3-eu-west-1.amazonaws.com/latest-version
+
   # Datafile URL
-  datafile-url: http://www.mpcontracting.co.uk/rpmjukebox/data/rpm-data.gz
+  datafile-url: https://rpm-archive.s3-eu-west-1.amazonaws.com/rpm-data.gz
 
   # S3 Bucket URL
-  s3-bucket-url: https://s3-eu-west-1.amazonaws.com/rpm-archive/
+  s3-bucket-url: https://rpm-archive.s3-eu-west-1.amazonaws.com/
 
   # Internal settings
   jetty-port: 43125

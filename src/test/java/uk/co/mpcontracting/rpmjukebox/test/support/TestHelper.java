@@ -102,7 +102,6 @@ public abstract class TestHelper {
         return Track.builder()
                 .artistId("123" + index)
                 .artistName("Artist Name " + index)
-                .artistImage("Artist Image " + index)
                 .albumId("456" + index)
                 .albumName("Album Name " + index)
                 .albumImage("Album Image " + index)

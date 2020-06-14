@@ -1,7 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.search;
 
 public enum TrackSort {
-    DEFAULTSORT("Default"), ARTISTSORT("Artist"), ALBUMSORT("Album"), TRACKSORT("Track");
+    DEFAULT_SORT("Default"), ARTIST_SORT("Artist"), ALBUM_SORT("Album"), TRACK_SORT("Track");
 
     private String friendlyName;
 

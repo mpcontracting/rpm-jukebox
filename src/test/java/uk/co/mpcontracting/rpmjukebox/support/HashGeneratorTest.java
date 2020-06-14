@@ -33,7 +33,7 @@ public class HashGeneratorTest {
 
     @Test
     public void shouldThrowExceptionIfKeyLengthIsZero() {
-        assertThatThrownBy(() -> hashGenerator.generateHash("", "")).isInstanceOf(Exception.class);
+        assertThatThrownBy(() -> hashGenerator.generateHash("", "")).isInstanceOf(RuntimeException.class);
     }
 
     @Test

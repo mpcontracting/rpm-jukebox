@@ -15,7 +15,7 @@ public class TrackSearchTest {
         TrackFilter trackFilter = trackSearch.getTrackFilter();
 
         assertThat(trackSearch.getKeywords()).isEqualTo("Keywords");
-        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.DEFAULTSORT);
+        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.DEFAULT_SORT);
         assertThat(trackFilter.getFilter()).isNull();
     }
 
@@ -25,27 +25,27 @@ public class TrackSearchTest {
         TrackFilter trackFilter = trackSearch.getTrackFilter();
 
         assertThat(trackSearch.getKeywords()).isEqualTo("Keywords");
-        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.DEFAULTSORT);
+        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.DEFAULT_SORT);
         assertThat(trackFilter.getFilter()).isNotNull();
     }
 
     @Test
     public void shouldInitialiseWithKeywordsAndSort() {
-        TrackSearch trackSearch = new TrackSearch("Keywords", TrackSort.ALBUMSORT);
+        TrackSearch trackSearch = new TrackSearch("Keywords", TrackSort.ALBUM_SORT);
         TrackFilter trackFilter = trackSearch.getTrackFilter();
 
         assertThat(trackSearch.getKeywords()).isEqualTo("Keywords");
-        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.ALBUMSORT);
+        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.ALBUM_SORT);
         assertThat(trackFilter.getFilter()).isNull();
     }
 
     @Test
     public void shouldInitialiseWithKeywordsFilterAndSort() {
-        TrackSearch trackSearch = new TrackSearch("Keywords", new TrackFilter("Genre", "2000"), TrackSort.ALBUMSORT);
+        TrackSearch trackSearch = new TrackSearch("Keywords", new TrackFilter("Genre", "2000"), TrackSort.ALBUM_SORT);
         TrackFilter trackFilter = trackSearch.getTrackFilter();
 
         assertThat(trackSearch.getKeywords()).isEqualTo("Keywords");
-        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.ALBUMSORT);
+        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.ALBUM_SORT);
         assertThat(trackFilter.getFilter()).isNotNull();
     }
 }

@@ -9,7 +9,7 @@ import java.security.MessageDigest;
 @Component
 public class HashGenerator {
 
-    public String generateHash(Object... objects) throws Exception {
+    public String generateHash(Object... objects) {
         if (objects == null || objects.length == 0) {
             throw new IllegalArgumentException("Objects for hash generation must have at least one value");
         }
@@ -35,7 +35,7 @@ public class HashGenerator {
 
             return toHex(digest.digest());
         } catch (Exception e) {
-            throw new Exception("Error generating hash for - " + objectsAsString(objects), e);
+            throw new RuntimeException("Error generating hash for - " + objectsAsString(objects), e);
         }
     }
 

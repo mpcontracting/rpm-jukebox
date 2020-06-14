@@ -12,11 +12,11 @@ public class TrackSearch {
     private TrackSort trackSort;
 
     public TrackSearch(String keywords) {
-        this(keywords, TrackSort.DEFAULTSORT);
+        this(keywords, TrackSort.DEFAULT_SORT);
     }
 
     public TrackSearch(String keywords, TrackFilter trackFilter) {
-        this(keywords, trackFilter, TrackSort.DEFAULTSORT);
+        this(keywords, trackFilter, TrackSort.DEFAULT_SORT);
     }
 
     TrackSearch(String keywords, TrackSort trackSort) {

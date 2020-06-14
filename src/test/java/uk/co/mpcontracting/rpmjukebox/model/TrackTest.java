@@ -51,7 +51,6 @@ public class TrackTest {
         assertThat(track1).isNotSameAs(track2);
         assertThat(track1.getArtistId()).isEqualTo(track2.getArtistId());
         assertThat(track1.getArtistName()).isEqualTo(track2.getArtistName());
-        assertThat(track1.getArtistImage()).isEqualTo(track2.getArtistImage());
         assertThat(track1.getAlbumId()).isEqualTo(track2.getAlbumId());
         assertThat(track1.getAlbumName()).isEqualTo(track2.getAlbumName());
         assertThat(track1.getAlbumImage()).isEqualTo(track2.getAlbumImage());
