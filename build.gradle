@@ -41,7 +41,7 @@ dependencyCheck {
 sourceCompatibility = 1.8
 
 group 'uk.co.mpcontracting'
-version = '3.0.1'
+version = '4.0.0'
 
 jar {
     archivesBaseName = "${project.name}"
