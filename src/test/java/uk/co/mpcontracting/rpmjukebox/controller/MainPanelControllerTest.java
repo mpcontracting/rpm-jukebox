@@ -24,7 +24,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.co.mpcontracting.rpmjukebox.component.ImageFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
@@ -79,8 +78,8 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Autowired
     private MessageManager messageManager;
 
-    @MockBean
-    private ImageFactory imageFactory;
+    @Mock
+    private ImageFactory mockImageFactory;
 
     @Mock
     private EqualizerView mockEqualizerView;
@@ -152,6 +151,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockScene.getRoot()).thenReturn(mockRoot);
         setField(GUIState.class, "stage", mockStage);
 
+        setField(mainPanelController, "imageFactory", mockImageFactory);
         setField(mainPanelController, "eventManager", getMockEventManager());
         setField(mainPanelController, "equalizerView", mockEqualizerView);
         setField(mainPanelController, "settingsView", mockSettingsView);
@@ -1913,7 +1913,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             imageView.setImage(albumImage);
 
             return null;
-        }).when(imageFactory).loadImage(playingImageView, albumImageUrl);
+        }).when(mockImageFactory).loadImage(playingImageView, albumImageUrl);
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -1938,7 +1938,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         assertThat(playPauseButton.isDisabled()).isTrue();
 
         verify(mockNativeManager, times(1)).displayNotification(track);
-        verify(imageFactory, times(1)).loadImage(playingImageView, albumImageUrl);
+        verify(mockImageFactory, times(1)).loadImage(playingImageView, albumImageUrl);
     }
 
     @Test

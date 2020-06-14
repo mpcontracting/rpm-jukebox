@@ -2,12 +2,10 @@ package uk.co.mpcontracting.rpmjukebox.component;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import static uk.co.mpcontracting.rpmjukebox.support.Constants.IMAGE_NO_ARTWORK;
 
-@Slf4j
 @Component
 public class ImageFactory {
 
@@ -16,9 +14,7 @@ public class ImageFactory {
     public void loadImage(ImageView imageView, String imageUrl) {
         Image image = new Image(imageUrl, true);
         image.errorProperty().addListener((observable, wasErrored, isErrored) -> {
-            if (isErrored) {
-                imageView.setImage(getDefaultImage());
-            }
+            imageView.setImage(getDefaultImage());
         });
 
         imageView.setImage(image);
