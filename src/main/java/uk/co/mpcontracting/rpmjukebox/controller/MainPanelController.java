@@ -8,7 +8,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.effect.BoxBlur;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -19,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.component.ImageFactory;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistListCellFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
@@ -32,6 +32,7 @@ import uk.co.mpcontracting.rpmjukebox.model.YearFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
+import uk.co.mpcontracting.rpmjukebox.support.CacheType;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.StringHelper;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
@@ -128,6 +129,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     private final AppProperties appProperties;
     private final ThreadRunner threadRunner;
     private final MessageManager messageManager;
+    private final ImageFactory imageFactory;
 
     private EqualizerView equalizerView;
     private SettingsView settingsView;
@@ -771,15 +773,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
                     playingAlbumLabel.setText(track.getAlbumName());
                     playingArtistLabel.setText(track.getArtistName());
 
-                    /*if (track.getAlbumImage() != null && track.getAlbumImage().trim().length() > 0) {
-                        playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE,
-                                track.getAlbumId(), track.getAlbumImage()), true));
-                    } else if (track.getArtistImage() != null && track.getArtistImage().trim().length() > 0) {
-                        playingImageView.setImage(new Image(cacheManager.constructInternalUrl(CacheType.IMAGE,
-                                track.getAlbumId(), track.getArtistImage()), true));
-                    } else {*/
-                        playingImageView.setImage(new Image(IMAGE_NO_ARTWORK));
-                    //}
+                    imageFactory.loadImage(playingImageView, cacheManager.constructInternalUrl(CacheType.IMAGE,
+                            track.getAlbumId(), track.getAlbumImage()));
 
                     playPauseButton.setDisable(true);
 

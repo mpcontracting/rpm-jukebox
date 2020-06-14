@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.BoxBlur;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -23,6 +24,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import uk.co.mpcontracting.rpmjukebox.component.ImageFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
@@ -75,6 +78,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Autowired
     private MessageManager messageManager;
+
+    @MockBean
+    private ImageFactory imageFactory;
 
     @Mock
     private EqualizerView mockEqualizerView;
@@ -1897,8 +1903,17 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Label playingArtistLabel = find("#playingArtistLabel");
         Track track = generateTrack(1);
 
+        String albumImageUrl = "http://www.example.com/image.png";
+        Image albumImage = new Image(albumImageUrl);
+
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
-                .thenReturn("http://www.example.com/image.png");
+                .thenReturn(albumImageUrl);
+        doAnswer(invocation -> {
+            ImageView imageView = invocation.getArgument(0);
+            imageView.setImage(albumImage);
+
+            return null;
+        }).when(imageFactory).loadImage(playingImageView, albumImageUrl);
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -1923,86 +1938,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         assertThat(playPauseButton.isDisabled()).isTrue();
 
         verify(mockNativeManager, times(1)).displayNotification(track);
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTrackQueuedForPlayingNoAlbumImage() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        Button playPauseButton = find("#playPauseButton");
-        ImageView playingImageView = find("#playingImageView");
-        Label playingTrackLabel = find("#playingTrackLabel");
-        Label playingAlbumLabel = find("#playingAlbumLabel");
-        Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = generateTrack(1);
-
-        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
-                .thenReturn("http://www.example.com/image.png");
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setDisable(false);
-            playingImageView.setImage(null);
-            playingTrackLabel.setText(null);
-            playingAlbumLabel.setText(null);
-            playingArtistLabel.setText(null);
-
-            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
-
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
-
-        assertThat(playingTrackLabel.getText()).isEqualTo(track.getTrackName());
-        assertThat(playingAlbumLabel.getText()).isEqualTo(track.getAlbumName());
-        assertThat(playingArtistLabel.getText()).isEqualTo(track.getArtistName());
-        assertThat(playingImageView.getImage()).isNotNull();
-        assertThat(playPauseButton.isDisabled()).isTrue();
-
-        verify(mockNativeManager, times(1)).displayNotification(track);
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTrackQueuedForPlayingNoImages() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        Button playPauseButton = find("#playPauseButton");
-        ImageView playingImageView = find("#playingImageView");
-        Label playingTrackLabel = find("#playingTrackLabel");
-        Label playingAlbumLabel = find("#playingAlbumLabel");
-        Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = generateTrack(1);
-
-        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
-                .thenReturn("http://www.example.com/image.png");
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setDisable(false);
-            playingImageView.setImage(null);
-            playingTrackLabel.setText(null);
-            playingAlbumLabel.setText(null);
-            playingArtistLabel.setText(null);
-
-            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
-
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
-
-        assertThat(playingTrackLabel.getText()).isEqualTo(track.getTrackName());
-        assertThat(playingAlbumLabel.getText()).isEqualTo(track.getAlbumName());
-        assertThat(playingArtistLabel.getText()).isEqualTo(track.getArtistName());
-        assertThat(playingImageView.getImage()).isNotNull();
-        assertThat(playPauseButton.isDisabled()).isTrue();
-
-        verify(mockNativeManager, times(1)).displayNotification(track);
+        verify(imageFactory, times(1)).loadImage(playingImageView, albumImageUrl);
     }
 
     @Test
