@@ -57,7 +57,7 @@ public class TrackTest {
         assertThat(track1.getYear()).isEqualTo(track2.getYear());
         assertThat(track1.getTrackId()).isEqualTo(track2.getTrackId());
         assertThat(track1.getTrackName()).isEqualTo(track2.getTrackName());
-        assertThat(track1.getNumber()).isEqualTo(track2.getNumber());
+        assertThat(track1.getIndex()).isEqualTo(track2.getIndex());
         assertThat(track1.getLocation()).isEqualTo(track2.getLocation());
         assertThat(track1.isPreferred()).isEqualTo(track2.isPreferred());
         assertThat(track1.getGenres()).isEqualTo(track2.getGenres());

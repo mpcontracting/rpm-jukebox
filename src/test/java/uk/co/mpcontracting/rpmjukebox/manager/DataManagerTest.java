@@ -39,8 +39,6 @@ public class DataManagerTest {
         dataManager = new DataManager(mockAppProperties, new HashGenerator());
         dataManager.wireSearchManager(mockSearchManager);
         dataManager.wireInternetManager(mockInternetManager);
-
-        dataManager.initialise();
     }
 
     @Test
@@ -83,9 +81,9 @@ public class DataManagerTest {
                 .allMatch(track -> track.getYear() == 2000)
                 .allMatch(track -> track.getTrackId() != null && track.getTrackId().length() == 64)
                 .allMatch(track -> track.getTrackName().startsWith("Test Track Name ") && track.getTrackName().length() == 17)
-                .allMatch(track -> track.getNumber() > 0)
+                .allMatch(track -> track.getIndex() > 0)
                 .allMatch(track -> track.getLocation().equals("s3-bucket-url/music/" + track.getYear() + "/" + track.getArtistId() +
-                        "/" + track.getAlbumId() + "/00" + track.getNumber()))
+                        "/" + track.getAlbumId() + "/00" + track.getIndex()))
                 .allMatch(track -> !track.isPreferred())
                 .allMatch(track -> !track.getGenres().isEmpty());
     }

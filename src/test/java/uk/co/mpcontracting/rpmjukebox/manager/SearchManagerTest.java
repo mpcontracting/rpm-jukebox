@@ -467,8 +467,8 @@ public class SearchManagerTest implements Constants {
         assertThat(document.getValue().getField(TrackField.TRACK_ID.name()).stringValue()).isEqualTo("7891");
         assertThat(document.getValue().getField(TrackField.TRACK_NAME.name()).fieldType().stored()).isTrue();
         assertThat(document.getValue().getField(TrackField.TRACK_NAME.name()).stringValue()).isEqualTo("Track Name 1");
-        assertThat(document.getValue().getField(TrackField.NUMBER.name()).fieldType().stored()).isTrue();
-        assertThat(document.getValue().getField(TrackField.NUMBER.name()).stringValue()).isEqualTo("1");
+        assertThat(document.getValue().getField(TrackField.INDEX.name()).fieldType().stored()).isTrue();
+        assertThat(document.getValue().getField(TrackField.INDEX.name()).stringValue()).isEqualTo("1");
         assertThat(document.getValue().getField(TrackField.LOCATION.name()).fieldType().stored()).isTrue();
         assertThat(document.getValue().getField(TrackField.LOCATION.name()).stringValue()).isEqualTo("Location 1");
         assertThat(document.getValue().getField(TrackField.IS_PREFERRED.name()).fieldType().stored()).isTrue();
@@ -627,7 +627,7 @@ public class SearchManagerTest implements Constants {
         assertThat(track1.getYear()).isEqualTo(2001);
         assertThat(track1.getTrackId()).isEqualTo("7891");
         assertThat(track1.getTrackName()).isEqualTo("Track Name 1");
-        assertThat(track1.getNumber()).isEqualTo(1);
+        assertThat(track1.getIndex()).isEqualTo(1);
         assertThat(track1.getLocation()).isEqualTo("Location 1");
         assertThat(track1.isPreferred()).isTrue();
         assertThat(track1.getGenres()).hasSize(2);
@@ -644,7 +644,7 @@ public class SearchManagerTest implements Constants {
         assertThat(track2.getYear()).isEqualTo(2002);
         assertThat(track2.getTrackId()).isEqualTo("7892");
         assertThat(track2.getTrackName()).isEqualTo("Track Name 2");
-        assertThat(track2.getNumber()).isEqualTo(2);
+        assertThat(track2.getIndex()).isEqualTo(2);
         assertThat(track2.getLocation()).isEqualTo("Location 2");
         assertThat(track2.isPreferred()).isFalse();
         assertThat(track2.getGenres()).hasSize(2);
@@ -964,7 +964,7 @@ public class SearchManagerTest implements Constants {
         assertThat(track.getYear()).isEqualTo(2001);
         assertThat(track.getTrackId()).isEqualTo("7891");
         assertThat(track.getTrackName()).isEqualTo("Track Name 1");
-        assertThat(track.getNumber()).isEqualTo(1);
+        assertThat(track.getIndex()).isEqualTo(1);
         assertThat(track.getLocation()).isEqualTo("Location 1");
         assertThat(track.isPreferred()).isTrue();
         assertThat(track.getGenres()).hasSize(2);
@@ -996,7 +996,7 @@ public class SearchManagerTest implements Constants {
         assertThat(track.getYear()).isEqualTo(2001);
         assertThat(track.getTrackId()).isEqualTo("7891");
         assertThat(track.getTrackName()).isEqualTo("Track Name 1");
-        assertThat(track.getNumber()).isEqualTo(1);
+        assertThat(track.getIndex()).isEqualTo(1);
         assertThat(track.getLocation()).isEqualTo("Location 1");
         assertThat(track.isPreferred()).isTrue();
         assertThat(track.getGenres()).hasSize(2);
@@ -1152,7 +1152,7 @@ public class SearchManagerTest implements Constants {
             when(document.get(TrackField.YEAR.name())).thenReturn("200" + i);
             when(document.get(TrackField.TRACK_ID.name())).thenReturn("789" + i);
             when(document.get(TrackField.TRACK_NAME.name())).thenReturn("Track Name " + i);
-            when(document.get(TrackField.NUMBER.name())).thenReturn(Integer.toString(i));
+            when(document.get(TrackField.INDEX.name())).thenReturn(Integer.toString(i));
             when(document.get(TrackField.LOCATION.name())).thenReturn("Location " + i);
             when(document.get(TrackField.IS_PREFERRED.name())).thenReturn((i % 2 == 0) ? "false" : "true");
             when(document.getValues(TrackField.GENRE.name()))

@@ -20,7 +20,7 @@ public class Track implements Serializable, Cloneable {
     private int year;
     private String trackId;
     private String trackName;
-    private int number;
+    private int index;
     private String location;
     private boolean isPreferred;
     private List<String> genres;
@@ -36,7 +36,7 @@ public class Track implements Serializable, Cloneable {
                 "albumImage",
                 "year",
                 "trackName",
-                "number",
+                "index",
                 "location",
                 "isPreferred",
                 "genres",
@@ -52,7 +52,7 @@ public class Track implements Serializable, Cloneable {
                 "albumImage",
                 "year",
                 "trackName",
-                "number",
+                "index",
                 "location",
                 "isPreferred",
                 "genres",
@@ -71,7 +71,7 @@ public class Track implements Serializable, Cloneable {
                 .year(year)
                 .trackId(trackId)
                 .trackName(trackName)
-                .number(number)
+                .index(index)
                 .location(location)
                 .isPreferred(isPreferred)
                 .genres(genres)

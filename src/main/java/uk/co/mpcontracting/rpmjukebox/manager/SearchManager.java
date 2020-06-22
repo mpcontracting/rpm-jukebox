@@ -253,7 +253,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         document.add(new StringField(TrackField.YEAR.name(), Integer.toString(track.getYear()), Field.Store.YES));
         document.add(new StringField(TrackField.TRACK_ID.name(), track.getTrackId(), Field.Store.YES));
         document.add(new StringField(TrackField.TRACK_NAME.name(), track.getTrackName(), Field.Store.YES));
-        document.add(new StoredField(TrackField.NUMBER.name(), track.getNumber()));
+        document.add(new StoredField(TrackField.INDEX.name(), track.getIndex()));
         document.add(new StringField(TrackField.LOCATION.name(), track.getLocation(), Field.Store.YES));
         document.add(new StringField(TrackField.IS_PREFERRED.name(), Boolean.toString(track.isPreferred()), Field.Store.YES));
 
@@ -264,7 +264,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         // Sorts
         document.add(new SortedDocValuesField(TrackSort.DEFAULT_SORT.name(),
                 new BytesRef(stripWhitespace(track.getArtistName(), false) + padInteger(track.getYear())
-                        + stripWhitespace(track.getAlbumName(), false) + padInteger(track.getNumber()))));
+                        + stripWhitespace(track.getAlbumName(), false) + padInteger(track.getIndex()))));
         document.add(new SortedDocValuesField(TrackSort.ARTIST_SORT.name(),
                 new BytesRef(padInteger(track.getYear()) + stripWhitespace(track.getArtistName(), false))));
         document.add(new SortedDocValuesField(TrackSort.ALBUM_SORT.name(),
@@ -583,7 +583,7 @@ public class SearchManager extends EventAwareObject implements Constants {
                 .year(Integer.parseInt(document.get(TrackField.YEAR.name())))
                 .trackId(document.get(TrackField.TRACK_ID.name()))
                 .trackName(document.get(TrackField.TRACK_NAME.name()))
-                .number(Integer.parseInt(document.get(TrackField.NUMBER.name())))
+                .index(Integer.parseInt(document.get(TrackField.INDEX.name())))
                 .location(document.get(TrackField.LOCATION.name()))
                 .isPreferred(Boolean.parseBoolean(document.get(TrackField.IS_PREFERRED.name())))
                 .genres(Arrays.asList(document.getValues(TrackField.GENRE.name())))

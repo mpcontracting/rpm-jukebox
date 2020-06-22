@@ -13,14 +13,13 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.HashGenerator;
 
-import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
 import static java.util.Arrays.stream;
@@ -33,13 +32,31 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class DataManager implements Constants {
 
+    private static final int ARTIST_ID = 1;
+    private static final int ARTIST_NAME = 2;
+    private static final int ARTIST_IMAGE = 3;
+    private static final int ARTIST_BIOGRAPHY = 4;
+    private static final int ARTIST_MEMBERS = 5;
+    private static final int ARTIST_GENRES = 6;
+
+    private static final int ALBUM_ID = 1;
+    private static final int ALBUM_NAME = 2;
+    private static final int ALBUM_IMAGE = 3;
+    private static final int ALBUM_YEAR = 4;
+    private static final int ALBUM_DESCRIPTION = 5;
+
+    private static final int TRACK_ID = 1;
+    private static final int TRACK_NAME = 2;
+    private static final int TRACK_LOCATION = 3;
+    private static final int TRACK_PREFERRED = 4;
+    private static final int TRACK_INDEX = 5;
+    private static final int TRACK_GENRE = 6;
+
     private final AppProperties appProperties;
     private final HashGenerator hashGenerator;
 
     private SearchManager searchManager;
     private InternetManager internetManager;
-
-    private AtomicInteger trackIndex;
 
     @Autowired
     public void wireSearchManager(SearchManager searchManager) {
@@ -49,11 +66,6 @@ public class DataManager implements Constants {
     @Autowired
     public void wireInternetManager(InternetManager internetManager) {
         this.internetManager = internetManager;
-    }
-
-    @PostConstruct
-    public void initialise() {
-        trackIndex = new AtomicInteger(1);
     }
 
     void parse(URL dataFile) {
@@ -73,7 +85,6 @@ public class DataManager implements Constants {
                         if ("B".equals(getRowData(rowData, 0))) {
                             ParserModelArtist parserModelArtist = parseArtist(rowData);
                             parserModelData.setArtist(parserModelArtist);
-                            trackIndex.set(1);
 
                             searchManager.addArtist(Artist.builder()
                                     .artistId(parserModelArtist.getArtistId())
@@ -84,7 +95,6 @@ public class DataManager implements Constants {
                                     .build());
                         } else if ("A".equals(getRowData(rowData, 0))) {
                             parserModelData.setAlbum(parseAlbum(rowData));
-                            trackIndex.set(1);
                         } else if ("T".equals(getRowData(rowData, 0))) {
                             ParserModelArtist parserModelArtist = parserModelData.getArtist();
                             ParserModelAlbum parserModelAlbum = parserModelData.getAlbum();
@@ -100,10 +110,13 @@ public class DataManager implements Constants {
                                     .year(parserModelAlbum.getYear())
                                     .trackId(hashGenerator.generateHash(trackKey))
                                     .trackName(parserModelTrack.getTrackName())
-                                    .number(parserModelTrack.getNumber())
+                                    .index(parserModelTrack.getIndex())
                                     .location(appProperties.getS3BucketUrl() + trackKey)
                                     .isPreferred(parserModelTrack.isPreferred())
-                                    .genres(parserModelArtist.getGenres())
+                                    .genres(ofNullable(parserModelTrack.getGenre())
+                                            .map(Collections::singletonList)
+                                            .orElse(parserModelArtist.getGenres())
+                                    )
                                     .build());
                         }
                     } catch (Exception e) {
@@ -134,7 +147,7 @@ public class DataManager implements Constants {
                 parserModelAlbum.getYear() + "/" +
                 parserModelArtist.getArtistId() + "/" +
                 parserModelAlbum.getAlbumId() + "/" +
-                formatNumber(parserModelTrack.getNumber());
+                formatNumber(parserModelTrack.getIndex());
     }
 
     private String formatNumber(int index) {
@@ -145,14 +158,14 @@ public class DataManager implements Constants {
 
     private ParserModelArtist parseArtist(String[] rowData) {
         return ParserModelArtist.builder()
-                .artistId(hashGenerator.generateHash(getRowData(rowData, 1)))
-                .artistName(getRowData(rowData, 2))
-                .biography(getRowData(rowData, 4))
-                .members(getRowData(rowData, 5))
-                .genres(ofNullable(getRowData(rowData, 6))
+                .artistId(hashGenerator.generateHash(getRowData(rowData, ARTIST_ID)))
+                .artistName(getRowData(rowData, ARTIST_NAME))
+                .biography(getRowData(rowData, ARTIST_BIOGRAPHY))
+                .members(getRowData(rowData, ARTIST_MEMBERS))
+                .genres(ofNullable(getRowData(rowData, ARTIST_GENRES))
                         .map(genres -> stream(genres.split(","))
                                 .filter(genre -> genre.trim().length() > 0)
-                                .map(this::cleanGenre)
+                                .map(genre -> cleanGenre(genre, true))
                                 .collect(toList())
                         )
                         .orElse(singletonList(UNSPECIFIED_GENRE)))
@@ -161,17 +174,18 @@ public class DataManager implements Constants {
 
     private ParserModelAlbum parseAlbum(String[] rowData) {
         return ParserModelAlbum.builder()
-                .albumId(hashGenerator.generateHash(getRowData(rowData, 1)))
-                .albumName(getRowData(rowData, 2))
-                .year(ofNullable(getRowData(rowData, 4)).map(Integer::valueOf).orElse(null))
+                .albumId(hashGenerator.generateHash(getRowData(rowData, ALBUM_ID)))
+                .albumName(getRowData(rowData, ALBUM_NAME))
+                .year(ofNullable(getRowData(rowData, ALBUM_YEAR)).map(Integer::valueOf).orElse(null))
                 .build();
     }
 
     private ParserModelTrack parseTrack(String[] rowData) {
         return ParserModelTrack.builder()
-                .number(trackIndex.getAndIncrement())
-                .trackName(getRowData(rowData, 2))
-                .isPreferred(Boolean.parseBoolean(getRowData(rowData, 4)))
+                .index(ofNullable(getRowData(rowData, TRACK_INDEX)).map(Integer::parseInt).orElse(-1))
+                .trackName(getRowData(rowData, TRACK_NAME))
+                .isPreferred(Boolean.parseBoolean(getRowData(rowData, TRACK_PREFERRED)))
+                .genre(cleanGenre(getRowData(rowData, TRACK_GENRE), false))
                 .build();
     }
 
@@ -183,9 +197,9 @@ public class DataManager implements Constants {
         return rowData[index].trim();
     }
 
-    private String cleanGenre(String genre) {
-        if (genre == null) {
-            return UNSPECIFIED_GENRE;
+    private String cleanGenre(String genre, boolean blankIsUnspecified) {
+        if (genre == null || genre.isEmpty()) {
+            return blankIsUnspecified ? UNSPECIFIED_GENRE : null;
         }
 
         if (genre.equalsIgnoreCase("Unknown") || genre.equalsIgnoreCase("None") || genre.equalsIgnoreCase("Other")
@@ -244,8 +258,9 @@ public class DataManager implements Constants {
     @Value
     @Builder
     private static class ParserModelTrack {
-        int number;
+        int index;
         String trackName;
         boolean isPreferred;
+        String genre;
     }
 }

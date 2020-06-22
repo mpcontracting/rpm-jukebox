@@ -108,7 +108,7 @@ public abstract class TestHelper {
                 .year(2000 + index)
                 .trackId("789" + index)
                 .trackName("Track Name " + index)
-                .number(index)
+                .index(index)
                 .location("Location " + index)
                 .isPreferred(true)
                 .genres(genres.length < 1 ? null : asList(genres))

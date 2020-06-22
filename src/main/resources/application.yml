@@ -9,7 +9,7 @@ application:
   version-url: https://rpm-archive.s3-eu-west-1.amazonaws.com/latest-version
 
   # Datafile URL
-  datafile-url: https://rpm-archive.s3-eu-west-1.amazonaws.com/rpm-data.gz
+  datafile-url: https://rpm-archive.s3-eu-west-1.amazonaws.com/rpm-data-new.gz
 
   # S3 Bucket URL
   s3-bucket-url: https://rpm-archive.s3-eu-west-1.amazonaws.com/
