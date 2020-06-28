@@ -33,7 +33,7 @@ public class ImageFactoryTest extends AbstractGUITest {
         imageFactory.loadImage(mockImageView, "http://www.example.com/image.png");
 
         // Wait for the UI thread
-        Thread.sleep(250);
+        Thread.sleep(2500);
 
         ArgumentCaptor<Image> imageCaptor = ArgumentCaptor.forClass(Image.class);
 
