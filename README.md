@@ -3,6 +3,14 @@ A player for the RPM Challenge jukebox written in JavaFX
 
 ## Release Notes
 
+### v4.0.0
+
+* Updated keys on AWS to handle data file deletions
+* Search now works for tracks with punctuation and accents
+* MacOS build now needs create-dmg as the JDK javapackager doesn't work above High Sierra
+
+```brew install create-dmg```
+
 ### v3.0.0
 
 * Music files now stored on AWS
