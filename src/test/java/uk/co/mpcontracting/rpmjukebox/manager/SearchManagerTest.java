@@ -1120,6 +1120,24 @@ public class SearchManagerTest implements Constants {
         assertThatThrownBy(() -> spySearchManager.getAlbumById("123")).isInstanceOf(RuntimeException.class);
     }
 
+    @Test
+    public void shouldGetKeywords() {
+        String keywords = "This is a word with some áççènts. Don't worry about punctuation ";
+        String result = spySearchManager.prepareKeywords(keywords);
+
+        assertThat(result).isEqualTo("this is a word with some accents dont worry about punctuation");
+    }
+
+    @Test
+    public void shouldGetBlankKeywordsIfNull() {
+        assertThat(spySearchManager.prepareKeywords(null)).isEqualTo("");
+    }
+
+    @Test
+    public void shouldGetAsteriskKeywordsIfOnePassedIn() {
+        assertThat(spySearchManager.prepareKeywords("* ")).isEqualTo("*");
+    }
+
     @After
     @SneakyThrows
     public void cleanup() {

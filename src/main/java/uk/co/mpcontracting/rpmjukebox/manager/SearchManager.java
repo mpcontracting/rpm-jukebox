@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.*;
@@ -43,6 +42,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.shuffle;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static org.apache.commons.lang3.StringUtils.stripAccents;
 
 @Slf4j
 @Component
@@ -239,9 +239,11 @@ public class SearchManager extends EventAwareObject implements Constants {
 
         // Keywords
         document.add(new TextField(TrackField.KEYWORDS.name(),
-                StringUtils.stripAccents(nullSafeTrim(track.getArtistName()).toLowerCase() + " "
-                        + nullSafeTrim(track.getAlbumName()).toLowerCase() + " "
-                        + nullSafeTrim(track.getTrackName())).toLowerCase(),
+                prepareKeywords(
+                        nullSafeTrim(track.getArtistName()).toLowerCase() + " " +
+                        nullSafeTrim(track.getAlbumName()).toLowerCase() + " " +
+                        nullSafeTrim(track.getTrackName())
+                ),
                 Field.Store.YES));
 
         // Result data
@@ -348,9 +350,7 @@ public class SearchManager extends EventAwareObject implements Constants {
         try {
             trackSearcher = trackManager.acquire();
             TopFieldDocs results = trackSearcher.search(
-                    buildKeywordsQuery(
-                            StringUtils
-                                    .stripAccents(nullSafeTrim(stripWhitespace(trackSearch.getKeywords(), true)).toLowerCase()),
+                    buildKeywordsQuery(prepareKeywords(trackSearch.getKeywords()),
                             trackSearch.getTrackFilter().getFilter()),
                     appProperties.getMaxSearchHits(), new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
 
@@ -657,5 +657,31 @@ public class SearchManager extends EventAwareObject implements Constants {
         }
 
         return builder.toString().trim();
+    }
+
+    // Package level for testing purposes
+    String prepareKeywords(String keywords) {
+        if (keywords == null) {
+            return "";
+        }
+
+        String trimmedKeywords = keywords.trim();
+
+        if ("*".equals(trimmedKeywords)) {
+            return trimmedKeywords;
+        }
+
+        String accentsStripped = stripAccents(trimmedKeywords);
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < accentsStripped.length(); i++) {
+            char nextChar = accentsStripped.charAt(i);
+
+            if (nextChar == ' ' || Character.isLetterOrDigit(nextChar)) {
+                builder.append(nextChar);
+            }
+        }
+
+        return builder.toString().trim().toLowerCase();
     }
 }
