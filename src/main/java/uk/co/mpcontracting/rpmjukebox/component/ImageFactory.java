@@ -13,9 +13,7 @@ public class ImageFactory {
 
     public void loadImage(ImageView imageView, String imageUrl) {
         Image image = new Image(imageUrl, true);
-        image.errorProperty().addListener((observable, wasErrored, isErrored) -> {
-            imageView.setImage(getDefaultImage());
-        });
+        image.errorProperty().addListener((observable, wasErrored, isErrored) -> imageView.setImage(getDefaultImage()));
 
         imageView.setImage(image);
     }
