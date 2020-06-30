@@ -100,12 +100,13 @@ public class DataManager implements Constants {
                             ParserModelAlbum parserModelAlbum = parserModelData.getAlbum();
                             ParserModelTrack parserModelTrack = parseTrack(rowData);
                             String trackKey = getTrackKey(parserModelArtist, parserModelAlbum, parserModelTrack);
+                            String albumName = parserModelAlbum.getAlbumName().isEmpty() ? parserModelArtist.getArtistName() : parserModelAlbum.getAlbumName();
 
                             searchManager.addTrack(Track.builder()
                                     .artistId(parserModelArtist.getArtistId())
                                     .artistName(parserModelArtist.getArtistName())
                                     .albumId(parserModelAlbum.getAlbumId())
-                                    .albumName(parserModelAlbum.getAlbumName())
+                                    .albumName(albumName)
                                     .albumImage(appProperties.getS3BucketUrl() + getAlbumImageKey(parserModelArtist, parserModelAlbum))
                                     .year(parserModelAlbum.getYear())
                                     .trackId(hashGenerator.generateHash(trackKey))
