@@ -1122,10 +1122,10 @@ public class SearchManagerTest implements Constants {
 
     @Test
     public void shouldGetKeywords() {
-        String keywords = "This is a word with some áççènts. Don't worry about punctuation ";
+        String keywords = "This is a sentence, with some punctuation! Don't worry about that punctuation. ";
         String result = spySearchManager.prepareKeywords(keywords);
 
-        assertThat(result).isEqualTo("this is a word with some accents dont worry about punctuation");
+        assertThat(result).isEqualTo("this is a sentence with some punctuation dont worry about that punctuation");
     }
 
     @Test
