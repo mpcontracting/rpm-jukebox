@@ -15,11 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
+import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
+import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
-import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_FILE_EXPORT_PLAYLIST;
-import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_FILE_IMPORT_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.*;
 import static uk.co.mpcontracting.rpmjukebox.support.Constants.MESSAGE_MENU_FILE_EXIT;
 
 @Slf4j
@@ -87,10 +88,16 @@ public class MenuController extends EventAwareObject {
     private final MessageManager messageManager;
 
     private SettingsManager settingsManager;
+    private PlaylistManager playlistManager;
 
     @Autowired
     private void wireSettingsManager(SettingsManager settingsManager) {
         this.settingsManager = settingsManager;
+    }
+
+    @Autowired
+    private void wirePlaylistManager(PlaylistManager playlistManager) {
+        this.playlistManager = playlistManager;
     }
 
     @FXML
@@ -124,81 +131,176 @@ public class MenuController extends EventAwareObject {
     @FXML
     protected void handleFileSettingsAction() {
         log.debug("Handling file settings action");
+
+        fireEvent(MENU_FILE_SETTINGS);
     }
 
     @FXML
     protected void handleEditAddPlaylistAction() {
         log.debug("Handling edit add playlist action");
+
+        fireEvent(MENU_EDIT_ADD_PLAYLIST);
     }
 
     @FXML
     protected void handleEditDeletePlaylistAction() {
         log.debug("Handling edit delete playlist action");
+
+        fireEvent(MENU_EDIT_DELETE_PLAYLIST);
     }
 
     @FXML
     protected void handleEditCreatePlaylistFromAlbumAction() {
         log.debug("Handling edit create playlist from album action");
+
+        fireEvent(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
     }
 
     @FXML
     protected void handleEditRandomPlaylistAction() {
         log.debug("Handling edit random playlist action");
+
+        fireEvent(MENU_EDIT_RANDOM_PLAYLIST);
     }
 
     @FXML
     protected void handleControlsPlayPauseAction() {
         log.debug("Handling controls play pause action");
+
+        fireEvent(MENU_CONTROLS_PLAY_PAUSE);
     }
 
     @FXML
     protected void handleControlsPreviousAction() {
         log.debug("Handling controls previous action");
+
+        fireEvent(MENU_CONTROLS_PREVIOUS);
     }
 
     @FXML
     protected void handleControlsNextAction() {
         log.debug("Handling controls next action");
+
+        fireEvent(MENU_CONTROLS_NEXT);
     }
 
     @FXML
     protected void handleControlsShuffleOffAction() {
         log.debug("Handling controls shuffle off action");
+
+        if (playlistManager.isShuffle()) {
+            playlistManager.setShuffle(false, false);
+
+            fireEvent(MENU_CONTROLS_SHUFFLE);
+        }
+
+        updateShuffle();
     }
 
     @FXML
     protected void handleControlsShuffleOnAction() {
         log.debug("Handling controls shuffle on action");
+
+        if (!playlistManager.isShuffle()) {
+            playlistManager.setShuffle(true, false);
+
+            fireEvent(MENU_CONTROLS_SHUFFLE);
+        }
+
+        updateShuffle();
     }
 
     @FXML
     protected void handleControlsRepeatOffAction() {
         log.debug("Handling controls repeat off action");
+
+        if (playlistManager.getRepeat() != Repeat.OFF) {
+            playlistManager.setRepeat(Repeat.OFF);
+
+            fireEvent(MENU_CONTROLS_REPEAT);
+        }
+
+        updateRepeat();
     }
 
     @FXML
     protected void handleControlsRepeatAllAction() {
         log.debug("Handling controls repeat all action");
+
+        if (playlistManager.getRepeat() != Repeat.ALL) {
+            playlistManager.setRepeat(Repeat.ALL);
+
+            fireEvent(MENU_CONTROLS_REPEAT);
+        }
+
+        updateRepeat();
     }
 
     @FXML
     protected void handleControlsRepeatOneAction() {
         log.debug("Handling controls repeat one action");
+
+        if (playlistManager.getRepeat() != Repeat.ONE) {
+            playlistManager.setRepeat(Repeat.ONE);
+
+            fireEvent(MENU_CONTROLS_REPEAT);
+        }
+
+        updateRepeat();
     }
 
     @FXML
     protected void handleControlsVolumeUpAction() {
         log.debug("Handling controls volume up action");
+
+        fireEvent(MENU_CONTROLS_VOLUME_UP, 10d);
     }
 
     @FXML
     protected void handleControlsVolumeDownAction() {
         log.debug("Handling controls volume down action");
+
+        fireEvent(MENU_CONTROLS_VOLUME_DOWN, 10d);
     }
 
     @FXML
     protected void handleViewEqualizerAction() {
         log.debug("Handling view equalizer action");
+
+        fireEvent(MENU_CONTROLS_VIEW_EQUALIZER);
+    }
+
+    private void updateShuffle() {
+        if (playlistManager.isShuffle()) {
+            checkMenuControlsShuffleOff.setSelected(false);
+            checkMenuControlsShuffleOn.setSelected(true);
+        } else {
+            checkMenuControlsShuffleOff.setSelected(true);
+            checkMenuControlsShuffleOn.setSelected(false);
+        }
+    }
+
+    private void updateRepeat() {
+        switch (playlistManager.getRepeat()) {
+            case OFF: {
+                checkMenuControlsRepeatOff.setSelected(true);
+                checkMenuControlsRepeatAll.setSelected(false);
+                checkMenuControlsRepeatOne.setSelected(false);
+                break;
+            }
+            case ALL: {
+                checkMenuControlsRepeatOff.setSelected(false);
+                checkMenuControlsRepeatAll.setSelected(true);
+                checkMenuControlsRepeatOne.setSelected(false);
+                break;
+            }
+            case ONE: {
+                checkMenuControlsRepeatOff.setSelected(false);
+                checkMenuControlsRepeatAll.setSelected(false);
+                checkMenuControlsRepeatOne.setSelected(true);
+                break;
+            }
+        }
     }
 
     @Override
@@ -220,6 +322,10 @@ public class MenuController extends EventAwareObject {
                 menuControlsVolumeUp.setDisable(false);
                 menuControlsVolumeDown.setDisable(false);
                 menuViewEqualizer.setDisable(false);
+
+                // Update shuffle and repeat menu entries
+                updateShuffle();
+                updateRepeat();
 
                 break;
             }

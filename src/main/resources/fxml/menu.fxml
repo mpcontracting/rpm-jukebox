@@ -27,8 +27,8 @@
         <MenuItem id="menuControlsNext" fx:id="menuControlsNext" text="%menu.controls.next" disable="true" mnemonicParsing="false" accelerator="Shortcut+RIGHT" onAction="#handleControlsNextAction"/>
         <SeparatorMenuItem/>
         <Menu text="%menu.controls.shuffle">
-            <CheckMenuItem id="checkMenuControlsShuffleOn" fx:id="checkMenuControlsShuffleOn" text="%menu.controls.shuffle.off" disable="true" mnemonicParsing="false" onAction="#handleControlsShuffleOnAction"/>
-            <CheckMenuItem id="checkMenuControlsShuffleOff" fx:id="checkMenuControlsShuffleOff" text="%menu.controls.shuffle.on" disable="true" mnemonicParsing="false" onAction="#handleControlsShuffleOffAction"/>
+            <CheckMenuItem id="checkMenuControlsShuffleOff" fx:id="checkMenuControlsShuffleOff" text="%menu.controls.shuffle.off" disable="true" mnemonicParsing="false" onAction="#handleControlsShuffleOffAction"/>
+            <CheckMenuItem id="checkMenuControlsShuffleOn" fx:id="checkMenuControlsShuffleOn" text="%menu.controls.shuffle.on" disable="true" mnemonicParsing="false" onAction="#handleControlsShuffleOnAction"/>
         </Menu>
         <Menu text="%menu.controls.repeat">
             <CheckMenuItem id="checkMenuControlsRepeatOff" fx:id="checkMenuControlsRepeatOff" text="%menu.controls.repeat.off" disable="true" mnemonicParsing="false" onAction="#handleControlsRepeatOffAction"/>

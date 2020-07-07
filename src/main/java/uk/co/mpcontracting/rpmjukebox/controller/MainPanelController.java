@@ -795,6 +795,78 @@ public class MainPanelController extends EventAwareObject implements Constants {
                 handleExportPlaylistButtonAction();
                 break;
             }
+            case MENU_FILE_SETTINGS: {
+                handleSettingsButtonAction();
+                break;
+            }
+            case MENU_EDIT_ADD_PLAYLIST: {
+                handleAddPlaylistButtonAction();
+                break;
+            }
+            case MENU_EDIT_DELETE_PLAYLIST: {
+                handleDeletePlaylistButtonAction();
+                break;
+            }
+            case MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM: {
+                // Do the thing
+                break;
+            }
+            case MENU_EDIT_RANDOM_PLAYLIST: {
+                handleRandomButtonAction();
+                break;
+            }
+            case MENU_CONTROLS_PLAY_PAUSE: {
+                handlePlayPauseButtonAction();
+                break;
+            }
+            case MENU_CONTROLS_PREVIOUS: {
+                handlePreviousButtonAction();
+                break;
+            }
+            case MENU_CONTROLS_NEXT: {
+                handleNextButtonAction();
+                break;
+            }
+            case MENU_CONTROLS_SHUFFLE: {
+                setShuffleButtonImage();
+                break;
+            }
+            case MENU_CONTROLS_REPEAT: {
+                setRepeatButtonImage();
+                break;
+            }
+            case MENU_CONTROLS_VOLUME_UP: {
+                if (payload != null && payload.length > 0) {
+                    double volume = volumeSlider.getValue() + (Double)payload[0];
+
+                    if (volume > 100) {
+                        volume = 100;
+                    }
+
+                    volumeSlider.setValue(volume);
+                    mediaManager.setVolumePercent(volume);
+                }
+
+                break;
+            }
+            case MENU_CONTROLS_VOLUME_DOWN: {
+                if (payload != null && payload.length > 0) {
+                    double volume = volumeSlider.getValue() - (Double)payload[0];
+
+                    if (volume < 0) {
+                        volume = 0;
+                    }
+
+                    volumeSlider.setValue(volume);
+                    mediaManager.setVolumePercent(volume);
+                }
+
+                break;
+            }
+            case MENU_CONTROLS_VIEW_EQUALIZER: {
+                handleEqButtonAction();
+                break;
+            }
 
             default: {
                 // Nothing
