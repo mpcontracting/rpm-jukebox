@@ -10,6 +10,7 @@ public interface Constants {
 
     // Message bundle keys
     String MESSAGE_WINDOW_TITLE = "window.title";
+    String MESSAGE_MENU_FILE_EXIT = "menu.file.exit";
     String MESSAGE_SPLASH_INITIALISING_CACHE = "splash.initialisingCache";
     String MESSAGE_SPLASH_CHECKING_DATA = "splash.checkingData";
     String MESSAGE_SPLASH_DOWNLOAD_INDEX = "splash.downloadIndex";

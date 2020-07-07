@@ -4,185 +4,190 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar?>
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-          stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65"
-          xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="uk.co.mpcontracting.rpmjukebox.controller.MainPanelController">
-    <BorderPane id="searchPanel" minHeight="40.0" prefHeight="40.0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
-        <right>
-            <HBox>
-                <HBox styleClass="buttonHbox">
-                    <Button id="newVersionButton" fx:id="newVersionButton" disable="true"
-                            focusTraversable="false" mnemonicParsing="false"
-                            onAction="#handleNewVersionButtonAction" text="%message.newVersionAvailable"
-                            visible="false"/>
-                </HBox>
-                <HBox styleClass="buttonHbox">
-                    <ComboBox id="yearFilterComboBox" fx:id="yearFilterComboBox" disable="true"
-                              prefWidth="90.0">
-                        <tooltip>
-                            <Tooltip text="%tooltip.yearFilter"/>
-                        </tooltip>
-                    </ComboBox>
-                </HBox>
-                <HBox id="searchTextHBox">
-                    <TextField id="searchTextField" fx:id="searchTextField" disable="true"/>
-                </HBox>
-            </HBox>
-        </right>
-    </BorderPane>
-    <BorderPane id="playlistPanel" minWidth="250.0" prefWidth="250.0" styleClass="border-panel"
-                GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
-        <center>
-            <ListView id="playlistPanelListView" fx:id="playlistPanelListView"/>
-        </center>
-        <bottom>
-            <BorderPane id="playlistControlPanel" styleClass="border-panel">
-                <left>
-                    <HBox id="plusMinusHBox" minHeight="34.0" prefHeight="34.0">
-                        <Button id="addPlaylistButton" fx:id="addPlaylistButton" disable="true"
-                                mnemonicParsing="false" onAction="#handleAddPlaylistButtonAction"
-                                prefHeight="20.0" prefWidth="20.0">
-                            <tooltip>
-                                <Tooltip text="%tooltip.addNewPlaylist"/>
-                            </tooltip>
-                        </Button>
-                        <Button id="deletePlaylistButton" fx:id="deletePlaylistButton" disable="true"
-                                mnemonicParsing="false" onAction="#handleDeletePlaylistButtonAction"
-                                prefHeight="20.0" prefWidth="20.0">
-                            <tooltip>
-                                <Tooltip text="%tooltip.deletePlaylist"/>
-                            </tooltip>
-                        </Button>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="uk.co.mpcontracting.rpmjukebox.controller.MainPanelController">
+
+    <fx:include source="menu.fxml"/>
+
+    <GridPane VBox.vgrow="ALWAYS">
+        <BorderPane id="searchPanel" minHeight="40.0" prefHeight="40.0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
+            <right>
+                <HBox>
+                    <HBox styleClass="buttonHbox">
+                        <Button id="newVersionButton" fx:id="newVersionButton" disable="true"
+                                focusTraversable="false" mnemonicParsing="false"
+                                onAction="#handleNewVersionButtonAction" text="%message.newVersionAvailable"
+                                visible="false"/>
                     </HBox>
-                </left>
-                <right>
-                    <HBox id="saveSettingsHBox" minHeight="34.0" prefHeight="34.0">
-                        <Button disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0"/>
-                        <Button id="settingsButton" fx:id="settingsButton" disable="true"
-                                mnemonicParsing="false" onAction="#handleSettingsButtonAction" prefHeight="20.0"
-                                prefWidth="20.0">
+                    <HBox styleClass="buttonHbox">
+                        <ComboBox id="yearFilterComboBox" fx:id="yearFilterComboBox" disable="true"
+                                  prefWidth="90.0">
                             <tooltip>
-                                <Tooltip text="%tooltip.settings"/>
+                                <Tooltip text="%tooltip.yearFilter"/>
                             </tooltip>
-                        </Button>
+                        </ComboBox>
                     </HBox>
-                </right>
-                <center>
-                    <HBox id="importExportHBox" minHeight="34.0" prefHeight="34.0">
-                        <Button id="importPlaylistButton" fx:id="importPlaylistButton" disable="true"
-                                mnemonicParsing="false" onAction="#handleImportPlaylistButtonAction"
-                                prefHeight="20.0" prefWidth="20.0">
-                            <tooltip>
-                                <Tooltip text="%tooltip.importPlaylist"/>
-                            </tooltip>
-                        </Button>
-                        <Button id="exportPlaylistButton" fx:id="exportPlaylistButton" disable="true"
-                                mnemonicParsing="false" onAction="#handleExportPlaylistButtonAction"
-                                prefHeight="20.0" prefWidth="20.0">
-                            <tooltip>
-                                <Tooltip text="%tooltip.exportPlaylist"/>
-                            </tooltip>
-                        </Button>
+                    <HBox id="searchTextHBox">
+                        <TextField id="searchTextField" fx:id="searchTextField" disable="true"/>
                     </HBox>
-                </center>
-            </BorderPane>
-        </bottom>
-    </BorderPane>
-    <BorderPane id="mainPanel" fx:id="mainPanel" styleClass="border-panel" GridPane.columnIndex="1"
-                GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2"/>
-    <BorderPane id="playingPanel" minHeight="310.0" minWidth="250.0" prefHeight="310.0" prefWidth="250.0"
-                GridPane.rowIndex="2">
-        <center>
-            <ImageView id="playingImageView" fx:id="playingImageView" fitHeight="250.0" fitWidth="250.0"
-                       pickOnBounds="true" preserveRatio="true"/>
-        </center>
-        <bottom>
-            <BorderPane id="playingLabelPanel" styleClass="border-panel">
-                <top>
-                    <Label id="playingTrackLabel" fx:id="playingTrackLabel" minHeight="20.0" prefHeight="20.0"
-                           BorderPane.alignment="CENTER"/>
-                </top>
-                <center>
-                    <Label id="playingArtistLabel" fx:id="playingArtistLabel" minHeight="20.0" prefHeight="20.0"
-                           BorderPane.alignment="CENTER"/>
-                </center>
-                <bottom>
-                    <Label id="playingAlbumLabel" fx:id="playingAlbumLabel" minHeight="20.0" prefHeight="20.0"
-                           BorderPane.alignment="CENTER"/>
-                </bottom>
-            </BorderPane>
-        </bottom>
-    </BorderPane>
-    <HBox id="controlPanel" minHeight="40.0" minWidth="250.0" prefHeight="40.0" prefWidth="250.0"
-          styleClass="border-panel" GridPane.rowIndex="3">
-        <Button id="previousButton" fx:id="previousButton" disable="true" mnemonicParsing="false"
-                onAction="#handlePreviousButtonAction" prefHeight="26.0" prefWidth="26.0">
-            <tooltip>
-                <Tooltip text="%tooltip.previous"/>
-            </tooltip>
-        </Button>
-        <Button id="playPauseButton" fx:id="playPauseButton" disable="true" mnemonicParsing="false"
-                onAction="#handlePlayPauseButtonAction" prefHeight="26.0" prefWidth="26.0">
-            <tooltip>
-                <Tooltip text="%tooltip.playPause"/>
-            </tooltip>
-        </Button>
-        <Button id="nextButton" fx:id="nextButton" disable="true" mnemonicParsing="false"
-                onAction="#handleNextButtonAction" prefHeight="26.0" prefWidth="26.0">
-            <tooltip>
-                <Tooltip text="%tooltip.next"/>
-            </tooltip>
-        </Button>
-    </HBox>
-    <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="border-panel" GridPane.columnIndex="1"
-          GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
-        <SliderProgressBar id="timeSlider" fx:id="timeSlider" disable="true" minWidth="50.0"
-                           HBox.hgrow="ALWAYS"/>
-        <Label id="playTimeLabel" fx:id="playTimeLabel" minWidth="100.0" prefWidth="100.0"/>
-        <HBox id="volumeHBox">
-            <Button id="volumeButton" fx:id="volumeButton" disable="true" minWidth="17.0"
-                    mnemonicParsing="false" onAction="#handleVolumeButtonAction" prefHeight="17.0"
-                    prefWidth="17.0"/>
-            <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="70.0" prefWidth="70.0"/>
+                </HBox>
+            </right>
+        </BorderPane>
+        <BorderPane id="playlistPanel" minWidth="250.0" prefWidth="250.0" styleClass="border-panel"
+                    GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+            <center>
+                <ListView id="playlistPanelListView" fx:id="playlistPanelListView"/>
+            </center>
+            <bottom>
+                <BorderPane id="playlistControlPanel" styleClass="border-panel">
+                    <left>
+                        <HBox id="plusMinusHBox" minHeight="34.0" prefHeight="34.0">
+                            <Button id="addPlaylistButton" fx:id="addPlaylistButton" disable="true"
+                                    mnemonicParsing="false" onAction="#handleAddPlaylistButtonAction"
+                                    prefHeight="20.0" prefWidth="20.0">
+                                <tooltip>
+                                    <Tooltip text="%tooltip.addNewPlaylist"/>
+                                </tooltip>
+                            </Button>
+                            <Button id="deletePlaylistButton" fx:id="deletePlaylistButton" disable="true"
+                                    mnemonicParsing="false" onAction="#handleDeletePlaylistButtonAction"
+                                    prefHeight="20.0" prefWidth="20.0">
+                                <tooltip>
+                                    <Tooltip text="%tooltip.deletePlaylist"/>
+                                </tooltip>
+                            </Button>
+                        </HBox>
+                    </left>
+                    <right>
+                        <HBox id="saveSettingsHBox" minHeight="34.0" prefHeight="34.0">
+                            <Button disable="true" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0"/>
+                            <Button id="settingsButton" fx:id="settingsButton" disable="true"
+                                    mnemonicParsing="false" onAction="#handleSettingsButtonAction" prefHeight="20.0"
+                                    prefWidth="20.0">
+                                <tooltip>
+                                    <Tooltip text="%tooltip.settings"/>
+                                </tooltip>
+                            </Button>
+                        </HBox>
+                    </right>
+                    <center>
+                        <HBox id="importExportHBox" minHeight="34.0" prefHeight="34.0">
+                            <Button id="importPlaylistButton" fx:id="importPlaylistButton" disable="true"
+                                    mnemonicParsing="false" onAction="#handleImportPlaylistButtonAction"
+                                    prefHeight="20.0" prefWidth="20.0">
+                                <tooltip>
+                                    <Tooltip text="%tooltip.importPlaylist"/>
+                                </tooltip>
+                            </Button>
+                            <Button id="exportPlaylistButton" fx:id="exportPlaylistButton" disable="true"
+                                    mnemonicParsing="false" onAction="#handleExportPlaylistButtonAction"
+                                    prefHeight="20.0" prefWidth="20.0">
+                                <tooltip>
+                                    <Tooltip text="%tooltip.exportPlaylist"/>
+                                </tooltip>
+                            </Button>
+                        </HBox>
+                    </center>
+                </BorderPane>
+            </bottom>
+        </BorderPane>
+        <BorderPane id="mainPanel" fx:id="mainPanel" styleClass="border-panel" GridPane.columnIndex="1"
+                    GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2"/>
+        <BorderPane id="playingPanel" minHeight="310.0" minWidth="250.0" prefHeight="310.0" prefWidth="250.0"
+                    GridPane.rowIndex="2">
+            <center>
+                <ImageView id="playingImageView" fx:id="playingImageView" fitHeight="250.0" fitWidth="250.0"
+                           pickOnBounds="true" preserveRatio="true"/>
+            </center>
+            <bottom>
+                <BorderPane id="playingLabelPanel" styleClass="border-panel">
+                    <top>
+                        <Label id="playingTrackLabel" fx:id="playingTrackLabel" minHeight="20.0" prefHeight="20.0"
+                               BorderPane.alignment="CENTER"/>
+                    </top>
+                    <center>
+                        <Label id="playingArtistLabel" fx:id="playingArtistLabel" minHeight="20.0" prefHeight="20.0"
+                               BorderPane.alignment="CENTER"/>
+                    </center>
+                    <bottom>
+                        <Label id="playingAlbumLabel" fx:id="playingAlbumLabel" minHeight="20.0" prefHeight="20.0"
+                               BorderPane.alignment="CENTER"/>
+                    </bottom>
+                </BorderPane>
+            </bottom>
+        </BorderPane>
+        <HBox id="controlPanel" minHeight="40.0" minWidth="250.0" prefHeight="40.0" prefWidth="250.0"
+              styleClass="border-panel" GridPane.rowIndex="3">
+            <Button id="previousButton" fx:id="previousButton" disable="true" mnemonicParsing="false"
+                    onAction="#handlePreviousButtonAction" prefHeight="26.0" prefWidth="26.0">
+                <tooltip>
+                    <Tooltip text="%tooltip.previous"/>
+                </tooltip>
+            </Button>
+            <Button id="playPauseButton" fx:id="playPauseButton" disable="true" mnemonicParsing="false"
+                    onAction="#handlePlayPauseButtonAction" prefHeight="26.0" prefWidth="26.0">
+                <tooltip>
+                    <Tooltip text="%tooltip.playPause"/>
+                </tooltip>
+            </Button>
+            <Button id="nextButton" fx:id="nextButton" disable="true" mnemonicParsing="false"
+                    onAction="#handleNextButtonAction" prefHeight="26.0" prefWidth="26.0">
+                <tooltip>
+                    <Tooltip text="%tooltip.next"/>
+                </tooltip>
+            </Button>
         </HBox>
-    </HBox>
-    <HBox id="optionsPanel" minHeight="40.0" prefHeight="40.0" prefWidth="105.0" styleClass="border-panel"
-          GridPane.columnIndex="2" GridPane.rowIndex="3">
-        <Button id="shuffleButton" fx:id="shuffleButton" disable="true" minWidth="20.0" mnemonicParsing="false"
-                onAction="#handleShuffleButtonAction" prefHeight="20.0" prefWidth="20.0">
-            <tooltip>
-                <Tooltip text="%tooltip.shuffle"/>
-            </tooltip>
-        </Button>
-        <Button id="repeatButton" fx:id="repeatButton" disable="true" minWidth="20.0" mnemonicParsing="false"
-                onAction="#handleRepeatButtonAction" prefHeight="20.0" prefWidth="20.0">
-            <tooltip>
-                <Tooltip text="%tooltip.repeat"/>
-            </tooltip>
-        </Button>
-        <Button id="eqButton" fx:id="eqButton" disable="true" minWidth="20.0" mnemonicParsing="false"
-                onAction="#handleEqButtonAction" prefHeight="20.0" prefWidth="20.0">
-            <tooltip>
-                <Tooltip text="%tooltip.displayEqualizer"/>
-            </tooltip>
-        </Button>
-        <Button id="randomButton" fx:id="randomButton" disable="true" minWidth="20.0" mnemonicParsing="false"
-                onAction="#handleRandomButtonAction" prefHeight="20.0" prefWidth="20.0">
-            <tooltip>
-                <Tooltip text="%tooltip.randomPlaylist"/>
-            </tooltip>
-        </Button>
-    </HBox>
-    <columnConstraints>
-        <ColumnConstraints/>
-        <ColumnConstraints/>
-        <ColumnConstraints/>
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints/>
-        <RowConstraints/>
-        <RowConstraints/>
-        <RowConstraints/>
-    </rowConstraints>
-</GridPane>
+        <HBox id="progressPanel" prefHeight="40.0" prefWidth="40.0" styleClass="border-panel" GridPane.columnIndex="1"
+              GridPane.hgrow="ALWAYS" GridPane.rowIndex="3">
+            <SliderProgressBar id="timeSlider" fx:id="timeSlider" disable="true" minWidth="50.0"
+                               HBox.hgrow="ALWAYS"/>
+            <Label id="playTimeLabel" fx:id="playTimeLabel" minWidth="100.0" prefWidth="100.0"/>
+            <HBox id="volumeHBox">
+                <Button id="volumeButton" fx:id="volumeButton" disable="true" minWidth="17.0"
+                        mnemonicParsing="false" onAction="#handleVolumeButtonAction" prefHeight="17.0"
+                        prefWidth="17.0"/>
+                <Slider fx:id="volumeSlider" disable="true" maxWidth="70.0" minWidth="70.0" prefWidth="70.0"/>
+            </HBox>
+        </HBox>
+        <HBox id="optionsPanel" minHeight="40.0" prefHeight="40.0" prefWidth="105.0" styleClass="border-panel"
+              GridPane.columnIndex="2" GridPane.rowIndex="3">
+            <Button id="shuffleButton" fx:id="shuffleButton" disable="true" minWidth="20.0" mnemonicParsing="false"
+                    onAction="#handleShuffleButtonAction" prefHeight="20.0" prefWidth="20.0">
+                <tooltip>
+                    <Tooltip text="%tooltip.shuffle"/>
+                </tooltip>
+            </Button>
+            <Button id="repeatButton" fx:id="repeatButton" disable="true" minWidth="20.0" mnemonicParsing="false"
+                    onAction="#handleRepeatButtonAction" prefHeight="20.0" prefWidth="20.0">
+                <tooltip>
+                    <Tooltip text="%tooltip.repeat"/>
+                </tooltip>
+            </Button>
+            <Button id="eqButton" fx:id="eqButton" disable="true" minWidth="20.0" mnemonicParsing="false"
+                    onAction="#handleEqButtonAction" prefHeight="20.0" prefWidth="20.0">
+                <tooltip>
+                    <Tooltip text="%tooltip.displayEqualizer"/>
+                </tooltip>
+            </Button>
+            <Button id="randomButton" fx:id="randomButton" disable="true" minWidth="20.0" mnemonicParsing="false"
+                    onAction="#handleRandomButtonAction" prefHeight="20.0" prefWidth="20.0">
+                <tooltip>
+                    <Tooltip text="%tooltip.randomPlaylist"/>
+                </tooltip>
+            </Button>
+        </HBox>
+        <columnConstraints>
+            <ColumnConstraints/>
+            <ColumnConstraints/>
+            <ColumnConstraints/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints/>
+            <RowConstraints/>
+            <RowConstraints/>
+            <RowConstraints/>
+        </rowConstraints>
+    </GridPane>
+</VBox>

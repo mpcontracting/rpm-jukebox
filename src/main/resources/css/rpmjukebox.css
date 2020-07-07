@@ -81,6 +81,28 @@
     -fx-background-color: -jb-foreground-color;
 }
 
+.menu-bar {
+    -fx-background-color: -jb-background-color;
+    -fx-text-fill: -jb-foreground-color;
+}
+
+.menu:hover, .menu:showing {
+    -fx-background-color: -jb-foreground-color;
+}
+
+.menu:hover .label, .menu:showing .label {
+    -fx-text-fill: -jb-background-color;
+}
+
+.menu-item {
+    -fx-mark-color: -jb-foreground-color;
+}
+
+.menu-item:focused
+{
+    -fx-focused-mark-color: -jb-background-color;
+}
+
 .context-menu {
     -fx-background-color: -jb-background-color;
     -fx-border-color: -jb-border-color;

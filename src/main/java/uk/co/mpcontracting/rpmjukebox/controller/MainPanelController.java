@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.Optional.ofNullable;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_SELECTED;
 
 @Slf4j
 @FXMLController
@@ -341,7 +342,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
         }
 
         if (searchTextUpdated) {
-            fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+            fireEvent(PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
         }
     }
 
@@ -591,6 +592,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     @Override
     public void eventReceived(Event event, Object... payload) {
         switch (event) {
+            // Application Events
             case APPLICATION_INITIALISED: {
                 // Update year filter
                 updateYearFilter();
@@ -783,6 +785,17 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
                 break;
             }
+
+            // Menu Events
+            case MENU_FILE_IMPORT_PLAYLIST: {
+                handleImportPlaylistButtonAction();
+                break;
+            }
+            case MENU_FILE_EXPORT_PLAYLIST: {
+                handleExportPlaylistButtonAction();
+                break;
+            }
+
             default: {
                 // Nothing
             }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<MenuBar stylesheets="@../css/rpmjukebox.css"
+         xmlns="http://javafx.com/javafx/8.0.65"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="uk.co.mpcontracting.rpmjukebox.controller.MenuController"
+         useSystemMenuBar="true">
+    <Menu id="menuFile" fx:id="menuFile" text="%menu.file">
+        <MenuItem id="menuFileImportPlaylist" fx:id="menuFileImportPlaylist" text="%menu.file.importPlaylist" disable="true" mnemonicParsing="false" accelerator="Shortcut+O" onAction="#handleFileImportPlaylistAction"/>
+        <MenuItem id="menuFileExportPlaylist" fx:id="menuFileExportPlaylist" text="%menu.file.exportPlaylist" disable="true" mnemonicParsing="false" accelerator="Shortcut+S" onAction="#handleFileExportPlaylistAction"/>
+        <SeparatorMenuItem/>
+        <MenuItem id="menuFileSettings" fx:id="menuFileSettings" text="%menu.file.settings" disable="true" mnemonicParsing="false" accelerator="Shortcut+," onAction="#handleFileSettingsAction"/>
+    </Menu>
+
+    <Menu text="%menu.edit">
+        <MenuItem id="menuEditAddPlaylist" fx:id="menuEditAddPlaylist" text="%menu.edit.addPlaylist" disable="true" mnemonicParsing="false" accelerator="Shortcut+N" onAction="#handleEditAddPlaylistAction"/>
+        <MenuItem id="menuEditDeletePlaylist" fx:id="menuEditDeletePlaylist" text="%menu.edit.deletePlaylist" disable="true" mnemonicParsing="false" accelerator="Shortcut+DELETE" onAction="#handleEditDeletePlaylistAction"/>
+        <SeparatorMenuItem/>
+        <MenuItem id="menuEditCreatePlaylistFromAlbum" fx:id="menuEditCreatePlaylistFromAlbum" text="%menu.edit.createPlaylistFromAlbum" disable="true" mnemonicParsing="false" accelerator="Shift+Shortcut+N" onAction="#handleEditCreatePlaylistFromAlbumAction"/>
+        <MenuItem id="menuEditRandomPlaylist" fx:id="menuEditRandomPlaylist" text="%menu.edit.randomPlaylist" disable="true" mnemonicParsing="false" accelerator="Shift+Shortcut+R" onAction="#handleEditRandomPlaylistAction"/>
+    </Menu>
+
+    <Menu text="%menu.controls">
+        <MenuItem id="menuControlsPlayPause" fx:id="menuControlsPlayPause" text="%menu.controls.playPause.play" disable="true" mnemonicParsing="false" accelerator="SPACE" onAction="#handleControlsPlayPauseAction"/>
+        <MenuItem id="menuControlsPrevious" fx:id="menuControlsPrevious" text="%menu.controls.previous" disable="true" mnemonicParsing="false" accelerator="Shortcut+LEFT" onAction="#handleControlsPreviousAction"/>
+        <MenuItem id="menuControlsNext" fx:id="menuControlsNext" text="%menu.controls.next" disable="true" mnemonicParsing="false" accelerator="Shortcut+RIGHT" onAction="#handleControlsNextAction"/>
+        <SeparatorMenuItem/>
+        <Menu text="%menu.controls.shuffle">
+            <CheckMenuItem id="checkMenuControlsShuffleOn" fx:id="checkMenuControlsShuffleOn" text="%menu.controls.shuffle.off" disable="true" mnemonicParsing="false" onAction="#handleControlsShuffleOnAction"/>
+            <CheckMenuItem id="checkMenuControlsShuffleOff" fx:id="checkMenuControlsShuffleOff" text="%menu.controls.shuffle.on" disable="true" mnemonicParsing="false" onAction="#handleControlsShuffleOffAction"/>
+        </Menu>
+        <Menu text="%menu.controls.repeat">
+            <CheckMenuItem id="checkMenuControlsRepeatOff" fx:id="checkMenuControlsRepeatOff" text="%menu.controls.repeat.off" disable="true" mnemonicParsing="false" onAction="#handleControlsRepeatOffAction"/>
+            <CheckMenuItem id="checkMenuControlsRepeatAll" fx:id="checkMenuControlsRepeatAll" text="%menu.controls.repeat.all" disable="true" mnemonicParsing="false" onAction="#handleControlsRepeatAllAction"/>
+            <CheckMenuItem id="checkMenuControlsRepeatOne" fx:id="checkMenuControlsRepeatOne" text="%menu.controls.repeat.one" disable="true" mnemonicParsing="false" onAction="#handleControlsRepeatOneAction"/>
+        </Menu>
+        <SeparatorMenuItem/>
+        <MenuItem id="menuControlsVolumeUp" fx:id="menuControlsVolumeUp" text="%menu.controls.volumeUp" disable="true" mnemonicParsing="false" accelerator="Shortcut+UP" onAction="#handleControlsVolumeUpAction"/>
+        <MenuItem id="menuControlsVolumeDown" fx:id="menuControlsVolumeDown" text="%menu.controls.volumeDown" disable="true" mnemonicParsing="false" accelerator="Shortcut+DOWN" onAction="#handleControlsVolumeDownAction"/>
+    </Menu>
+
+    <Menu text="%menu.view">
+        <MenuItem id="menuViewEqualizer" fx:id="menuViewEqualizer" text="%menu.view.equalizer" accelerator="Shortcut+E" onAction="#handleViewEqualizerAction"/>
+    </Menu>
+</MenuBar>
