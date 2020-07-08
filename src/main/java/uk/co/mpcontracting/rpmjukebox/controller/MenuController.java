@@ -104,7 +104,7 @@ public class MenuController extends EventAwareObject {
     public void initialize() {
         log.info("Initialising MenuController");
 
-        if (settingsManager.getOsType() == OsType.WINDOWS) {
+        if (settingsManager.getOsType() != OsType.OSX) {
             menuFile.getItems().add(new SeparatorMenuItem());
 
             MenuItem exitMenuItem = new MenuItem(messageManager.getMessage(MESSAGE_MENU_FILE_EXIT));
