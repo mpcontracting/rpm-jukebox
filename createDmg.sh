@@ -1,10 +1,12 @@
 #!/bin/sh
 
+VERSION="4.1.0"
+
 NATIVE_DIR="./build/jfx/native"
 NATIVE_APP="$NATIVE_DIR/RPM Jukebox.app"
 
 DMG_OUTPUT_DIR="$NATIVE_DIR/dmg"
-DMG_OUTPUT_FILE="$DMG_OUTPUT_DIR/rpm-jukebox-4.0.0.dmg"
+DMG_OUTPUT_FILE="$DMG_OUTPUT_DIR/rpm-jukebox-$VERSION.dmg"
 SOURCE_DIR="$NATIVE_DIR/source"
 
 rm -rf $SOURCE_DIR

@@ -74,14 +74,18 @@ public abstract class AbstractGUITest extends GuiTest {
     }
 
     protected void clickOnMenuItem(String query) {
-        findMenuItem(query).ifPresent(MenuItem::fire);
+        findMenuItemInternal(query).ifPresent(MenuItem::fire);
+    }
+
+    protected MenuItem findMenuItem(String query) {
+        return findMenuItemInternal(query).orElse(null);
     }
 
     protected CheckMenuItem findCheckMenuItem(String query) {
-        return (CheckMenuItem) findMenuItem(query).orElse(null);
+        return (CheckMenuItem) findMenuItemInternal(query).orElse(null);
     }
 
-    private Optional<MenuItem> findMenuItem(String query) {
+    private Optional<MenuItem> findMenuItemInternal(String query) {
         String queryInternal = query.startsWith("#") ? query.substring(1) : query;
         MenuBar menuBar = find("#menuBar");
         List<MenuItem> menuItems = new ArrayList<>();

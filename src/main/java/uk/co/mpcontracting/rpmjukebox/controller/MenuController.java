@@ -28,6 +28,8 @@ import static uk.co.mpcontracting.rpmjukebox.support.Constants.*;
 @RequiredArgsConstructor
 public class MenuController extends EventAwareObject {
 
+    static final double VOLUME_DELTA = 10d;
+
     @FXML
     private Menu menuFile;
 
@@ -294,14 +296,14 @@ public class MenuController extends EventAwareObject {
     protected void handleControlsVolumeUpAction() {
         log.debug("Handling controls volume up action");
 
-        fireEvent(MENU_CONTROLS_VOLUME_UP, 10d);
+        fireEvent(MENU_CONTROLS_VOLUME_UP, VOLUME_DELTA);
     }
 
     @FXML
     protected void handleControlsVolumeDownAction() {
         log.debug("Handling controls volume down action");
 
-        fireEvent(MENU_CONTROLS_VOLUME_DOWN, 10d);
+        fireEvent(MENU_CONTROLS_VOLUME_DOWN, VOLUME_DELTA);
     }
 
     @FXML
