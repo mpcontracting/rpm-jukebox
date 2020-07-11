@@ -5,7 +5,8 @@
          xmlns="http://javafx.com/javafx/8.0.65"
          xmlns:fx="http://javafx.com/fxml/1"
          fx:controller="uk.co.mpcontracting.rpmjukebox.controller.MenuController"
-         useSystemMenuBar="true">
+         useSystemMenuBar="true"
+         id="menuBar">
     <Menu id="menuFile" fx:id="menuFile" text="%menu.file">
         <MenuItem id="menuFileImportPlaylist" fx:id="menuFileImportPlaylist" text="%menu.file.importPlaylist" disable="true" mnemonicParsing="false" accelerator="Shortcut+O" onAction="#handleFileImportPlaylistAction"/>
         <MenuItem id="menuFileExportPlaylist" fx:id="menuFileExportPlaylist" text="%menu.file.exportPlaylist" disable="true" mnemonicParsing="false" accelerator="Shortcut+S" onAction="#handleFileExportPlaylistAction"/>
@@ -22,7 +23,7 @@
     </Menu>
 
     <Menu text="%menu.controls">
-        <MenuItem id="menuControlsPlayPause" fx:id="menuControlsPlayPause" text="%menu.controls.playPause.play" disable="true" mnemonicParsing="false" accelerator="SPACE" onAction="#handleControlsPlayPauseAction"/>
+        <MenuItem id="menuControlsPlayPause" fx:id="menuControlsPlayPause" text="%menu.controls.playPause.play" disable="true" mnemonicParsing="false" accelerator="Shortcut+ENTER" onAction="#handleControlsPlayPauseAction"/>
         <MenuItem id="menuControlsPrevious" fx:id="menuControlsPrevious" text="%menu.controls.previous" disable="true" mnemonicParsing="false" accelerator="Shortcut+LEFT" onAction="#handleControlsPreviousAction"/>
         <MenuItem id="menuControlsNext" fx:id="menuControlsNext" text="%menu.controls.next" disable="true" mnemonicParsing="false" accelerator="Shortcut+RIGHT" onAction="#handleControlsNextAction"/>
         <SeparatorMenuItem/>

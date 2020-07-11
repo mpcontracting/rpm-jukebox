@@ -138,6 +138,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
     private MessageView messageView;
     private ConfirmView confirmView;
     private TrackTableView trackTableView;
+    private TrackTableController trackTableController;
     private EqualizerController equalizerController;
     private SettingsController settingsController;
     private ExportController exportController;
@@ -182,6 +183,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
     @Autowired
     private void wireTrackTableView(TrackTableView trackTableView) {
         this.trackTableView = trackTableView;
+    }
+
+    @Autowired
+    private void wireTrackTableController(TrackTableController trackTableController) {
+        this.trackTableController = trackTableController;
     }
 
     @Autowired
@@ -316,6 +322,11 @@ public class MainPanelController extends EventAwareObject implements Constants {
         });
     }
 
+    public boolean isPlaylistPlayable() {
+         return playlistManager.getPlaylist(currentSelectedPlaylistId)
+                    .filter(playlist -> !playlist.isEmpty()).isPresent();
+    }
+
     private void searchParametersUpdated(String searchText, YearFilter yearFilter, boolean searchTextUpdated) {
         log.debug("Search parameters updated - '{}' - {}", searchText, yearFilter);
 
@@ -379,7 +390,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
         }
     }
 
-    private void setShuffleButtonImage() {
+    // Package level for testing purposes
+    void setShuffleButtonImage() {
         if (playlistManager.isShuffle()) {
             shuffleButton.setStyle("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')");
         } else {
@@ -387,7 +399,8 @@ public class MainPanelController extends EventAwareObject implements Constants {
         }
     }
 
-    private void setRepeatButtonImage() {
+    // Package level for testing purposes
+    void setRepeatButtonImage() {
         switch (playlistManager.getRepeat()) {
             case OFF: {
                 repeatButton.setStyle("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
@@ -750,8 +763,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                         // If we're not playing or paused and the playlist is not empty
                         // then enable the play button so we can play the playlist
                         if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
-                            if (playlistManager.getPlaylist(currentSelectedPlaylistId)
-                                    .filter(playlist -> !playlist.isEmpty()).isPresent()) {
+                            if (isPlaylistPlayable()) {
                                 playPauseButton.setDisable(false);
                             } else {
                                 playPauseButton.setDisable(true);
@@ -808,7 +820,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                 break;
             }
             case MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM: {
-                // Do the thing
+                ofNullable(trackTableController.getSelectedTrack()).ifPresent(playlistManager::createPlaylistFromAlbum);
                 break;
             }
             case MENU_EDIT_RANDOM_PLAYLIST: {
@@ -863,7 +875,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
                 break;
             }
-            case MENU_CONTROLS_VIEW_EQUALIZER: {
+            case MENU_VIEW_EQUALIZER: {
                 handleEqButtonAction();
                 break;
             }

@@ -12,16 +12,16 @@ import javafx.scene.input.KeyCombination;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
-import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
-import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
-import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
+import uk.co.mpcontracting.rpmjukebox.manager.*;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
 
+import static java.util.Optional.ofNullable;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.*;
-import static uk.co.mpcontracting.rpmjukebox.support.Constants.MESSAGE_MENU_FILE_EXIT;
+import static uk.co.mpcontracting.rpmjukebox.support.Constants.*;
 
 @Slf4j
 @FXMLController
@@ -87,8 +87,33 @@ public class MenuController extends EventAwareObject {
 
     private final MessageManager messageManager;
 
+    private RpmJukebox rpmJukebox;
+    private MainPanelController mainPanelController;
+    private TrackTableController trackTableController;
+    private ApplicationManager applicationManager;
     private SettingsManager settingsManager;
     private PlaylistManager playlistManager;
+    private MediaManager mediaManager;
+
+    @Autowired
+    private void wireRpmJukebox(RpmJukebox rpmJukebox) {
+        this.rpmJukebox = rpmJukebox;
+    }
+
+    @Autowired
+    private void wireMainPanelController(MainPanelController mainPanelController) {
+        this.mainPanelController = mainPanelController;
+    }
+
+    @Autowired
+    private void wireTrackTableController(TrackTableController trackTableController) {
+        this.trackTableController = trackTableController;
+    }
+
+    @Autowired
+    private void wireApplicationManager(ApplicationManager applicationManager) {
+        this.applicationManager = applicationManager;
+    }
 
     @Autowired
     private void wireSettingsManager(SettingsManager settingsManager) {
@@ -100,6 +125,11 @@ public class MenuController extends EventAwareObject {
         this.playlistManager = playlistManager;
     }
 
+    @Autowired
+    private void wireMediaManager(MediaManager mediaManager) {
+        this.mediaManager = mediaManager;
+    }
+
     @FXML
     public void initialize() {
         log.info("Initialising MenuController");
@@ -108,7 +138,18 @@ public class MenuController extends EventAwareObject {
             menuFile.getItems().add(new SeparatorMenuItem());
 
             MenuItem exitMenuItem = new MenuItem(messageManager.getMessage(MESSAGE_MENU_FILE_EXIT));
+            exitMenuItem.setId("menuFileExit");
             exitMenuItem.acceleratorProperty().setValue(new KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN));
+
+            exitMenuItem.setOnAction(event -> {
+                try {
+                    applicationManager.stop();
+                    rpmJukebox.stop();
+                } catch (Exception e) {
+                    log.error("Error shutting down", e);
+                    System.exit(1);
+                }
+            });
 
             menuFile.getItems().add(exitMenuItem);
         }
@@ -267,7 +308,11 @@ public class MenuController extends EventAwareObject {
     protected void handleViewEqualizerAction() {
         log.debug("Handling view equalizer action");
 
-        fireEvent(MENU_CONTROLS_VIEW_EQUALIZER);
+        fireEvent(MENU_VIEW_EQUALIZER);
+    }
+
+    private void updateCreatePlaylistFromAlbum() {
+        menuEditCreatePlaylistFromAlbum.setDisable(!ofNullable(trackTableController.getSelectedTrack()).isPresent());
     }
 
     private void updateShuffle() {
@@ -326,6 +371,60 @@ public class MenuController extends EventAwareObject {
                 // Update shuffle and repeat menu entries
                 updateShuffle();
                 updateRepeat();
+
+                break;
+            }
+            case MEDIA_PLAYING: {
+                menuControlsPlayPause.setText(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PAUSE));
+                menuControlsPlayPause.setDisable(false);
+                menuControlsPrevious.setDisable(false);
+                menuControlsNext.setDisable(false);
+
+                break;
+            }
+            case MEDIA_PAUSED:
+            case MEDIA_STOPPED:
+            case END_OF_MEDIA: {
+                menuControlsPlayPause.setText(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
+                menuControlsPlayPause.setDisable(false);
+                menuControlsPrevious.setDisable(true);
+                menuControlsNext.setDisable(true);
+
+                break;
+            }
+            case PLAYLIST_CREATED:
+            case PLAYLIST_DELETED:
+            case PLAYLIST_SELECTED: {
+                updateCreatePlaylistFromAlbum();
+
+                // If we're not playing or paused and the playlist is not empty
+                // then enable the play button so we can play the playlist
+                if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
+                    if (mainPanelController.isPlaylistPlayable()) {
+                        menuControlsPlayPause.setDisable(false);
+                    } else {
+                        menuControlsPlayPause.setDisable(true);
+                    }
+                }
+
+                break;
+            }
+            case PLAYLIST_CONTENT_UPDATED: {
+                updateCreatePlaylistFromAlbum();
+
+                break;
+            }
+            case TRACK_SELECTED: {
+                menuControlsPlayPause.setDisable(false);
+
+                updateCreatePlaylistFromAlbum();
+
+                break;
+            }
+            case TRACK_QUEUED_FOR_PLAYING: {
+                menuControlsPlayPause.setDisable(true);
+
+                updateCreatePlaylistFromAlbum();
 
                 break;
             }

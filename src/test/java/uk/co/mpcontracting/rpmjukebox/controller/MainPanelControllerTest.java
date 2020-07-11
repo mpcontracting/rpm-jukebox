@@ -59,6 +59,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.*;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 
 public class MainPanelControllerTest extends AbstractGUITest implements Constants {
@@ -98,6 +99,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Mock
     private TrackTableView mockTrackTableView;
+
+    @Mock
+    private TrackTableController mockTrackTableController;
 
     @Mock
     private EqualizerController mockEqualizerController;
@@ -159,6 +163,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         setField(mainPanelController, "messageView", mockMessageView);
         setField(mainPanelController, "confirmView", mockConfirmView);
         setField(mainPanelController, "trackTableView", mockTrackTableView);
+        setField(mainPanelController, "trackTableController", mockTrackTableController);
         setField(mainPanelController, "equalizerController", mockEqualizerController);
         setField(mainPanelController, "settingsController", mockSettingsController);
         setField(mainPanelController, "exportController", mockExportController);
@@ -2101,6 +2106,224 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Thread.sleep(250);
 
         verify(mockConfirmView, never()).show(anyBoolean());
+    }
+
+    @Test
+    public void shouldReceiveMenuFileImportPlaylist() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handleImportPlaylistButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_FILE_IMPORT_PLAYLIST);
+
+        verify(spyMainPanelController, times(1)).handleImportPlaylistButtonAction();
+    }
+
+    @Test
+    public void shouldReceiveMenuFileExportPlaylist() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handleExportPlaylistButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_FILE_EXPORT_PLAYLIST);
+
+        verify(spyMainPanelController, times(1)).handleExportPlaylistButtonAction();
+    }
+
+    @Test
+    public void shouldReceiveMenuFileSettings() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handleSettingsButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_FILE_SETTINGS);
+
+        verify(spyMainPanelController, times(1)).handleSettingsButtonAction();
+    }
+
+    @Test
+    public void shouldReceiveMenuEditAddPlaylist() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handleAddPlaylistButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_EDIT_ADD_PLAYLIST);
+
+        verify(spyMainPanelController, times(1)).handleAddPlaylistButtonAction();
+    }
+
+    @Test
+    public void shouldReceiveMenuEditDeletePlaylist() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handleDeletePlaylistButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_EDIT_DELETE_PLAYLIST);
+
+        verify(spyMainPanelController, times(1)).handleDeletePlaylistButtonAction();
+    }
+
+    @Test
+    public void shouldReceiveEditCreatePlaylistFromAlbumWithSelectedTrack() {
+        Track mockTrack = mock(Track.class);
+
+        when(mockTrackTableController.getSelectedTrack()).thenReturn(mockTrack);
+
+        mainPanelController.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
+
+        verify(mockPlaylistManager, times(1)).createPlaylistFromAlbum(mockTrack);
+    }
+
+    @Test
+    public void shouldReceiveEditCreatePlaylistFromAlbumWithoutSelectedTrack() {
+        when(mockTrackTableController.getSelectedTrack()).thenReturn(null);
+
+        mainPanelController.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
+
+        verify(mockPlaylistManager, never()).createPlaylistFromAlbum(any());
+    }
+
+    @Test
+    public void shouldReceiveMenuEditRandomPlaylist() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handleRandomButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_EDIT_RANDOM_PLAYLIST);
+
+        verify(spyMainPanelController, times(1)).handleRandomButtonAction();
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsPlayPause() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handlePlayPauseButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_CONTROLS_PLAY_PAUSE);
+
+        verify(spyMainPanelController, times(1)).handlePlayPauseButtonAction();
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsPrevious() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handlePreviousButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_CONTROLS_PREVIOUS);
+
+        verify(spyMainPanelController, times(1)).handlePreviousButtonAction();
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsNext() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handleNextButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_CONTROLS_NEXT);
+
+        verify(spyMainPanelController, times(1)).handleNextButtonAction();
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsShuffle() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).setShuffleButtonImage();
+
+        spyMainPanelController.eventReceived(MENU_CONTROLS_SHUFFLE);
+
+        verify(spyMainPanelController, times(1)).setShuffleButtonImage();
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsRepeat() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).setRepeatButtonImage();
+
+        spyMainPanelController.eventReceived(MENU_CONTROLS_REPEAT);
+
+        verify(spyMainPanelController, times(1)).setRepeatButtonImage();
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsVolumeUpWithPayload() {
+        Slider volumeSlider = find("#volumeSlider");
+        volumeSlider.setValue(10d);
+
+        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
+
+        assertThat(volumeSlider.getValue()).isEqualTo(20d);
+        verify(mockMediaManager, times(1)).setVolumePercent(20d);
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsVolumeUpWithPayloadOver100() {
+        Slider volumeSlider = find("#volumeSlider");
+        volumeSlider.setValue(95d);
+
+        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
+
+        assertThat(volumeSlider.getValue()).isEqualTo(100d);
+        verify(mockMediaManager, times(1)).setVolumePercent(100d);
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsVolumeUpWithoutPayload() {
+        Slider volumeSlider = find("#volumeSlider");
+        volumeSlider.setValue(10d);
+
+        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_UP);
+
+        assertThat(volumeSlider.getValue()).isEqualTo(10d);
+        verify(mockMediaManager, never()).setVolumePercent(anyDouble());
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsVolumeDownWithPayload() {
+        Slider volumeSlider = find("#volumeSlider");
+        volumeSlider.setValue(90d);
+
+        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
+
+        assertThat(volumeSlider.getValue()).isEqualTo(80d);
+        verify(mockMediaManager, times(1)).setVolumePercent(80d);
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsVolumeDownWithPayloadBelowZero() {
+        Slider volumeSlider = find("#volumeSlider");
+        volumeSlider.setValue(5d);
+
+        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
+
+        assertThat(volumeSlider.getValue()).isEqualTo(0d);
+        verify(mockMediaManager, times(1)).setVolumePercent(0d);
+    }
+
+    @Test
+    public void shouldReceiveMenuControlsVolumeDownWithoutPayload() {
+        Slider volumeSlider = find("#volumeSlider");
+        volumeSlider.setValue(10d);
+
+        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_DOWN);
+
+        assertThat(volumeSlider.getValue()).isEqualTo(10d);
+        verify(mockMediaManager, never()).setVolumePercent(anyDouble());
+    }
+
+    @Test
+    public void shouldReceiveMenuViewEqualizer() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handleEqButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_VIEW_EQUALIZER);
+
+        verify(spyMainPanelController, times(1)).handleEqButtonAction();
     }
 
     @After

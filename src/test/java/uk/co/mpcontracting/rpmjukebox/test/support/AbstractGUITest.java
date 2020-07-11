@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.test.support;
 
 import de.roskenet.jfxsupport.test.GuiTest;
 import javafx.scene.Node;
+import javafx.scene.control.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -18,7 +19,10 @@ import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
@@ -67,6 +71,34 @@ public abstract class AbstractGUITest extends GuiTest {
             node.setDisable(disabled);
             node.setVisible(visible);
         }
+    }
+
+    protected void clickOnMenuItem(String query) {
+        findMenuItem(query).ifPresent(MenuItem::fire);
+    }
+
+    protected CheckMenuItem findCheckMenuItem(String query) {
+        return (CheckMenuItem) findMenuItem(query).orElse(null);
+    }
+
+    private Optional<MenuItem> findMenuItem(String query) {
+        String queryInternal = query.startsWith("#") ? query.substring(1) : query;
+        MenuBar menuBar = find("#menuBar");
+        List<MenuItem> menuItems = new ArrayList<>();
+
+        menuBar.getMenus().forEach(menu -> findMenuItems(menuItems, menu));
+
+        return menuItems.stream().filter(menuItem -> menuItem.getId().equals(queryInternal)).findFirst();
+    }
+
+    private void findMenuItems(List<MenuItem> menuItems, Menu menu) {
+        menu.getItems().forEach(menuItem -> {
+            if (menuItem instanceof Menu) {
+                findMenuItems(menuItems, (Menu)menuItem);
+            } else if (!(menuItem instanceof SeparatorMenuItem)){
+                menuItems.add(menuItem);
+            }
+        });
     }
 
     @After
