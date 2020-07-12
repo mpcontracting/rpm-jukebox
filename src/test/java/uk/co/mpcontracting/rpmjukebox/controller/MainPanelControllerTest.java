@@ -2316,6 +2316,17 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     }
 
     @Test
+    public void shouldReceiveMenuControlsVolumeMute() {
+        MainPanelController spyMainPanelController = spy(mainPanelController);
+
+        doNothing().when(spyMainPanelController).handleVolumeButtonAction();
+
+        spyMainPanelController.eventReceived(MENU_CONTROLS_VOLUME_MUTE);
+
+        verify(spyMainPanelController, times(1)).handleVolumeButtonAction();
+    }
+
+    @Test
     public void shouldReceiveMenuViewEqualizer() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 

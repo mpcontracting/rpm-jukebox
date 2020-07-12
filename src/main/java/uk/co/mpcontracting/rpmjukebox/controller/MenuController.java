@@ -85,6 +85,9 @@ public class MenuController extends EventAwareObject {
     private MenuItem menuControlsVolumeDown;
 
     @FXML
+    private MenuItem menuControlsVolumeMute;
+
+    @FXML
     private MenuItem menuViewEqualizer;
 
     private final MessageManager messageManager;
@@ -307,6 +310,13 @@ public class MenuController extends EventAwareObject {
     }
 
     @FXML
+    protected void handleControlsVolumeMuteAction() {
+        log.debug("Handling controls volume mute action");
+
+        fireEvent(MENU_CONTROLS_VOLUME_MUTE);
+    }
+
+    @FXML
     protected void handleViewEqualizerAction() {
         log.debug("Handling view equalizer action");
 
@@ -368,6 +378,7 @@ public class MenuController extends EventAwareObject {
                 checkMenuControlsRepeatOne.setDisable(false);
                 menuControlsVolumeUp.setDisable(false);
                 menuControlsVolumeDown.setDisable(false);
+                menuControlsVolumeMute.setDisable(false);
                 menuViewEqualizer.setDisable(false);
 
                 // Update shuffle and repeat menu entries

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION="4.1.0"
+VERSION="4.1.1"
 
 NATIVE_DIR="./build/jfx/native"
 NATIVE_APP="$NATIVE_DIR/RPM Jukebox.app"

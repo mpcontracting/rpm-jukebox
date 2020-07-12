@@ -377,6 +377,13 @@ public class MenuControllerTest extends AbstractGUITest {
     }
 
     @Test
+    public void shouldHandleControlsVolumeMuteAction() {
+        clickOnMenuItem("#menuControlsVolumeMute");
+
+        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_VOLUME_MUTE);
+    }
+
+    @Test
     public void shouldHandleViewEqualizerAction() {
         clickOnMenuItem("#menuViewEqualizer");
 
@@ -399,6 +406,7 @@ public class MenuControllerTest extends AbstractGUITest {
         CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
         MenuItem menuControlsVolumeUp = findMenuItem("#menuControlsVolumeUp");
         MenuItem menuControlsVolumeDown = findMenuItem("#menuControlsVolumeDown");
+        MenuItem menuControlsVolumeMute = findMenuItem("#menuControlsVolumeMute");
         MenuItem menuViewEqualizer = findMenuItem("#menuViewEqualizer");
 
         menuFileImportPlaylist.setDisable(true);
@@ -414,6 +422,7 @@ public class MenuControllerTest extends AbstractGUITest {
         checkMenuControlsRepeatOne.setDisable(true);
         menuControlsVolumeUp.setDisable(true);
         menuControlsVolumeDown.setDisable(true);
+        menuControlsVolumeMute.setDisable(true);
         menuViewEqualizer.setDisable(true);
 
         checkMenuControlsShuffleOff.setSelected(false);
@@ -447,6 +456,7 @@ public class MenuControllerTest extends AbstractGUITest {
         assertThat(checkMenuControlsRepeatOne.isDisable()).isFalse();
         assertThat(menuControlsVolumeUp.isDisable()).isFalse();
         assertThat(menuControlsVolumeDown.isDisable()).isFalse();
+        assertThat(menuControlsVolumeMute.isDisable()).isFalse();
         assertThat(menuViewEqualizer.isDisable()).isFalse();
 
         assertThat(checkMenuControlsShuffleOff.isSelected()).isFalse();

@@ -39,6 +39,7 @@
         <SeparatorMenuItem/>
         <MenuItem id="menuControlsVolumeUp" fx:id="menuControlsVolumeUp" text="%menu.controls.volumeUp" disable="true" mnemonicParsing="false" accelerator="Shortcut+UP" onAction="#handleControlsVolumeUpAction"/>
         <MenuItem id="menuControlsVolumeDown" fx:id="menuControlsVolumeDown" text="%menu.controls.volumeDown" disable="true" mnemonicParsing="false" accelerator="Shortcut+DOWN" onAction="#handleControlsVolumeDownAction"/>
+        <MenuItem id="menuControlsVolumeMute" fx:id="menuControlsVolumeMute" text="%menu.controls.volumeMute" disable="true" mnemonicParsing="false" accelerator="Shortcut+SLASH" onAction="#handleControlsVolumeMuteAction"/>
     </Menu>
 
     <Menu text="%menu.view">

@@ -875,6 +875,10 @@ public class MainPanelController extends EventAwareObject implements Constants {
 
                 break;
             }
+            case MENU_CONTROLS_VOLUME_MUTE: {
+                handleVolumeButtonAction();
+                break;
+            }
             case MENU_VIEW_EQUALIZER: {
                 handleEqButtonAction();
                 break;
