@@ -1,13 +1,17 @@
 buildscript {
     repositories {
         mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
 
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE'
         classpath 'org.owasp:dependency-check-gradle:4.0.2'
-        classpath 'de.dynamicfiles.projects.gradle.plugins:javafx-gradle-plugin:8.8.2'
+        //classpath 'de.dynamicfiles.projects.gradle.plugins:javafx-gradle-plugin:8.8.2'
+        classpath 'org.openjfx:javafx-plugin:0.0.9'
     }
 }
 
@@ -21,7 +25,8 @@ apply plugin: 'maven'
 apply plugin: 'jacoco'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'org.owasp.dependencycheck'
-apply plugin: 'javafx-gradle-plugin'
+//apply plugin: 'javafx-gradle-plugin'
+apply plugin: 'org.openjfx.javafxplugin'
 
 dependencyManagement {
     imports {
@@ -38,13 +43,19 @@ dependencyCheck {
     failOnError = true
 }
 
-sourceCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 group 'uk.co.mpcontracting'
-version = '4.1.1'
+version = '5.0.0'
 
 jar {
     archivesBaseName = "${project.name}"
+}
+
+javafx {
+    version = "11.0.2"
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.media' ]
 }
 
 dependencies {
@@ -115,7 +126,7 @@ jacocoTestCoverageVerification {
 // JavaFX Build Script //
 /////////////////////////
 
-jfx {
+/*jfx {
     appName = 'RPM Jukebox'
     vendor = 'Matt Parker'
     nativeReleaseVersion = "${version}"
@@ -129,4 +140,4 @@ jfx {
             'win.menuGroup': 'RPM Jukebox',
             'win.msi.productVersion': "${version}"
     ]
-}
+}*/

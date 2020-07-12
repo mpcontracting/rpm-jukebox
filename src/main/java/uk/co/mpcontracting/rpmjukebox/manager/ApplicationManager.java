@@ -106,7 +106,6 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
         // Also show the window before resizing to work around a Windows 10 bug
         if (settingsManager.getOsType() == OsType.WINDOWS) {
             stage.getIcons().add(new Image(getClass().getResourceAsStream(IMAGE_WINDOW_ICON)));
-            stage.show();
         }
 
         // Load the window settings

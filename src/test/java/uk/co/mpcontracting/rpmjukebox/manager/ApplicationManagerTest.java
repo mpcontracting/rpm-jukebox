@@ -137,7 +137,7 @@ public class ApplicationManagerTest implements Constants {
         verify(mockStage, times(1)).setTitle("WindowTitle");
         verify(mockStage, times(1)).getIcons();
         verify(mockSettingsManager, times(1)).loadWindowSettings(mockStage);
-        verify(mockStage, times(2)).show();
+        verify(mockStage, times(1)).show();
         verify(mockStage, times(1)).requestFocus();
         verify(mockEventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
