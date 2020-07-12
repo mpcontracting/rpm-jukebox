@@ -18,6 +18,9 @@ import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 
+import static java.util.Optional.ofNullable;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_SELECTED;
+
 @Slf4j
 @FXMLController
 public class TrackTableController extends EventAwareObject {
@@ -70,6 +73,9 @@ public class TrackTableController extends EventAwareObject {
                 }
             }
         });
+        trackTableView.getSelectionModel().selectedItemProperty()
+                .addListener(((observable, oldValue, newValue) -> ofNullable(newValue)
+                        .ifPresent(trackTableModel -> fireEvent(TRACK_SELECTED, trackTableModel.getTrack()))));
 
         // Cell factories
         loveColumn.setCellFactory(new LoveButtonTableCellFactory<>());

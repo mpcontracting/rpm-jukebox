@@ -6,7 +6,9 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.*;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +16,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.context.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
@@ -27,7 +28,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getContextMenuEvent;
+import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getDragEvent;
 
 public class PlaylistListCellFactoryTest extends AbstractGUITest implements Constants {
 
@@ -53,81 +55,6 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
         when(mockContext.getBean(MainPanelController.class)).thenReturn(mockMainPanelController);
 
         setField(ContextHelper.class, "applicationContext", mockContext);
-    }
-
-    @Test
-    public void shouldSinglePrimaryClickOnCell() {
-        Playlist playlist = new Playlist(1, "Playlist", 10);
-        playlist.setPlaylistId(999);
-
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
-        listCell.setItem(playlist);
-
-        listCell.onMouseClickedProperty().get().handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
-
-        verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_SELECTED, playlist.getPlaylistId());
-    }
-
-    @Test
-    public void shouldDoublePrimaryClickOnCell() {
-        Playlist playlist = new Playlist(1, "Playlist", 10);
-        playlist.setPlaylistId(999);
-
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
-        listCell.setItem(playlist);
-
-        listCell.onMouseClickedProperty().get().handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
-
-        verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_SELECTED, playlist.getPlaylistId());
-    }
-
-    @Test
-    public void shouldSingleSecondaryClickOnCell() {
-        Playlist playlist = new Playlist(1, "Playlist", 10);
-        playlist.setPlaylistId(999);
-
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
-        listCell.setItem(playlist);
-
-        listCell.onMouseClickedProperty().get()
-                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
-
-        verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_SELECTED, playlist.getPlaylistId());
-    }
-
-    @Test
-    public void shouldDoubleSecondaryClickOnCell() {
-        Playlist playlist = new Playlist(1, "Playlist", 10);
-        playlist.setPlaylistId(999);
-
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
-        listCell.setItem(playlist);
-
-        listCell.onMouseClickedProperty().get()
-                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 2));
-
-        verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_SELECTED, playlist.getPlaylistId());
-    }
-
-    @Test
-    public void shouldSinglePrimaryClickOnCellItemIsNull() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
-        listCell.setItem(null);
-
-        listCell.onMouseClickedProperty().get().handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
-
-        verify(getMockEventManager(), never()).fireEvent(any());
-    }
-
-    @Test
-    public void shouldSingleSecondaryClickOnCellItemIsNull() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
-        listCell.setItem(null);
-
-        listCell.onMouseClickedProperty().get()
-                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
-
-        verify(getMockEventManager(), never()).fireEvent(any());
     }
 
     @Test

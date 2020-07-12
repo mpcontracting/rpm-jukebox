@@ -5,7 +5,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
@@ -16,9 +15,6 @@ import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
-
-import static java.util.Optional.ofNullable;
-import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_SELECTED;
 
 public class PlaylistListCellFactory extends EventAwareObject
         implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
@@ -34,22 +30,6 @@ public class PlaylistListCellFactory extends EventAwareObject
     @Override
     public ListCell<Playlist> call(ListView<Playlist> listView) {
         final PlaylistListCell listCell = new PlaylistListCell(new PlaylistStringConverter<>());
-
-        //////////////////
-        // Mouse Events //
-        //////////////////
-
-        listCell.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY) {
-                if (event.getClickCount() == 1) {
-                    // Single click
-                    ofNullable(listCell.getItem()).ifPresent(item -> fireEvent(PLAYLIST_SELECTED, item.getPlaylistId()));
-                }
-            } else if (event.getButton() == MouseButton.SECONDARY && event.getClickCount() < 2) {
-                // Right click
-                ofNullable(listCell.getItem()).ifPresent(item -> fireEvent(PLAYLIST_SELECTED, item.getPlaylistId()));
-            }
-        });
 
         //////////////////
         // Context Menu //

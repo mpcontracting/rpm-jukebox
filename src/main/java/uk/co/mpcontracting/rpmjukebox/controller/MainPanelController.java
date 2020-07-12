@@ -289,6 +289,9 @@ public class MainPanelController extends EventAwareObject implements Constants {
                         true, () -> playlistManager.deletePlaylist(playlist.getPlaylistId()), null);
             }
         });
+        playlistPanelListView.getSelectionModel().selectedItemProperty()
+                .addListener(((observable, oldValue, newValue) -> ofNullable(newValue)
+                        .ifPresent(playlist -> fireEvent(PLAYLIST_SELECTED, playlist.getPlaylistId()))));
 
         // Track table view
         mainPanel.setCenter(trackTableView.getView());

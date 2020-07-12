@@ -969,6 +969,35 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Test
     @SneakyThrows
+    public void shouldFirePlaylistSelected() {
+        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        threadRunner.runOnGui(() -> {
+            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
+            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites Playlist", 10));
+            latch.countDown();
+        });
+
+        latch.await(2000, TimeUnit.MILLISECONDS);
+
+        assertThat(playlistPanelListView.getItems()).hasSize(2);
+
+        CountDownLatch latch2 = new CountDownLatch(1);
+
+        threadRunner.runOnGui(() -> {
+            playlistPanelListView.getSelectionModel().select(1);
+            latch2.countDown();
+        });
+
+        latch2.await(2000, TimeUnit.MILLISECONDS);
+
+        verify(getMockEventManager(), times(1)).fireEvent(PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
+    }
+
+    @Test
+    @SneakyThrows
     public void shouldReceiveApplicationInitialised() {
         find("#yearFilterComboBox").setDisable(true);
         find("#searchTextField").setDisable(true);
