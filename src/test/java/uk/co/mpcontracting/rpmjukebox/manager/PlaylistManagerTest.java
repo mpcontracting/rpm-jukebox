@@ -1020,7 +1020,7 @@ public class PlaylistManagerTest implements Constants {
     }
 
     @Test
-    public void shouldGetTrackAtCurrentPlayingPlaylistIndexNoShuffle() {
+    public void shouldGetTrackAtCurrentPlayingPlaylist() {
         Playlist playingPlaylist = mock(Playlist.class);
         when(playingPlaylist.isEmpty()).thenReturn(false);
         when(playingPlaylist.getTrackAtIndex(anyInt())).thenReturn(mock(Track.class));
@@ -1033,22 +1033,6 @@ public class PlaylistManagerTest implements Constants {
         assertThat(track).isNotNull();
         verify(playingPlaylist, times(1)).getTrackAtIndex(anyInt());
         verify(playingPlaylist, never()).getShuffledTrackAtIndex(anyInt());
-    }
-
-    @Test
-    public void shouldGetTrackAtCurrentPlayingPlaylistIndexWithShuffle() {
-        Playlist playingPlaylist = mock(Playlist.class);
-        when(playingPlaylist.isEmpty()).thenReturn(false);
-        when(playingPlaylist.getShuffledTrackAtIndex(anyInt())).thenReturn(mock(Track.class));
-
-        setField(spyPlaylistManager, "playingPlaylist", playingPlaylist);
-        setField(spyPlaylistManager, "shuffle", true);
-
-        Track track = spyPlaylistManager.getTrackAtPlayingPlaylistIndex();
-
-        assertThat(track).isNotNull();
-        verify(playingPlaylist, never()).getTrackAtIndex(anyInt());
-        verify(playingPlaylist, times(1)).getShuffledTrackAtIndex(anyInt());
     }
 
     @Test
