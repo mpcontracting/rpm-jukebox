@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
 import de.felixroske.jfxsupport.GUIState;
+import javafx.collections.FXCollections;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -85,6 +86,7 @@ public class MessageViewTest extends AbstractGUITest {
         Parent mockParent = mock(Parent.class);
         Scene mockScene = mock(Scene.class);
         when(mockParent.getScene()).thenReturn(mockScene);
+        when(mockParent.getStyleClass()).thenReturn(FXCollections.observableArrayList());
         when(spyMessageView.getView()).thenReturn(mockParent);
 
         CountDownLatch latch = new CountDownLatch(1);

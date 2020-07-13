@@ -208,7 +208,9 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @Test
     @SneakyThrows
     public void shouldGetLastIndexedDate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(
+                LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        ), ZoneId.systemDefault());
         File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(lastIndexedFile))) {
@@ -248,11 +250,13 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     @Test
     @SneakyThrows
     public void shouldSetLastIndexedDate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(
+                LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        ), ZoneId.systemDefault());
 
         spySettingsManager.setLastIndexedDate(now);
 
-        LocalDateTime lastIndexed = null;
+        LocalDateTime lastIndexed;
         File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
@@ -273,11 +277,13 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
             writer.newLine();
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochMilli(
+                LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        ), ZoneId.systemDefault());
 
         spySettingsManager.setLastIndexedDate(now);
 
-        LocalDateTime lastIndexed = null;
+        LocalDateTime lastIndexed;
         File lastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(lastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
@@ -317,7 +323,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
 
         spySettingsManager.setLastIndexedDate(mockLocalDateTime);
 
-        LocalDateTime lastIndexed = null;
+        LocalDateTime lastIndexed ;
         File readLastIndexedFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getLastIndexedFile());
         try (BufferedReader reader = new BufferedReader(new FileReader(readLastIndexedFile))) {
             lastIndexed = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(reader.readLine())),
@@ -440,7 +446,7 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         spySettingsManager.saveWindowSettings(mockStage);
 
         File settingsFile = spySettingsManager.getFileFromConfigDirectory(mockAppProperties.getWindowSettingsFile());
-        Window window = null;
+        Window window;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
             window = new Gson().fromJson(fileReader, Window.class);
