@@ -1,7 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
 import com.igormaznitsa.commons.version.Version;
-import de.felixroske.jfxsupport.GUIState;
 import javafx.application.HostServices;
 import lombok.SneakyThrows;
 import org.junit.Before;
@@ -12,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.javafx.GUIState;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 import java.io.ByteArrayInputStream;

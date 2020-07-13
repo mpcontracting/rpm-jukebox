@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import de.felixroske.jfxsupport.FXMLController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,6 +14,7 @@ import uk.co.mpcontracting.rpmjukebox.component.TrackTableModel;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableView;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.javafx.FXMLController;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 

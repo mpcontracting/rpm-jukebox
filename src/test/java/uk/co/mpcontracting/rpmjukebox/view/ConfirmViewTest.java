@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import de.felixroske.jfxsupport.GUIState;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -11,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
+import uk.co.mpcontracting.rpmjukebox.javafx.GUIState;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.mockito.Mockito.*;

@@ -3,6 +3,16 @@ A player for the RPM Challenge jukebox written in JavaFX
 
 ## Release Notes
 
+### v5.0.0
+
+* Converted to use JDK14
+* JavaFX packages adapted from https://github.com/roskenet due to JDK11+ incompatibility
+
+### v4.1.1
+
+* Added menus and keyboard bindings
+* Squashed some bugs
+
 ### v4.0.0
 
 * Updated keys on AWS to handle data file deletions

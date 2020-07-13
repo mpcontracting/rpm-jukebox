@@ -1,11 +1,11 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import de.felixroske.jfxsupport.SplashScreen;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.rpmjukebox.javafx.SplashScreen;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
 import java.io.BufferedReader;

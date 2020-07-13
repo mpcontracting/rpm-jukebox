@@ -2,7 +2,6 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import com.google.gson.Gson;
 import com.igormaznitsa.commons.version.Version;
-import de.felixroske.jfxsupport.GUIState;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Parent;
@@ -28,6 +27,7 @@ import uk.co.mpcontracting.rpmjukebox.component.ImageFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.javafx.GUIState;
 import uk.co.mpcontracting.rpmjukebox.manager.*;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
