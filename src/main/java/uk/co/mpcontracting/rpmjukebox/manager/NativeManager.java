@@ -52,7 +52,7 @@ public class NativeManager {
                 Files.copy(getClass().getResourceAsStream(userNotifications), userNotificationsFile.toPath(),
                         StandardCopyOption.REPLACE_EXISTING);
 
-                nsUserNotificationsBridge = Native.loadLibrary(userNotificationsFile.getAbsolutePath(),
+                nsUserNotificationsBridge = Native.load(userNotificationsFile.getAbsolutePath(),
                         NsUserNotificationsBridge.class);
             } catch (Throwable t) {
                 log.error("Error loading native notifications bridge", t);

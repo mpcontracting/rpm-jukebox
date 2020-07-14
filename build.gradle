@@ -52,7 +52,7 @@ jar {
 }
 
 javafx {
-    version = "11.0.2"
+    version = "14.0.1"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.media' ]
 }
 
@@ -67,14 +67,14 @@ dependencies {
     compile 'com.google.code.gson:gson'
     compile 'com.igormaznitsa:commons-version:1.0.0'
     compile 'org.eclipse.jetty:jetty-servlet'
-    compile 'net.java.dev.jna:jna'
+    compile 'net.java.dev.jna:jna:5.5.0'
 
     compileOnly 'org.projectlombok:lombok'
 
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'org.testfx:testfx-core:4.0.16-alpha'
     testCompile 'org.testfx:testfx-junit:4.0.15-alpha'
-    testCompile 'org.testfx:openjfx-monocle:jdk-11+26'
+    testCompile 'org.testfx:openjfx-monocle:jdk-12.0.1+2'
     testCompile 'org.assertj:assertj-core'
     testCompile 'commons-io:commons-io:2.6'
     testCompile 'com.google.guava:guava:27.1-jre'
@@ -92,7 +92,7 @@ test.finalizedBy jacocoTestReport
 check.dependsOn jacocoTestCoverageVerification
 
 jacoco {
-    toolVersion = '0.8.3'
+    toolVersion = '0.8.5'
 }
 
 jacocoTestCoverageVerification {
