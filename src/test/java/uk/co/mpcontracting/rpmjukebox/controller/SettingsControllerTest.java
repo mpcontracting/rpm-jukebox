@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testfx.util.WaitForAsyncUtils;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.manager.SearchManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
@@ -20,8 +21,6 @@ import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
 
 import javax.annotation.PostConstruct;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,14 +81,9 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
         when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
         when(mockSettingsManager.getVersion()).thenReturn(new Version("99.99.99"));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> settingsController.bindSystemSettings());
 
-        threadRunner.runOnGui(() -> {
-            settingsController.bindSystemSettings();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         boolean valid = requireNonNull(invokeMethod(settingsController, "validate"));
 

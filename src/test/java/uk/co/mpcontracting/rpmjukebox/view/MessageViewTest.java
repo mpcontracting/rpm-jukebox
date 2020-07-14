@@ -10,12 +10,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.testfx.util.WaitForAsyncUtils;
 import uk.co.mpcontracting.rpmjukebox.javafx.GUIState;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,14 +45,10 @@ public class MessageViewTest extends AbstractGUITest {
     public void shouldInitialiseViewWithNewScene() throws Exception {
         setField(spyMessageView, "owner", null);
         setField(spyMessageView, "stage", null);
-        CountDownLatch latch1 = new CountDownLatch(1);
 
-        threadRunner.runOnGui(() -> {
-            spyMessageView.initialise();
-            latch1.countDown();
-        });
+        threadRunner.runOnGui(() -> spyMessageView.initialise());
 
-        latch1.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         Stage owner = (Stage) ReflectionTestUtils.getField(spyMessageView, "owner");
         Stage stage = (Stage) ReflectionTestUtils.getField(spyMessageView, "stage");
@@ -65,14 +59,9 @@ public class MessageViewTest extends AbstractGUITest {
         Stage spyStage = spy(stage);
         setField(spyMessageView, "stage", spyStage);
 
-        CountDownLatch latch2 = new CountDownLatch(1);
+        threadRunner.runOnGui(stage::show);
 
-        threadRunner.runOnGui(() -> {
-            stage.show();
-            latch2.countDown();
-        });
-
-        latch2.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         verify(spyStage, times(1)).setX(anyDouble());
         verify(spyStage, times(1)).setY(anyDouble());
@@ -89,14 +78,9 @@ public class MessageViewTest extends AbstractGUITest {
         when(mockParent.getStyleClass()).thenReturn(FXCollections.observableArrayList());
         when(spyMessageView.getView()).thenReturn(mockParent);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> spyMessageView.initialise());
 
-        threadRunner.runOnGui(() -> {
-            spyMessageView.initialise();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         Stage owner = (Stage) ReflectionTestUtils.getField(spyMessageView, "owner");
         Stage stage = (Stage) ReflectionTestUtils.getField(spyMessageView, "stage");

@@ -23,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testfx.util.WaitForAsyncUtils;
 import uk.co.mpcontracting.rpmjukebox.component.ImageFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
@@ -49,8 +50,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -175,16 +174,13 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         setField(mainPanelController, "nativeManager", mockNativeManager);
         setField(mainPanelController, "updateManager", mockUpdateManager);
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             ((TextField) getNonNullField(mainPanelController, "searchTextField")).setText(null);
             ((ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox")).getItems().clear();
             ((ListView<Playlist>) getNonNullField(mainPanelController, "playlistPanelListView")).getItems().clear();
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         reset(mockSearchManager);
         reset(mockPlaylistManager);
@@ -265,14 +261,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @SneakyThrows
     public void shouldUpdateSearchTextSearchCriteria() {
         TextField searchTextField = (TextField) getNonNullField(mainPanelController, "searchTextField");
-        CountDownLatch latch = new CountDownLatch(1);
 
-        threadRunner.runOnGui(() -> {
-            searchTextField.setText("Search");
-            latch.countDown();
-        });
+        threadRunner.runOnGui(() -> searchTextField.setText("Search"));
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         TrackSearch trackSearch = new TrackSearch("Search");
 
@@ -289,14 +281,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().select(1));
 
-        threadRunner.runOnGui(() -> {
-            yearFilterComboBox.getSelectionModel().select(1);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, Collections.emptyList());
         verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
@@ -312,7 +299,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
 
         TextField searchTextField = (TextField) getNonNullField(mainPanelController, "searchTextField");
-        CountDownLatch latch = new CountDownLatch(1);
 
         threadRunner.runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(1);
@@ -320,10 +306,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             reset(mockPlaylistManager);
 
             searchTextField.setText("Search");
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         TrackSearch trackSearch = new TrackSearch("Search", new TrackFilter(null, "2001"));
 
@@ -348,14 +333,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockPlaylist.getTracks()).thenReturn(mockTracks);
         when(mockPlaylistManager.getPlayingPlaylist()).thenReturn(mockPlaylist);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().select(1));
 
-        threadRunner.runOnGui(() -> {
-            yearFilterComboBox.getSelectionModel().select(1);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, mockTracks);
         verify(mockPlaylist, times(1)).getTracks();
@@ -382,15 +362,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(1, "Playlist 1", 10);
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         clickOnNode("#deletePlaylistButton");
 
@@ -412,15 +389,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(PLAYLIST_ID_SEARCH, "Playlist 1", 10);
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         clickOnNode("#deletePlaylistButton");
 
@@ -432,14 +406,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldClickDeletePlaylistButtonWithNullPlaylist() {
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> playlistPanelListView.getSelectionModel().clearSelection());
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getSelectionModel().clearSelection();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         clickOnNode("#deletePlaylistButton");
 
@@ -452,15 +421,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        CountDownLatch latch1 = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
-            latch1.countDown();
         });
 
-        latch1.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         FileChooser mockFileChooser = mock(FileChooser.class);
         when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
@@ -489,14 +455,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
 
-        CountDownLatch latch2 = new CountDownLatch(1);
+        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
 
-        threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction();
-            latch2.countDown();
-        });
-
-        latch2.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
 
@@ -518,15 +479,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         FileChooser mockFileChooser = mock(FileChooser.class);
         when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
@@ -555,14 +513,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
         when(mockSearchManager.getTrackById(any())).thenReturn(empty());
 
-        CountDownLatch latch2 = new CountDownLatch(1);
+        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
 
-        threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction();
-            latch2.countDown();
-        });
-
-        latch2.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
 
@@ -584,15 +537,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         FileChooser mockFileChooser = mock(FileChooser.class);
         when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
@@ -608,14 +558,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockSettingsManager.getGson()).thenReturn(mockGson);
         when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(null);
 
-        CountDownLatch latch2 = new CountDownLatch(1);
+        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
 
-        threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction();
-            latch2.countDown();
-        });
-
-        latch2.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         verify(mockPlaylistManager, never()).addPlaylist(any());
         verify(mockPlaylistManager, never()).getPlaylists();
@@ -629,29 +574,21 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         FileChooser mockFileChooser = mock(FileChooser.class);
         when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
         when(mockFileChooser.showOpenDialog(any())).thenReturn(null);
         doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
 
-        CountDownLatch latch2 = new CountDownLatch(1);
+        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
 
-        threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction();
-            latch2.countDown();
-        });
-
-        latch2.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         verify(mockPlaylistManager, never()).addPlaylist(any());
         verify(mockPlaylistManager, never()).getPlaylists();
@@ -665,15 +602,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getSelectionModel().select(0);
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         FileChooser mockFileChooser = mock(FileChooser.class);
         when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
@@ -685,14 +619,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         doThrow(new RuntimeException("MainPanelControllerTest.shouldClickImportPlaylistButtonWhenExceptionThrown()"))
                 .when(spyMainPanelController).constructFileReader(any());
 
-        CountDownLatch latch2 = new CountDownLatch(1);
+        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
 
-        threadRunner.runOnGui(() -> {
-            spyMainPanelController.handleImportPlaylistButtonAction();
-            latch2.countDown();
-        });
-
-        latch2.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         verify(mockPlaylistManager, never()).addPlaylist(any());
         verify(mockPlaylistManager, never()).getPlaylists();
@@ -918,14 +847,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().select(0));
 
-        threadRunner.runOnGui(() -> {
-            yearFilterComboBox.getSelectionModel().select(0);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         @SuppressWarnings("unchecked")
         List<Track> mockTracks = (List<Track>) mock(List.class);
@@ -946,14 +870,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().clearSelection());
 
-        threadRunner.runOnGui(() -> {
-            yearFilterComboBox.getSelectionModel().clearSelection();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         @SuppressWarnings("unchecked")
         List<Track> mockTracks = (List<Track>) mock(List.class);
@@ -972,26 +891,18 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldFirePlaylistSelected() {
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
             playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites Playlist", 10));
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playlistPanelListView.getItems()).hasSize(2);
 
-        CountDownLatch latch2 = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> playlistPanelListView.getSelectionModel().select(1));
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getSelectionModel().select(1);
-            latch2.countDown();
-        });
-
-        latch2.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         verify(getMockEventManager(), times(1)).fireEvent(PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
     }
@@ -1022,14 +933,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isMuted()).thenReturn(false);
         when(mockSearchManager.getYearList()).thenReturn(null);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> mainPanelController.eventReceived(Event.APPLICATION_INITIALISED));
 
-        threadRunner.runOnGui(() -> {
-            mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
         YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
@@ -1080,14 +986,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isMuted()).thenReturn(false);
         when(mockSearchManager.getYearList()).thenReturn(Collections.emptyList());
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> mainPanelController.eventReceived(Event.APPLICATION_INITIALISED));
 
-        threadRunner.runOnGui(() -> {
-            mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
         YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
@@ -1106,14 +1007,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isMuted()).thenReturn(false);
         when(mockSearchManager.getYearList()).thenReturn(Arrays.asList("2000", "2001"));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> mainPanelController.eventReceived(Event.APPLICATION_INITIALISED));
 
-        threadRunner.runOnGui(() -> {
-            mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
         YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
@@ -1130,14 +1026,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockMediaManager.isMuted()).thenReturn(false);
         when(mockSearchManager.getYearList()).thenReturn(null);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> mainPanelController.eventReceived(Event.APPLICATION_INITIALISED));
 
-        threadRunner.runOnGui(() -> {
-            mainPanelController.eventReceived(Event.APPLICATION_INITIALISED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         @SuppressWarnings("unchecked")
         ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(mainPanelController, "observablePlaylists");
@@ -1149,14 +1040,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldReceiveDataIndexed() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> spyMainPanelController.eventReceived(Event.DATA_INDEXED));
 
-        threadRunner.runOnGui(() -> {
-            spyMainPanelController.eventReceived(Event.DATA_INDEXED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         verify(spyMainPanelController, times(1)).updateYearFilter();
     }
@@ -1167,18 +1053,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Button newVersionButton = find("#newVersionButton");
         Version version = new Version("99.99.99");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             newVersionButton.setText(null);
             newVersionButton.setDisable(true);
             newVersionButton.setVisible(false);
 
             mainPanelController.eventReceived(Event.NEW_VERSION_AVAILABLE, version);
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(newVersionButton.getText()).isEqualTo(messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version));
         assertThat(newVersionButton.isDisabled()).isFalse();
@@ -1190,14 +1073,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldReceiveMuteUpdated() {
         MainPanelController spyMainPanelController = spy(mainPanelController);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> spyMainPanelController.eventReceived(Event.MUTE_UPDATED));
 
-        threadRunner.runOnGui(() -> {
-            spyMainPanelController.eventReceived(Event.MUTE_UPDATED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         verify(spyMainPanelController, times(1)).setVolumeButtonImage();
     }
@@ -1210,18 +1088,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         SliderProgressBar timeSlider = find("#timeSlider");
         Label playTimeLabel = find("#playTimeLabel");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             timeSlider.setDisable(true);
             playTimeLabel.setText(null);
 
             mainPanelController.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(timeSlider.isDisabled()).isFalse();
         assertThat(timeSlider.getSliderValue()).isEqualTo(50.0d);
@@ -1236,18 +1110,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         SliderProgressBar timeSlider = find("#timeSlider");
         Label playTimeLabel = find("#playTimeLabel");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             timeSlider.setDisable(false);
             playTimeLabel.setText(null);
 
             mainPanelController.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(timeSlider.isDisabled()).isTrue();
         assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
@@ -1262,18 +1132,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         SliderProgressBar timeSlider = find("#timeSlider");
         Label playTimeLabel = find("#playTimeLabel");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             timeSlider.setDisable(false);
             playTimeLabel.setText(null);
 
             mainPanelController.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(timeSlider.isDisabled()).isFalse();
         assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
@@ -1287,17 +1153,13 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Duration bufferProgressTime = new Duration(15000);
         SliderProgressBar timeSlider = find("#timeSlider");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
             mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(timeSlider.getProgressValue()).isEqualTo(0.5d);
     }
@@ -1308,17 +1170,13 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Duration bufferProgressTime = new Duration(15000);
         SliderProgressBar timeSlider = find("#timeSlider");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
             mainPanelController.eventReceived(Event.BUFFER_UPDATED, null, bufferProgressTime);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
     }
@@ -1329,17 +1187,13 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Duration mediaDuration = new Duration(30000);
         SliderProgressBar timeSlider = find("#timeSlider");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
             mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, null);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
     }
@@ -1351,8 +1205,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Button previousButton = find("#previousButton");
         Button nextButton = find("#nextButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(true);
@@ -1360,11 +1212,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             nextButton.setDisable(true);
 
             mainPanelController.eventReceived(Event.MEDIA_PLAYING);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PAUSE + "')");
         assertThat(playPauseButton.isDisabled()).isFalse();
@@ -1379,8 +1229,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Button previousButton = find("#previousButton");
         Button nextButton = find("#nextButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(true);
@@ -1388,11 +1236,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             nextButton.setDisable(false);
 
             mainPanelController.eventReceived(Event.MEDIA_PAUSED);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
         assertThat(playPauseButton.isDisabled()).isFalse();
@@ -1409,8 +1255,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         SliderProgressBar timeSlider = find("#timeSlider");
         Label playTimeLabel = find("#playTimeLabel");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(false);
@@ -1421,11 +1265,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playTimeLabel.setText(null);
 
             mainPanelController.eventReceived(Event.MEDIA_STOPPED);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
         assertThat(playPauseButton.isDisabled()).isFalse();
@@ -1447,8 +1289,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         SliderProgressBar timeSlider = find("#timeSlider");
         Label playTimeLabel = find("#playTimeLabel");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(false);
@@ -1459,11 +1299,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playTimeLabel.setText(null);
 
             mainPanelController.eventReceived(Event.END_OF_MEDIA);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
         assertThat(playPauseButton.isDisabled()).isFalse();
@@ -1485,8 +1323,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         SliderProgressBar timeSlider = find("#timeSlider");
         Label playTimeLabel = find("#playTimeLabel");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playPauseButton.setStyle(null);
             playPauseButton.setDisable(false);
@@ -1497,11 +1333,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playTimeLabel.setText(null);
 
             mainPanelController.eventReceived(Event.END_OF_MEDIA);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
         assertThat(playPauseButton.isDisabled()).isFalse();
@@ -1533,8 +1367,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
@@ -1543,11 +1375,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playPauseButton.setDisable(false);
 
             spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
@@ -1582,8 +1412,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
@@ -1592,11 +1420,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playPauseButton.setDisable(false);
 
             spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, (Object[]) null);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
@@ -1631,8 +1457,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
@@ -1641,11 +1465,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playPauseButton.setDisable(false);
 
             spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
@@ -1680,8 +1502,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
@@ -1690,11 +1510,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playPauseButton.setDisable(false);
 
             spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
@@ -1730,8 +1548,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
@@ -1740,11 +1556,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playPauseButton.setDisable(true);
 
             spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
@@ -1779,8 +1593,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
@@ -1789,11 +1601,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playPauseButton.setDisable(false);
 
             spyMainPanelController.eventReceived(Event.PLAYLIST_DELETED, PLAYLIST_ID_FAVOURITES);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
@@ -1828,8 +1638,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
@@ -1838,11 +1646,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playPauseButton.setDisable(false);
 
             spyMainPanelController.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, true);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
@@ -1877,8 +1683,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             observablePlaylists.add(search);
             observablePlaylists.add(favourites);
@@ -1887,11 +1691,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playPauseButton.setDisable(false);
 
             spyMainPanelController.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, false);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
 
@@ -1910,17 +1712,13 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldReceiveTrackSelected() {
         Button playPauseButton = find("#playPauseButton");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(true);
 
             mainPanelController.eventReceived(Event.TRACK_SELECTED);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playPauseButton.isDisabled()).isFalse();
     }
@@ -1949,8 +1747,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             return null;
         }).when(mockImageFactory).loadImage(playingImageView, albumImageUrl);
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
@@ -1959,11 +1755,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playingArtistLabel.setText(null);
 
             spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playingTrackLabel.getText()).isEqualTo(track.getTrackName());
         assertThat(playingAlbumLabel.getText()).isEqualTo(track.getAlbumName());
@@ -1990,8 +1784,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
                 .thenReturn("http://www.example.com/image.png");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
@@ -2000,11 +1792,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playingArtistLabel.setText(null);
 
             spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[]) null);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playingTrackLabel.getText()).isNull();
         assertThat(playingAlbumLabel.getText()).isNull();
@@ -2030,8 +1820,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
                 .thenReturn("http://www.example.com/image.png");
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(false);
             playingImageView.setImage(null);
@@ -2040,11 +1828,9 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playingArtistLabel.setText(null);
 
             spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(playingTrackLabel.getText()).isNull();
         assertThat(playingAlbumLabel.getText()).isNull();
@@ -2061,16 +1847,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(1, "Playlist 1", 10);
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         playlistPanelListView.onKeyPressedProperty().get()
                 .handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.BACK_SPACE));
@@ -2096,16 +1878,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Playlist playlist = new Playlist(1, "Playlist 1", 10);
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         threadRunner.runOnGui(() -> {
             playlistPanelListView.getItems().add(playlist);
             playlistPanelListView.getSelectionModel().select(0);
-
-            latch.countDown();
         });
 
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.DELETE));
 

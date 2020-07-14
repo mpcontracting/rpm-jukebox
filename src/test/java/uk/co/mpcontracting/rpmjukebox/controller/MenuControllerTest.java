@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testfx.util.WaitForAsyncUtils;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.manager.*;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
@@ -17,8 +18,6 @@ import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 import uk.co.mpcontracting.rpmjukebox.view.MenuView;
 
 import javax.annotation.PostConstruct;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -434,14 +433,9 @@ public class MenuControllerTest extends AbstractGUITest {
         when(mockPlaylistManager.isShuffle()).thenReturn(true);
         when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(APPLICATION_INITIALISED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(APPLICATION_INITIALISED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuFileImportPlaylist.isDisable()).isFalse();
         assertThat(menuFileExportPlaylist.isDisable()).isFalse();
@@ -478,14 +472,9 @@ public class MenuControllerTest extends AbstractGUITest {
         menuControlsPrevious.setDisable(true);
         menuControlsNext.setDisable(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(MEDIA_PLAYING));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(MEDIA_PLAYING);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PAUSE));
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -505,14 +494,9 @@ public class MenuControllerTest extends AbstractGUITest {
         menuControlsPrevious.setDisable(false);
         menuControlsNext.setDisable(false);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(MEDIA_PAUSED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(MEDIA_PAUSED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -532,14 +516,9 @@ public class MenuControllerTest extends AbstractGUITest {
         menuControlsPrevious.setDisable(false);
         menuControlsNext.setDisable(false);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(MEDIA_STOPPED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(MEDIA_STOPPED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -559,14 +538,9 @@ public class MenuControllerTest extends AbstractGUITest {
         menuControlsPrevious.setDisable(false);
         menuControlsNext.setDisable(false);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(END_OF_MEDIA));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(END_OF_MEDIA);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -588,14 +562,9 @@ public class MenuControllerTest extends AbstractGUITest {
         when(mockMediaManager.isPaused()).thenReturn(false);
         when(mockMainPanelController.isPlaylistPlayable()).thenReturn(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(PLAYLIST_CREATED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_CREATED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -615,14 +584,9 @@ public class MenuControllerTest extends AbstractGUITest {
         when(mockMediaManager.isPaused()).thenReturn(false);
         when(mockMainPanelController.isPlaylistPlayable()).thenReturn(false);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(PLAYLIST_CREATED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_CREATED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isTrue();
@@ -642,14 +606,9 @@ public class MenuControllerTest extends AbstractGUITest {
         when(mockMediaManager.isPaused()).thenReturn(false);
         when(mockMainPanelController.isPlaylistPlayable()).thenReturn(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(PLAYLIST_CREATED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_CREATED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isTrue();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -669,14 +628,9 @@ public class MenuControllerTest extends AbstractGUITest {
         when(mockMediaManager.isPaused()).thenReturn(false);
         when(mockMainPanelController.isPlaylistPlayable()).thenReturn(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(PLAYLIST_DELETED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_DELETED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -696,14 +650,9 @@ public class MenuControllerTest extends AbstractGUITest {
         when(mockMediaManager.isPaused()).thenReturn(false);
         when(mockMainPanelController.isPlaylistPlayable()).thenReturn(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(PLAYLIST_SELECTED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_SELECTED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -717,14 +666,9 @@ public class MenuControllerTest extends AbstractGUITest {
 
         when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(PLAYLIST_CONTENT_UPDATED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_CONTENT_UPDATED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
     }
@@ -740,14 +684,9 @@ public class MenuControllerTest extends AbstractGUITest {
 
         when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(TRACK_SELECTED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(TRACK_SELECTED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -764,14 +703,9 @@ public class MenuControllerTest extends AbstractGUITest {
 
         when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> menuController.eventReceived(TRACK_QUEUED_FOR_PLAYING));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(TRACK_QUEUED_FOR_PLAYING);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isTrue();

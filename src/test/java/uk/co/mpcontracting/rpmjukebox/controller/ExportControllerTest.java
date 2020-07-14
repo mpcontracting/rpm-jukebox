@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testfx.util.WaitForAsyncUtils;
 import uk.co.mpcontracting.rpmjukebox.component.PlaylistTableModel;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.manager.SettingsManager;
@@ -23,8 +24,6 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
@@ -84,14 +83,9 @@ public class ExportControllerTest extends AbstractGUITest {
     public void shouldBindPlaylists() {
         when(mockPlaylistManager.getPlaylists()).thenReturn(generatePlaylists());
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> spyExportController.bindPlaylists());
 
-        threadRunner.runOnGui(() -> {
-            spyExportController.bindPlaylists();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         @SuppressWarnings("unchecked")
         ObservableList<PlaylistTableModel> observablePlaylists = (ObservableList<PlaylistTableModel>) getField(spyExportController, "observablePlaylists");
@@ -105,14 +99,9 @@ public class ExportControllerTest extends AbstractGUITest {
     public void shouldAddPlaylistToExport() {
         when(mockPlaylistManager.getPlaylists()).thenReturn(generatePlaylists());
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> spyExportController.bindPlaylists());
 
-        threadRunner.runOnGui(() -> {
-            spyExportController.bindPlaylists();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         @SuppressWarnings("unchecked")
         PlaylistTableModel playlistTableModel1 = ((ObservableList<PlaylistTableModel>) getNonNullField(spyExportController, "observablePlaylists")).get(0);
@@ -135,14 +124,9 @@ public class ExportControllerTest extends AbstractGUITest {
     public void shouldRemovePlaylistToExport() {
         when(mockPlaylistManager.getPlaylists()).thenReturn(generatePlaylists());
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> spyExportController.bindPlaylists());
 
-        threadRunner.runOnGui(() -> {
-            spyExportController.bindPlaylists();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         @SuppressWarnings("unchecked")
         PlaylistTableModel playlistTableModel1 = ((ObservableList<PlaylistTableModel>) getNonNullField(spyExportController, "observablePlaylists")).get(0);

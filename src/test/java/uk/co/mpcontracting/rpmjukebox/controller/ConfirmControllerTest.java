@@ -5,13 +5,12 @@ import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testfx.util.WaitForAsyncUtils;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
 
 import javax.annotation.PostConstruct;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -134,13 +133,8 @@ public class ConfirmControllerTest extends AbstractGUITest {
 
     @SneakyThrows
     private void setOkFocused() {
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> confirmController.setOkFocused());
 
-        threadRunner.runOnGui(() -> {
-            confirmController.setOkFocused();
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
     }
 }
