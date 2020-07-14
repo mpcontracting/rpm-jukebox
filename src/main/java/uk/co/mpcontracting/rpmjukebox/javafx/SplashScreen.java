@@ -6,7 +6,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 public class SplashScreen {
-    private static String DEFAULT_IMAGE = "/splash/javafx.png";
+    private static final String DEFAULT_IMAGE = "/splash/javafx.png";
 
     public Parent getParent() {
         final ImageView imageView = new ImageView(getClass().getResource(getImagePath()).toExternalForm());
@@ -22,6 +22,7 @@ public class SplashScreen {
     public boolean visible() {
         return true;
     }
+
     public String getImagePath() {
         return DEFAULT_IMAGE;
     }

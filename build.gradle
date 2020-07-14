@@ -115,7 +115,9 @@ jacocoTestCoverageVerification {
                     // Exclude MediaManager as we cannot test the MediaPlayer events
                     'uk.co.mpcontracting.rpmjukebox.manager.MediaManager',
                     // Exclude NativeManager as test coverage is only achievable on OSX
-                    'uk.co.mpcontracting.rpmjukebox.manager.NativeManager'
+                    'uk.co.mpcontracting.rpmjukebox.manager.NativeManager',
+                    // Exclude the javafx package as it's imported from a 3rd party project
+                    'uk.co.mpcontracting.rpmjukebox.javafx.*'
             ]
         }
     }
