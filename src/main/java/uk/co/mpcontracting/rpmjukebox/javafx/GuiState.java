@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.awt.*;
 
-public enum GUIState {
+public enum GuiState {
 
     INSTANCE;
 

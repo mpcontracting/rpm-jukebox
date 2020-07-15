@@ -38,19 +38,19 @@ public abstract class AbstractJavaFxApplicationSupport extends Application {
     }
 
     public static Stage getStage() {
-        return GUIState.getStage();
+        return GuiState.getStage();
     }
 
     public static Scene getScene() {
-        return GUIState.getScene();
+        return GuiState.getScene();
     }
 
     public static HostServices getAppHostServices() {
-        return GUIState.getHostServices();
+        return GuiState.getHostServices();
     }
 
     public static SystemTray getSystemTray() {
-        return GUIState.getSystemTray();
+        return GuiState.getSystemTray();
     }
 
     private void loadIcons(ConfigurableApplicationContext ctx) {
@@ -95,8 +95,8 @@ public abstract class AbstractJavaFxApplicationSupport extends Application {
     @Override
     public void start(final Stage stage) throws Exception {
 
-        GUIState.setStage(stage);
-        GUIState.setHostServices(this.getHostServices());
+        GuiState.setStage(stage);
+        GuiState.setHostServices(this.getHostServices());
         final Stage splashStage = new Stage(StageStyle.TRANSPARENT);
 
         if (AbstractJavaFxApplicationSupport.splashScreen.visible()) {
@@ -120,13 +120,13 @@ public abstract class AbstractJavaFxApplicationSupport extends Application {
     private void showInitialView() {
         final String stageStyle = applicationContext.getEnvironment().getProperty(JavaFxConstants.KEY_STAGE_STYLE);
         if (stageStyle != null) {
-            GUIState.getStage().initStyle(StageStyle.valueOf(stageStyle.toUpperCase()));
+            GuiState.getStage().initStyle(StageStyle.valueOf(stageStyle.toUpperCase()));
         }
         else {
-            GUIState.getStage().initStyle(StageStyle.DECORATED);
+            GuiState.getStage().initStyle(StageStyle.DECORATED);
         }
 
-        beforeInitialView(GUIState.getStage(), applicationContext);
+        beforeInitialView(GuiState.getStage(), applicationContext);
 
         showInitialView(savedInitialView);
     }
@@ -141,8 +141,8 @@ public abstract class AbstractJavaFxApplicationSupport extends Application {
             view.initFirstView();
             applyEnvPropsToView();
 
-            GUIState.getStage().getIcons().addAll(icons);
-            GUIState.getStage().show();
+            GuiState.getStage().getIcons().addAll(icons);
+            GuiState.getStage().show();
 
         }
         catch (Throwable t) {
@@ -166,16 +166,16 @@ public abstract class AbstractJavaFxApplicationSupport extends Application {
 
     private static void applyEnvPropsToView() {
         PropertyReaderHelper.setIfPresent(applicationContext.getEnvironment(), JavaFxConstants.KEY_TITLE, String.class,
-                GUIState.getStage()::setTitle);
+                GuiState.getStage()::setTitle);
 
         PropertyReaderHelper.setIfPresent(applicationContext.getEnvironment(), JavaFxConstants.KEY_STAGE_WIDTH, Double.class,
-                GUIState.getStage()::setWidth);
+                GuiState.getStage()::setWidth);
 
         PropertyReaderHelper.setIfPresent(applicationContext.getEnvironment(), JavaFxConstants.KEY_STAGE_HEIGHT, Double.class,
-                GUIState.getStage()::setHeight);
+                GuiState.getStage()::setHeight);
 
         PropertyReaderHelper.setIfPresent(applicationContext.getEnvironment(), JavaFxConstants.KEY_STAGE_RESIZABLE, Boolean.class,
-                GUIState.getStage()::setResizable);
+                GuiState.getStage()::setResizable);
     }
 
     @Override
@@ -188,7 +188,7 @@ public abstract class AbstractJavaFxApplicationSupport extends Application {
     }
 
     protected static void setTitle(final String title) {
-        GUIState.getStage().setTitle(title);
+        GuiState.getStage().setTitle(title);
     }
 
     public static void launch(final Class<? extends Application> appClass,
@@ -216,7 +216,7 @@ public abstract class AbstractJavaFxApplicationSupport extends Application {
         }
 
         if (SystemTray.isSupported()) {
-            GUIState.setSystemTray(SystemTray.getSystemTray());
+            GuiState.setSystemTray(SystemTray.getSystemTray());
         }
 
         Application.launch(appClass, args);

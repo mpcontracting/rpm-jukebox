@@ -11,7 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
-import uk.co.mpcontracting.rpmjukebox.javafx.GUIState;
+import uk.co.mpcontracting.rpmjukebox.javafx.GuiState;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 import java.io.ByteArrayInputStream;
@@ -57,7 +57,7 @@ public class UpdateManagerTest {
         underTest.wireInternetManager(internetManager);
 
         setField(underTest, "eventManager", eventManager);
-        setField(GUIState.class, "hostServices", hostServices);
+        setField(GuiState.class, "hostServices", hostServices);
 
         URL versionUrl = new URL("http://www.example.com");
 

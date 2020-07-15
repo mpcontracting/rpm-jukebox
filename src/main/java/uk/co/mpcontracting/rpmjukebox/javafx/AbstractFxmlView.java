@@ -111,10 +111,10 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
 
     protected void initFirstView() {
         isPrimaryStageView = true;
-        stage = GUIState.getStage();
+        stage = GuiState.getStage();
         Scene scene = getView().getScene() != null ? getView().getScene() : new Scene(getView());
         stage.setScene(scene);
-        GUIState.setScene(scene);
+        GuiState.setScene(scene);
     }
 
     public void hide() {
@@ -167,7 +167,7 @@ public abstract class AbstractFxmlView implements ApplicationContextAware {
         stage.initModality(modality);
         stage.setTitle(getDefaultTitle());
         stage.initStyle(getDefaultStyle());
-        List<Image> primaryStageIcons = GUIState.getStage().getIcons();
+        List<Image> primaryStageIcons = GuiState.getStage().getIcons();
         stage.getIcons().addAll(primaryStageIcons);
         Scene scene = getView().getScene() != null ? getView().getScene() : new Scene(getView());
         stage.setScene(scene);

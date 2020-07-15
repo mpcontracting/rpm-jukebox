@@ -28,7 +28,7 @@ import uk.co.mpcontracting.rpmjukebox.component.ImageFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.javafx.GUIState;
+import uk.co.mpcontracting.rpmjukebox.javafx.GuiState;
 import uk.co.mpcontracting.rpmjukebox.manager.*;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
@@ -146,14 +146,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @SneakyThrows
     @SuppressWarnings("unchecked")
     public void setup() {
-        existingStage = GUIState.getStage();
+        existingStage = GuiState.getStage();
 
         Stage stage = mock(Stage.class);
         Scene scene = mock(Scene.class);
         root = mock(Parent.class);
         when(stage.getScene()).thenReturn(scene);
         when(scene.getRoot()).thenReturn(root);
-        setField(GUIState.class, "stage", stage);
+        setField(GuiState.class, "stage", stage);
 
         setField(mainPanelController, "imageFactory", imageFactory);
         setField(mainPanelController, "eventManager", getMockEventManager());
@@ -2093,6 +2093,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @After
     public void cleanup() {
-        setField(GUIState.class, "stage", existingStage);
+        setField(GuiState.class, "stage", existingStage);
     }
 }

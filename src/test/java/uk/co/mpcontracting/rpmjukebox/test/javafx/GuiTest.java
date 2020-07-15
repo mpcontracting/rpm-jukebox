@@ -3,7 +3,6 @@ package uk.co.mpcontracting.rpmjukebox.test.javafx;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.assertj.core.util.Preconditions;
 import org.junit.BeforeClass;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -11,6 +10,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import org.testfx.framework.junit.ApplicationTest;
 import uk.co.mpcontracting.rpmjukebox.javafx.AbstractFxmlView;
+
+import java.util.Objects;
 
 public class GuiTest extends ApplicationTest implements ApplicationContextAware {
 
@@ -58,7 +59,7 @@ public class GuiTest extends ApplicationTest implements ApplicationContextAware 
 
     @Override
     public void start(Stage stage) {
-        Preconditions.checkNotNull(viewBean, "No view to set up! Have you called init() before?");
+        Objects.requireNonNull(viewBean, "No view to set up! Have you called init() before?");
 
         Scene scene = viewBean.getView().getScene();
 

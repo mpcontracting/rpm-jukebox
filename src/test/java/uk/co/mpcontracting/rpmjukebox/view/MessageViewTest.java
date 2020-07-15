@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.testfx.util.WaitForAsyncUtils;
-import uk.co.mpcontracting.rpmjukebox.javafx.GUIState;
+import uk.co.mpcontracting.rpmjukebox.javafx.GuiState;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
@@ -34,8 +34,8 @@ public class MessageViewTest extends AbstractGUITest {
     @Before
     public void setup() {
         underTest = spy(messageView);
-        originalStage = GUIState.getStage();
-        setField(GUIState.class, "stage", mock(Stage.class));
+        originalStage = GuiState.getStage();
+        setField(GuiState.class, "stage", mock(Stage.class));
     }
 
     // Testing the AbstractModelView here as SureFire doesn't pick
@@ -214,6 +214,6 @@ public class MessageViewTest extends AbstractGUITest {
 
     @After
     public void cleanup() {
-        setField(GUIState.class, "stage", originalStage);
+        setField(GuiState.class, "stage", originalStage);
     }
 }

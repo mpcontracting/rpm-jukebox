@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
-import uk.co.mpcontracting.rpmjukebox.javafx.GUIState;
+import uk.co.mpcontracting.rpmjukebox.javafx.GuiState;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.mockito.Mockito.*;
@@ -30,8 +30,8 @@ public class ConfirmViewTest extends AbstractGUITest {
     @Before
     public void setup() {
         underTest = spy(confirmView);
-        originalStage = GUIState.getStage();
-        setField(GUIState.class, "stage", mock(Stage.class));
+        originalStage = GuiState.getStage();
+        setField(GuiState.class, "stage", mock(Stage.class));
         setField(underTest, "confirmController", confirmController);
     }
 
@@ -72,6 +72,6 @@ public class ConfirmViewTest extends AbstractGUITest {
 
     @After
     public void cleanup() {
-        setField(GUIState.class, "stage", originalStage);
+        setField(GuiState.class, "stage", originalStage);
     }
 }
