@@ -35,7 +35,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
     @Mock
     private PlaylistManager playlistManager;
 
-    private uk.co.mpcontracting.rpmjukebox.component.TrackTableView<TrackTableModel> trackTableView;
+    private uk.co.mpcontracting.rpmjukebox.component.TrackTableView trackTableView;
 
     @SneakyThrows
     @PostConstruct
@@ -49,8 +49,7 @@ public class TrackTableControllerTest extends AbstractGUITest {
         setField(underTest, "eventManager", getMockEventManager());
         setField(underTest, "playlistManager", playlistManager);
 
-        trackTableView = spy(
-                (uk.co.mpcontracting.rpmjukebox.component.TrackTableView<TrackTableModel>) getNonNullField(underTest, "trackTableView"));
+        trackTableView = spy((uk.co.mpcontracting.rpmjukebox.component.TrackTableView) getNonNullField(underTest, "trackTableView"));
         setField(underTest, "trackTableView", trackTableView);
 
         ((ObservableList<TrackTableModel>) getNonNullField(underTest, "observableTracks")).clear();

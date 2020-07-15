@@ -9,7 +9,7 @@ import java.util.List;
 public class EventManager {
     private static EventManager instance;
 
-    private List<EventListener> eventListeners;
+    private final List<EventListener> eventListeners;
 
     private EventManager() {
         eventListeners = new ArrayList<>();

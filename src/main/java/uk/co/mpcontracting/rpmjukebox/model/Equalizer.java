@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public class Equalizer {
     @Getter
-    private double[] gain;
+    private final double[] gain;
 
     public Equalizer(int numberOfBands) {
         gain = new double[numberOfBands];

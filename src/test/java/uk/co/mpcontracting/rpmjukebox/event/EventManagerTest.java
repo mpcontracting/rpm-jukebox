@@ -22,9 +22,7 @@ public class EventManagerTest extends AbstractEventTest {
     @SneakyThrows
     public void shouldFireEventOnAnEventListener() {
         EventManager eventManager = EventManager.getInstance();
-        eventManager.addEventListener((event, payload) -> {
-            receivedEvent = event;
-        });
+        eventManager.addEventListener((event, payload) -> receivedEvent = event);
 
         eventManager.fireEvent(Event.TEST_EVENT);
 

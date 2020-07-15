@@ -766,11 +766,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                         // If we're not playing or paused and the playlist is not empty
                         // then enable the play button so we can play the playlist
                         if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
-                            if (isPlaylistPlayable()) {
-                                playPauseButton.setDisable(false);
-                            } else {
-                                playPauseButton.setDisable(true);
-                            }
+                            playPauseButton.setDisable(!isPlaylistPlayable());
                         }
                     }
                 }

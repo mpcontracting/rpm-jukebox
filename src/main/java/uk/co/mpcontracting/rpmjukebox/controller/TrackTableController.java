@@ -23,7 +23,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 public class TrackTableController extends EventAwareObject {
 
     @FXML
-    private TrackTableView<TrackTableModel> trackTableView;
+    private TrackTableView trackTableView;
 
     @FXML
     private TableColumn<TrackTableModel, String> loveColumn;
@@ -72,7 +72,7 @@ public class TrackTableController extends EventAwareObject {
         });
 
         // Cell factories
-        loveColumn.setCellFactory(new LoveButtonTableCellFactory<>());
+        loveColumn.setCellFactory(new LoveButtonTableCellFactory());
         trackNameColumn.setCellFactory(new TrackTableCellFactory<>());
         artistNameColumn.setCellFactory(new TrackTableCellFactory<>());
         albumYearColumn.setCellFactory(new TrackTableCellFactory<>());

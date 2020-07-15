@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 public class TestTermsEnum extends TermsEnum {
 
-    private Iterator<BytesRef> iterator;
+    private final Iterator<BytesRef> iterator;
 
     public TestTermsEnum(Iterator<BytesRef> iterator) {
         this.iterator = iterator;

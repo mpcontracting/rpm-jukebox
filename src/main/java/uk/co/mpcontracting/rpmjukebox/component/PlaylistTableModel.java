@@ -10,9 +10,9 @@ import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 @Getter
 public class PlaylistTableModel {
 
-    private Playlist playlist;
-    private BooleanProperty selected;
-    private StringProperty name;
+    private final Playlist playlist;
+    private final BooleanProperty selected;
+    private final StringProperty name;
 
     public PlaylistTableModel(Playlist playlist) {
         this.playlist = playlist;

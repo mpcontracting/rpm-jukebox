@@ -16,12 +16,12 @@ import java.io.InputStream;
 @Slf4j
 public class CachingDataStream implements WriteListener {
 
-    private CacheType cacheType;
-    private String id;
-    private boolean isCached;
-    private InputStream inputStream;
-    private AsyncContext asyncContext;
-    private ServletOutputStream outputStream;
+    private final CacheType cacheType;
+    private final String id;
+    private final boolean isCached;
+    private final InputStream inputStream;
+    private final AsyncContext asyncContext;
+    private final ServletOutputStream outputStream;
     private ByteArrayOutputStream byteStream;
 
     CachingDataStream(CacheType cacheType, String id, boolean isCached, InputStream inputStream,

@@ -29,7 +29,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     @Mock
     private PlaylistManager playlistManager;
 
-    private TrackTableCellFactory<TrackTableModel, String> underTest;
+    private TrackTableCellFactory<String> underTest;
 
     @Before
     public void setup() {
@@ -245,7 +245,6 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void shouldNotTriggerDragOverWithNoTrackTableModel() {
         TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
@@ -333,7 +332,6 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void shouldNotTriggerDragEnteredWithNoTrackTableModel() {
         TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();

@@ -23,13 +23,12 @@ import uk.co.mpcontracting.rpmjukebox.support.OsType;
 import static java.util.Optional.ofNullable;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_SELECTED;
 
-public class TrackTableCellFactory<S, T> extends EventAwareObject
-        implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>>, Constants {
+public class TrackTableCellFactory<T> extends EventAwareObject implements Callback<TableColumn<TrackTableModel, T>, TableCell<TrackTableModel, T>>, Constants {
 
-    private SettingsManager settingsManager;
-    private MessageManager messageManager;
-    private PlaylistManager playlistManager;
-    private Image dragNDrop;
+    private final SettingsManager settingsManager;
+    private final MessageManager messageManager;
+    private final PlaylistManager playlistManager;
+    private final Image dragNDrop;
 
     public TrackTableCellFactory() {
         settingsManager = ContextHelper.getBean(SettingsManager.class);

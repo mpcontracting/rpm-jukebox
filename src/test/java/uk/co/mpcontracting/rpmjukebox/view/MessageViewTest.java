@@ -42,7 +42,7 @@ public class MessageViewTest extends AbstractGUITest {
     // up tests starting with the word Abstract
 
     @Test
-    public void shouldInitialiseViewWithNewScene() throws Exception {
+    public void shouldInitialiseViewWithNewScene() {
         setField(underTest, "owner", null);
         setField(underTest, "stage", null);
 
@@ -68,7 +68,7 @@ public class MessageViewTest extends AbstractGUITest {
     }
 
     @Test
-    public void shouldInitialiseViewWithExistingScene() throws Exception {
+    public void shouldInitialiseViewWithExistingScene() {
         setField(underTest, "owner", null);
         setField(underTest, "stage", null);
 

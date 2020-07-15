@@ -536,18 +536,18 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
         underTest.saveSystemSettings();
 
         File settingsFile = underTest.getFileFromConfigDirectory(appProperties.getSystemSettingsFile());
-        SystemSettings result = null;
+        SystemSettings result;
 
         try (FileReader fileReader = new FileReader(settingsFile)) {
             result = new Gson().fromJson(fileReader, SystemSettings.class);
         }
 
-        assertThat(systemSettings.getCacheSizeMb()).isEqualTo(123);
-        assertThat(systemSettings.getProxyHost()).isEqualTo("localhost");
-        assertThat(systemSettings.getProxyPort()).isEqualTo(8080);
-        assertThat(systemSettings.getProxyRequiresAuthentication()).isTrue();
-        assertThat(systemSettings.getProxyUsername()).isEqualTo("username");
-        assertThat(systemSettings.getProxyPassword()).isEqualTo("password");
+        assertThat(result.getCacheSizeMb()).isEqualTo(123);
+        assertThat(result.getProxyHost()).isEqualTo("localhost");
+        assertThat(result.getProxyPort()).isEqualTo(8080);
+        assertThat(result.getProxyRequiresAuthentication()).isTrue();
+        assertThat(result.getProxyUsername()).isEqualTo("username");
+        assertThat(result.getProxyPassword()).isEqualTo("password");
     }
 
     @Test

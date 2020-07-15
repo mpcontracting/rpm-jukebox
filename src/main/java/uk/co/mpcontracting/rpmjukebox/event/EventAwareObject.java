@@ -1,7 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
 public class EventAwareObject implements EventListener {
-    private EventManager eventManager;
+    private final EventManager eventManager;
 
     protected EventAwareObject() {
         eventManager = EventManager.getInstance();

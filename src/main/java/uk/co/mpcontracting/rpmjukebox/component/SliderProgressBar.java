@@ -8,8 +8,8 @@ import javafx.scene.layout.StackPane;
 
 public class SliderProgressBar extends StackPane {
 
-    private ProgressBar progressBar;
-    private Slider slider;
+    private final ProgressBar progressBar;
+    private final Slider slider;
 
     public SliderProgressBar() {
         progressBar = new ProgressBar(0);

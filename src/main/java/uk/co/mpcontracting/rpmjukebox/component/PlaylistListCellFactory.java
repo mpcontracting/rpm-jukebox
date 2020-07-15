@@ -16,11 +16,10 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 
-public class PlaylistListCellFactory extends EventAwareObject
-        implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
+public class PlaylistListCellFactory extends EventAwareObject implements Callback<ListView<Playlist>, ListCell<Playlist>>, Constants {
 
-    private MessageManager messageManager;
-    private PlaylistManager playlistManager;
+    private final MessageManager messageManager;
+    private final PlaylistManager playlistManager;
 
     public PlaylistListCellFactory() {
         messageManager = ContextHelper.getBean(MessageManager.class);
@@ -59,12 +58,7 @@ public class PlaylistListCellFactory extends EventAwareObject
             if (listView.getItems().size() > sourceCell.getIndex()) {
                 Playlist playlist = listView.getItems().get(sourceCell.getIndex());
 
-                if (playlist.getPlaylistId() < 0) {
-                    deletePlaylistItem.setDisable(true);
-                } else {
-                    deletePlaylistItem.setDisable(false);
-                }
-
+                deletePlaylistItem.setDisable(playlist.getPlaylistId() < 0);
                 newPlaylistItem.setDisable(true);
             } else {
                 newPlaylistItem.setDisable(false);

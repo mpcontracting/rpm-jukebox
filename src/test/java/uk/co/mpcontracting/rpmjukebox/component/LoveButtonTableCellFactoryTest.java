@@ -25,11 +25,11 @@ public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements C
     @Mock
     private PlaylistManager playlistManager;
 
-    private LoveButtonTableCellFactory<TrackTableModel, String> underTest;
+    private LoveButtonTableCellFactory underTest;
 
     @Before
     public void setup() {
-        underTest = new LoveButtonTableCellFactory<>();
+        underTest = new LoveButtonTableCellFactory();
         setField(underTest, "eventManager", getMockEventManager());
         setField(underTest, "playlistManager", playlistManager);
 

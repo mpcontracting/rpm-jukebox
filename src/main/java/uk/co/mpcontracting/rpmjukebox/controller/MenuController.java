@@ -324,7 +324,7 @@ public class MenuController extends EventAwareObject {
     }
 
     private void updateCreatePlaylistFromAlbum() {
-        menuEditCreatePlaylistFromAlbum.setDisable(!ofNullable(trackTableController.getSelectedTrack()).isPresent());
+        menuEditCreatePlaylistFromAlbum.setDisable(ofNullable(trackTableController.getSelectedTrack()).isEmpty());
     }
 
     private void updateShuffle() {
@@ -413,11 +413,7 @@ public class MenuController extends EventAwareObject {
                 // If we're not playing or paused and the playlist is not empty
                 // then enable the play button so we can play the playlist
                 if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
-                    if (mainPanelController.isPlaylistPlayable()) {
-                        menuControlsPlayPause.setDisable(false);
-                    } else {
-                        menuControlsPlayPause.setDisable(true);
-                    }
+                    menuControlsPlayPause.setDisable(!mainPanelController.isPlaylistPlayable());
                 }
 
                 break;

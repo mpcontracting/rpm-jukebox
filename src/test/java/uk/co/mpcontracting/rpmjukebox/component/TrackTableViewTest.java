@@ -13,7 +13,7 @@ public class TrackTableViewTest extends AbstractGUITest {
 
     @Test
     public void shouldHighlightTrack() {
-        TrackTableView<Track> underTest = new TrackTableView<>();
+        TrackTableView underTest = new TrackTableView();
         underTest.setItems(getTrackTableModels());
 
         underTest.highlightTrack(generateTrack(5));
@@ -27,7 +27,7 @@ public class TrackTableViewTest extends AbstractGUITest {
 
     @Test
     public void shouldNotHighlightTrackWhenTrackIsNull() {
-        TrackTableView<Track> underTest = new TrackTableView<>();
+        TrackTableView underTest = new TrackTableView();
         underTest.setItems(getTrackTableModels());
 
         underTest.highlightTrack(null);
@@ -41,7 +41,7 @@ public class TrackTableViewTest extends AbstractGUITest {
 
     @Test
     public void shouldNotHightlightTrackWhenItemsAreNull() {
-        TrackTableView<Track> underTest = new TrackTableView<>();
+        TrackTableView underTest = new TrackTableView();
         underTest.setItems(null);
 
         underTest.highlightTrack(generateTrack(5));
@@ -55,7 +55,7 @@ public class TrackTableViewTest extends AbstractGUITest {
 
     @Test
     public void shouldNotHighlightTrackWhenTrackNotFound() {
-        TrackTableView<Track> underTest = new TrackTableView<>();
+        TrackTableView underTest = new TrackTableView();
         underTest.setItems(getTrackTableModels());
 
         Track track = generateTrack(5);
