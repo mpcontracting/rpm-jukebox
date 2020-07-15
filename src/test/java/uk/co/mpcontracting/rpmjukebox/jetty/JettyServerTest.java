@@ -23,85 +23,85 @@ import static org.mockito.Mockito.*;
 public class JettyServerTest implements Constants {
 
     @Mock
-    private AppProperties mockAppProperties;
+    private AppProperties appProperties;
 
     @Mock
-    private RpmJukebox mockRpmJukebox;
+    private RpmJukebox rpmJukebox;
 
     @Mock
-    private ApplicationManager mockApplicationManager;
+    private ApplicationManager applicationManager;
 
     @Mock
-    private MessageManager mockMessageManager;
+    private MessageManager messageManager;
 
     @Mock
-    private Server mockServer;
+    private Server server;
 
     @Mock
-    private ServerConnector mockServerConnector;
+    private ServerConnector serverConnector;
 
-    private JettyServer spyJettyServer;
+    private JettyServer underTest;
 
     @Before
     public void setup() {
-        spyJettyServer = spy(new JettyServer(mockAppProperties, mockRpmJukebox, mockMessageManager));
-        spyJettyServer.wireApplicationManager(mockApplicationManager);
+        underTest = spy(new JettyServer(appProperties, rpmJukebox, messageManager));
+        underTest.wireApplicationManager(applicationManager);
 
-        doReturn(mockServer).when(spyJettyServer).constructServer();
-        doReturn(mockServerConnector).when(spyJettyServer).constructServerConnector(mockServer);
+        doReturn(server).when(underTest).constructServer();
+        doReturn(serverConnector).when(underTest).constructServerConnector(server);
 
-        when(mockMessageManager.getMessage(MESSAGE_SPLASH_INITIALISING_CACHE)).thenReturn("InitialiseCache");
-        when(mockMessageManager.getMessage(MESSAGE_SPLASH_ALREADY_RUNNING)).thenReturn("AlreadyRunning");
+        when(messageManager.getMessage(MESSAGE_SPLASH_INITIALISING_CACHE)).thenReturn("InitialiseCache");
+        when(messageManager.getMessage(MESSAGE_SPLASH_ALREADY_RUNNING)).thenReturn("AlreadyRunning");
     }
 
     @Test
     @SneakyThrows
     public void shouldInitialiseJettyServer() {
-        spyJettyServer.initialise();
+        underTest.initialise();
 
-        verify(mockRpmJukebox, times(1)).updateSplashProgress("InitialiseCache");
-        verify(mockServer, times(1)).start();
+        verify(rpmJukebox, times(1)).updateSplashProgress("InitialiseCache");
+        verify(server, times(1)).start();
     }
 
     @Test
     @SneakyThrows
     public void shouldShutdownApplicationIfBindExceptionThrownOnServerStart() {
         doThrow(new BindException("JettyServerTest.shouldShutdownApplicationIfBindExceptionThrownOnServerStart()"))
-                .when(mockServer).start();
+                .when(server).start();
 
-        spyJettyServer.initialise();
+        underTest.initialise();
 
-        verify(mockRpmJukebox, times(1)).updateSplashProgress("AlreadyRunning");
-        verify(mockApplicationManager, times(1)).shutdown();
+        verify(rpmJukebox, times(1)).updateSplashProgress("AlreadyRunning");
+        verify(applicationManager, times(1)).shutdown();
     }
 
     @Test
     @SneakyThrows
     public void shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart() {
         doThrow(new IllegalStateException("JettyServerTest.shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart()"))
-                .when(mockServer).start();
+                .when(server).start();
 
-        assertThatThrownBy(() -> spyJettyServer.initialise()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> underTest.initialise()).isInstanceOf(IllegalStateException.class);
 
-        verify(mockApplicationManager, never()).shutdown();
+        verify(applicationManager, never()).shutdown();
     }
 
     @Test
     @SneakyThrows
     public void shouldStopJettyServer() {
-        spyJettyServer.initialise();
-        spyJettyServer.stop();
+        underTest.initialise();
+        underTest.stop();
 
-        verify(mockServer, times(1)).stop();
-        verify(mockServer, times(1)).join();
+        verify(server, times(1)).stop();
+        verify(server, times(1)).join();
     }
 
     @Test
     @SneakyThrows
     public void shouldStopJettyServerWhenServerIsNull() {
-        spyJettyServer.stop();
+        underTest.stop();
 
-        verify(mockServer, never()).stop();
-        verify(mockServer, never()).join();
+        verify(server, never()).stop();
+        verify(server, never()).join();
     }
 }

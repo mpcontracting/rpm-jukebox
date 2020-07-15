@@ -34,58 +34,58 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
     private ThreadRunner threadRunner;
 
     @Autowired
-    private SettingsController settingsController;
+    private SettingsController underTest;
 
     @Autowired
+    private SettingsView originaSettingsView;
+
+    @Mock
+    private SettingsManager settingsManager;
+
+    @Mock
+    private SearchManager searchManager;
+
+    @Mock
+    private MainPanelController mainPanelController;
+
     private SettingsView settingsView;
-
-    @Mock
-    private SettingsManager mockSettingsManager;
-
-    @Mock
-    private SearchManager mockSearchManager;
-
-    @Mock
-    private MainPanelController mockMainPanelController;
-
-    private SettingsView spySettingsView;
 
     @SneakyThrows
     @PostConstruct
     public void constructView() {
-        init(settingsView);
+        init(originaSettingsView);
     }
 
     @Before
     public void setup() {
-        spySettingsView = spy(settingsView);
+        settingsView = spy(originaSettingsView);
 
-        setField(settingsController, "eventManager", getMockEventManager());
-        setField(settingsController, "settingsManager", mockSettingsManager);
-        setField(settingsController, "searchManager", mockSearchManager);
-        setField(settingsController, "mainPanelController", mockMainPanelController);
-        setField(settingsController, "settingsView", spySettingsView);
+        setField(underTest, "eventManager", getMockEventManager());
+        setField(underTest, "settingsManager", settingsManager);
+        setField(underTest, "searchManager", searchManager);
+        setField(underTest, "mainPanelController", mainPanelController);
+        setField(underTest, "settingsView", settingsView);
 
-        doNothing().when(spySettingsView).close();
+        doNothing().when(settingsView).close();
     }
 
     @Test
     @SneakyThrows
     public void shouldBindSystemSettings() {
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSystemSettings.getCacheSizeMb()).thenReturn(250);
-        when(mockSystemSettings.getProxyHost()).thenReturn("localhost");
-        when(mockSystemSettings.getProxyPort()).thenReturn(8080);
-        when(mockSystemSettings.getProxyUsername()).thenReturn("username");
-        when(mockSystemSettings.getProxyPassword()).thenReturn("password");
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
-        when(mockSettingsManager.getVersion()).thenReturn(new Version("99.99.99"));
+        SystemSettings systemSettings = mock(SystemSettings.class);
+        when(systemSettings.getCacheSizeMb()).thenReturn(250);
+        when(systemSettings.getProxyHost()).thenReturn("localhost");
+        when(systemSettings.getProxyPort()).thenReturn(8080);
+        when(systemSettings.getProxyUsername()).thenReturn("username");
+        when(systemSettings.getProxyPassword()).thenReturn("password");
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
+        when(settingsManager.getVersion()).thenReturn(new Version("99.99.99"));
 
-        threadRunner.runOnGui(() -> settingsController.bindSystemSettings());
+        threadRunner.runOnGui(() -> underTest.bindSystemSettings());
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        boolean valid = requireNonNull(invokeMethod(settingsController, "validate"));
+        boolean valid = requireNonNull(invokeMethod(underTest, "validate"));
 
         assertThat(valid).isTrue();
     }
@@ -98,31 +98,31 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
         // Wait for reindex to kick off
         Thread.sleep(250);
 
-        boolean isReindexing = (boolean) getField(settingsController, "isReindexing");
+        boolean isReindexing = (boolean) getField(underTest, "isReindexing");
 
         assertThat(isReindexing).isTrue();
-        verify(mockMainPanelController, times(1)).showMessageView(anyString(), eq(false));
-        verify(mockSearchManager, times(1)).indexData();
-        verify(mockMainPanelController, never()).closeMessageView();
+        verify(mainPanelController, times(1)).showMessageView(anyString(), eq(false));
+        verify(searchManager, times(1)).indexData();
+        verify(mainPanelController, never()).closeMessageView();
     }
 
     @Test
     @SneakyThrows
     public void shouldClickReindexButtonAndThrowExceptionOnIndexData() {
         doThrow(new RuntimeException("SettingsControllerTest.shouldClickReindexButtonAndThrowExceptionOnIndexData()"))
-                .when(mockSearchManager).indexData();
+                .when(searchManager).indexData();
 
         clickOn("#reindexButton");
 
         // Wait for reindex to kick off
         Thread.sleep(250);
 
-        boolean isReindexing = (boolean) getField(settingsController, "isReindexing");
+        boolean isReindexing = (boolean) getField(underTest, "isReindexing");
 
         assertThat(isReindexing).isFalse();
-        verify(mockMainPanelController, times(1)).showMessageView(anyString(), eq(false));
-        verify(mockSearchManager, times(1)).indexData();
-        verify(mockMainPanelController, times(1)).closeMessageView();
+        verify(mainPanelController, times(1)).showMessageView(anyString(), eq(false));
+        verify(searchManager, times(1)).indexData();
+        verify(mainPanelController, times(1)).closeMessageView();
     }
 
     @Test
@@ -140,19 +140,19 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
         PasswordField proxyPasswordTextField = find("#proxyPasswordTextField");
         proxyPasswordTextField.setText("password");
 
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+        SystemSettings systemSettings = mock(SystemSettings.class);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
         clickOn("#okButton");
 
-        verify(mockSystemSettings, times(1)).setCacheSizeMb(250);
-        verify(mockSystemSettings, times(1)).setProxyHost("localhost");
-        verify(mockSystemSettings, times(1)).setProxyPort(8080);
-        verify(mockSystemSettings, times(1)).setProxyRequiresAuthentication(true);
-        verify(mockSystemSettings, times(1)).setProxyUsername("username");
-        verify(mockSystemSettings, times(1)).setProxyPassword("password");
-        verify(mockSettingsManager, times(1)).saveSystemSettings();
-        verify(spySettingsView, times(1)).close();
+        verify(systemSettings, times(1)).setCacheSizeMb(250);
+        verify(systemSettings, times(1)).setProxyHost("localhost");
+        verify(systemSettings, times(1)).setProxyPort(8080);
+        verify(systemSettings, times(1)).setProxyRequiresAuthentication(true);
+        verify(systemSettings, times(1)).setProxyUsername("username");
+        verify(systemSettings, times(1)).setProxyPassword("password");
+        verify(settingsManager, times(1)).saveSystemSettings();
+        verify(settingsView, times(1)).close();
     }
 
     @Test
@@ -160,19 +160,19 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
         TextField cacheSizeMbTextField = find("#cacheSizeMbTextField");
         cacheSizeMbTextField.setText("abc");
 
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+        SystemSettings systemSettings = mock(SystemSettings.class);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
         clickOn("#okButton");
 
-        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
-        verify(mockSystemSettings, never()).setProxyHost(anyString());
-        verify(mockSystemSettings, never()).setProxyPort(anyInt());
-        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
-        verify(mockSystemSettings, never()).setProxyUsername(anyString());
-        verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(mockSettingsManager, never()).saveSystemSettings();
-        verify(spySettingsView, never()).close();
+        verify(systemSettings, never()).setCacheSizeMb(anyInt());
+        verify(systemSettings, never()).setProxyHost(anyString());
+        verify(systemSettings, never()).setProxyPort(anyInt());
+        verify(systemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(systemSettings, never()).setProxyUsername(anyString());
+        verify(systemSettings, never()).setProxyPassword(anyString());
+        verify(settingsManager, never()).saveSystemSettings();
+        verify(settingsView, never()).close();
     }
 
     @Test
@@ -180,19 +180,19 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
         TextField proxyHostTextField = find("#proxyHostTextField");
         proxyHostTextField.setText(StringUtils.repeat('x', 256));
 
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+        SystemSettings systemSettings = mock(SystemSettings.class);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
         clickOn("#okButton");
 
-        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
-        verify(mockSystemSettings, never()).setProxyHost(anyString());
-        verify(mockSystemSettings, never()).setProxyPort(anyInt());
-        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
-        verify(mockSystemSettings, never()).setProxyUsername(anyString());
-        verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(mockSettingsManager, never()).saveSystemSettings();
-        verify(spySettingsView, never()).close();
+        verify(systemSettings, never()).setCacheSizeMb(anyInt());
+        verify(systemSettings, never()).setProxyHost(anyString());
+        verify(systemSettings, never()).setProxyPort(anyInt());
+        verify(systemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(systemSettings, never()).setProxyUsername(anyString());
+        verify(systemSettings, never()).setProxyPassword(anyString());
+        verify(settingsManager, never()).saveSystemSettings();
+        verify(settingsView, never()).close();
     }
 
     @Test
@@ -200,19 +200,19 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
         TextField proxyPortTextField = find("#proxyPortTextField");
         proxyPortTextField.setText("65536");
 
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+        SystemSettings systemSettings = mock(SystemSettings.class);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
         clickOn("#okButton");
 
-        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
-        verify(mockSystemSettings, never()).setProxyHost(anyString());
-        verify(mockSystemSettings, never()).setProxyPort(anyInt());
-        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
-        verify(mockSystemSettings, never()).setProxyUsername(anyString());
-        verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(mockSettingsManager, never()).saveSystemSettings();
-        verify(spySettingsView, never()).close();
+        verify(systemSettings, never()).setCacheSizeMb(anyInt());
+        verify(systemSettings, never()).setProxyHost(anyString());
+        verify(systemSettings, never()).setProxyPort(anyInt());
+        verify(systemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(systemSettings, never()).setProxyUsername(anyString());
+        verify(systemSettings, never()).setProxyPassword(anyString());
+        verify(settingsManager, never()).saveSystemSettings();
+        verify(settingsView, never()).close();
     }
 
     @Test
@@ -220,19 +220,19 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
         TextField proxyUsernameTextField = find("#proxyUsernameTextField");
         proxyUsernameTextField.setText(StringUtils.repeat('x', 256));
 
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+        SystemSettings systemSettings = mock(SystemSettings.class);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
         clickOn("#okButton");
 
-        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
-        verify(mockSystemSettings, never()).setProxyHost(anyString());
-        verify(mockSystemSettings, never()).setProxyPort(anyInt());
-        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
-        verify(mockSystemSettings, never()).setProxyUsername(anyString());
-        verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(mockSettingsManager, never()).saveSystemSettings();
-        verify(spySettingsView, never()).close();
+        verify(systemSettings, never()).setCacheSizeMb(anyInt());
+        verify(systemSettings, never()).setProxyHost(anyString());
+        verify(systemSettings, never()).setProxyPort(anyInt());
+        verify(systemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(systemSettings, never()).setProxyUsername(anyString());
+        verify(systemSettings, never()).setProxyPassword(anyString());
+        verify(settingsManager, never()).saveSystemSettings();
+        verify(settingsView, never()).close();
     }
 
     @Test
@@ -240,49 +240,49 @@ public class SettingsControllerTest extends AbstractGUITest implements Constants
         PasswordField proxyPasswordTextField = find("#proxyPasswordTextField");
         proxyPasswordTextField.setText(StringUtils.repeat('x', 256));
 
-        SystemSettings mockSystemSettings = mock(SystemSettings.class);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
+        SystemSettings systemSettings = mock(SystemSettings.class);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
         clickOn("#okButton");
 
-        verify(mockSystemSettings, never()).setCacheSizeMb(anyInt());
-        verify(mockSystemSettings, never()).setProxyHost(anyString());
-        verify(mockSystemSettings, never()).setProxyPort(anyInt());
-        verify(mockSystemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
-        verify(mockSystemSettings, never()).setProxyUsername(anyString());
-        verify(mockSystemSettings, never()).setProxyPassword(anyString());
-        verify(mockSettingsManager, never()).saveSystemSettings();
-        verify(spySettingsView, never()).close();
+        verify(systemSettings, never()).setCacheSizeMb(anyInt());
+        verify(systemSettings, never()).setProxyHost(anyString());
+        verify(systemSettings, never()).setProxyPort(anyInt());
+        verify(systemSettings, never()).setProxyRequiresAuthentication(anyBoolean());
+        verify(systemSettings, never()).setProxyUsername(anyString());
+        verify(systemSettings, never()).setProxyPassword(anyString());
+        verify(settingsManager, never()).saveSystemSettings();
+        verify(settingsView, never()).close();
     }
 
     @Test
     public void shouldClickCancelButton() {
         clickOn("#cancelButton");
 
-        verify(spySettingsView, times(1)).close();
+        verify(settingsView, times(1)).close();
     }
 
     @Test
     public void shouldRespondToDataIndexedEventWhenIndexing() {
-        setField(settingsController, "isReindexing", true);
+        setField(underTest, "isReindexing", true);
 
-        settingsController.eventReceived(Event.DATA_INDEXED);
+        underTest.eventReceived(Event.DATA_INDEXED);
 
-        boolean isReindexing = (boolean) getField(settingsController, "isReindexing");
+        boolean isReindexing = (boolean) getField(underTest, "isReindexing");
 
         assertThat(isReindexing).isFalse();
-        verify(mockMainPanelController, times(1)).closeMessageView();
+        verify(mainPanelController, times(1)).closeMessageView();
     }
 
     @Test
     public void shouldRespondToDataIndexedEventWhenNotIndexing() {
-        setField(settingsController, "isReindexing", false);
+        setField(underTest, "isReindexing", false);
 
-        settingsController.eventReceived(Event.DATA_INDEXED);
+        underTest.eventReceived(Event.DATA_INDEXED);
 
-        boolean isReindexing = (boolean) getField(settingsController, "isReindexing");
+        boolean isReindexing = (boolean) getField(underTest, "isReindexing");
 
         assertThat(isReindexing).isFalse();
-        verify(mockMainPanelController, never()).closeMessageView();
+        verify(mainPanelController, never()).closeMessageView();
     }
 }

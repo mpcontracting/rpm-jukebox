@@ -24,41 +24,41 @@ import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestReso
 public class DataManagerTest {
 
     @Mock
-    private AppProperties mockAppProperties;
+    private AppProperties appProperties;
 
     @Mock
-    private SearchManager mockSearchManager;
+    private SearchManager searchManager;
 
     @Mock
-    private InternetManager mockInternetManager;
+    private InternetManager internetManager;
 
-    private DataManager dataManager;
+    private DataManager underTest;
 
     @Before
     public void setup() {
-        dataManager = new DataManager(mockAppProperties, new HashGenerator());
-        dataManager.wireSearchManager(mockSearchManager);
-        dataManager.wireInternetManager(mockInternetManager);
+        underTest = new DataManager(appProperties, new HashGenerator());
+        underTest.wireSearchManager(searchManager);
+        underTest.wireInternetManager(internetManager);
     }
 
     @Test
     @SneakyThrows
     public void shouldParseDataFile() {
-        when(mockAppProperties.getS3BucketUrl()).thenReturn("s3-bucket-url/");
+        when(appProperties.getS3BucketUrl()).thenReturn("s3-bucket-url/");
 
         URL dataFile = new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath());
-        URLConnection mockUrlConnection = mock(URLConnection.class);
+        URLConnection urlConnection = mock(URLConnection.class);
 
-        when(mockInternetManager.openConnection(dataFile)).thenReturn(mockUrlConnection);
-        when(mockUrlConnection.getInputStream()).thenReturn(dataFile.openStream());
+        when(internetManager.openConnection(dataFile)).thenReturn(urlConnection);
+        when(urlConnection.getInputStream()).thenReturn(dataFile.openStream());
 
-        dataManager.parse(dataFile);
+        underTest.parse(dataFile);
 
         ArgumentCaptor<Artist> artistCaptor = ArgumentCaptor.forClass(Artist.class);
         ArgumentCaptor<Track> trackCaptor = ArgumentCaptor.forClass(Track.class);
 
-        verify(mockSearchManager, times(4)).addArtist(artistCaptor.capture());
-        verify(mockSearchManager, times(5)).addTrack(trackCaptor.capture());
+        verify(searchManager, times(4)).addArtist(artistCaptor.capture());
+        verify(searchManager, times(5)).addTrack(trackCaptor.capture());
 
         List<Artist> artists = artistCaptor.getAllValues();
 
@@ -91,14 +91,14 @@ public class DataManagerTest {
     @Test
     @SneakyThrows
     public void shouldNotParseDataFileOnException() {
-        doThrow(new RuntimeException("DataManagerTest.shouldNotParseDataFileOnException()")).when(mockInternetManager)
+        doThrow(new RuntimeException("DataManagerTest.shouldNotParseDataFileOnException()")).when(internetManager)
                 .openConnection(any());
 
         URL dataFile = new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath());
 
-        dataManager.parse(dataFile);
+        underTest.parse(dataFile);
 
-        verify(mockSearchManager, never()).addArtist(any());
-        verify(mockSearchManager, never()).addTrack(any());
+        verify(searchManager, never()).addArtist(any());
+        verify(searchManager, never()).addTrack(any());
     }
 }

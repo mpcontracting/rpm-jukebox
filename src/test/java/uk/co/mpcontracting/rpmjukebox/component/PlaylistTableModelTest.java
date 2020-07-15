@@ -12,14 +12,14 @@ public class PlaylistTableModelTest extends AbstractGUITest {
 
     @Test
     public void shouldInitialise() {
-        Playlist mockPlaylist = mock(Playlist.class);
-        when(mockPlaylist.getPlaylistId()).thenReturn(1);
-        when(mockPlaylist.getName()).thenReturn("Playlist");
+        Playlist playlist = mock(Playlist.class);
+        when(playlist.getPlaylistId()).thenReturn(1);
+        when(playlist.getName()).thenReturn("Playlist");
 
-        PlaylistTableModel playlistTableModel = new PlaylistTableModel(mockPlaylist);
+        PlaylistTableModel underTest = new PlaylistTableModel(playlist);
 
-        assertThat(playlistTableModel.getPlaylist()).isEqualTo(mockPlaylist);
-        assertThat(playlistTableModel.getSelected()).isNotNull();
-        assertThat(playlistTableModel.getName().get()).isEqualTo("Playlist");
+        assertThat(underTest.getPlaylist()).isEqualTo(playlist);
+        assertThat(underTest.getSelected()).isNotNull();
+        assertThat(underTest.getName().get()).isEqualTo("Playlist");
     }
 }

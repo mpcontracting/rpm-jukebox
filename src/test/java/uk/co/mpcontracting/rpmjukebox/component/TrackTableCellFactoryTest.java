@@ -24,39 +24,39 @@ import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 public class TrackTableCellFactoryTest extends AbstractGUITest implements Constants {
 
     @Mock
-    private SettingsManager mockSettingsManager;
+    private SettingsManager settingsManager;
 
     @Mock
-    private PlaylistManager mockPlaylistManager;
+    private PlaylistManager playlistManager;
 
-    private TrackTableCellFactory<TrackTableModel, String> cellFactory;
+    private TrackTableCellFactory<TrackTableModel, String> underTest;
 
     @Before
     public void setup() {
-        cellFactory = new TrackTableCellFactory<>();
-        setField(cellFactory, "eventManager", getMockEventManager());
-        setField(cellFactory, "settingsManager", mockSettingsManager);
-        setField(cellFactory, "playlistManager", mockPlaylistManager);
+        underTest = new TrackTableCellFactory<>();
+        setField(underTest, "eventManager", getMockEventManager());
+        setField(underTest, "settingsManager", settingsManager);
+        setField(underTest, "playlistManager", playlistManager);
 
-        reset(mockSettingsManager);
-        reset(mockPlaylistManager);
+        reset(settingsManager);
+        reset(playlistManager);
     }
 
     @Test
     public void shouldDoublePrimaryClickOnCell() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
         tableCell.onMouseClickedProperty().get()
                 .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
 
-        verify(mockPlaylistManager, times(1)).playTrack(track);
+        verify(playlistManager, times(1)).playTrack(track);
     }
 
     @Test
     public void shouldSinglePrimaryClickOnCellItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -69,7 +69,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
 
     @Test
     public void shouldDoublePrimaryClickOnCellItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -77,12 +77,12 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
         tableCell.onMouseClickedProperty().get()
                 .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
 
-        verify(mockPlaylistManager, never()).playTrack(track);
+        verify(playlistManager, never()).playTrack(track);
     }
 
     @Test
     public void shouldClickCreatePlaylistFromAlbumItem() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
@@ -90,12 +90,12 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
 
         createPlaylistFromAlbumItem.onActionProperty().get().handle(new ActionEvent());
 
-        verify(mockPlaylistManager, times(1)).createPlaylistFromAlbum(track);
+        verify(playlistManager, times(1)).createPlaylistFromAlbum(track);
     }
 
     @Test
     public void shouldClickCreatePlaylistFromAlbumItemItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -104,12 +104,12 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
 
         createPlaylistFromAlbumItem.onActionProperty().get().handle(new ActionEvent());
 
-        verify(mockPlaylistManager, never()).createPlaylistFromAlbum(track);
+        verify(playlistManager, never()).createPlaylistFromAlbum(track);
     }
 
     @Test
     public void shouldClickDeleteTrackFromPlaylistItem() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
@@ -117,12 +117,12 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
 
         deleteTrackFromPlaylistItem.onActionProperty().get().handle(new ActionEvent());
 
-        verify(mockPlaylistManager, times(1)).removeTrackFromPlaylist(track.getPlaylistId(), track);
+        verify(playlistManager, times(1)).removeTrackFromPlaylist(track.getPlaylistId(), track);
     }
 
     @Test
     public void shouldClickDeleteTrackFromPlaylistItemItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -131,12 +131,12 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
 
         deleteTrackFromPlaylistItem.onActionProperty().get().handle(new ActionEvent());
 
-        verify(mockPlaylistManager, never()).removeTrackFromPlaylist(track.getPlaylistId(), track);
+        verify(playlistManager, never()).removeTrackFromPlaylist(track.getPlaylistId(), track);
     }
 
     @Test
     public void shouldOpenContextMenuOnSearchPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         track.setPlaylistId(PLAYLIST_ID_SEARCH);
         updateTableCell(tableCell, track);
@@ -152,7 +152,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
 
     @Test
     public void shouldOpenContextMenuOnNonSearchPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
@@ -167,7 +167,7 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
 
     @Test
     public void shouldOpenContextMenuWhenItemIsNull() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.setItem(null);
@@ -183,262 +183,255 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
 
     @Test
     public void shouldTriggerDragOver() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragOverProperty().get().handle(spyDragEvent);
+        tableCell.onDragOverProperty().get().handle(dragEvent);
 
-        verify(spyDragEvent, times(1)).acceptTransferModes(TransferMode.MOVE);
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).acceptTransferModes(TransferMode.MOVE);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragOverWithSameSource() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, tableCell));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, tableCell));
 
-        tableCell.onDragOverProperty().get().handle(spyDragEvent);
+        tableCell.onDragOverProperty().get().handle(dragEvent);
 
-        verify(spyDragEvent, never()).acceptTransferModes(TransferMode.MOVE);
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, never()).acceptTransferModes(TransferMode.MOVE);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragOverWithNoContent() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragOverProperty().get().handle(spyDragEvent);
+        tableCell.onDragOverProperty().get().handle(dragEvent);
 
-        verify(spyDragEvent, never()).acceptTransferModes(TransferMode.MOVE);
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, never()).acceptTransferModes(TransferMode.MOVE);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void shouldNotTriggerDragOverWithNoTrackTableModel() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.getTableRow().setItem(null);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragOverProperty().get().handle(spyDragEvent);
+        tableCell.onDragOverProperty().get().handle(dragEvent);
 
-        verify(spyDragEvent, never()).acceptTransferModes(TransferMode.MOVE);
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, never()).acceptTransferModes(TransferMode.MOVE);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragOverWithSearchPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         track.setPlaylistId(PLAYLIST_ID_SEARCH);
         updateTableCell(tableCell, track);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragOverProperty().get().handle(spyDragEvent);
+        tableCell.onDragOverProperty().get().handle(dragEvent);
 
-        verify(spyDragEvent, never()).acceptTransferModes(TransferMode.MOVE);
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, never()).acceptTransferModes(TransferMode.MOVE);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldTriggerDragEntered() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_ENTERED, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        tableCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(tableCell.getTableRow().getStyle()).isNotEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragEnteredWithSameSource() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, tableCell));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_ENTERED, dragboard, TransferMode.COPY, tableCell));
 
-        tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        tableCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(tableCell.getTableRow().getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragEnteredWithNoContent() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_ENTERED, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        tableCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(tableCell.getTableRow().getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void shouldNotTriggerDragEnteredWithNoTrackTableModel() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.getTableRow().setItem(null);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_ENTERED, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        tableCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(tableCell.getTableRow().getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragEnteredWithSearchPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         track.setPlaylistId(PLAYLIST_ID_SEARCH);
         updateTableCell(tableCell, track);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_ENTERED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_ENTERED, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        tableCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(tableCell.getTableRow().getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldTriggerDragExited() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track track = getTargetTrack();
         updateTableCell(tableCell, track);
         tableCell.getTableRow().setStyle("some-style: style");
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_EXITED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_EXITED, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragExitedProperty().get().handle(spyDragEvent);
+        tableCell.onDragExitedProperty().get().handle(dragEvent);
 
         assertThat(tableCell.getTableRow().getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldTriggerDragDropped() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track target = getTargetTrack();
         updateTableCell(tableCell, target);
 
         Track source = generateTrack(1, "Genre 1", "Genre 2");
         source.setPlaylistId(2);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
-        when(mockDragboard.getContent(DND_TRACK_DATA_FORMAT)).thenReturn(source);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        when(dragboard.getContent(DND_TRACK_DATA_FORMAT)).thenReturn(source);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_DROPPED, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragDroppedProperty().get().handle(spyDragEvent);
+        tableCell.onDragDroppedProperty().get().handle(dragEvent);
 
-        verify(mockPlaylistManager, times(1)).moveTracksInPlaylist(source.getPlaylistId(), source, target);
-        verify(spyDragEvent, times(1)).setDropCompleted(true);
-        verify(spyDragEvent, times(1)).consume();
+        verify(playlistManager, times(1)).moveTracksInPlaylist(source.getPlaylistId(), source, target);
+        verify(dragEvent, times(1)).setDropCompleted(true);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragDroppedWithNoContent() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track target = getTargetTrack();
         updateTableCell(tableCell, target);
 
         Track source = generateTrack(1, "Genre 1", "Genre 2");
         source.setPlaylistId(2);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_DROPPED, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragDroppedProperty().get().handle(spyDragEvent);
+        tableCell.onDragDroppedProperty().get().handle(dragEvent);
 
-        verify(mockPlaylistManager, never()).moveTracksInPlaylist(source.getPlaylistId(), source, target);
-        verify(spyDragEvent, never()).setDropCompleted(true);
-        verify(spyDragEvent, times(1)).consume();
+        verify(playlistManager, never()).moveTracksInPlaylist(source.getPlaylistId(), source, target);
+        verify(dragEvent, never()).setDropCompleted(true);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldTriggerDragDone() {
-        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
         Track target = getTargetTrack();
         updateTableCell(tableCell, target);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_DONE, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_DONE, dragboard, TransferMode.COPY, new Object()));
 
-        tableCell.onDragDoneProperty().get().handle(spyDragEvent);
+        tableCell.onDragDoneProperty().get().handle(dragEvent);
 
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     private Track getTargetTrack() {

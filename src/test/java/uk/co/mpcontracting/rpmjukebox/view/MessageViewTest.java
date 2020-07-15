@@ -29,11 +29,11 @@ public class MessageViewTest extends AbstractGUITest {
     private MessageView messageView;
 
     private Stage originalStage;
-    private MessageView spyMessageView;
+    private MessageView underTest;
 
     @Before
     public void setup() {
-        spyMessageView = spy(messageView);
+        underTest = spy(messageView);
         originalStage = GUIState.getStage();
         setField(GUIState.class, "stage", mock(Stage.class));
     }
@@ -43,21 +43,21 @@ public class MessageViewTest extends AbstractGUITest {
 
     @Test
     public void shouldInitialiseViewWithNewScene() throws Exception {
-        setField(spyMessageView, "owner", null);
-        setField(spyMessageView, "stage", null);
+        setField(underTest, "owner", null);
+        setField(underTest, "stage", null);
 
-        threadRunner.runOnGui(() -> spyMessageView.initialise());
+        threadRunner.runOnGui(() -> underTest.initialise());
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        Stage owner = (Stage) ReflectionTestUtils.getField(spyMessageView, "owner");
-        Stage stage = (Stage) ReflectionTestUtils.getField(spyMessageView, "stage");
+        Stage owner = (Stage) ReflectionTestUtils.getField(underTest, "owner");
+        Stage stage = (Stage) ReflectionTestUtils.getField(underTest, "stage");
 
         assertThat(owner).isNotNull();
         assertThat(stage).isNotNull();
 
         Stage spyStage = spy(stage);
-        setField(spyMessageView, "stage", spyStage);
+        setField(underTest, "stage", spyStage);
 
         threadRunner.runOnGui(stage::show);
 
@@ -69,21 +69,21 @@ public class MessageViewTest extends AbstractGUITest {
 
     @Test
     public void shouldInitialiseViewWithExistingScene() throws Exception {
-        setField(spyMessageView, "owner", null);
-        setField(spyMessageView, "stage", null);
+        setField(underTest, "owner", null);
+        setField(underTest, "stage", null);
 
-        Parent mockParent = mock(Parent.class);
-        Scene mockScene = mock(Scene.class);
-        when(mockParent.getScene()).thenReturn(mockScene);
-        when(mockParent.getStyleClass()).thenReturn(FXCollections.observableArrayList());
-        when(spyMessageView.getView()).thenReturn(mockParent);
+        Parent parent = mock(Parent.class);
+        Scene scene = mock(Scene.class);
+        when(parent.getScene()).thenReturn(scene);
+        when(parent.getStyleClass()).thenReturn(FXCollections.observableArrayList());
+        when(underTest.getView()).thenReturn(parent);
 
-        threadRunner.runOnGui(() -> spyMessageView.initialise());
+        threadRunner.runOnGui(() -> underTest.initialise());
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        Stage owner = (Stage) ReflectionTestUtils.getField(spyMessageView, "owner");
-        Stage stage = (Stage) ReflectionTestUtils.getField(spyMessageView, "stage");
+        Stage owner = (Stage) ReflectionTestUtils.getField(underTest, "owner");
+        Stage stage = (Stage) ReflectionTestUtils.getField(underTest, "stage");
 
         assertThat(owner).isNotNull();
         assertThat(stage).isNotNull();
@@ -91,125 +91,125 @@ public class MessageViewTest extends AbstractGUITest {
 
     @Test
     public void shouldGetIsShowing() {
-        Stage mockStage = mock(Stage.class);
-        when(mockStage.isShowing()).thenReturn(true);
+        Stage stage = mock(Stage.class);
+        when(stage.isShowing()).thenReturn(true);
 
-        setField(spyMessageView, "stage", mockStage);
+        setField(underTest, "stage", stage);
 
-        boolean result = spyMessageView.isShowing();
+        boolean result = underTest.isShowing();
 
         assertThat(result).isTrue();
     }
 
     @Test
     public void shouldShowWithBlur() {
-        Parent mockParent = mock(Parent.class);
+        Parent parent = mock(Parent.class);
 
-        Scene mockScene = mock(Scene.class);
-        when(mockScene.getRoot()).thenReturn(mockParent);
+        Scene scene = mock(Scene.class);
+        when(scene.getRoot()).thenReturn(parent);
 
-        Stage mockOwner = mock(Stage.class);
-        when(mockOwner.getScene()).thenReturn(mockScene);
+        Stage owner = mock(Stage.class);
+        when(owner.getScene()).thenReturn(scene);
 
-        Stage mockStage = mock(Stage.class);
+        Stage stage = mock(Stage.class);
 
-        setField(spyMessageView, "owner", mockOwner);
-        setField(spyMessageView, "stage", mockStage);
+        setField(underTest, "owner", owner);
+        setField(underTest, "stage", stage);
 
-        spyMessageView.show(true);
+        underTest.show(true);
 
-        boolean blurBackground = (boolean) ReflectionTestUtils.getField(spyMessageView, "blurBackground");
+        boolean blurBackground = (boolean) ReflectionTestUtils.getField(underTest, "blurBackground");
 
         assertThat(blurBackground).isTrue();
-        verify(mockParent, times(1)).setEffect(any());
-        verify(mockStage, times(1)).show();
+        verify(parent, times(1)).setEffect(any());
+        verify(stage, times(1)).show();
     }
 
     @Test
     public void shouldShowWithoutBlur() {
-        Parent mockParent = mock(Parent.class);
+        Parent parent = mock(Parent.class);
 
-        Scene mockScene = mock(Scene.class);
-        when(mockScene.getRoot()).thenReturn(mockParent);
+        Scene scene = mock(Scene.class);
+        when(scene.getRoot()).thenReturn(parent);
 
-        Stage mockOwner = mock(Stage.class);
-        when(mockOwner.getScene()).thenReturn(mockScene);
+        Stage owner = mock(Stage.class);
+        when(owner.getScene()).thenReturn(scene);
 
-        Stage mockStage = mock(Stage.class);
+        Stage stage = mock(Stage.class);
 
-        setField(spyMessageView, "owner", mockOwner);
-        setField(spyMessageView, "stage", mockStage);
+        setField(underTest, "owner", owner);
+        setField(underTest, "stage", stage);
 
-        spyMessageView.show(false);
+        underTest.show(false);
 
-        boolean blurBackground = (boolean) ReflectionTestUtils.getField(spyMessageView, "blurBackground");
+        boolean blurBackground = (boolean) ReflectionTestUtils.getField(underTest, "blurBackground");
 
         assertThat(blurBackground).isFalse();
-        verify(mockParent, never()).setEffect(any());
-        verify(mockStage, times(1)).show();
+        verify(parent, never()).setEffect(any());
+        verify(stage, times(1)).show();
     }
 
     @Test
     public void shouldCloseWithBlur() {
-        Parent mockParent = mock(Parent.class);
+        Parent parent = mock(Parent.class);
 
-        Scene mockScene = mock(Scene.class);
-        when(mockScene.getRoot()).thenReturn(mockParent);
+        Scene scene = mock(Scene.class);
+        when(scene.getRoot()).thenReturn(parent);
 
-        Stage mockOwner = mock(Stage.class);
-        when(mockOwner.getScene()).thenReturn(mockScene);
+        Stage owner = mock(Stage.class);
+        when(owner.getScene()).thenReturn(scene);
 
-        Stage mockStage = mock(Stage.class);
+        Stage stage = mock(Stage.class);
 
-        setField(spyMessageView, "owner", mockOwner);
-        setField(spyMessageView, "stage", mockStage);
-        setField(spyMessageView, "blurBackground", true);
+        setField(underTest, "owner", owner);
+        setField(underTest, "stage", stage);
+        setField(underTest, "blurBackground", true);
 
-        spyMessageView.close();
+        underTest.close();
 
-        verify(mockParent, times(1)).setEffect(null);
-        verify(mockStage, times(1)).close();
+        verify(parent, times(1)).setEffect(null);
+        verify(stage, times(1)).close();
     }
 
     @Test
     public void shouldCloseWithoutBlur() {
-        Parent mockParent = mock(Parent.class);
+        Parent parent = mock(Parent.class);
 
-        Scene mockScene = mock(Scene.class);
-        when(mockScene.getRoot()).thenReturn(mockParent);
+        Scene scene = mock(Scene.class);
+        when(scene.getRoot()).thenReturn(parent);
 
-        Stage mockOwner = mock(Stage.class);
-        when(mockOwner.getScene()).thenReturn(mockScene);
+        Stage owner = mock(Stage.class);
+        when(owner.getScene()).thenReturn(scene);
 
-        Stage mockStage = mock(Stage.class);
+        Stage stage = mock(Stage.class);
 
-        setField(spyMessageView, "owner", mockOwner);
-        setField(spyMessageView, "stage", mockStage);
-        setField(spyMessageView, "blurBackground", false);
+        setField(underTest, "owner", owner);
+        setField(underTest, "stage", stage);
+        setField(underTest, "blurBackground", false);
 
-        spyMessageView.close();
+        underTest.close();
 
-        verify(mockParent, never()).setEffect(null);
-        verify(mockStage, times(1)).close();
+        verify(parent, never()).setEffect(null);
+        verify(stage, times(1)).close();
     }
 
     @Test
     public void shouldSetMessage() {
-        Parent mockView = mock(Parent.class);
-        when(spyMessageView.getView()).thenReturn(mockView);
+        Parent view = mock(Parent.class);
+        when(underTest.getView()).thenReturn(view);
 
-        Scene mockScene = mock(Scene.class);
-        when(mockView.getScene()).thenReturn(mockScene);
+        Scene scene = mock(Scene.class);
+        when(view.getScene()).thenReturn(scene);
 
-        Parent mockRoot = mock(Parent.class);
-        when(mockScene.getRoot()).thenReturn(mockRoot);
+        Parent root = mock(Parent.class);
+        when(scene.getRoot()).thenReturn(root);
 
-        Label mockLabel = mock(Label.class);
-        when(mockRoot.lookup("#message")).thenReturn(mockLabel);
+        Label label = mock(Label.class);
+        when(root.lookup("#message")).thenReturn(label);
 
-        spyMessageView.setMessage("Test Message");
+        underTest.setMessage("Test Message");
 
-        verify(mockLabel, times(1)).setText("Test Message");
+        verify(label, times(1)).setText("Test Message");
     }
 
     @After

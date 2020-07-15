@@ -34,43 +34,45 @@ import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getDragEven
 public class PlaylistListCellFactoryTest extends AbstractGUITest implements Constants {
 
     @Mock
-    private PlaylistManager mockPlaylistManager;
-
-    private PlaylistListCellFactory cellFactory;
+    private PlaylistManager playlistManager;
 
     private ApplicationContext originalContext;
-    private MainPanelController mockMainPanelController;
+    private MainPanelController mainPanelController;
+
+    private PlaylistListCellFactory underTest;
+
+
 
     @Before
     public void setup() {
-        cellFactory = new PlaylistListCellFactory();
-        setField(cellFactory, "eventManager", getMockEventManager());
-        setField(cellFactory, "playlistManager", mockPlaylistManager);
+        underTest = new PlaylistListCellFactory();
+        setField(underTest, "eventManager", getMockEventManager());
+        setField(underTest, "playlistManager", playlistManager);
 
-        reset(mockPlaylistManager);
+        reset(playlistManager);
 
         originalContext = (ApplicationContext) getField(ContextHelper.class, "applicationContext");
-        mockMainPanelController = mock(MainPanelController.class);
-        ApplicationContext mockContext = mock(ApplicationContext.class);
-        when(mockContext.getBean(MainPanelController.class)).thenReturn(mockMainPanelController);
+        mainPanelController = mock(MainPanelController.class);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        when(applicationContext.getBean(MainPanelController.class)).thenReturn(mainPanelController);
 
-        setField(ContextHelper.class, "applicationContext", mockContext);
+        setField(ContextHelper.class, "applicationContext", applicationContext);
     }
 
     @Test
     public void shouldClickNewPlaylistItem() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
         MenuItem newPlaylistItem = listCell.getContextMenu().getItems().get(0);
 
         newPlaylistItem.onActionProperty().get().handle(new ActionEvent());
 
-        verify(mockPlaylistManager, times(1)).createPlaylist();
+        verify(playlistManager, times(1)).createPlaylist();
     }
 
     @Test
     public void shouldClickDeletePlaylistItem() {
         ListView<Playlist> listView = getListView();
-        ListCell<Playlist> listCell = cellFactory.call(listView);
+        ListCell<Playlist> listCell = underTest.call(listView);
         listView.getSelectionModel().select(5);
 
         MenuItem deletePlaylistItem = listCell.getContextMenu().getItems().get(1);
@@ -79,18 +81,18 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
 
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
-        verify(mockMainPanelController, times(1)).showConfirmView(anyString(), anyBoolean(), okRunnable.capture(),
+        verify(mainPanelController, times(1)).showConfirmView(anyString(), anyBoolean(), okRunnable.capture(),
                 any());
 
         okRunnable.getValue().run();
 
-        verify(mockPlaylistManager, times(1)).deletePlaylist(3);
+        verify(playlistManager, times(1)).deletePlaylist(3);
     }
 
     @Test
     public void shouldOpenContextMenuOnReservedPlaylist() {
         ListView<Playlist> listView = getListView();
-        ListCell<Playlist> listCell = cellFactory.call(listView);
+        ListCell<Playlist> listCell = underTest.call(listView);
 
         listCell.updateListView(listView);
         listCell.updateIndex(0);
@@ -107,7 +109,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
     @Test
     public void shouldOpenContextMenuOnUserPlaylist() {
         ListView<Playlist> listView = getListView();
-        ListCell<Playlist> listCell = cellFactory.call(listView);
+        ListCell<Playlist> listCell = underTest.call(listView);
 
         listCell.updateListView(listView);
         listCell.updateIndex(2);
@@ -124,7 +126,7 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
     @Test
     public void shouldOpenContextMenuBelowPlaylists() {
         ListView<Playlist> listView = getListView();
-        ListCell<Playlist> listCell = cellFactory.call(listView);
+        ListCell<Playlist> listCell = underTest.call(listView);
 
         listCell.updateListView(listView);
         listCell.updateIndex(10);
@@ -140,12 +142,12 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
 
     @Test
     public void shouldTriggerDragOver() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
         listCell.onDragOverProperty().get().handle(spyDragEvent);
 
@@ -155,174 +157,171 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
 
     @Test
     public void shouldNotTriggerDragOverWithSameSource() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, listCell));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, listCell));
 
-        listCell.onDragOverProperty().get().handle(spyDragEvent);
+        listCell.onDragOverProperty().get().handle(dragEvent);
 
-        verify(spyDragEvent, never()).acceptTransferModes(TransferMode.COPY);
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, never()).acceptTransferModes(TransferMode.COPY);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragOverWithNoContent() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
-        listCell.onDragOverProperty().get().handle(spyDragEvent);
+        listCell.onDragOverProperty().get().handle(dragEvent);
 
-        verify(spyDragEvent, never()).acceptTransferModes(TransferMode.COPY);
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, never()).acceptTransferModes(TransferMode.COPY);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldTriggerDragEntered() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
         listCell.setItem(new Playlist(1, "Playlist", 10));
         listCell.setStyle(null);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
-        listCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        listCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(listCell.getStyle()).isNotEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
-    public void shouldNotTriggerDragEnterdWithSameSource() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+    public void shouldNotTriggerDragEnteredWithSameSource() {
+        ListCell<Playlist> listCell = underTest.call(getListView());
         listCell.setItem(new Playlist(1, "Playlist", 10));
         listCell.setStyle(null);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, listCell));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, listCell));
 
-        listCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        listCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(listCell.getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragEnteredWithNoContent() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
         listCell.setItem(new Playlist(1, "Playlist", 10));
         listCell.setStyle(null);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
-        listCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        listCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(listCell.getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragEnteredWithNoPlaylist() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
         listCell.setItem(null);
         listCell.setStyle(null);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
-        listCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        listCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(listCell.getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragEnteredWithReservedPlaylist() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
         listCell.setItem(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
         listCell.setStyle(null);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_OVER, dragboard, TransferMode.COPY, new Object()));
 
-        listCell.onDragEnteredProperty().get().handle(spyDragEvent);
+        listCell.onDragEnteredProperty().get().handle(dragEvent);
 
         assertThat(listCell.getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldTriggerDragExited() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
         listCell.setStyle("some-style: style");
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_EXITED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_EXITED, dragboard, TransferMode.COPY, new Object()));
 
-        listCell.onDragExitedProperty().get().handle(spyDragEvent);
+        listCell.onDragExitedProperty().get().handle(dragEvent);
 
         assertThat(listCell.getStyle()).isEmpty();
-        verify(spyDragEvent, times(1)).consume();
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldTriggerDragDropped() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
         listCell.setItem(new Playlist(1, "Playlist", 10));
 
-        Track mockTrack = mock(Track.class);
-        when(mockTrack.clone()).thenReturn(mockTrack);
+        Track track = mock(Track.class);
+        when(track.clone()).thenReturn(track);
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
-        when(mockDragboard.getContent(DND_TRACK_DATA_FORMAT)).thenReturn(mockTrack);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(true);
+        when(dragboard.getContent(DND_TRACK_DATA_FORMAT)).thenReturn(track);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_DROPPED, dragboard, TransferMode.COPY, new Object()));
 
-        listCell.onDragDroppedProperty().get().handle(spyDragEvent);
+        listCell.onDragDroppedProperty().get().handle(dragEvent);
 
-        verify(mockPlaylistManager, times(1)).addTrackToPlaylist(1, mockTrack);
-        verify(spyDragEvent, times(1)).setDropCompleted(true);
-        verify(spyDragEvent, times(1)).consume();
+        verify(playlistManager, times(1)).addTrackToPlaylist(1, track);
+        verify(dragEvent, times(1)).setDropCompleted(true);
+        verify(dragEvent, times(1)).consume();
     }
 
     @Test
     public void shouldNotTriggerDragDroppedWithNoContent() {
-        ListCell<Playlist> listCell = cellFactory.call(getListView());
+        ListCell<Playlist> listCell = underTest.call(getListView());
         listCell.setItem(new Playlist(1, "Playlist", 10));
 
-        Dragboard mockDragboard = mock(Dragboard.class);
-        when(mockDragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
+        Dragboard dragboard = mock(Dragboard.class);
+        when(dragboard.hasContent(DND_TRACK_DATA_FORMAT)).thenReturn(false);
 
-        DragEvent spyDragEvent = spy(
-                getDragEvent(DragEvent.DRAG_DROPPED, mockDragboard, TransferMode.COPY, new Object()));
+        DragEvent dragEvent = spy(getDragEvent(DragEvent.DRAG_DROPPED, dragboard, TransferMode.COPY, new Object()));
 
-        listCell.onDragDroppedProperty().get().handle(spyDragEvent);
+        listCell.onDragDroppedProperty().get().handle(dragEvent);
 
-        verify(mockPlaylistManager, never()).addTrackToPlaylist(anyInt(), any());
-        verify(spyDragEvent, never()).setDropCompleted(true);
-        verify(spyDragEvent, times(1)).consume();
+        verify(playlistManager, never()).addTrackToPlaylist(anyInt(), any());
+        verify(dragEvent, never()).setDropCompleted(true);
+        verify(dragEvent, times(1)).consume();
     }
 
     private ListView<Playlist> getListView() {

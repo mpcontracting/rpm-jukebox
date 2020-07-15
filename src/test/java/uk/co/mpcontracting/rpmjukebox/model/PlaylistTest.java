@@ -105,12 +105,12 @@ public class PlaylistTest {
         Playlist playlist = createPlaylist(1, "Playlist", 10);
 
         @SuppressWarnings("unchecked")
-        List<Track> spyShuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
-        setField(playlist, "shuffledTracks", spyShuffledTracks);
+        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
+        setField(playlist, "shuffledTracks", shuffledTracks);
 
         playlist.shuffle();
 
-        verify(spyShuffledTracks, atLeastOnce()).set(anyInt(), any());
+        verify(shuffledTracks, atLeastOnce()).set(anyInt(), any());
     }
 
     @Test
@@ -119,13 +119,13 @@ public class PlaylistTest {
         Track track = playlist.getTrackAtIndex(1);
 
         @SuppressWarnings("unchecked")
-        List<Track> spyShuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
-        setField(playlist, "shuffledTracks", spyShuffledTracks);
+        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
+        setField(playlist, "shuffledTracks", shuffledTracks);
 
         playlist.setTrackAtShuffledIndex(track, 5);
 
-        verify(spyShuffledTracks, times(1)).remove(track);
-        verify(spyShuffledTracks, times(1)).add(5, track);
+        verify(shuffledTracks, times(1)).remove(track);
+        verify(shuffledTracks, times(1)).add(5, track);
     }
 
     @Test
@@ -236,14 +236,14 @@ public class PlaylistTest {
         Track target = playlist.getPlaylistTrack(generateTrack(8));
 
         @SuppressWarnings("unchecked")
-        List<Track> spyShuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
-        setField(playlist, "shuffledTracks", spyShuffledTracks);
+        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
+        setField(playlist, "shuffledTracks", shuffledTracks);
 
         playlist.swapTracks(source, target);
 
         assertThat(source.getPlaylistIndex()).isEqualTo(7);
         assertThat(target.getPlaylistIndex()).isEqualTo(6);
-        verify(spyShuffledTracks, atLeastOnce()).set(anyInt(), any());
+        verify(shuffledTracks, atLeastOnce()).set(anyInt(), any());
     }
 
     @Test
@@ -253,14 +253,14 @@ public class PlaylistTest {
         Track target = playlist.getPlaylistTrack(generateTrack(2));
 
         @SuppressWarnings("unchecked")
-        List<Track> spyShuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
-        setField(playlist, "shuffledTracks", spyShuffledTracks);
+        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
+        setField(playlist, "shuffledTracks", shuffledTracks);
 
         playlist.swapTracks(source, target);
 
         assertThat(source.getPlaylistIndex()).isEqualTo(1);
         assertThat(target.getPlaylistIndex()).isEqualTo(2);
-        verify(spyShuffledTracks, atLeastOnce()).set(anyInt(), any());
+        verify(shuffledTracks, atLeastOnce()).set(anyInt(), any());
     }
 
     @Test

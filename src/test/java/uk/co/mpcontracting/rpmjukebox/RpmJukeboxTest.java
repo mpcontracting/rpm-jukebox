@@ -25,17 +25,17 @@ public class RpmJukeboxTest extends AbstractGUITest {
     private RpmJukebox rpmJukebox;
 
     @Mock
-    private ProgressSplashScreen mockSplashScreen;
+    private ProgressSplashScreen splashScreen;
 
     @Mock
-    private ConfigurableApplicationContext mockContext;
+    private ConfigurableApplicationContext applicationContext;
 
     @Mock
-    private ApplicationManager mockApplicationManager;
+    private ApplicationManager applicationManager;
 
     @Before
     public void setup() {
-        when(mockContext.getBean(ApplicationManager.class)).thenReturn(mockApplicationManager);
+        when(applicationContext.getBean(ApplicationManager.class)).thenReturn(applicationManager);
     }
 
     @Test
@@ -60,27 +60,27 @@ public class RpmJukeboxTest extends AbstractGUITest {
 
     @Test
     public void shouldCallStartOnApplicationManagerInBeforeInitialView() {
-        rpmJukebox.beforeInitialView(null, mockContext);
+        rpmJukebox.beforeInitialView(null, applicationContext);
 
-        verify(mockApplicationManager, times(1)).start(any());
+        verify(applicationManager, times(1)).start(any());
     }
 
     @Test
     public void shouldNotCallStartOnApplicationManagerInBeforeInitialViewWithNullContext() {
         rpmJukebox.beforeInitialView(null, null);
 
-        verify(mockApplicationManager, never()).start(any());
+        verify(applicationManager, never()).start(any());
     }
 
     @Test
     public void shouldUpdateSplashProgress() throws Exception {
-        ReflectionTestUtils.setField(rpmJukebox, "splashScreen", mockSplashScreen);
+        ReflectionTestUtils.setField(rpmJukebox, "splashScreen", splashScreen);
 
         rpmJukebox.updateSplashProgress("Test message");
 
         // Wait for UI thread
         Thread.sleep(250);
 
-        verify(mockSplashScreen, times(1)).updateProgress("Test message");
+        verify(splashScreen, times(1)).updateProgress("Test message");
     }
 }

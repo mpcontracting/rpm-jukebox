@@ -21,119 +21,119 @@ public class ConfirmControllerTest extends AbstractGUITest {
     private ThreadRunner threadRunner;
 
     @Autowired
-    private ConfirmController confirmController;
+    private ConfirmController underTest;
 
     @Autowired
-    private ConfirmView confirmView;
+    private ConfirmView originalConfirmView;
 
-    private ConfirmView spyConfirmView;
+    private ConfirmView confirmView;
 
     @SneakyThrows
     @PostConstruct
     public void constructView() {
-        spyConfirmView = spy(confirmView);
+        confirmView = spy(originalConfirmView);
 
-        setField(confirmController, "confirmView", spyConfirmView);
+        setField(underTest, "confirmView", confirmView);
 
-        init(spyConfirmView);
+        init(confirmView);
     }
 
     @Before
     public void setup() {
-        doNothing().when(spyConfirmView).close();
+        doNothing().when(confirmView).close();
     }
 
     @Test
     public void shouldClickOkButtonNoOkRunnable() {
-        confirmController.setRunnables(null, null);
+        underTest.setRunnables(null, null);
 
         clickOn("#okButton");
 
-        verify(spyConfirmView, times(1)).close();
+        verify(confirmView, times(1)).close();
     }
 
     @Test
     public void shouldClickOkButtonWithOkRunnable() {
-        Runnable mockOkRunnable = mock(Runnable.class);
-        confirmController.setRunnables(mockOkRunnable, null);
+        Runnable runnable = mock(Runnable.class);
+        underTest.setRunnables(runnable, null);
 
         clickOn("#okButton");
 
-        verify(mockOkRunnable, times(1)).run();
-        verify(spyConfirmView, times(1)).close();
+        verify(runnable, times(1)).run();
+        verify(confirmView, times(1)).close();
     }
 
     @Test
     public void shouldPressEnterKeyOnFocusedOkButton() {
-        Runnable mockOkRunnable = mock(Runnable.class);
-        confirmController.setRunnables(mockOkRunnable, null);
+        Runnable runnable = mock(Runnable.class);
+        underTest.setRunnables(runnable, null);
         setOkFocused();
 
         press(KeyCode.ENTER);
 
-        verify(mockOkRunnable, times(1)).run();
-        verify(spyConfirmView, times(1)).close();
+        verify(runnable, times(1)).run();
+        verify(confirmView, times(1)).close();
     }
 
     @Test
     public void shouldPressNonEnterKeyOnFocusedOkButton() {
-        Runnable mockOkRunnable = mock(Runnable.class);
-        confirmController.setRunnables(mockOkRunnable, null);
+        Runnable runnable = mock(Runnable.class);
+        underTest.setRunnables(runnable, null);
         setOkFocused();
 
         press(KeyCode.A);
 
-        verify(mockOkRunnable, never()).run();
-        verify(spyConfirmView, never()).close();
+        verify(runnable, never()).run();
+        verify(confirmView, never()).close();
     }
 
     @Test
     public void shouldClickCancelButtonNoOkRunnable() {
-        confirmController.setRunnables(null, null);
+        underTest.setRunnables(null, null);
 
         clickOn("#cancelButton");
 
-        verify(spyConfirmView, times(1)).close();
+        verify(confirmView, times(1)).close();
     }
 
     @Test
     public void shouldClickCancelButtonWithOkRunnable() {
-        Runnable mockCancelRunnable = mock(Runnable.class);
-        confirmController.setRunnables(null, mockCancelRunnable);
+        Runnable runnable = mock(Runnable.class);
+        underTest.setRunnables(null, runnable);
 
         clickOn("#cancelButton");
 
-        verify(mockCancelRunnable, times(1)).run();
-        verify(spyConfirmView, times(1)).close();
+        verify(runnable, times(1)).run();
+        verify(confirmView, times(1)).close();
     }
 
     @Test
     public void shouldPressEnterKeyOnFocusedCancelButton() {
-        Runnable mockCancelRunnable = mock(Runnable.class);
-        confirmController.setRunnables(null, mockCancelRunnable);
+        Runnable runnable = mock(Runnable.class);
+        underTest.setRunnables(null, runnable);
         setOkFocused();
 
         press(KeyCode.TAB).press(KeyCode.ENTER);
 
-        verify(mockCancelRunnable, times(1)).run();
-        verify(spyConfirmView, times(1)).close();
+        verify(runnable, times(1)).run();
+        verify(confirmView, times(1)).close();
     }
 
     @Test
     public void shouldPressNonEnterKeyOnFocusedCancelButton() {
-        Runnable mockCancelRunnable = mock(Runnable.class);
-        confirmController.setRunnables(null, mockCancelRunnable);
+        Runnable runnable = mock(Runnable.class);
+        underTest.setRunnables(null, runnable);
         setOkFocused();
 
         press(KeyCode.TAB).press(KeyCode.A);
 
-        verify(mockCancelRunnable, never()).run();
-        verify(spyConfirmView, never()).close();
+        verify(runnable, never()).run();
+        verify(confirmView, never()).close();
     }
 
     @SneakyThrows
     private void setOkFocused() {
-        threadRunner.runOnGui(() -> confirmController.setOkFocused());
+        threadRunner.runOnGui(() -> underTest.setOkFocused());
 
         WaitForAsyncUtils.waitForFxEvents();
     }

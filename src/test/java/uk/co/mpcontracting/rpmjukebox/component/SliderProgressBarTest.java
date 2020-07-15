@@ -9,52 +9,52 @@ public class SliderProgressBarTest extends AbstractGUITest {
 
     @Test
     public void shouldGetSliderValueProperty() {
-        SliderProgressBar sliderProgressBar = new SliderProgressBar();
+        SliderProgressBar underTest = new SliderProgressBar();
 
-        assertThat(sliderProgressBar.sliderValueProperty()).isNotNull();
+        assertThat(underTest.sliderValueProperty()).isNotNull();
     }
 
     @Test
     public void shouldGetSliderValueChangingProperty() {
-        SliderProgressBar sliderProgressBar = new SliderProgressBar();
+        SliderProgressBar underTest = new SliderProgressBar();
 
-        assertThat(sliderProgressBar.sliderValueChangingProperty()).isNotNull();
+        assertThat(underTest.sliderValueChangingProperty()).isNotNull();
     }
 
     @Test
     public void shouldGetIsSliderValueChanging() {
-        SliderProgressBar sliderProgressBar = new SliderProgressBar();
+        SliderProgressBar underTest = new SliderProgressBar();
 
-        assertThat(sliderProgressBar.isSliderValueChanging()).isFalse();
+        assertThat(underTest.isSliderValueChanging()).isFalse();
     }
 
     @Test
     public void shouldGetSliderValue() {
-        SliderProgressBar sliderProgressBar = new SliderProgressBar();
+        SliderProgressBar underTest = new SliderProgressBar();
 
-        assertThat(sliderProgressBar.getSliderValue()).isEqualTo(0.0d);
+        assertThat(underTest.getSliderValue()).isEqualTo(0.0d);
     }
 
     @Test
     public void shouldSetSliderValue() {
-        SliderProgressBar sliderProgressBar = new SliderProgressBar();
-        sliderProgressBar.setSliderValue(0.5);
+        SliderProgressBar underTest = new SliderProgressBar();
+        underTest.setSliderValue(0.5);
 
-        assertThat(sliderProgressBar.getSliderValue()).isEqualTo(0.5d);
+        assertThat(underTest.getSliderValue()).isEqualTo(0.5d);
     }
 
     @Test
     public void shouldGetProgressValue() {
-        SliderProgressBar sliderProgressBar = new SliderProgressBar();
+        SliderProgressBar underTest = new SliderProgressBar();
 
-        assertThat(sliderProgressBar.getProgressValue()).isEqualTo(0.0d);
+        assertThat(underTest.getProgressValue()).isEqualTo(0.0d);
     }
 
     @Test
     public void shouldSetProgressValue() {
-        SliderProgressBar sliderProgressBar = new SliderProgressBar();
-        sliderProgressBar.setProgressValue(50);
+        SliderProgressBar underTest = new SliderProgressBar();
+        underTest.setProgressValue(50);
 
-        assertThat(sliderProgressBar.getProgressValue()).isEqualTo(0.5d);
+        assertThat(underTest.getProgressValue()).isEqualTo(0.5d);
     }
 }

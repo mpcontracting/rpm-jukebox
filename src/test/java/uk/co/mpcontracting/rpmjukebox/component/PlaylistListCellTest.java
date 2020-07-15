@@ -16,102 +16,102 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
 
     @Test
     public void shouldUpdateItem() {
-        PlaylistListCell playlistListCell = new PlaylistListCell(new PlaylistStringConverter<>());
+        PlaylistListCell underTest = new PlaylistListCell(new PlaylistStringConverter<>());
 
-        playlistListCell.updateItem(new Playlist(1, "Playlist", 10), false);
+        underTest.updateItem(new Playlist(1, "Playlist", 10), false);
 
-        assertThat(playlistListCell.getText()).isEqualTo("Playlist");
-        assertThat(playlistListCell.isEditable()).isTrue();
+        assertThat(underTest.getText()).isEqualTo("Playlist");
+        assertThat(underTest.isEditable()).isTrue();
     }
 
     @Test
     public void shouldUpdateItemNotEditableWhenReservedPlaylist() {
-        PlaylistListCell playlistListCell = new PlaylistListCell(new PlaylistStringConverter<>());
+        PlaylistListCell underTest = new PlaylistListCell(new PlaylistStringConverter<>());
 
-        playlistListCell.updateItem(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10), false);
+        underTest.updateItem(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10), false);
 
-        assertThat(playlistListCell.getText()).isEqualTo("Favourites");
-        assertThat(playlistListCell.isEditable()).isFalse();
+        assertThat(underTest.getText()).isEqualTo("Favourites");
+        assertThat(underTest.isEditable()).isFalse();
     }
 
     @Test
     public void shouldUpdateItemAutoEditWhenGraphicIsTextField() {
-        PlaylistListCell spyPlaylistListCell = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
-        TextField mockTextField = mock(TextField.class);
-        when(spyPlaylistListCell.getGraphic()).thenReturn(mockTextField);
+        PlaylistListCell underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
+        TextField textField = mock(TextField.class);
+        when(underTest.getGraphic()).thenReturn(textField);
 
-        spyPlaylistListCell.updateItem(new Playlist(1, "Playlist", 10), false);
+        underTest.updateItem(new Playlist(1, "Playlist", 10), false);
 
-        assertThat(spyPlaylistListCell.getText()).isNull();
-        assertThat(spyPlaylistListCell.isEditable()).isTrue();
-        verify(mockTextField, times(1)).selectAll();
+        assertThat(underTest.getText()).isNull();
+        assertThat(underTest.isEditable()).isTrue();
+        verify(textField, times(1)).selectAll();
     }
 
     @Test
     public void shouldUpdateItemAsEmpty() {
-        PlaylistListCell spyPlaylistListCell = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
+        PlaylistListCell underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
 
-        spyPlaylistListCell.updateItem(new Playlist(1, "Playlist", 10), true);
+        underTest.updateItem(new Playlist(1, "Playlist", 10), true);
 
         // These are also set in the super class
-        verify(spyPlaylistListCell, times(2)).setText(null);
-        verify(spyPlaylistListCell, times(2)).setGraphic(null);
+        verify(underTest, times(2)).setText(null);
+        verify(underTest, times(2)).setGraphic(null);
     }
 
     @Test
     public void shouldStartEditAndCommit() {
-        PlaylistStringConverter<Playlist> converter = new PlaylistStringConverter<>();
-        converter.setPlaylist(new Playlist(1, "Playlist", 10));
+        PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
+        playlistStringConverter.setPlaylist(new Playlist(1, "Playlist", 10));
 
-        PlaylistListCell spyPlaylistListCell = spy(new PlaylistListCell(converter));
-        TextField spyTextField = spy(new TextField("Playlist Updated"));
-        ReflectionTestUtils.invokeMethod(spyTextField, "setFocused", true);
-        when(spyPlaylistListCell.getGraphic()).thenReturn(spyTextField);
+        PlaylistListCell underTest = spy(new PlaylistListCell(playlistStringConverter));
+        TextField textField = spy(new TextField("Playlist Updated"));
+        ReflectionTestUtils.invokeMethod(textField, "setFocused", true);
+        when(underTest.getGraphic()).thenReturn(textField);
 
         @SuppressWarnings("unchecked")
-        ListView<Playlist> mockListView = (ListView<Playlist>) mock(ListView.class);
-        when(mockListView.isEditable()).thenReturn(true);
-        when(spyPlaylistListCell.getListView()).thenReturn(mockListView);
+        ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
+        when(listView.isEditable()).thenReturn(true);
+        when(underTest.getListView()).thenReturn(listView);
 
-        spyPlaylistListCell.startEdit();
+        underTest.startEdit();
 
-        ReflectionTestUtils.invokeMethod(spyTextField, "setFocused", false);
+        ReflectionTestUtils.invokeMethod(textField, "setFocused", false);
 
         ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
 
-        verify(spyPlaylistListCell, times(1)).commitEdit(playlistCaptor.capture());
+        verify(underTest, times(1)).commitEdit(playlistCaptor.capture());
         assertThat(playlistCaptor.getValue().getName()).isEqualTo("Playlist Updated");
     }
 
     @Test
     public void shouldStartEditNoCommit() {
-        PlaylistListCell spyPlaylistListCell = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
-        TextField spyTextField = spy(new TextField("Playlist"));
-        when(spyPlaylistListCell.getGraphic()).thenReturn(spyTextField);
+        PlaylistListCell underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
+        TextField textField = spy(new TextField("Playlist"));
+        when(underTest.getGraphic()).thenReturn(textField);
 
         @SuppressWarnings("unchecked")
-        ListView<Playlist> mockListView = (ListView<Playlist>) mock(ListView.class);
-        when(mockListView.isEditable()).thenReturn(true);
-        when(spyPlaylistListCell.getListView()).thenReturn(mockListView);
+        ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
+        when(listView.isEditable()).thenReturn(true);
+        when(underTest.getListView()).thenReturn(listView);
 
-        spyPlaylistListCell.startEdit();
+        underTest.startEdit();
 
-        ReflectionTestUtils.invokeMethod(spyTextField, "setFocused", true);
+        ReflectionTestUtils.invokeMethod(textField, "setFocused", true);
 
-        verify(spyPlaylistListCell, never()).commitEdit(any());
+        verify(underTest, never()).commitEdit(any());
     }
 
     @Test
     public void shouldStartEditNoTextField() {
-        PlaylistListCell spyPlaylistListCell = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
+        PlaylistListCell underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
 
         @SuppressWarnings("unchecked")
-        ListView<Playlist> mockListView = (ListView<Playlist>) mock(ListView.class);
-        when(mockListView.isEditable()).thenReturn(true);
-        when(spyPlaylistListCell.getListView()).thenReturn(mockListView);
+        ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
+        when(listView.isEditable()).thenReturn(true);
+        when(underTest.getListView()).thenReturn(listView);
 
-        spyPlaylistListCell.startEdit();
+        underTest.startEdit();
 
-        verify(spyPlaylistListCell, never()).commitEdit(any());
+        verify(underTest, never()).commitEdit(any());
     }
 }

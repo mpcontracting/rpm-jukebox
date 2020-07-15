@@ -9,25 +9,25 @@ public class TrackTableCellTest extends AbstractGUITest {
 
     @Test
     public void shouldUpdateItem() {
-        TrackTableCell<String> trackTableCell = new TrackTableCell<>();
-        trackTableCell.updateItem("Value", false);
+        TrackTableCell<String> underTest = new TrackTableCell<>();
+        underTest.updateItem("Value", false);
 
-        assertThat(trackTableCell.getText()).isEqualTo("Value");
+        assertThat(underTest.getText()).isEqualTo("Value");
     }
 
     @Test
     public void shouldUpdateItemAsEmpty() {
-        TrackTableCell<String> trackTableCell = new TrackTableCell<>();
-        trackTableCell.updateItem("Value", true);
+        TrackTableCell<String> underTest = new TrackTableCell<>();
+        underTest.updateItem("Value", true);
 
-        assertThat(trackTableCell.getText()).isNull();
+        assertThat(underTest.getText()).isNull();
     }
 
     @Test
     public void shouldUpdateItemAsNull() {
-        TrackTableCell<String> trackTableCell = new TrackTableCell<>();
-        trackTableCell.updateItem(null, false);
+        TrackTableCell<String> underTest = new TrackTableCell<>();
+        underTest.updateItem(null, false);
 
-        assertThat(trackTableCell.getText()).isNull();
+        assertThat(underTest.getText()).isNull();
     }
 }

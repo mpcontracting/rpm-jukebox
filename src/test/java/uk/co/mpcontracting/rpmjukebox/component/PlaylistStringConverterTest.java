@@ -13,39 +13,39 @@ public class PlaylistStringConverterTest extends AbstractGUITest {
 
     @Test
     public void shouldSetPlaylist() {
-        Playlist mockPlaylist = mock(Playlist.class);
-        when(mockPlaylist.getPlaylistId()).thenReturn(1);
-        when(mockPlaylist.getName()).thenReturn("Playlist");
+        Playlist playlist = mock(Playlist.class);
+        when(playlist.getPlaylistId()).thenReturn(1);
+        when(playlist.getName()).thenReturn("Playlist");
 
-        PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
-        playlistStringConverter.setPlaylist(mockPlaylist);
+        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
+        underTest.setPlaylist(playlist);
 
-        Playlist playlist = (Playlist) getField(playlistStringConverter, "playlist");
-        String playlistName = (String) getField(playlistStringConverter, "originalName");
+        Playlist resultPlaylist = (Playlist) getField(underTest, "playlist");
+        String resultName = (String) getField(underTest, "originalName");
 
-        assertThat(playlist).isEqualTo(mockPlaylist);
-        assertThat(playlistName).isEqualTo("Playlist");
+        assertThat(resultPlaylist).isEqualTo(playlist);
+        assertThat(resultName).isEqualTo("Playlist");
     }
 
     @Test
     public void shouldGetToString() {
-        Playlist mockPlaylist = mock(Playlist.class);
-        when(mockPlaylist.getPlaylistId()).thenReturn(1);
-        when(mockPlaylist.getName()).thenReturn("Playlist");
+        Playlist playlist = mock(Playlist.class);
+        when(playlist.getPlaylistId()).thenReturn(1);
+        when(playlist.getName()).thenReturn("Playlist");
 
-        PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
+        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
 
-        assertThat(playlistStringConverter.toString(mockPlaylist)).isEqualTo("Playlist");
+        assertThat(underTest.toString(playlist)).isEqualTo("Playlist");
     }
 
     @Test
     public void shouldGetFromString() {
         Playlist playlist = new Playlist(5, "Playlist", 10);
 
-        PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
-        playlistStringConverter.setPlaylist(playlist);
+        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
+        underTest.setPlaylist(playlist);
 
-        Playlist result = playlistStringConverter.fromString("Playlist From String");
+        Playlist result = underTest.fromString("Playlist From String");
 
         assertThat(result.getPlaylistId()).isEqualTo(5);
         assertThat(result.getName()).isEqualTo("Playlist From String");
@@ -55,10 +55,10 @@ public class PlaylistStringConverterTest extends AbstractGUITest {
     public void shouldGetFromNullString() {
         Playlist playlist = new Playlist(5, "Playlist", 10);
 
-        PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
-        playlistStringConverter.setPlaylist(playlist);
+        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
+        underTest.setPlaylist(playlist);
 
-        Playlist result = playlistStringConverter.fromString(null);
+        Playlist result = underTest.fromString(null);
 
         assertThat(result.getPlaylistId()).isEqualTo(5);
         assertThat(result.getName()).isEqualTo("Playlist");
@@ -68,10 +68,10 @@ public class PlaylistStringConverterTest extends AbstractGUITest {
     public void shouldGetFromEmptyString() {
         Playlist playlist = new Playlist(5, "Playlist", 10);
 
-        PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
-        playlistStringConverter.setPlaylist(playlist);
+        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
+        underTest.setPlaylist(playlist);
 
-        Playlist result = playlistStringConverter.fromString(" ");
+        Playlist result = underTest.fromString(" ");
 
         assertThat(result.getPlaylistId()).isEqualTo(5);
         assertThat(result.getName()).isEqualTo("Playlist");

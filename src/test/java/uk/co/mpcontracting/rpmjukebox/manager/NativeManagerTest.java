@@ -31,22 +31,23 @@ import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getConfigDi
 public class NativeManagerTest {
 
     @Mock
-    private SettingsManager mockSettingsManager;
+    private SettingsManager settingsManager;
 
     @Mock
-    private Track mockTrack;
+    private Track track;
 
-    private NativeManager nativeManager;
-    private String nativeDylibLocation = "/native/NsUserNotificationsBridge.dylib";
-    private File nativeDirectory = new File(getConfigDirectory(), "native");
-    private ThreadRunner threadRunner = new TestThreadRunner(Executors.newSingleThreadExecutor());
+    private final String nativeDylibLocation = "/native/NsUserNotificationsBridge.dylib";
+    private final File nativeDirectory = new File(getConfigDirectory(), "native");
+    private final ThreadRunner threadRunner = new TestThreadRunner(Executors.newSingleThreadExecutor());
+
+    private NativeManager underTest;
 
     @Before
     public void setup() {
-        nativeManager = new NativeManager(threadRunner);
-        nativeManager.wireSettingsManager(mockSettingsManager);
+        underTest = new NativeManager(threadRunner);
+        underTest.wireSettingsManager(settingsManager);
 
-        when(mockSettingsManager.getFileFromConfigDirectory("native")).thenReturn(nativeDirectory);
+        when(settingsManager.getFileFromConfigDirectory("native")).thenReturn(nativeDirectory);
     }
 
     @Test
@@ -54,13 +55,13 @@ public class NativeManagerTest {
     public void shouldInitialiseNativeBridgeSuccessfullyOnOsx() {
         // This test only runs when being built on OSX
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
-            when(mockSettingsManager.getFileFromConfigDirectory(nativeDylibLocation)).thenReturn(
+            when(settingsManager.getOsType()).thenReturn(OsType.OSX);
+            when(settingsManager.getFileFromConfigDirectory(nativeDylibLocation)).thenReturn(
                     new ClassPathResource(nativeDylibLocation).getFile());
 
-            nativeManager.initialise();
+            underTest.initialise();
 
-            NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
+            NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(underTest,
                     "nsUserNotificationsBridge");
 
             assertThat(result).isNotNull();
@@ -72,14 +73,14 @@ public class NativeManagerTest {
     public void shouldInitialiseNativeBridgeSuccessfullyOnOsxDirectoryExists() {
         // This test only runs when being built on OSX
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
-            when(mockSettingsManager.getFileFromConfigDirectory(nativeDylibLocation)).thenReturn(
+            when(settingsManager.getOsType()).thenReturn(OsType.OSX);
+            when(settingsManager.getFileFromConfigDirectory(nativeDylibLocation)).thenReturn(
                     new ClassPathResource(nativeDylibLocation).getFile());
 
             nativeDirectory.mkdirs();
-            nativeManager.initialise();
+            underTest.initialise();
 
-            NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
+            NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(underTest,
                     "nsUserNotificationsBridge");
 
             assertThat(result).isNotNull();
@@ -88,11 +89,11 @@ public class NativeManagerTest {
 
     @Test
     public void shouldNotInitialiseNativeBridgeOnWindows() {
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
+        when(settingsManager.getOsType()).thenReturn(OsType.WINDOWS);
 
-        nativeManager.initialise();
+        underTest.initialise();
 
-        NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
+        NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(underTest,
                 "nsUserNotificationsBridge");
 
         assertThat(result).isNull();
@@ -100,11 +101,11 @@ public class NativeManagerTest {
 
     @Test
     public void shouldNotInitialiseNativeBridgeOnLinux() {
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.LINUX);
+        when(settingsManager.getOsType()).thenReturn(OsType.LINUX);
 
-        nativeManager.initialise();
+        underTest.initialise();
 
-        NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(nativeManager,
+        NsUserNotificationsBridge result = (NsUserNotificationsBridge) getField(underTest,
                 "nsUserNotificationsBridge");
 
         assertThat(result).isNull();
@@ -113,18 +114,18 @@ public class NativeManagerTest {
     @Test
     @SneakyThrows
     public void shouldDisplayNotificationOnOsx() {
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
+        when(settingsManager.getOsType()).thenReturn(OsType.OSX);
 
         AtomicBoolean notificationSent = new AtomicBoolean(false);
         CountDownLatch latch = new CountDownLatch(1);
-        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
+        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeOffset) -> {
             notificationSent.set(true);
             latch.countDown();
         };
 
-        setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
+        setField(underTest, "nsUserNotificationsBridge", nsUserNotificationsBridge);
 
-        nativeManager.displayNotification(mockTrack);
+        underTest.displayNotification(track);
         latch.await(2000, TimeUnit.MILLISECONDS);
 
         assertThat(notificationSent.get()).isTrue();
@@ -133,34 +134,34 @@ public class NativeManagerTest {
     @Test
     @SneakyThrows
     public void shouldHandleExceptionInDisplayNotificationOnOsx() {
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
+        when(settingsManager.getOsType()).thenReturn(OsType.OSX);
 
         CountDownLatch latch = new CountDownLatch(1);
-        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
+        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeOffset) -> {
             throw new Error("NativeManagerTest.shouldHandleExceptionInDisplayNotificationOnOsx()");
         };
 
-        setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
+        setField(underTest, "nsUserNotificationsBridge", nsUserNotificationsBridge);
 
-        nativeManager.displayNotification(mockTrack);
+        underTest.displayNotification(track);
         latch.await(500, TimeUnit.MILLISECONDS);
     }
 
     @Test
     @SneakyThrows
     public void shouldNotDisplayNotificationOnWindows() {
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
+        when(settingsManager.getOsType()).thenReturn(OsType.WINDOWS);
 
         AtomicBoolean notificationSent = new AtomicBoolean(false);
         CountDownLatch latch = new CountDownLatch(1);
-        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
+        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeOffset) -> {
             notificationSent.set(true);
             latch.countDown();
         };
 
-        setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
+        setField(underTest, "nsUserNotificationsBridge", nsUserNotificationsBridge);
 
-        nativeManager.displayNotification(mockTrack);
+        underTest.displayNotification(track);
         latch.await(2000, TimeUnit.MILLISECONDS);
 
         assertThat(notificationSent.get()).isFalse();
@@ -169,18 +170,18 @@ public class NativeManagerTest {
     @Test
     @SneakyThrows
     public void shouldNotDisplayNotificationOnLinux() {
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.LINUX);
+        when(settingsManager.getOsType()).thenReturn(OsType.LINUX);
 
         AtomicBoolean notificationSent = new AtomicBoolean(false);
         CountDownLatch latch = new CountDownLatch(1);
-        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeoffset) -> {
+        NsUserNotificationsBridge nsUserNotificationsBridge = (title, subtitle, text, timeOffset) -> {
             notificationSent.set(true);
             latch.countDown();
         };
 
-        setField(nativeManager, "nsUserNotificationsBridge", nsUserNotificationsBridge);
+        setField(underTest, "nsUserNotificationsBridge", nsUserNotificationsBridge);
 
-        nativeManager.displayNotification(mockTrack);
+        underTest.displayNotification(track);
         latch.await(2000, TimeUnit.MILLISECONDS);
 
         assertThat(notificationSent.get()).isFalse();

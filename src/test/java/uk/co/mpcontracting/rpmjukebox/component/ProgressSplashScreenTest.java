@@ -13,20 +13,20 @@ public class ProgressSplashScreenTest extends AbstractGUITest {
 
     @Test
     public void shouldGetParent() {
-        ProgressSplashScreen splashScreen = new ProgressSplashScreen();
-        Parent parent = splashScreen.getParent();
+        ProgressSplashScreen underTest = new ProgressSplashScreen();
+        Parent parent = underTest.getParent();
 
         assertThat(parent).isNotNull();
     }
 
     @Test
     public void shouldUpdateProgress() {
-        ProgressSplashScreen splashScreen = new ProgressSplashScreen();
-        Label mockProgressLabel = mock(Label.class);
-        setField(splashScreen, "progressLabel", mockProgressLabel);
+        ProgressSplashScreen underTest = new ProgressSplashScreen();
+        Label label = mock(Label.class);
+        setField(underTest, "progressLabel", label);
 
-        splashScreen.updateProgress("Test message");
+        underTest.updateProgress("Test message");
 
-        verify(mockProgressLabel, times(1)).setText("Test message");
+        verify(label, times(1)).setText("Test message");
     }
 }

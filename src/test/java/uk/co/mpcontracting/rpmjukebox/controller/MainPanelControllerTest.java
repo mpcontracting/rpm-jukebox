@@ -79,61 +79,62 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     private MessageManager messageManager;
 
     @Mock
-    private ImageFactory mockImageFactory;
+    private ImageFactory imageFactory;
 
     @Mock
-    private EqualizerView mockEqualizerView;
+    private EqualizerView equalizerView;
 
     @Mock
-    private SettingsView mockSettingsView;
+    private SettingsView settingsView;
 
     @Mock
-    private ExportView mockExportView;
+    private ExportView exportView;
 
     @Mock
-    private MessageView mockMessageView;
+    private MessageView messageView;
 
     @Mock
-    private ConfirmView mockConfirmView;
+    private ConfirmView confirmView;
 
     @Mock
-    private TrackTableView mockTrackTableView;
+    private TrackTableView trackTableView;
 
     @Mock
-    private TrackTableController mockTrackTableController;
+    private TrackTableController trackTableController;
 
     @Mock
-    private EqualizerController mockEqualizerController;
+    private EqualizerController equalizerController;
 
     @Mock
-    private SettingsController mockSettingsController;
+    private SettingsController settingsController;
 
     @Mock
-    private ExportController mockExportController;
+    private ExportController exportController;
 
     @Mock
-    private SettingsManager mockSettingsManager;
+    private SettingsManager settingsManager;
 
     @Mock
-    private SearchManager mockSearchManager;
+    private SearchManager searchManager;
 
     @Mock
-    private PlaylistManager mockPlaylistManager;
+    private PlaylistManager playlistManager;
 
     @Mock
-    private MediaManager mockMediaManager;
+    private MediaManager mediaManager;
 
     @Mock
-    private CacheManager mockCacheManager;
+    private CacheManager cacheManager;
 
     @Mock
-    private NativeManager mockNativeManager;
+    private NativeManager nativeManager;
 
     @Mock
-    private UpdateManager mockUpdateManager;
+    private UpdateManager updateManager;
 
+    private MainPanelController underTest;
     private Stage existingStage;
-    private Parent mockRoot;
+    private Parent root;
 
     @SneakyThrows
     @PostConstruct
@@ -147,32 +148,32 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void setup() {
         existingStage = GUIState.getStage();
 
-        Stage mockStage = mock(Stage.class);
-        Scene mockScene = mock(Scene.class);
-        mockRoot = mock(Parent.class);
-        when(mockStage.getScene()).thenReturn(mockScene);
-        when(mockScene.getRoot()).thenReturn(mockRoot);
-        setField(GUIState.class, "stage", mockStage);
+        Stage stage = mock(Stage.class);
+        Scene scene = mock(Scene.class);
+        root = mock(Parent.class);
+        when(stage.getScene()).thenReturn(scene);
+        when(scene.getRoot()).thenReturn(root);
+        setField(GUIState.class, "stage", stage);
 
-        setField(mainPanelController, "imageFactory", mockImageFactory);
+        setField(mainPanelController, "imageFactory", imageFactory);
         setField(mainPanelController, "eventManager", getMockEventManager());
-        setField(mainPanelController, "equalizerView", mockEqualizerView);
-        setField(mainPanelController, "settingsView", mockSettingsView);
-        setField(mainPanelController, "exportView", mockExportView);
-        setField(mainPanelController, "messageView", mockMessageView);
-        setField(mainPanelController, "confirmView", mockConfirmView);
-        setField(mainPanelController, "trackTableView", mockTrackTableView);
-        setField(mainPanelController, "trackTableController", mockTrackTableController);
-        setField(mainPanelController, "equalizerController", mockEqualizerController);
-        setField(mainPanelController, "settingsController", mockSettingsController);
-        setField(mainPanelController, "exportController", mockExportController);
-        setField(mainPanelController, "settingsManager", mockSettingsManager);
-        setField(mainPanelController, "searchManager", mockSearchManager);
-        setField(mainPanelController, "playlistManager", mockPlaylistManager);
-        setField(mainPanelController, "mediaManager", mockMediaManager);
-        setField(mainPanelController, "cacheManager", mockCacheManager);
-        setField(mainPanelController, "nativeManager", mockNativeManager);
-        setField(mainPanelController, "updateManager", mockUpdateManager);
+        setField(mainPanelController, "equalizerView", equalizerView);
+        setField(mainPanelController, "settingsView", settingsView);
+        setField(mainPanelController, "exportView", exportView);
+        setField(mainPanelController, "messageView", messageView);
+        setField(mainPanelController, "confirmView", confirmView);
+        setField(mainPanelController, "trackTableView", trackTableView);
+        setField(mainPanelController, "trackTableController", trackTableController);
+        setField(mainPanelController, "equalizerController", equalizerController);
+        setField(mainPanelController, "settingsController", settingsController);
+        setField(mainPanelController, "exportController", exportController);
+        setField(mainPanelController, "settingsManager", settingsManager);
+        setField(mainPanelController, "searchManager", searchManager);
+        setField(mainPanelController, "playlistManager", playlistManager);
+        setField(mainPanelController, "mediaManager", mediaManager);
+        setField(mainPanelController, "cacheManager", cacheManager);
+        setField(mainPanelController, "nativeManager", nativeManager);
+        setField(mainPanelController, "updateManager", updateManager);
 
         threadRunner.runOnGui(() -> {
             ((TextField) getNonNullField(mainPanelController, "searchTextField")).setText(null);
@@ -182,45 +183,48 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        reset(mockSearchManager);
-        reset(mockPlaylistManager);
+        reset(searchManager);
+        reset(playlistManager);
+        reset(getMockEventManager());
+
+        underTest = spy(mainPanelController);
     }
 
     @Test
     @SneakyThrows
     public void shouldShowMessageView() {
-        mainPanelController.showMessageView("Message", true);
+        underTest.showMessageView("Message", true);
 
         // Wait for the UI thread
         Thread.sleep(250);
 
-        verify(mockMessageView, times(1)).setMessage("Message");
-        verify(mockMessageView, times(1)).show(anyBoolean());
+        verify(messageView, times(1)).setMessage("Message");
+        verify(messageView, times(1)).show(anyBoolean());
     }
 
     @Test
     @SneakyThrows
     public void shouldShowMessageViewAlreadyShowing() {
-        when(mockMessageView.isShowing()).thenReturn(true);
+        when(messageView.isShowing()).thenReturn(true);
 
-        mainPanelController.showMessageView("Message", true);
+        underTest.showMessageView("Message", true);
 
         // Wait for the UI thread
         Thread.sleep(250);
 
-        verify(mockMessageView, times(1)).setMessage("Message");
-        verify(mockMessageView, never()).show(anyBoolean());
+        verify(messageView, times(1)).setMessage("Message");
+        verify(messageView, never()).show(anyBoolean());
     }
 
     @Test
     @SneakyThrows
     public void shouldCloseMessageView() {
-        mainPanelController.closeMessageView();
+        underTest.closeMessageView();
 
         // Wait for the UI thread
         Thread.sleep(250);
 
-        verify(mockMessageView, times(1)).close();
+        verify(messageView, times(1)).close();
     }
 
     @Test
@@ -229,38 +233,38 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Runnable okRunnable = mock(Runnable.class);
         Runnable cancelRunnable = mock(Runnable.class);
 
-        mainPanelController.showConfirmView("Message", true, okRunnable, cancelRunnable);
+        underTest.showConfirmView("Message", true, okRunnable, cancelRunnable);
 
         // Wait for the UI thread
         Thread.sleep(250);
 
-        verify(mockConfirmView, times(1)).setMessage("Message");
-        verify(mockConfirmView, times(1)).setRunnables(okRunnable, cancelRunnable);
-        verify(mockConfirmView, times(1)).show(anyBoolean());
+        verify(confirmView, times(1)).setMessage("Message");
+        verify(confirmView, times(1)).setRunnables(okRunnable, cancelRunnable);
+        verify(confirmView, times(1)).show(anyBoolean());
     }
 
     @Test
     @SneakyThrows
     public void shouldShowConfirmViewAlreadyShowing() {
-        when(mockConfirmView.isShowing()).thenReturn(true);
+        when(confirmView.isShowing()).thenReturn(true);
 
         Runnable okRunnable = mock(Runnable.class);
         Runnable cancelRunnable = mock(Runnable.class);
 
-        mainPanelController.showConfirmView("Message", true, okRunnable, cancelRunnable);
+        underTest.showConfirmView("Message", true, okRunnable, cancelRunnable);
 
         // Wait for the UI thread
         Thread.sleep(250);
 
-        verify(mockConfirmView, times(1)).setMessage("Message");
-        verify(mockConfirmView, times(1)).setRunnables(okRunnable, cancelRunnable);
-        verify(mockConfirmView, never()).show(anyBoolean());
+        verify(confirmView, times(1)).setMessage("Message");
+        verify(confirmView, times(1)).setRunnables(okRunnable, cancelRunnable);
+        verify(confirmView, never()).show(anyBoolean());
     }
 
     @Test
     @SneakyThrows
     public void shouldUpdateSearchTextSearchCriteria() {
-        TextField searchTextField = (TextField) getNonNullField(mainPanelController, "searchTextField");
+        TextField searchTextField = (TextField) getNonNullField(underTest, "searchTextField");
 
         threadRunner.runOnGui(() -> searchTextField.setText("Search"));
 
@@ -268,7 +272,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         TrackSearch trackSearch = new TrackSearch("Search");
 
-        verify(mockSearchManager, times(1)).search(trackSearch);
+        verify(searchManager, times(1)).search(trackSearch);
         verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
     }
 
@@ -276,7 +280,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @SneakyThrows
     public void shouldUpdateYearFilterSearchCriteria() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
@@ -285,7 +289,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, Collections.emptyList());
+        verify(playlistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, Collections.emptyList());
         verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
     }
 
@@ -293,17 +297,17 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @SneakyThrows
     public void shouldUpdateYearFilterAndSearchTextSearchCriteria() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
 
-        TextField searchTextField = (TextField) getNonNullField(mainPanelController, "searchTextField");
+        TextField searchTextField = (TextField) getNonNullField(underTest, "searchTextField");
 
         threadRunner.runOnGui(() -> {
             yearFilterComboBox.getSelectionModel().select(1);
 
-            reset(mockPlaylistManager);
+            reset(playlistManager);
 
             searchTextField.setText("Search");
         });
@@ -312,7 +316,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         TrackSearch trackSearch = new TrackSearch("Search", new TrackFilter(null, "2001"));
 
-        verify(mockSearchManager, times(1)).search(trackSearch);
+        verify(searchManager, times(1)).search(trackSearch);
         verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
     }
 
@@ -320,25 +324,25 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @SneakyThrows
     public void shouldUpdatePlayingPlaylistOnYearFilterUpdate() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
         yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
         yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
 
         @SuppressWarnings("unchecked")
-        List<Track> mockTracks = mock(List.class);
+        List<Track> tracks = mock(List.class);
 
-        Playlist mockPlaylist = mock(Playlist.class);
-        when(mockPlaylist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
-        when(mockPlaylist.getTracks()).thenReturn(mockTracks);
-        when(mockPlaylistManager.getPlayingPlaylist()).thenReturn(mockPlaylist);
+        Playlist playlist = mock(Playlist.class);
+        when(playlist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
+        when(playlist.getTracks()).thenReturn(tracks);
+        when(playlistManager.getPlayingPlaylist()).thenReturn(playlist);
 
         threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().select(1));
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, mockTracks);
-        verify(mockPlaylist, times(1)).getTracks();
+        verify(playlistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, tracks);
+        verify(playlist, times(1)).getTracks();
         verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
     }
 
@@ -346,14 +350,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldClickNewVersionButton() {
         clickOnNode("#newVersionButton");
 
-        verify(mockUpdateManager, times(1)).downloadNewVersion();
+        verify(updateManager, times(1)).downloadNewVersion();
     }
 
     @Test
     public void shouldClickAddPlaylistButton() {
         clickOnNode("#addPlaylistButton");
 
-        verify(mockPlaylistManager, times(1)).createPlaylist();
+        verify(playlistManager, times(1)).createPlaylist();
     }
 
     @Test
@@ -373,14 +377,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
-        verify(mockConfirmView, times(1))
+        verify(confirmView, times(1))
                 .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
-        verify(mockConfirmView, times(1)).setRunnables(okRunnable.capture(), any());
-        verify(mockConfirmView, times(1)).show(anyBoolean());
+        verify(confirmView, times(1)).setRunnables(okRunnable.capture(), any());
+        verify(confirmView, times(1)).show(anyBoolean());
 
         okRunnable.getValue().run();
 
-        verify(mockPlaylistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
+        verify(playlistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
     }
 
     @Test
@@ -398,7 +402,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         clickOnNode("#deletePlaylistButton");
 
-        verify(mockConfirmView, never()).show(anyBoolean());
+        verify(confirmView, never()).show(anyBoolean());
     }
 
     @Test
@@ -412,13 +416,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         clickOnNode("#deletePlaylistButton");
 
-        verify(mockConfirmView, never()).show(anyBoolean());
+        verify(confirmView, never()).show(anyBoolean());
     }
 
     @Test
     @SneakyThrows
     public void shouldClickImportPlaylistButton() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         threadRunner.runOnGui(() -> {
@@ -428,55 +431,54 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        FileChooser mockFileChooser = mock(FileChooser.class);
-        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        FileChooser fileChooser = mock(FileChooser.class);
+        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
 
-        File mockFile = mock(File.class);
-        when(mockFileChooser.showOpenDialog(any())).thenReturn(mockFile);
-        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+        File file = mock(File.class);
+        when(fileChooser.showOpenDialog(any())).thenReturn(file);
+        doReturn(fileChooser).when(underTest).constructFileChooser();
 
-        FileReader mockFileReader = mock(FileReader.class);
-        doReturn(mockFileReader).when(spyMainPanelController).constructFileReader(any());
+        FileReader fileReader = mock(FileReader.class);
+        doReturn(fileReader).when(underTest).constructFileReader(any());
 
-        Gson mockGson = mock(Gson.class);
-        when(mockSettingsManager.getGson()).thenReturn(mockGson);
+        Gson gson = mock(Gson.class);
+        when(settingsManager.getGson()).thenReturn(gson);
 
         Playlist playlist = new Playlist(1, "Playlist", 10);
         for (int i = 0; i < 10; i++) {
-            Track mockTrack = mock(Track.class);
-            when(mockTrack.getTrackId()).thenReturn(Integer.toString(i));
+            Track track = mock(Track.class);
+            when(track.getTrackId()).thenReturn(Integer.toString(i));
 
-            playlist.addTrack(mockTrack);
-            when(mockSearchManager.getTrackById(Integer.toString(i))).thenReturn(of(mockTrack));
+            playlist.addTrack(track);
+            when(searchManager.getTrackById(Integer.toString(i))).thenReturn(of(track));
         }
 
         List<PlaylistSettings> playlistSettings = new ArrayList<>();
         playlistSettings.add(new PlaylistSettings(playlist));
 
-        when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
+        when(gson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
 
-        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
+        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
 
         WaitForAsyncUtils.waitForFxEvents();
 
         ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
 
-        verify(mockPlaylistManager, times(1)).addPlaylist(playlistCaptor.capture());
+        verify(playlistManager, times(1)).addPlaylist(playlistCaptor.capture());
 
         Playlist result = playlistCaptor.getValue();
 
         assertThat(result).isEqualTo(playlist);
         assertThat(result.getTracks()).hasSize(playlist.getTracks().size());
 
-        verify(mockPlaylistManager, times(1)).getPlaylists();
-        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(mockRoot, times(1)).setEffect(null);
+        verify(playlistManager, times(1)).getPlaylists();
+        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(root, times(1)).setEffect(null);
     }
 
     @Test
     @SneakyThrows
     public void shouldClickImportPlaylistButtonWithNullTracksFromSearch() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         threadRunner.runOnGui(() -> {
@@ -486,55 +488,54 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        FileChooser mockFileChooser = mock(FileChooser.class);
-        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        FileChooser fileChooser = mock(FileChooser.class);
+        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
 
-        File mockFile = mock(File.class);
-        when(mockFileChooser.showOpenDialog(any())).thenReturn(mockFile);
-        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+        File file = mock(File.class);
+        when(fileChooser.showOpenDialog(any())).thenReturn(file);
+        doReturn(fileChooser).when(underTest).constructFileChooser();
 
-        FileReader mockFileReader = mock(FileReader.class);
-        doReturn(mockFileReader).when(spyMainPanelController).constructFileReader(any());
+        FileReader fileReader = mock(FileReader.class);
+        doReturn(fileReader).when(underTest).constructFileReader(any());
 
-        Gson mockGson = mock(Gson.class);
-        when(mockSettingsManager.getGson()).thenReturn(mockGson);
+        Gson gson = mock(Gson.class);
+        when(settingsManager.getGson()).thenReturn(gson);
 
         Playlist playlist = new Playlist(1, "Playlist", 10);
         for (int i = 0; i < 10; i++) {
-            Track mockTrack = mock(Track.class);
-            when(mockTrack.getTrackId()).thenReturn(Integer.toString(i));
+            Track track = mock(Track.class);
+            when(track.getTrackId()).thenReturn(Integer.toString(i));
 
-            playlist.addTrack(mockTrack);
+            playlist.addTrack(track);
         }
 
         List<PlaylistSettings> playlistSettings = new ArrayList<>();
         playlistSettings.add(new PlaylistSettings(playlist));
 
-        when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
-        when(mockSearchManager.getTrackById(any())).thenReturn(empty());
+        when(gson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
+        when(searchManager.getTrackById(any())).thenReturn(empty());
 
-        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
+        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
 
         WaitForAsyncUtils.waitForFxEvents();
 
         ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
 
-        verify(mockPlaylistManager, times(1)).addPlaylist(playlistCaptor.capture());
+        verify(playlistManager, times(1)).addPlaylist(playlistCaptor.capture());
 
         Playlist result = playlistCaptor.getValue();
 
         assertThat(result).isEqualTo(playlist);
         assertThat(result.getTracks()).isEmpty();
 
-        verify(mockPlaylistManager, times(1)).getPlaylists();
-        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(mockRoot, times(1)).setEffect(null);
+        verify(playlistManager, times(1)).getPlaylists();
+        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(root, times(1)).setEffect(null);
     }
 
     @Test
     @SneakyThrows
     public void shouldClickImportPlaylistButtonWithNullPlaylistSettings() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         threadRunner.runOnGui(() -> {
@@ -544,34 +545,33 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        FileChooser mockFileChooser = mock(FileChooser.class);
-        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        FileChooser fileChooser = mock(FileChooser.class);
+        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
 
-        File mockFile = mock(File.class);
-        when(mockFileChooser.showOpenDialog(any())).thenReturn(mockFile);
-        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+        File file = mock(File.class);
+        when(fileChooser.showOpenDialog(any())).thenReturn(file);
+        doReturn(fileChooser).when(underTest).constructFileChooser();
 
-        FileReader mockFileReader = mock(FileReader.class);
-        doReturn(mockFileReader).when(spyMainPanelController).constructFileReader(any());
+        FileReader fileReader = mock(FileReader.class);
+        doReturn(fileReader).when(underTest).constructFileReader(any());
 
-        Gson mockGson = mock(Gson.class);
-        when(mockSettingsManager.getGson()).thenReturn(mockGson);
-        when(mockGson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(null);
+        Gson gson = mock(Gson.class);
+        when(settingsManager.getGson()).thenReturn(gson);
+        when(gson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(null);
 
-        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
+        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(mockPlaylistManager, never()).addPlaylist(any());
-        verify(mockPlaylistManager, never()).getPlaylists();
-        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(mockRoot, times(1)).setEffect(null);
+        verify(playlistManager, never()).addPlaylist(any());
+        verify(playlistManager, never()).getPlaylists();
+        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(root, times(1)).setEffect(null);
     }
 
     @Test
     @SneakyThrows
     public void shouldClickImportPlaylistButtonWithNullFile() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         threadRunner.runOnGui(() -> {
@@ -581,25 +581,24 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        FileChooser mockFileChooser = mock(FileChooser.class);
-        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
-        when(mockFileChooser.showOpenDialog(any())).thenReturn(null);
-        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+        FileChooser fileChooser = mock(FileChooser.class);
+        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        when(fileChooser.showOpenDialog(any())).thenReturn(null);
+        doReturn(fileChooser).when(underTest).constructFileChooser();
 
-        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
+        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(mockPlaylistManager, never()).addPlaylist(any());
-        verify(mockPlaylistManager, never()).getPlaylists();
-        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(mockRoot, times(1)).setEffect(null);
+        verify(playlistManager, never()).addPlaylist(any());
+        verify(playlistManager, never()).getPlaylists();
+        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(root, times(1)).setEffect(null);
     }
 
     @Test
     @SneakyThrows
     public void shouldClickImportPlaylistButtonWhenExceptionThrown() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
         threadRunner.runOnGui(() -> {
@@ -609,152 +608,152 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        FileChooser mockFileChooser = mock(FileChooser.class);
-        when(mockFileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+        FileChooser fileChooser = mock(FileChooser.class);
+        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
 
-        File mockFile = mock(File.class);
-        when(mockFileChooser.showOpenDialog(any())).thenReturn(mockFile);
-        doReturn(mockFileChooser).when(spyMainPanelController).constructFileChooser();
+        File file = mock(File.class);
+        when(fileChooser.showOpenDialog(any())).thenReturn(file);
+        doReturn(fileChooser).when(underTest).constructFileChooser();
 
         doThrow(new RuntimeException("MainPanelControllerTest.shouldClickImportPlaylistButtonWhenExceptionThrown()"))
-                .when(spyMainPanelController).constructFileReader(any());
+                .when(underTest).constructFileReader(any());
 
-        threadRunner.runOnGui(spyMainPanelController::handleImportPlaylistButtonAction);
+        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(mockPlaylistManager, never()).addPlaylist(any());
-        verify(mockPlaylistManager, never()).getPlaylists();
-        verify(mockRoot, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(mockRoot, times(1)).setEffect(null);
+        verify(playlistManager, never()).addPlaylist(any());
+        verify(playlistManager, never()).getPlaylists();
+        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
+        verify(root, times(1)).setEffect(null);
     }
 
     @Test
     public void shouldClickExportPlaylistButton() {
         clickOnNode("#exportPlaylistButton");
 
-        verify(mockExportController, times(1)).bindPlaylists();
-        verify(mockExportView, times(1)).show(true);
+        verify(exportController, times(1)).bindPlaylists();
+        verify(exportView, times(1)).show(true);
     }
 
     @Test
     public void shouldClickSettingsButton() {
         clickOnNode("#settingsButton");
 
-        verify(mockSettingsController, times(1)).bindSystemSettings();
-        verify(mockSettingsView, times(1)).show(true);
+        verify(settingsController, times(1)).bindSystemSettings();
+        verify(settingsView, times(1)).show(true);
     }
 
     @Test
     public void shouldClickPreviousButton() {
         clickOnNode("#previousButton");
 
-        verify(mockMediaManager, never()).setSeekPositionPercent(0d);
-        verify(mockPlaylistManager, times(1)).playPreviousTrack(true);
+        verify(mediaManager, never()).setSeekPositionPercent(0d);
+        verify(playlistManager, times(1)).playPreviousTrack(true);
     }
 
     @Test
     public void shouldClickPreviousButtonWhenPlayingLessThanEqualCutoff() {
-        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn((double) appProperties.getPreviousSecondsCutoff());
+        when(mediaManager.getPlayingTimeSeconds()).thenReturn((double) appProperties.getPreviousSecondsCutoff());
 
         clickOnNode("#previousButton");
 
-        verify(mockMediaManager, never()).setSeekPositionPercent(0d);
-        verify(mockPlaylistManager, times(1)).playPreviousTrack(true);
+        verify(mediaManager, never()).setSeekPositionPercent(0d);
+        verify(playlistManager, times(1)).playPreviousTrack(true);
     }
 
     @Test
     public void shouldClickPreviousButtonWhenPlayingGreaterThanCutoff() {
-        when(mockMediaManager.getPlayingTimeSeconds()).thenReturn(appProperties.getPreviousSecondsCutoff() + 1d);
+        when(mediaManager.getPlayingTimeSeconds()).thenReturn(appProperties.getPreviousSecondsCutoff() + 1d);
 
         clickOnNode("#previousButton");
 
-        verify(mockMediaManager, times(1)).setSeekPositionPercent(0d);
-        verify(mockPlaylistManager, never()).playPreviousTrack(true);
+        verify(mediaManager, times(1)).setSeekPositionPercent(0d);
+        verify(playlistManager, never()).playPreviousTrack(true);
     }
 
     @Test
     public void shouldClickPlayPauseButton() {
-        Playlist mockPlaylist = mock(Playlist.class);
-        when(mockPlaylist.isEmpty()).thenReturn(true);
-        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(of(mockPlaylist));
+        Playlist playlist = mock(Playlist.class);
+        when(playlist.isEmpty()).thenReturn(true);
+        when(playlistManager.getPlaylist(anyInt())).thenReturn(of(playlist));
 
         clickOnNode("#playPauseButton");
 
-        verify(mockPlaylistManager, never()).pauseCurrentTrack();
-        verify(mockPlaylistManager, never()).resumeCurrentTrack();
-        verify(mockPlaylistManager, never()).playPlaylist(anyInt());
-        verify(mockPlaylistManager, times(1)).playCurrentTrack(true);
+        verify(playlistManager, never()).pauseCurrentTrack();
+        verify(playlistManager, never()).resumeCurrentTrack();
+        verify(playlistManager, never()).playPlaylist(anyInt());
+        verify(playlistManager, times(1)).playCurrentTrack(true);
     }
 
     @Test
     public void shouldClickPlayPauseButtonWhenPlaying() {
-        when(mockMediaManager.isPlaying()).thenReturn(true);
+        when(mediaManager.isPlaying()).thenReturn(true);
 
         clickOnNode("#playPauseButton");
 
-        verify(mockPlaylistManager, times(1)).pauseCurrentTrack();
-        verify(mockPlaylistManager, never()).resumeCurrentTrack();
-        verify(mockPlaylistManager, never()).playPlaylist(anyInt());
-        verify(mockPlaylistManager, never()).playCurrentTrack(true);
+        verify(playlistManager, times(1)).pauseCurrentTrack();
+        verify(playlistManager, never()).resumeCurrentTrack();
+        verify(playlistManager, never()).playPlaylist(anyInt());
+        verify(playlistManager, never()).playCurrentTrack(true);
     }
 
     @Test
     public void shouldClickPlayPauseButtonWhenPaused() {
-        when(mockMediaManager.isPaused()).thenReturn(true);
+        when(mediaManager.isPaused()).thenReturn(true);
 
         clickOnNode("#playPauseButton");
 
-        verify(mockPlaylistManager, never()).pauseCurrentTrack();
-        verify(mockPlaylistManager, times(1)).resumeCurrentTrack();
-        verify(mockPlaylistManager, never()).playPlaylist(anyInt());
-        verify(mockPlaylistManager, never()).playCurrentTrack(true);
+        verify(playlistManager, never()).pauseCurrentTrack();
+        verify(playlistManager, times(1)).resumeCurrentTrack();
+        verify(playlistManager, never()).playPlaylist(anyInt());
+        verify(playlistManager, never()).playCurrentTrack(true);
     }
 
     @Test
     public void shouldClickPlayPauseButtonWhenPlaylistSelected() {
-        Playlist mockPlaylist = mock(Playlist.class);
-        when(mockPlaylist.isEmpty()).thenReturn(false);
-        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(of(mockPlaylist));
-        when(mockPlaylistManager.getSelectedTrack()).thenReturn(null);
+        Playlist playlist = mock(Playlist.class);
+        when(playlist.isEmpty()).thenReturn(false);
+        when(playlistManager.getPlaylist(anyInt())).thenReturn(of(playlist));
+        when(playlistManager.getSelectedTrack()).thenReturn(null);
 
         clickOnNode("#playPauseButton");
 
-        verify(mockPlaylistManager, never()).pauseCurrentTrack();
-        verify(mockPlaylistManager, never()).resumeCurrentTrack();
-        verify(mockPlaylistManager, times(1)).playPlaylist(anyInt());
-        verify(mockPlaylistManager, never()).playCurrentTrack(true);
+        verify(playlistManager, never()).pauseCurrentTrack();
+        verify(playlistManager, never()).resumeCurrentTrack();
+        verify(playlistManager, times(1)).playPlaylist(anyInt());
+        verify(playlistManager, never()).playCurrentTrack(true);
     }
 
     @Test
     public void shouldClickPlayPauseButtonWhenPlaylistAndTrackSelected() {
-        Playlist mockPlaylist = mock(Playlist.class);
-        when(mockPlaylist.isEmpty()).thenReturn(false);
-        when(mockPlaylistManager.getPlaylist(anyInt())).thenReturn(of(mockPlaylist));
-        when(mockPlaylistManager.getSelectedTrack()).thenReturn(mock(Track.class));
+        Playlist playlist = mock(Playlist.class);
+        when(playlist.isEmpty()).thenReturn(false);
+        when(playlistManager.getPlaylist(anyInt())).thenReturn(of(playlist));
+        when(playlistManager.getSelectedTrack()).thenReturn(mock(Track.class));
 
         clickOnNode("#playPauseButton");
 
-        verify(mockPlaylistManager, never()).pauseCurrentTrack();
-        verify(mockPlaylistManager, never()).resumeCurrentTrack();
-        verify(mockPlaylistManager, never()).playPlaylist(anyInt());
-        verify(mockPlaylistManager, times(1)).playCurrentTrack(true);
+        verify(playlistManager, never()).pauseCurrentTrack();
+        verify(playlistManager, never()).resumeCurrentTrack();
+        verify(playlistManager, never()).playPlaylist(anyInt());
+        verify(playlistManager, times(1)).playCurrentTrack(true);
     }
 
     @Test
     public void shouldClickNextButton() {
         clickOnNode("#nextButton");
 
-        verify(mockPlaylistManager, times(1)).playNextTrack(true);
+        verify(playlistManager, times(1)).playNextTrack(true);
     }
 
     @Test
     public void shouldClickVolumeButtonWhenMuted() {
-        when(mockMediaManager.isMuted()).thenReturn(true);
+        when(mediaManager.isMuted()).thenReturn(true);
 
         clickOnNode("#volumeButton");
 
-        verify(mockMediaManager, times(1)).setMuted();
+        verify(mediaManager, times(1)).setMuted();
 
         Button volumeButton = find("#volumeButton");
         assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')");
@@ -762,11 +761,11 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Test
     public void shouldClickVolumeButtonWhenNotMuted() {
-        when(mockMediaManager.isMuted()).thenReturn(false);
+        when(mediaManager.isMuted()).thenReturn(false);
 
         clickOnNode("#volumeButton");
 
-        verify(mockMediaManager, times(1)).setMuted();
+        verify(mediaManager, times(1)).setMuted();
 
         Button volumeButton = find("#volumeButton");
         assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')");
@@ -774,11 +773,11 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Test
     public void shouldClickShuffleButtonWhenShuffled() {
-        when(mockPlaylistManager.isShuffle()).thenReturn(true);
+        when(playlistManager.isShuffle()).thenReturn(true);
 
         clickOnNode("#shuffleButton");
 
-        verify(mockPlaylistManager, times(1)).setShuffle(false, false);
+        verify(playlistManager, times(1)).setShuffle(false, false);
 
         Button shuffleButton = find("#shuffleButton");
         assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')");
@@ -786,11 +785,11 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Test
     public void shouldClickShuffleButtonWhenNotShuffled() {
-        when(mockPlaylistManager.isShuffle()).thenReturn(false);
+        when(playlistManager.isShuffle()).thenReturn(false);
 
         clickOnNode("#shuffleButton");
 
-        verify(mockPlaylistManager, times(1)).setShuffle(true, false);
+        verify(playlistManager, times(1)).setShuffle(true, false);
 
         Button shuffleButton = find("#shuffleButton");
         assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
@@ -798,11 +797,11 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Test
     public void shouldClickRepeatButtonWhenRepeatOff() {
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
 
         clickOnNode("#repeatButton");
 
-        verify(mockPlaylistManager, times(1)).updateRepeat();
+        verify(playlistManager, times(1)).updateRepeat();
 
         Button repeatButton = find("#repeatButton");
         assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
@@ -810,11 +809,11 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Test
     public void shouldClickRepeatButtonWhenRepeatOne() {
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ONE);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.ONE);
 
         clickOnNode("#repeatButton");
 
-        verify(mockPlaylistManager, times(1)).updateRepeat();
+        verify(playlistManager, times(1)).updateRepeat();
 
         Button repeatButton = find("#repeatButton");
         assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_ONE + "')");
@@ -822,11 +821,11 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
     @Test
     public void shouldClickRepeatButtonWhenRepeatAll() {
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.ALL);
 
         clickOnNode("#repeatButton");
 
-        verify(mockPlaylistManager, times(1)).updateRepeat();
+        verify(playlistManager, times(1)).updateRepeat();
 
         Button repeatButton = find("#repeatButton");
         assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_ALL + "')");
@@ -836,15 +835,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldClickEqButton() {
         clickOnNode("#eqButton");
 
-        verify(mockEqualizerController, times(1)).updateSliderValues();
-        verify(mockEqualizerView, times(1)).show(true);
+        verify(equalizerController, times(1)).updateSliderValues();
+        verify(equalizerView, times(1)).show(true);
     }
 
     @Test
     @SneakyThrows
     public void shouldClickRandomButtonWithYearFilter() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
 
         threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().select(0));
@@ -852,22 +851,22 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         WaitForAsyncUtils.waitForFxEvents();
 
         @SuppressWarnings("unchecked")
-        List<Track> mockTracks = (List<Track>) mock(List.class);
+        List<Track> tracks = (List<Track>) mock(List.class);
 
-        when(mockSearchManager.getShuffledPlaylist(anyInt(), anyString())).thenReturn(mockTracks);
+        when(searchManager.getShuffledPlaylist(anyInt(), anyString())).thenReturn(tracks);
 
         clickOnNode("#randomButton");
 
-        verify(mockSearchManager, times(1)).getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), "2000");
-        verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, mockTracks);
-        verify(mockPlaylistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
+        verify(searchManager, times(1)).getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), "2000");
+        verify(playlistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, tracks);
+        verify(playlistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
     }
 
     @Test
     @SneakyThrows
     public void shouldClickRandomButtonWithNoYearFilter() {
         @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox");
+        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
         yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
 
         threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().clearSelection());
@@ -875,15 +874,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         WaitForAsyncUtils.waitForFxEvents();
 
         @SuppressWarnings("unchecked")
-        List<Track> mockTracks = (List<Track>) mock(List.class);
+        List<Track> tracks = (List<Track>) mock(List.class);
 
-        when(mockSearchManager.getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), null)).thenReturn(mockTracks);
+        when(searchManager.getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), null)).thenReturn(tracks);
 
         clickOnNode("#randomButton");
 
-        verify(mockSearchManager, times(1)).getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), null);
-        verify(mockPlaylistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, mockTracks);
-        verify(mockPlaylistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
+        verify(searchManager, times(1)).getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), null);
+        verify(playlistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, tracks);
+        verify(playlistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
     }
 
     @Test
@@ -927,13 +926,13 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
                 new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
-        when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
-        when(mockPlaylistManager.isShuffle()).thenReturn(false);
-        when(mockMediaManager.isMuted()).thenReturn(false);
-        when(mockSearchManager.getYearList()).thenReturn(null);
+        when(playlistManager.getPlaylists()).thenReturn(playlists);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(playlistManager.isShuffle()).thenReturn(false);
+        when(mediaManager.isMuted()).thenReturn(false);
+        when(searchManager.getYearList()).thenReturn(null);
 
-        threadRunner.runOnGui(() -> mainPanelController.eventReceived(Event.APPLICATION_INITIALISED));
+        threadRunner.runOnGui(() -> underTest.eventReceived(Event.APPLICATION_INITIALISED));
 
         WaitForAsyncUtils.waitForFxEvents();
 
@@ -943,7 +942,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         assertThat(yearFilter.getYear()).isNull();
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(mainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(underTest, "observablePlaylists");
         assertThat(observablePlaylists).hasSize(2);
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
@@ -980,13 +979,13 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldReceiveApplicationInitialisedWithEmptyYearList() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
                 new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
-        when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
-        when(mockPlaylistManager.isShuffle()).thenReturn(false);
-        when(mockMediaManager.isMuted()).thenReturn(false);
-        when(mockSearchManager.getYearList()).thenReturn(Collections.emptyList());
+        when(playlistManager.getPlaylists()).thenReturn(playlists);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(playlistManager.isShuffle()).thenReturn(false);
+        when(mediaManager.isMuted()).thenReturn(false);
+        when(searchManager.getYearList()).thenReturn(Collections.emptyList());
 
-        threadRunner.runOnGui(() -> mainPanelController.eventReceived(Event.APPLICATION_INITIALISED));
+        threadRunner.runOnGui(() -> underTest.eventReceived(Event.APPLICATION_INITIALISED));
 
         WaitForAsyncUtils.waitForFxEvents();
 
@@ -1001,13 +1000,13 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     public void shouldReceiveApplicationInitialisedWithYearList() {
         List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
                 new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
-        when(mockPlaylistManager.getPlaylists()).thenReturn(playlists);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
-        when(mockPlaylistManager.isShuffle()).thenReturn(false);
-        when(mockMediaManager.isMuted()).thenReturn(false);
-        when(mockSearchManager.getYearList()).thenReturn(Arrays.asList("2000", "2001"));
+        when(playlistManager.getPlaylists()).thenReturn(playlists);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(playlistManager.isShuffle()).thenReturn(false);
+        when(mediaManager.isMuted()).thenReturn(false);
+        when(searchManager.getYearList()).thenReturn(Arrays.asList("2000", "2001"));
 
-        threadRunner.runOnGui(() -> mainPanelController.eventReceived(Event.APPLICATION_INITIALISED));
+        threadRunner.runOnGui(() -> underTest.eventReceived(Event.APPLICATION_INITIALISED));
 
         WaitForAsyncUtils.waitForFxEvents();
 
@@ -1020,31 +1019,29 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceiveApplicationInitialisedWithNoPlaylists() {
-        when(mockPlaylistManager.getPlaylists()).thenReturn(Collections.emptyList());
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
-        when(mockPlaylistManager.isShuffle()).thenReturn(false);
-        when(mockMediaManager.isMuted()).thenReturn(false);
-        when(mockSearchManager.getYearList()).thenReturn(null);
+        when(playlistManager.getPlaylists()).thenReturn(Collections.emptyList());
+        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(playlistManager.isShuffle()).thenReturn(false);
+        when(mediaManager.isMuted()).thenReturn(false);
+        when(searchManager.getYearList()).thenReturn(null);
 
-        threadRunner.runOnGui(() -> mainPanelController.eventReceived(Event.APPLICATION_INITIALISED));
+        threadRunner.runOnGui(() -> underTest.eventReceived(Event.APPLICATION_INITIALISED));
 
         WaitForAsyncUtils.waitForFxEvents();
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(mainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(underTest, "observablePlaylists");
         assertThat(observablePlaylists).isEmpty();
     }
 
     @Test
     @SneakyThrows
     public void shouldReceiveDataIndexed() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        threadRunner.runOnGui(() -> spyMainPanelController.eventReceived(Event.DATA_INDEXED));
+        threadRunner.runOnGui(() -> underTest.eventReceived(Event.DATA_INDEXED));
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(spyMainPanelController, times(1)).updateYearFilter();
+        verify(underTest, times(1)).updateYearFilter();
     }
 
     @Test
@@ -1058,7 +1055,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             newVersionButton.setDisable(true);
             newVersionButton.setVisible(false);
 
-            mainPanelController.eventReceived(Event.NEW_VERSION_AVAILABLE, version);
+            underTest.eventReceived(Event.NEW_VERSION_AVAILABLE, version);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1071,13 +1068,11 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceiveMuteUpdated() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        threadRunner.runOnGui(() -> spyMainPanelController.eventReceived(Event.MUTE_UPDATED));
+        threadRunner.runOnGui(() -> underTest.eventReceived(Event.MUTE_UPDATED));
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        verify(spyMainPanelController, times(1)).setVolumeButtonImage();
+        verify(underTest, times(1)).setVolumeButtonImage();
     }
 
     @Test
@@ -1092,7 +1087,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             timeSlider.setDisable(true);
             playTimeLabel.setText(null);
 
-            mainPanelController.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
+            underTest.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1114,7 +1109,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             timeSlider.setDisable(false);
             playTimeLabel.setText(null);
 
-            mainPanelController.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
+            underTest.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1136,7 +1131,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             timeSlider.setDisable(false);
             playTimeLabel.setText(null);
 
-            mainPanelController.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
+            underTest.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1156,7 +1151,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
-            mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
+            underTest.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1173,7 +1168,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
-            mainPanelController.eventReceived(Event.BUFFER_UPDATED, null, bufferProgressTime);
+            underTest.eventReceived(Event.BUFFER_UPDATED, null, bufferProgressTime);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1190,7 +1185,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         threadRunner.runOnGui(() -> {
             timeSlider.setProgressValue(0);
 
-            mainPanelController.eventReceived(Event.BUFFER_UPDATED, mediaDuration, null);
+            underTest.eventReceived(Event.BUFFER_UPDATED, mediaDuration, null);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1211,7 +1206,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             previousButton.setDisable(true);
             nextButton.setDisable(true);
 
-            mainPanelController.eventReceived(Event.MEDIA_PLAYING);
+            underTest.eventReceived(Event.MEDIA_PLAYING);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1235,7 +1230,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             previousButton.setDisable(false);
             nextButton.setDisable(false);
 
-            mainPanelController.eventReceived(Event.MEDIA_PAUSED);
+            underTest.eventReceived(Event.MEDIA_PAUSED);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1264,7 +1259,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             timeSlider.setProgressValue(99);
             playTimeLabel.setText(null);
 
-            mainPanelController.eventReceived(Event.MEDIA_STOPPED);
+            underTest.eventReceived(Event.MEDIA_STOPPED);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1281,7 +1276,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceiveEndOfMedia() {
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
 
         Button playPauseButton = find("#playPauseButton");
         Button previousButton = find("#previousButton");
@@ -1298,7 +1293,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             timeSlider.setProgressValue(99);
             playTimeLabel.setText(null);
 
-            mainPanelController.eventReceived(Event.END_OF_MEDIA);
+            underTest.eventReceived(Event.END_OF_MEDIA);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1315,7 +1310,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceiveEndOfMediaWithRepeatOne() {
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ONE);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.ONE);
 
         Button playPauseButton = find("#playPauseButton");
         Button previousButton = find("#previousButton");
@@ -1332,7 +1327,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             timeSlider.setProgressValue(99);
             playTimeLabel.setText(null);
 
-            mainPanelController.eventReceived(Event.END_OF_MEDIA);
+            underTest.eventReceived(Event.END_OF_MEDIA);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1349,20 +1344,18 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceivePlaylistSelected() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
+        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1374,15 +1367,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(false);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
+            underTest.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
 
-        verify(spyMainPanelController, never()).updateObservablePlaylists();
-        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        verify(underTest, never()).updateObservablePlaylists();
+        verify(playlistManager, times(1)).clearSelectedTrack();
 
         assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
         assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
@@ -1394,20 +1387,18 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceivePlaylistSelectedWithNullPayload() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
+        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1419,15 +1410,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(false);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, (Object[]) null);
+            underTest.eventReceived(Event.PLAYLIST_SELECTED, (Object[]) null);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
 
-        verify(spyMainPanelController, never()).updateObservablePlaylists();
-        verify(mockPlaylistManager, never()).clearSelectedTrack();
+        verify(underTest, never()).updateObservablePlaylists();
+        verify(playlistManager, never()).clearSelectedTrack();
 
         assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isNull();
         assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isNull();
@@ -1439,20 +1430,18 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceivePlaylistSelectedWithEmptyPayload() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
+        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1464,15 +1453,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(false);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED);
+            underTest.eventReceived(Event.PLAYLIST_SELECTED);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
 
-        verify(spyMainPanelController, never()).updateObservablePlaylists();
-        verify(mockPlaylistManager, never()).clearSelectedTrack();
+        verify(underTest, never()).updateObservablePlaylists();
+        verify(playlistManager, never()).clearSelectedTrack();
 
         assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isNull();
         assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isNull();
@@ -1484,20 +1473,18 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceivePlaylistSelectedExistingPlaylist() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
+        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1509,15 +1496,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(false);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+            underTest.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
 
-        verify(spyMainPanelController, never()).updateObservablePlaylists();
-        verify(mockPlaylistManager, never()).clearSelectedTrack();
+        verify(underTest, never()).updateObservablePlaylists();
+        verify(playlistManager, never()).clearSelectedTrack();
 
         assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(search);
         assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(search);
@@ -1529,21 +1516,19 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceivePlaylistSelectedPlaylistIsNotEmpty() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
         favourites.addTrack(mock(Track.class));
-        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
+        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1555,15 +1540,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(true);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
+            underTest.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
 
-        verify(spyMainPanelController, never()).updateObservablePlaylists();
-        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        verify(underTest, never()).updateObservablePlaylists();
+        verify(playlistManager, times(1)).clearSelectedTrack();
 
         assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
         assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
@@ -1575,20 +1560,18 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceivePlaylistDeleted() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
+        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1600,15 +1583,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(false);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_DELETED, PLAYLIST_ID_FAVOURITES);
+            underTest.eventReceived(Event.PLAYLIST_DELETED, PLAYLIST_ID_FAVOURITES);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
 
-        verify(spyMainPanelController, times(1)).updateObservablePlaylists();
-        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        verify(underTest, times(1)).updateObservablePlaylists();
+        verify(playlistManager, times(1)).clearSelectedTrack();
 
         assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
         assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
@@ -1620,20 +1603,18 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceivePlaylistCreatedWithEdit() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
+        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1645,15 +1626,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(false);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, true);
+            underTest.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, true);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
 
-        verify(spyMainPanelController, times(1)).updateObservablePlaylists();
-        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        verify(underTest, times(1)).updateObservablePlaylists();
+        verify(playlistManager, times(1)).clearSelectedTrack();
 
         assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
         assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
@@ -1665,20 +1646,18 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceivePlaylistCreatedWithoutEdit() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
-        setField(spyMainPanelController, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
         Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
         Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(mockPlaylistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(mockPlaylistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
+        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(spyMainPanelController, "observablePlaylists");
+        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
 
         ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
         Button playPauseButton = find("#playPauseButton");
@@ -1690,15 +1669,15 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playlistPanelListView.getFocusModel().focus(-1);
             playPauseButton.setDisable(false);
 
-            spyMainPanelController.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, false);
+            underTest.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, false);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        int currentSelectedPlaylistId = (Integer) getNonNullField(spyMainPanelController, "currentSelectedPlaylistId");
+        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
 
-        verify(spyMainPanelController, times(1)).updateObservablePlaylists();
-        verify(mockPlaylistManager, times(1)).clearSelectedTrack();
+        verify(underTest, times(1)).updateObservablePlaylists();
+        verify(playlistManager, times(1)).clearSelectedTrack();
 
         assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
         assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
@@ -1715,7 +1694,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(true);
 
-            mainPanelController.eventReceived(Event.TRACK_SELECTED);
+            underTest.eventReceived(Event.TRACK_SELECTED);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1726,8 +1705,6 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
     @Test
     @SneakyThrows
     public void shouldReceiveTrackQueuedForPlaying() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
         Button playPauseButton = find("#playPauseButton");
         ImageView playingImageView = find("#playingImageView");
         Label playingTrackLabel = find("#playingTrackLabel");
@@ -1738,14 +1715,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         String albumImageUrl = "http://www.example.com/image.png";
         Image albumImage = new Image(albumImageUrl);
 
-        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
+        when(cacheManager.constructInternalUrl(any(), anyString(), anyString()))
                 .thenReturn(albumImageUrl);
         doAnswer(invocation -> {
             ImageView imageView = invocation.getArgument(0);
             imageView.setImage(albumImage);
 
             return null;
-        }).when(mockImageFactory).loadImage(playingImageView, albumImageUrl);
+        }).when(imageFactory).loadImage(playingImageView, albumImageUrl);
 
         threadRunner.runOnGui(() -> {
             playPauseButton.setDisable(false);
@@ -1754,7 +1731,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playingAlbumLabel.setText(null);
             playingArtistLabel.setText(null);
 
-            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
+            underTest.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1765,15 +1742,13 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         assertThat(playingImageView.getImage()).isNotNull();
         assertThat(playPauseButton.isDisabled()).isTrue();
 
-        verify(mockNativeManager, times(1)).displayNotification(track);
-        verify(mockImageFactory, times(1)).loadImage(playingImageView, albumImageUrl);
+        verify(nativeManager, times(1)).displayNotification(track);
+        verify(imageFactory, times(1)).loadImage(playingImageView, albumImageUrl);
     }
 
     @Test
     @SneakyThrows
     public void shouldReceiveTrackQueuedForPlayingNullPayload() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
         Button playPauseButton = find("#playPauseButton");
         ImageView playingImageView = find("#playingImageView");
         Label playingTrackLabel = find("#playingTrackLabel");
@@ -1781,7 +1756,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Label playingArtistLabel = find("#playingArtistLabel");
         Track track = generateTrack(1);
 
-        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
+        when(cacheManager.constructInternalUrl(any(), anyString(), anyString()))
                 .thenReturn("http://www.example.com/image.png");
 
         threadRunner.runOnGui(() -> {
@@ -1791,7 +1766,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playingAlbumLabel.setText(null);
             playingArtistLabel.setText(null);
 
-            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[]) null);
+            underTest.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[]) null);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1802,14 +1777,12 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         assertThat(playingImageView.getImage()).isNull();
         assertThat(playPauseButton.isDisabled()).isFalse();
 
-        verify(mockNativeManager, never()).displayNotification(track);
+        verify(nativeManager, never()).displayNotification(track);
     }
 
     @Test
     @SneakyThrows
     public void shouldReceiveTrackQueuedForPlayingEmptyPayload() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
-
         Button playPauseButton = find("#playPauseButton");
         ImageView playingImageView = find("#playingImageView");
         Label playingTrackLabel = find("#playingTrackLabel");
@@ -1817,7 +1790,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Label playingArtistLabel = find("#playingArtistLabel");
         Track track = generateTrack(1);
 
-        when(mockCacheManager.constructInternalUrl(any(), anyString(), anyString()))
+        when(cacheManager.constructInternalUrl(any(), anyString(), anyString()))
                 .thenReturn("http://www.example.com/image.png");
 
         threadRunner.runOnGui(() -> {
@@ -1827,7 +1800,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
             playingAlbumLabel.setText(null);
             playingArtistLabel.setText(null);
 
-            spyMainPanelController.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING);
+            underTest.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING);
         });
 
         WaitForAsyncUtils.waitForFxEvents();
@@ -1838,7 +1811,7 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         assertThat(playingImageView.getImage()).isNull();
         assertThat(playPauseButton.isDisabled()).isFalse();
 
-        verify(mockNativeManager, never()).displayNotification(track);
+        verify(nativeManager, never()).displayNotification(track);
     }
 
     @Test
@@ -1862,14 +1835,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
-        verify(mockConfirmView, times(1))
+        verify(confirmView, times(1))
                 .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
-        verify(mockConfirmView, times(1)).setRunnables(okRunnable.capture(), any());
-        verify(mockConfirmView, times(1)).show(anyBoolean());
+        verify(confirmView, times(1)).setRunnables(okRunnable.capture(), any());
+        verify(confirmView, times(1)).show(anyBoolean());
 
         okRunnable.getValue().run();
 
-        verify(mockPlaylistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
+        verify(playlistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
     }
 
     @Test
@@ -1892,14 +1865,14 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
 
         ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
-        verify(mockConfirmView, times(1))
+        verify(confirmView, times(1))
                 .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
-        verify(mockConfirmView, times(1)).setRunnables(okRunnable.capture(), any());
-        verify(mockConfirmView, times(1)).show(anyBoolean());
+        verify(confirmView, times(1)).setRunnables(okRunnable.capture(), any());
+        verify(confirmView, times(1)).show(anyBoolean());
 
         okRunnable.getValue().run();
 
-        verify(mockPlaylistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
+        verify(playlistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
     }
 
     @Test
@@ -1912,148 +1885,126 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         // Wait for the UI thread
         Thread.sleep(250);
 
-        verify(mockConfirmView, never()).show(anyBoolean());
+        verify(confirmView, never()).show(anyBoolean());
     }
 
     @Test
     public void shouldReceiveMenuFileImportPlaylist() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handleImportPlaylistButtonAction();
 
-        doNothing().when(spyMainPanelController).handleImportPlaylistButtonAction();
+        underTest.eventReceived(MENU_FILE_IMPORT_PLAYLIST);
 
-        spyMainPanelController.eventReceived(MENU_FILE_IMPORT_PLAYLIST);
-
-        verify(spyMainPanelController, times(1)).handleImportPlaylistButtonAction();
+        verify(underTest, times(1)).handleImportPlaylistButtonAction();
     }
 
     @Test
     public void shouldReceiveMenuFileExportPlaylist() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handleExportPlaylistButtonAction();
 
-        doNothing().when(spyMainPanelController).handleExportPlaylistButtonAction();
+        underTest.eventReceived(MENU_FILE_EXPORT_PLAYLIST);
 
-        spyMainPanelController.eventReceived(MENU_FILE_EXPORT_PLAYLIST);
-
-        verify(spyMainPanelController, times(1)).handleExportPlaylistButtonAction();
+        verify(underTest, times(1)).handleExportPlaylistButtonAction();
     }
 
     @Test
     public void shouldReceiveMenuFileSettings() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handleSettingsButtonAction();
 
-        doNothing().when(spyMainPanelController).handleSettingsButtonAction();
+        underTest.eventReceived(MENU_FILE_SETTINGS);
 
-        spyMainPanelController.eventReceived(MENU_FILE_SETTINGS);
-
-        verify(spyMainPanelController, times(1)).handleSettingsButtonAction();
+        verify(underTest, times(1)).handleSettingsButtonAction();
     }
 
     @Test
     public void shouldReceiveMenuEditAddPlaylist() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handleAddPlaylistButtonAction();
 
-        doNothing().when(spyMainPanelController).handleAddPlaylistButtonAction();
+        underTest.eventReceived(MENU_EDIT_ADD_PLAYLIST);
 
-        spyMainPanelController.eventReceived(MENU_EDIT_ADD_PLAYLIST);
-
-        verify(spyMainPanelController, times(1)).handleAddPlaylistButtonAction();
+        verify(underTest, times(1)).handleAddPlaylistButtonAction();
     }
 
     @Test
     public void shouldReceiveMenuEditDeletePlaylist() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handleDeletePlaylistButtonAction();
 
-        doNothing().when(spyMainPanelController).handleDeletePlaylistButtonAction();
+        underTest.eventReceived(MENU_EDIT_DELETE_PLAYLIST);
 
-        spyMainPanelController.eventReceived(MENU_EDIT_DELETE_PLAYLIST);
-
-        verify(spyMainPanelController, times(1)).handleDeletePlaylistButtonAction();
+        verify(underTest, times(1)).handleDeletePlaylistButtonAction();
     }
 
     @Test
     public void shouldReceiveEditCreatePlaylistFromAlbumWithSelectedTrack() {
         Track mockTrack = mock(Track.class);
 
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(mockTrack);
+        when(trackTableController.getSelectedTrack()).thenReturn(mockTrack);
 
-        mainPanelController.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
+        underTest.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
 
-        verify(mockPlaylistManager, times(1)).createPlaylistFromAlbum(mockTrack);
+        verify(playlistManager, times(1)).createPlaylistFromAlbum(mockTrack);
     }
 
     @Test
     public void shouldReceiveEditCreatePlaylistFromAlbumWithoutSelectedTrack() {
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(null);
+        when(trackTableController.getSelectedTrack()).thenReturn(null);
 
-        mainPanelController.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
+        underTest.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
 
-        verify(mockPlaylistManager, never()).createPlaylistFromAlbum(any());
+        verify(playlistManager, never()).createPlaylistFromAlbum(any());
     }
 
     @Test
     public void shouldReceiveMenuEditRandomPlaylist() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handleRandomButtonAction();
 
-        doNothing().when(spyMainPanelController).handleRandomButtonAction();
+        underTest.eventReceived(MENU_EDIT_RANDOM_PLAYLIST);
 
-        spyMainPanelController.eventReceived(MENU_EDIT_RANDOM_PLAYLIST);
-
-        verify(spyMainPanelController, times(1)).handleRandomButtonAction();
+        verify(underTest, times(1)).handleRandomButtonAction();
     }
 
     @Test
     public void shouldReceiveMenuControlsPlayPause() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handlePlayPauseButtonAction();
 
-        doNothing().when(spyMainPanelController).handlePlayPauseButtonAction();
+        underTest.eventReceived(MENU_CONTROLS_PLAY_PAUSE);
 
-        spyMainPanelController.eventReceived(MENU_CONTROLS_PLAY_PAUSE);
-
-        verify(spyMainPanelController, times(1)).handlePlayPauseButtonAction();
+        verify(underTest, times(1)).handlePlayPauseButtonAction();
     }
 
     @Test
     public void shouldReceiveMenuControlsPrevious() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handlePreviousButtonAction();
 
-        doNothing().when(spyMainPanelController).handlePreviousButtonAction();
+        underTest.eventReceived(MENU_CONTROLS_PREVIOUS);
 
-        spyMainPanelController.eventReceived(MENU_CONTROLS_PREVIOUS);
-
-        verify(spyMainPanelController, times(1)).handlePreviousButtonAction();
+        verify(underTest, times(1)).handlePreviousButtonAction();
     }
 
     @Test
     public void shouldReceiveMenuControlsNext() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handleNextButtonAction();
 
-        doNothing().when(spyMainPanelController).handleNextButtonAction();
+        underTest.eventReceived(MENU_CONTROLS_NEXT);
 
-        spyMainPanelController.eventReceived(MENU_CONTROLS_NEXT);
-
-        verify(spyMainPanelController, times(1)).handleNextButtonAction();
+        verify(underTest, times(1)).handleNextButtonAction();
     }
 
     @Test
     public void shouldReceiveMenuControlsShuffle() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).setShuffleButtonImage();
 
-        doNothing().when(spyMainPanelController).setShuffleButtonImage();
+        underTest.eventReceived(MENU_CONTROLS_SHUFFLE);
 
-        spyMainPanelController.eventReceived(MENU_CONTROLS_SHUFFLE);
-
-        verify(spyMainPanelController, times(1)).setShuffleButtonImage();
+        verify(underTest, times(1)).setShuffleButtonImage();
     }
 
     @Test
     public void shouldReceiveMenuControlsRepeat() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).setRepeatButtonImage();
 
-        doNothing().when(spyMainPanelController).setRepeatButtonImage();
+        underTest.eventReceived(MENU_CONTROLS_REPEAT);
 
-        spyMainPanelController.eventReceived(MENU_CONTROLS_REPEAT);
-
-        verify(spyMainPanelController, times(1)).setRepeatButtonImage();
+        verify(underTest, times(1)).setRepeatButtonImage();
     }
 
     @Test
@@ -2061,10 +2012,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Slider volumeSlider = find("#volumeSlider");
         volumeSlider.setValue(10d);
 
-        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
+        underTest.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
 
         assertThat(volumeSlider.getValue()).isEqualTo(20d);
-        verify(mockMediaManager, times(1)).setVolumePercent(20d);
+        verify(mediaManager, times(1)).setVolumePercent(20d);
     }
 
     @Test
@@ -2072,10 +2023,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Slider volumeSlider = find("#volumeSlider");
         volumeSlider.setValue(95d);
 
-        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
+        underTest.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
 
         assertThat(volumeSlider.getValue()).isEqualTo(100d);
-        verify(mockMediaManager, times(1)).setVolumePercent(100d);
+        verify(mediaManager, times(1)).setVolumePercent(100d);
     }
 
     @Test
@@ -2083,10 +2034,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Slider volumeSlider = find("#volumeSlider");
         volumeSlider.setValue(10d);
 
-        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_UP);
+        underTest.eventReceived(MENU_CONTROLS_VOLUME_UP);
 
         assertThat(volumeSlider.getValue()).isEqualTo(10d);
-        verify(mockMediaManager, never()).setVolumePercent(anyDouble());
+        verify(mediaManager, never()).setVolumePercent(anyDouble());
     }
 
     @Test
@@ -2094,10 +2045,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Slider volumeSlider = find("#volumeSlider");
         volumeSlider.setValue(90d);
 
-        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
+        underTest.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
 
         assertThat(volumeSlider.getValue()).isEqualTo(80d);
-        verify(mockMediaManager, times(1)).setVolumePercent(80d);
+        verify(mediaManager, times(1)).setVolumePercent(80d);
     }
 
     @Test
@@ -2105,10 +2056,10 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Slider volumeSlider = find("#volumeSlider");
         volumeSlider.setValue(5d);
 
-        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
+        underTest.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
 
         assertThat(volumeSlider.getValue()).isEqualTo(0d);
-        verify(mockMediaManager, times(1)).setVolumePercent(0d);
+        verify(mediaManager, times(1)).setVolumePercent(0d);
     }
 
     @Test
@@ -2116,32 +2067,28 @@ public class MainPanelControllerTest extends AbstractGUITest implements Constant
         Slider volumeSlider = find("#volumeSlider");
         volumeSlider.setValue(10d);
 
-        mainPanelController.eventReceived(MENU_CONTROLS_VOLUME_DOWN);
+        underTest.eventReceived(MENU_CONTROLS_VOLUME_DOWN);
 
         assertThat(volumeSlider.getValue()).isEqualTo(10d);
-        verify(mockMediaManager, never()).setVolumePercent(anyDouble());
+        verify(mediaManager, never()).setVolumePercent(anyDouble());
     }
 
     @Test
     public void shouldReceiveMenuControlsVolumeMute() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handleVolumeButtonAction();
 
-        doNothing().when(spyMainPanelController).handleVolumeButtonAction();
+        underTest.eventReceived(MENU_CONTROLS_VOLUME_MUTE);
 
-        spyMainPanelController.eventReceived(MENU_CONTROLS_VOLUME_MUTE);
-
-        verify(spyMainPanelController, times(1)).handleVolumeButtonAction();
+        verify(underTest, times(1)).handleVolumeButtonAction();
     }
 
     @Test
     public void shouldReceiveMenuViewEqualizer() {
-        MainPanelController spyMainPanelController = spy(mainPanelController);
+        doNothing().when(underTest).handleEqButtonAction();
 
-        doNothing().when(spyMainPanelController).handleEqButtonAction();
+        underTest.eventReceived(MENU_VIEW_EQUALIZER);
 
-        spyMainPanelController.eventReceived(MENU_VIEW_EQUALIZER);
-
-        verify(spyMainPanelController, times(1)).handleEqButtonAction();
+        verify(underTest, times(1)).handleEqButtonAction();
     }
 
     @After

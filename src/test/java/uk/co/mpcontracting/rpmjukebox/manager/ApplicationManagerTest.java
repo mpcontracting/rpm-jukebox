@@ -31,190 +31,191 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 public class ApplicationManagerTest implements Constants {
 
     @Mock
-    private Environment mockEnvironment;
+    private Environment environment;
 
     @Mock
-    private RpmJukebox mockRpmJukebox;
+    private RpmJukebox rpmJukebox;
 
     @Mock
-    private EventManager mockEventManager;
+    private EventManager eventManager;
 
     @Mock
-    private MessageManager mockMessageManager;
+    private MessageManager messageManager;
 
     @Mock
-    private SettingsManager mockSettingsManager;
+    private SettingsManager settingsManager;
 
     @Mock
-    private SearchManager mockSearchManager;
+    private SearchManager searchManager;
 
     @Mock
-    private MediaManager mockMediaManager;
+    private MediaManager mediaManager;
 
     @Mock
-    private JettyServer mockJettyServer;
+    private JettyServer jettyServer;
 
     @Mock
-    private ConfigurableApplicationContext mockApplicationContext;
+    private ConfigurableApplicationContext applicationContext;
 
     @Mock
-    private Stage mockStage;
+    private Stage stage;
 
     @Mock
-    private ObservableList<Image> mockObservableList;
+    private ObservableList<Image> observableList;
 
-    private ApplicationManager applicationManager;
-    private ThreadRunner threadRunner = new TestThreadRunner(Executors.newSingleThreadExecutor());
+    private final ThreadRunner threadRunner = new TestThreadRunner(Executors.newSingleThreadExecutor());
+
+    private ApplicationManager underTest;
 
     @Before
     public void setup() {
-        applicationManager = new ApplicationManager(threadRunner, mockEnvironment, mockRpmJukebox, mockMessageManager);
-        applicationManager.wireJettyServer(mockJettyServer);
-        applicationManager.wireSettingsManager(mockSettingsManager);
-        applicationManager.wireSearchManager(mockSearchManager);
-        applicationManager.wireMediaManager(mockMediaManager);
-        applicationManager.setApplicationContext(mockApplicationContext);
+        underTest = new ApplicationManager(threadRunner, environment, rpmJukebox, messageManager);
+        underTest.wireJettyServer(jettyServer);
+        underTest.wireSettingsManager(settingsManager);
+        underTest.wireSearchManager(searchManager);
+        underTest.wireMediaManager(mediaManager);
+        underTest.setApplicationContext(applicationContext);
 
-        setField(applicationManager, "eventManager", mockEventManager);
+        setField(underTest, "eventManager", eventManager);
 
-        when(mockStage.getIcons()).thenReturn(mockObservableList);
+        when(stage.getIcons()).thenReturn(observableList);
     }
 
     @Test
     @SneakyThrows
     public void shouldInitialise() {
-        when(mockEnvironment.getActiveProfiles()).thenReturn(new String[]{"default"});
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"default"});
 
-        applicationManager.initialise();
+        underTest.initialise();
 
-        verify(mockSearchManager, times(1)).initialise();
-        verify(mockSettingsManager, times(1)).loadUserSettings();
+        verify(searchManager, times(1)).initialise();
+        verify(settingsManager, times(1)).loadUserSettings();
     }
 
     @Test
     @SneakyThrows
     public void shouldNotInitialiseForTestProfile() {
-        when(mockEnvironment.getActiveProfiles()).thenReturn(new String[]{"test"});
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
 
-        applicationManager.initialise();
+        underTest.initialise();
 
-        verify(mockSearchManager, never()).initialise();
-        verify(mockSettingsManager, never()).loadUserSettings();
+        verify(searchManager, never()).initialise();
+        verify(settingsManager, never()).loadUserSettings();
     }
 
     @Test
     public void shouldInitialiseStageOnOsx() {
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.OSX);
-        when(mockMessageManager.getMessage(MESSAGE_WINDOW_TITLE)).thenReturn("WindowTitle");
-        setField(applicationManager, "stage", null);
-        setField(applicationManager, "isInitialised", false);
+        when(settingsManager.getOsType()).thenReturn(OsType.OSX);
+        when(messageManager.getMessage(MESSAGE_WINDOW_TITLE)).thenReturn("WindowTitle");
+        setField(underTest, "stage", null);
+        setField(underTest, "isInitialised", false);
 
-        applicationManager.start(mockStage);
+        underTest.start(stage);
 
-        assertThat(getField(applicationManager, "stage")).isNotNull();
-        assertThat((boolean) getField(applicationManager, "isInitialised")).isTrue();
+        assertThat(getField(underTest, "stage")).isNotNull();
+        assertThat((boolean) getField(underTest, "isInitialised")).isTrue();
 
-        verify(mockStage, times(1)).setTitle("WindowTitle");
-        verify(mockStage, never()).getIcons();
-        verify(mockSettingsManager, times(1)).loadWindowSettings(mockStage);
-        verify(mockStage, times(1)).show();
-        verify(mockStage, times(1)).requestFocus();
-        verify(mockEventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
+        verify(stage, times(1)).setTitle("WindowTitle");
+        verify(stage, never()).getIcons();
+        verify(settingsManager, times(1)).loadWindowSettings(stage);
+        verify(stage, times(1)).show();
+        verify(stage, times(1)).requestFocus();
+        verify(eventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
 
     @Test
     public void shouldInitialiseStageOnWindows() {
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
-        when(mockMessageManager.getMessage(MESSAGE_WINDOW_TITLE)).thenReturn("WindowTitle");
-        setField(applicationManager, "stage", null);
-        setField(applicationManager, "isInitialised", false);
+        when(settingsManager.getOsType()).thenReturn(OsType.WINDOWS);
+        when(messageManager.getMessage(MESSAGE_WINDOW_TITLE)).thenReturn("WindowTitle");
+        setField(underTest, "stage", null);
+        setField(underTest, "isInitialised", false);
 
-        applicationManager.start(mockStage);
+        underTest.start(stage);
 
-        assertThat(getField(applicationManager, "stage")).isNotNull();
-        assertThat((boolean) getField(applicationManager, "isInitialised")).isTrue();
+        assertThat(getField(underTest, "stage")).isNotNull();
+        assertThat((boolean) getField(underTest, "isInitialised")).isTrue();
 
-        verify(mockStage, times(1)).setTitle("WindowTitle");
-        verify(mockStage, times(1)).getIcons();
-        verify(mockSettingsManager, times(1)).loadWindowSettings(mockStage);
-        verify(mockStage, times(1)).show();
-        verify(mockStage, times(1)).requestFocus();
-        verify(mockEventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
+        verify(stage, times(1)).setTitle("WindowTitle");
+        verify(stage, times(1)).getIcons();
+        verify(settingsManager, times(1)).loadWindowSettings(stage);
+        verify(stage, times(1)).show();
+        verify(stage, times(1)).requestFocus();
+        verify(eventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
 
     @Test
     public void shouldInitialiseStageOnLinux() {
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.LINUX);
-        when(mockMessageManager.getMessage(MESSAGE_WINDOW_TITLE)).thenReturn("WindowTitle");
-        setField(applicationManager, "stage", null);
-        setField(applicationManager, "isInitialised", false);
+        when(settingsManager.getOsType()).thenReturn(OsType.LINUX);
+        when(messageManager.getMessage(MESSAGE_WINDOW_TITLE)).thenReturn("WindowTitle");
+        setField(underTest, "stage", null);
+        setField(underTest, "isInitialised", false);
 
-        applicationManager.start(mockStage);
+        underTest.start(stage);
 
-        assertThat(getField(applicationManager, "stage")).isNotNull();
-        assertThat((boolean) getField(applicationManager, "isInitialised")).isTrue();
+        assertThat(getField(underTest, "stage")).isNotNull();
+        assertThat((boolean) getField(underTest, "isInitialised")).isTrue();
 
-        verify(mockStage, times(1)).setTitle("WindowTitle");
-        verify(mockStage, never()).getIcons();
-        verify(mockSettingsManager, times(1)).loadWindowSettings(mockStage);
-        verify(mockStage, times(1)).show();
-        verify(mockStage, times(1)).requestFocus();
-        verify(mockEventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
+        verify(stage, times(1)).setTitle("WindowTitle");
+        verify(stage, never()).getIcons();
+        verify(settingsManager, times(1)).loadWindowSettings(stage);
+        verify(stage, times(1)).show();
+        verify(stage, times(1)).requestFocus();
+        verify(eventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
 
     @Test
     @SneakyThrows
     public void shouldStopApplication() {
-        setField(applicationManager, "stage", mockStage);
-        setField(applicationManager, "isInitialised", true);
+        setField(underTest, "stage", stage);
+        setField(underTest, "isInitialised", true);
 
-        applicationManager.stop();
+        underTest.stop();
 
-        verify(mockMediaManager, times(1)).cleanUpResources();
-        verify(mockSearchManager, times(1)).shutdown();
-        verify(mockSettingsManager, times(1)).saveWindowSettings(mockStage);
-        verify(mockSettingsManager, times(1)).saveUserSettings();
-        verify(mockJettyServer, times(1)).stop();
+        verify(mediaManager, times(1)).cleanUpResources();
+        verify(searchManager, times(1)).shutdown();
+        verify(settingsManager, times(1)).saveWindowSettings(stage);
+        verify(settingsManager, times(1)).saveUserSettings();
+        verify(jettyServer, times(1)).stop();
     }
 
     @Test
     @SneakyThrows
     public void shouldStopApplicationWhenNotInitialised() {
-        setField(applicationManager, "stage", mockStage);
-        setField(applicationManager, "isInitialised", false);
+        setField(underTest, "stage", stage);
+        setField(underTest, "isInitialised", false);
 
-        applicationManager.stop();
+        underTest.stop();
 
-        verify(mockMediaManager, times(1)).cleanUpResources();
-        verify(mockSearchManager, times(1)).shutdown();
-        verify(mockSettingsManager, never()).saveWindowSettings(mockStage);
-        verify(mockSettingsManager, never()).saveUserSettings();
-        verify(mockJettyServer, times(1)).stop();
+        verify(mediaManager, times(1)).cleanUpResources();
+        verify(searchManager, times(1)).shutdown();
+        verify(settingsManager, never()).saveWindowSettings(stage);
+        verify(settingsManager, never()).saveUserSettings();
+        verify(jettyServer, times(1)).stop();
     }
 
     @Test
     @SneakyThrows
     public void shouldStopApplicationWhenExceptionThrown() {
         doThrow(new RuntimeException("ApplicationManagerTest.shouldStopApplicationWhenExceptionThrown()"))
-                .when(mockJettyServer).stop();
+                .when(jettyServer).stop();
 
-        setField(applicationManager, "stage", mockStage);
-        setField(applicationManager, "isInitialised", false);
+        setField(underTest, "stage", stage);
+        setField(underTest, "isInitialised", false);
 
-        applicationManager.stop();
+        underTest.stop();
 
-        verify(mockMediaManager, times(1)).cleanUpResources();
-        verify(mockSearchManager, times(1)).shutdown();
-        verify(mockSettingsManager, never()).saveWindowSettings(mockStage);
-        verify(mockSettingsManager, never()).saveUserSettings();
-        verify(mockJettyServer, times(1)).stop();
+        verify(mediaManager, times(1)).cleanUpResources();
+        verify(searchManager, times(1)).shutdown();
+        verify(settingsManager, never()).saveWindowSettings(stage);
+        verify(settingsManager, never()).saveUserSettings();
+        verify(jettyServer, times(1)).stop();
     }
 
     @Test
     @SneakyThrows
     public void shouldShutdownApplication() {
-        applicationManager.shutdown();
+        underTest.shutdown();
 
-        verify(mockApplicationContext, times(1)).close();
+        verify(applicationContext, times(1)).close();
     }
 }
