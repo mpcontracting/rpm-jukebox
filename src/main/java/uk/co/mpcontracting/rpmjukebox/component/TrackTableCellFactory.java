@@ -47,9 +47,14 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject
         //////////////////
 
         tableCell.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() > 1) {
-                // Double click
-                ofNullable(tableCell.getItem()).ifPresent(item -> playlistManager.playTrack(((TrackTableModel) tableCell.getTableRow().getItem()).getTrack()));
+            if (event.getButton() == MouseButton.PRIMARY) {
+                if (event.getClickCount() > 1) {
+                    // Double click
+                    ofNullable(tableCell.getItem()).ifPresent(item -> playlistManager.playTrack(tableCell.getTableRow().getItem().getTrack()));
+                } else {
+                    // Single click
+                    ofNullable(tableCell.getItem()).ifPresent(item -> fireEvent(TRACK_SELECTED, tableCell.getTableRow().getItem().getTrack()));
+                }
             }
         });
 
@@ -61,14 +66,14 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject
 
         final MenuItem createPlaylistFromAlbumItem = new MenuItem(messageManager.getMessage(MESSAGE_TRACK_TABLE_CONTEXT_CREATE_PLAYLIST_FROM_ALBUM));
         createPlaylistFromAlbumItem.setOnAction(event -> ofNullable(tableCell.getItem())
-                .ifPresent(item -> playlistManager.createPlaylistFromAlbum(((TrackTableModel) tableCell.getTableRow().getItem()).getTrack())));
+                .ifPresent(item -> playlistManager.createPlaylistFromAlbum(tableCell.getTableRow().getItem().getTrack())));
 
         contextMenu.getItems().add(createPlaylistFromAlbumItem);
 
         final MenuItem deleteTrackFromPlaylistItem = new MenuItem(messageManager.getMessage(MESSAGE_TRACK_TABLE_CONTEXT_DELETE_TRACK_FROM_PLAYLIST));
         deleteTrackFromPlaylistItem.setOnAction(event ->
                 ofNullable(tableCell.getItem()).ifPresent(item -> {
-                    Track track = ((TrackTableModel) tableCell.getTableRow().getItem()).getTrack();
+                    Track track = tableCell.getTableRow().getItem().getTrack();
 
                     playlistManager.removeTrackFromPlaylist(track.getPlaylistId(), track);
                 }));
@@ -77,7 +82,7 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject
         tableCell.setContextMenu(contextMenu);
         tableCell.setOnContextMenuRequested(event -> {
             if (tableCell.getItem() != null) {
-                if (((TrackTableModel) tableCell.getTableRow().getItem()).getTrack().getPlaylistId() == PLAYLIST_ID_SEARCH) {
+                if (tableCell.getTableRow().getItem().getTrack().getPlaylistId() == PLAYLIST_ID_SEARCH) {
                     createPlaylistFromAlbumItem.setDisable(false);
                     deleteTrackFromPlaylistItem.setDisable(true);
                 } else {
@@ -96,7 +101,7 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject
 
         tableCell.setOnDragDetected(event -> {
             if (tableCell.getItem() != null) {
-                Track track = ((TrackTableModel) tableCell.getTableRow().getItem()).getTrack();
+                Track track = tableCell.getTableRow().getItem().getTrack();
                 Dragboard dragboard = tableCell.startDragAndDrop(TransferMode.COPY_OR_MOVE);
 
                 // Only set the drag and drop image on OSX
@@ -117,7 +122,7 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject
         tableCell.setOnDragOver(event -> {
             if (event.getGestureSource() != tableCell && event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT) &&
                     tableCell.getTableRow().getItem() != null &&
-                    ((TrackTableModel) tableCell.getTableRow().getItem()).getTrack().getPlaylistId() != PLAYLIST_ID_SEARCH) {
+                    tableCell.getTableRow().getItem().getTrack().getPlaylistId() != PLAYLIST_ID_SEARCH) {
                 event.acceptTransferModes(TransferMode.MOVE);
             }
 
@@ -127,7 +132,7 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject
         tableCell.setOnDragEntered(event -> {
             if (event.getGestureSource() != tableCell && event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT) &&
                     tableCell.getTableRow().getItem() != null &&
-                    ((TrackTableModel) tableCell.getTableRow().getItem()).getTrack().getPlaylistId() != PLAYLIST_ID_SEARCH) {
+                    tableCell.getTableRow().getItem().getTrack().getPlaylistId() != PLAYLIST_ID_SEARCH) {
                 tableCell.getTableRow().setStyle("-fx-background-color: -jb-border-color");
             }
 
@@ -145,7 +150,7 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject
 
             if (dragboard.hasContent(DND_TRACK_DATA_FORMAT)) {
                 Track source = (Track) dragboard.getContent(DND_TRACK_DATA_FORMAT);
-                Track target = ((TrackTableModel) tableCell.getTableRow().getItem()).getTrack();
+                Track target = tableCell.getTableRow().getItem().getTrack();
 
                 playlistManager.moveTracksInPlaylist(source.getPlaylistId(), source, target);
 

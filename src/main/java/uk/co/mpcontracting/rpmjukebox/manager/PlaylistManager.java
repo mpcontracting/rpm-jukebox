@@ -295,10 +295,10 @@ public class PlaylistManager extends EventAwareObject implements Constants {
 
             if (playingPlaylist != null && !playingPlaylist.isEmpty()) {
                 if (shuffle && !overrideShuffle) {
-                    log.debug("Getting shuffled track");
+                    log.debug("Getting shuffled track - {}", currentPlaylistIndex);
                     currentTrack = playingPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
                 } else {
-                    log.debug("Getting non-shuffled track");
+                    log.debug("Getting non-shuffled track - {}", currentPlaylistIndex);
                     currentTrack = playingPlaylist.getTrackAtIndex(currentPlaylistIndex);
                 }
 
