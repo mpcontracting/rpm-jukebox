@@ -47,9 +47,14 @@ public class TrackTableCellFactory<S, T> extends EventAwareObject
         //////////////////
 
         tableCell.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() > 1) {
-                // Double click
-                ofNullable(tableCell.getItem()).ifPresent(item -> playlistManager.playTrack(((TrackTableModel) tableCell.getTableRow().getItem()).getTrack()));
+            if (event.getButton() == MouseButton.PRIMARY) {
+                if (event.getClickCount() > 1) {
+                    // Double click
+                    ofNullable(tableCell.getItem()).ifPresent(item -> playlistManager.playTrack(((TrackTableModel) tableCell.getTableRow().getItem()).getTrack()));
+                } else {
+                    // Single click
+                    ofNullable(tableCell.getItem()).ifPresent(item -> fireEvent(TRACK_SELECTED, ((TrackTableModel) tableCell.getTableRow().getItem()).getTrack()));
+                }
             }
         });
 

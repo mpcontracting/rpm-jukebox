@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_SELECTED;
 import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
 
 public class TrackTableControllerTest extends AbstractGUITest {
@@ -78,7 +77,6 @@ public class TrackTableControllerTest extends AbstractGUITest {
         Track track = trackTableController.getSelectedTrack();
 
         assertThat(track.getTrackId()).isEqualTo("7891");
-        verify(getMockEventManager(), times(1)).fireEvent(TRACK_SELECTED, track);
     }
 
     @Test
@@ -91,8 +89,6 @@ public class TrackTableControllerTest extends AbstractGUITest {
         Track track = trackTableController.getSelectedTrack();
 
         assertThat(track).isNull();
-        verify(getMockEventManager(), never()).fireEvent(TRACK_SELECTED);
-        verify(getMockEventManager(), never()).fireEvent(eq(TRACK_SELECTED), any());
     }
 
     @Test

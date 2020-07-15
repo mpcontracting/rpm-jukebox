@@ -43,6 +43,18 @@ public class TrackTableCellFactoryTest extends AbstractGUITest implements Consta
     }
 
     @Test
+    public void shouldSinglePrimaryClickOnCell() {
+        TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
+        Track track = getTargetTrack();
+        updateTableCell(tableCell, track);
+
+        tableCell.onMouseClickedProperty().get()
+                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
+
+        verify(getMockEventManager(), times(1)).fireEvent(Event.TRACK_SELECTED, track);
+    }
+
+    @Test
     public void shouldDoublePrimaryClickOnCell() {
         TableCell<TrackTableModel, String> tableCell = cellFactory.call(new TableColumn<>());
         Track track = getTargetTrack();
