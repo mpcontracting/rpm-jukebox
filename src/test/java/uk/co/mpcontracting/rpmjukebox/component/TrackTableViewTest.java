@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.component;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.junit.Before;
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
@@ -11,11 +12,16 @@ import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.generateTra
 
 public class TrackTableViewTest extends AbstractGUITest {
 
+    private TrackTableView underTest;
+
+    @Before
+    public void setup() {
+        underTest = new TrackTableView();
+    }
+
     @Test
     public void shouldHighlightTrack() {
-        TrackTableView underTest = new TrackTableView();
         underTest.setItems(getTrackTableModels());
-
         underTest.highlightTrack(generateTrack(5));
 
         int selectedIndex = underTest.getSelectionModel().getSelectedIndex();
@@ -27,9 +33,7 @@ public class TrackTableViewTest extends AbstractGUITest {
 
     @Test
     public void shouldNotHighlightTrackWhenTrackIsNull() {
-        TrackTableView underTest = new TrackTableView();
         underTest.setItems(getTrackTableModels());
-
         underTest.highlightTrack(null);
 
         int selectedIndex = underTest.getSelectionModel().getSelectedIndex();
@@ -41,9 +45,7 @@ public class TrackTableViewTest extends AbstractGUITest {
 
     @Test
     public void shouldNotHightlightTrackWhenItemsAreNull() {
-        TrackTableView underTest = new TrackTableView();
         underTest.setItems(null);
-
         underTest.highlightTrack(generateTrack(5));
 
         int selectedIndex = underTest.getSelectionModel().getSelectedIndex();
@@ -55,7 +57,6 @@ public class TrackTableViewTest extends AbstractGUITest {
 
     @Test
     public void shouldNotHighlightTrackWhenTrackNotFound() {
-        TrackTableView underTest = new TrackTableView();
         underTest.setItems(getTrackTableModels());
 
         Track track = generateTrack(5);

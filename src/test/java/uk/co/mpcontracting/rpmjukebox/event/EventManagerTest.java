@@ -21,10 +21,10 @@ public class EventManagerTest extends AbstractEventTest {
     @Test
     @SneakyThrows
     public void shouldFireEventOnAnEventListener() {
-        EventManager eventManager = EventManager.getInstance();
-        eventManager.addEventListener((event, payload) -> receivedEvent = event);
+        EventManager underTest = EventManager.getInstance();
+        underTest.addEventListener((event, payload) -> receivedEvent = event);
 
-        eventManager.fireEvent(Event.TEST_EVENT);
+        underTest.fireEvent(Event.TEST_EVENT);
 
         WaitForAsyncUtils.waitForFxEvents();
 

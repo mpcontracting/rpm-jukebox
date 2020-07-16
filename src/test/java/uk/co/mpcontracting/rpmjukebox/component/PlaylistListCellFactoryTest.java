@@ -41,8 +41,6 @@ public class PlaylistListCellFactoryTest extends AbstractGUITest implements Cons
 
     private PlaylistListCellFactory underTest;
 
-
-
     @Before
     public void setup() {
         underTest = new PlaylistListCellFactory();

@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -23,15 +24,20 @@ import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getNonNullF
 @RunWith(MockitoJUnitRunner.class)
 public class PlaylistTest {
 
+    private Playlist underTest;
+
+    @Before
+    public void setup() {
+        underTest = createPlaylist(1, "Playlist", 10);
+    }
+
     @Test
     public void shouldSetPlaylistId() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
+        @SuppressWarnings("unchecked")
+        List<Track> tracks = (List<Track>) getNonNullField(underTest, "tracks");
 
         @SuppressWarnings("unchecked")
-        List<Track> tracks = (List<Track>) getNonNullField(playlist, "tracks");
-
-        @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = (List<Track>) getNonNullField(playlist, "shuffledTracks");
+        List<Track> shuffledTracks = (List<Track>) getNonNullField(underTest, "shuffledTracks");
 
         Track track = spy(tracks.get(0));
         tracks.set(0, track);
@@ -43,86 +49,77 @@ public class PlaylistTest {
             }
         }
 
-        playlist.setPlaylistId(2);
+        underTest.setPlaylistId(2);
 
         verify(track, times(2)).setPlaylistId(2);
     }
 
     @Test
     public void shouldGetTrackAtIndex() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        Track track = playlist.getTrackAtIndex(5);
+        Track track = underTest.getTrackAtIndex(5);
 
         assertThat(track.getTrackId()).isEqualTo("7896");
     }
 
     @Test
     public void shouldFailToGetTrackAtIndex() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        Track track = playlist.getTrackAtIndex(10);
+        Track track = underTest.getTrackAtIndex(10);
 
         assertThat(track).isNull();
     }
 
     @Test
     public void shouldGetPlaylistTrack() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
         Track track = generateTrack(1);
 
-        Track result = playlist.getPlaylistTrack(track);
+        Track result = underTest.getPlaylistTrack(track);
 
         assertThat(result).isEqualTo(track);
     }
 
     @Test
     public void shouldFailToGetPlaylistTrack() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
         Track track = generateTrack(0);
 
-        Track result = playlist.getPlaylistTrack(track);
+        Track result = underTest.getPlaylistTrack(track);
 
         assertThat(result).isNull();
     }
 
     @Test
     public void shouldGetShuffledTrackAtIndex() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        Track track = playlist.getShuffledTrackAtIndex(5);
+        Track track = underTest.getShuffledTrackAtIndex(5);
 
         assertThat(track).isNotNull();
     }
 
     @Test
     public void shouldFailToGetShuffledTrackAtIndex() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        Track track = playlist.getShuffledTrackAtIndex(10);
+        Track track = underTest.getShuffledTrackAtIndex(10);
 
         assertThat(track).isNull();
     }
 
     @Test
     public void shouldShufflePlaylist() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
-        setField(playlist, "shuffledTracks", shuffledTracks);
+        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(underTest, "shuffledTracks")));
+        setField(underTest, "shuffledTracks", shuffledTracks);
 
-        playlist.shuffle();
+        underTest.shuffle();
 
         verify(shuffledTracks, atLeastOnce()).set(anyInt(), any());
     }
 
     @Test
     public void shouldSetTrackAtShuffledIndex() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        Track track = playlist.getTrackAtIndex(1);
+        Track track = underTest.getTrackAtIndex(1);
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
-        setField(playlist, "shuffledTracks", shuffledTracks);
+        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(underTest, "shuffledTracks")));
+        setField(underTest, "shuffledTracks", shuffledTracks);
 
-        playlist.setTrackAtShuffledIndex(track, 5);
+        underTest.setTrackAtShuffledIndex(track, 5);
 
         verify(shuffledTracks, times(1)).remove(track);
         verify(shuffledTracks, times(1)).add(5, track);
@@ -130,51 +127,43 @@ public class PlaylistTest {
 
     @Test
     public void shouldGetIsTrackInPlaylist() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-
-        boolean result = playlist.isTrackInPlaylist("7895");
+        boolean result = underTest.isTrackInPlaylist("7895");
 
         assertThat(result).isTrue();
     }
 
     @Test
     public void shouldNotGetIsTrackInPlaylistWhenTrackIdIsNull() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-
-        boolean result = playlist.isTrackInPlaylist(null);
+        boolean result = underTest.isTrackInPlaylist(null);
 
         assertThat(result).isFalse();
     }
 
     @Test
     public void shouldNotGetIsTrackInPlaylistWhenTrackIdIsUnknown() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-
-        boolean result = playlist.isTrackInPlaylist("20");
+        boolean result = underTest.isTrackInPlaylist("20");
 
         assertThat(result).isFalse();
     }
 
     @Test
     public void shouldSetTracks() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        playlist.setTracks(asList(mock(Track.class), mock(Track.class)));
+        underTest.setTracks(asList(mock(Track.class), mock(Track.class)));
 
-        assertThat(playlist.getTracks()).hasSize(2);
+        assertThat(underTest.getTracks()).hasSize(2);
     }
 
     @Test
     public void shouldAddTrack() {
         Track track1 = generateTrack(1);
         Track track2 = generateTrack(2);
-        Playlist playlist = new Playlist(1, "Playlist", 10);
-        playlist.setTracks(asList(track1, track2));
+        underTest.setTracks(asList(track1, track2));
 
         Track addedTrack = generateTrack(3);
 
-        playlist.addTrack(addedTrack);
+        underTest.addTrack(addedTrack);
 
-        assertThat(playlist.getTracks()).hasSize(3);
+        assertThat(underTest.getTracks()).hasSize(3);
         assertThat(addedTrack.getPlaylistId()).isEqualTo(1);
         assertThat(addedTrack.getPlaylistIndex()).isEqualTo(2);
     }
@@ -183,12 +172,11 @@ public class PlaylistTest {
     public void shouldNotAddTrackWhenItAlreadyExists() {
         Track track1 = generateTrack(1);
         Track track2 = generateTrack(2);
-        Playlist playlist = new Playlist(1, "Playlist", 10);
-        playlist.setTracks(asList(track1, track2));
+        underTest.setTracks(asList(track1, track2));
 
-        playlist.addTrack(generateTrack(2));
+        underTest.addTrack(generateTrack(2));
 
-        assertThat(playlist.getTracks()).hasSize(2);
+        assertThat(underTest.getTracks()).hasSize(2);
     }
 
     @Test
@@ -205,41 +193,36 @@ public class PlaylistTest {
 
     @Test
     public void shouldRemoveTrack() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-
-        playlist.removeTrack(generateTrack(1));
+        underTest.removeTrack(generateTrack(1));
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
+        List<Track> shuffledTracks = (List<Track>) getField(underTest, "shuffledTracks");
 
-        assertThat(playlist.getTracks()).hasSize(9);
+        assertThat(underTest.getTracks()).hasSize(9);
         assertThat(shuffledTracks).hasSize(9);
     }
 
     @Test
     public void shouldNotRemoveTrackWhenItDoesntExist() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-
-        playlist.removeTrack(generateTrack(0));
+        underTest.removeTrack(generateTrack(0));
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
+        List<Track> shuffledTracks = (List<Track>) getField(underTest, "shuffledTracks");
 
-        assertThat(playlist.getTracks()).hasSize(10);
+        assertThat(underTest.getTracks()).hasSize(10);
         assertThat(shuffledTracks).hasSize(10);
     }
 
     @Test
     public void shouldSwapTracksSourceLessThanTarget() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        Track source = playlist.getPlaylistTrack(generateTrack(2));
-        Track target = playlist.getPlaylistTrack(generateTrack(8));
+        Track source = underTest.getPlaylistTrack(generateTrack(2));
+        Track target = underTest.getPlaylistTrack(generateTrack(8));
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
-        setField(playlist, "shuffledTracks", shuffledTracks);
+        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(underTest, "shuffledTracks")));
+        setField(underTest, "shuffledTracks", shuffledTracks);
 
-        playlist.swapTracks(source, target);
+        underTest.swapTracks(source, target);
 
         assertThat(source.getPlaylistIndex()).isEqualTo(7);
         assertThat(target.getPlaylistIndex()).isEqualTo(6);
@@ -248,15 +231,14 @@ public class PlaylistTest {
 
     @Test
     public void shouldSwapTracksTargetLessThanSource() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        Track source = playlist.getPlaylistTrack(generateTrack(8));
-        Track target = playlist.getPlaylistTrack(generateTrack(2));
+        Track source = underTest.getPlaylistTrack(generateTrack(8));
+        Track target = underTest.getPlaylistTrack(generateTrack(2));
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(playlist, "shuffledTracks")));
-        setField(playlist, "shuffledTracks", shuffledTracks);
+        List<Track> shuffledTracks = spy((List<Track>) requireNonNull(getField(underTest, "shuffledTracks")));
+        setField(underTest, "shuffledTracks", shuffledTracks);
 
-        playlist.swapTracks(source, target);
+        underTest.swapTracks(source, target);
 
         assertThat(source.getPlaylistIndex()).isEqualTo(1);
         assertThat(target.getPlaylistIndex()).isEqualTo(2);
@@ -265,59 +247,52 @@ public class PlaylistTest {
 
     @Test
     public void shouldGetIterator() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        Iterator<Track> iterator = playlist.iterator();
+        Iterator<Track> iterator = underTest.iterator();
 
         assertThat(iterator.hasNext()).isTrue();
     }
 
     @Test
     public void shouldGetSize() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-
-        assertThat(playlist.size()).isEqualTo(10);
+        assertThat(underTest.size()).isEqualTo(10);
     }
 
     @Test
     public void shouldGetIsEmpty() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-
-        assertThat(playlist.isEmpty()).isFalse();
+        assertThat(underTest.isEmpty()).isFalse();
     }
 
     @Test
     public void shouldClearPlaylist() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        playlist.clear();
+        underTest.clear();
 
         @SuppressWarnings("unchecked")
-        List<Track> shuffledTracks = (List<Track>) getField(playlist, "shuffledTracks");
+        List<Track> shuffledTracks = (List<Track>) getField(underTest, "shuffledTracks");
 
-        assertThat(playlist.getTracks()).isEmpty();
+        assertThat(underTest.getTracks()).isEmpty();
         assertThat(shuffledTracks).isEmpty();
     }
 
     @Test
     public void shouldClonePlaylist() {
-        Playlist playlist = createPlaylist(1, "Playlist", 10);
-        Playlist clone = playlist.clone();
+        Playlist clone = underTest.clone();
 
-        int playlistMaxSize = (Integer) requireNonNull(getField(playlist, "maxPlaylistSize"));
+        int playlistMaxSize = (Integer) requireNonNull(getField(underTest, "maxPlaylistSize"));
         int cloneMaxSize = (Integer) requireNonNull(getField(clone, "maxPlaylistSize"));
-        SecureRandom playlistRandom = (SecureRandom) getField(playlist, "random");
+        SecureRandom playlistRandom = (SecureRandom) getField(underTest, "random");
         SecureRandom cloneRandom = (SecureRandom) getField(clone, "random");
 
         @SuppressWarnings("unchecked")
-        List<Track> playlistShuffledTracks = (List<Track>) getNonNullField(playlist, "shuffledTracks");
+        List<Track> playlistShuffledTracks = (List<Track>) getNonNullField(underTest, "shuffledTracks");
 
         @SuppressWarnings("unchecked")
         List<Track> cloneShuffledTracks = (List<Track>) getNonNullField(clone, "shuffledTracks");
 
-        assertThat(clone).isNotSameAs(playlist);
-        assertThat(clone.getPlaylistId()).isEqualTo(playlist.getPlaylistId());
-        assertThat(clone.getName()).isEqualTo(playlist.getName());
+        assertThat(clone).isNotSameAs(underTest);
+        assertThat(clone.getPlaylistId()).isEqualTo(underTest.getPlaylistId());
+        assertThat(clone.getName()).isEqualTo(underTest.getName());
         assertThat(cloneMaxSize).isEqualTo(playlistMaxSize);
-        assertThat(getAreTrackListsEqual(clone.getTracks(), playlist.getTracks())).isTrue();
+        assertThat(getAreTrackListsEqual(clone.getTracks(), underTest.getTracks())).isTrue();
         assertThat(getAreTrackListsEqual(cloneShuffledTracks, playlistShuffledTracks)).isTrue();
         assertThat(cloneRandom).isNotSameAs(playlistRandom);
     }

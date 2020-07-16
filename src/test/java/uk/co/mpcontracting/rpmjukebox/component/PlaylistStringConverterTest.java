@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import org.junit.Before;
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
@@ -11,13 +12,19 @@ import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 public class PlaylistStringConverterTest extends AbstractGUITest {
 
+    private PlaylistStringConverter<Playlist> underTest;
+
+    @Before
+    public void setup() {
+        underTest = new PlaylistStringConverter<>();
+    }
+
     @Test
     public void shouldSetPlaylist() {
         Playlist playlist = mock(Playlist.class);
         when(playlist.getPlaylistId()).thenReturn(1);
         when(playlist.getName()).thenReturn("Playlist");
 
-        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
         underTest.setPlaylist(playlist);
 
         Playlist resultPlaylist = (Playlist) getField(underTest, "playlist");
@@ -33,8 +40,6 @@ public class PlaylistStringConverterTest extends AbstractGUITest {
         when(playlist.getPlaylistId()).thenReturn(1);
         when(playlist.getName()).thenReturn("Playlist");
 
-        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
-
         assertThat(underTest.toString(playlist)).isEqualTo("Playlist");
     }
 
@@ -42,7 +47,6 @@ public class PlaylistStringConverterTest extends AbstractGUITest {
     public void shouldGetFromString() {
         Playlist playlist = new Playlist(5, "Playlist", 10);
 
-        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
         underTest.setPlaylist(playlist);
 
         Playlist result = underTest.fromString("Playlist From String");
@@ -55,7 +59,6 @@ public class PlaylistStringConverterTest extends AbstractGUITest {
     public void shouldGetFromNullString() {
         Playlist playlist = new Playlist(5, "Playlist", 10);
 
-        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
         underTest.setPlaylist(playlist);
 
         Playlist result = underTest.fromString(null);
@@ -68,7 +71,6 @@ public class PlaylistStringConverterTest extends AbstractGUITest {
     public void shouldGetFromEmptyString() {
         Playlist playlist = new Playlist(5, "Playlist", 10);
 
-        PlaylistStringConverter<Playlist> underTest = new PlaylistStringConverter<>();
         underTest.setPlaylist(playlist);
 
         Playlist result = underTest.fromString(" ");

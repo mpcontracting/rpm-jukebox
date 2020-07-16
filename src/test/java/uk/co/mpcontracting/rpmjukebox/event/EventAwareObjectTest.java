@@ -21,14 +21,14 @@ public class EventAwareObjectTest extends AbstractEventTest {
     @Test
     @SneakyThrows
     public void shouldFireAnEventOnAnEventAwareObject() {
-        EventAwareObject eventAwareObject = new EventAwareObject() {
+        EventAwareObject underTest = new EventAwareObject() {
             @Override
             public void eventReceived(Event event, Object... payload) {
                 receivedEvent = event;
             }
         };
 
-        eventAwareObject.fireEvent(TEST_EVENT);
+        underTest.fireEvent(TEST_EVENT);
 
         WaitForAsyncUtils.waitForFxEvents();
 

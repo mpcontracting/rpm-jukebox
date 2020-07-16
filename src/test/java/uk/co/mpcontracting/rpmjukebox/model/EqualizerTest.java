@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -12,61 +13,56 @@ import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getNonNullF
 @RunWith(MockitoJUnitRunner.class)
 public class EqualizerTest {
 
+    private Equalizer underTest;
+
+    @Before
+    public void setup() {
+        underTest = new Equalizer(10);
+    }
+
     @Test
     public void shouldGetNumberOfBands() {
-        Equalizer equalizer = new Equalizer(10);
-
-        assertThat(equalizer.getNumberOfBands()).isEqualTo(10);
+        assertThat(underTest.getNumberOfBands()).isEqualTo(10);
     }
 
     @Test
     public void shouldSetGain() {
-        Equalizer equalizer = new Equalizer(10);
-        equalizer.setGain(5, 5);
+        underTest.setGain(5, 5);
 
-        double gain = ((double[]) getNonNullField(equalizer, "gain"))[5];
+        double gain = ((double[]) getNonNullField(underTest, "gain"))[5];
 
         assertThat(gain).isEqualTo(5d);
     }
 
     @Test
     public void shouldThrowExceptionWhenSettingBandLessThanZero() {
-        Equalizer equalizer = new Equalizer(10);
-
-        assertThatThrownBy(() -> equalizer.setGain(-1, 5)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> underTest.setGain(-1, 5)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void shouldThrowExceptionWhenSettingBandGreaterThanMax() {
-        Equalizer equalizer = new Equalizer(10);
-
-        assertThatThrownBy(() -> equalizer.setGain(10, 5)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> underTest.setGain(10, 5)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void shouldGetGain() {
-        Equalizer equalizer = new Equalizer(10);
         double[] gain = new double[10];
         gain[5] = 5d;
 
-        setField(equalizer, "gain", gain);
+        setField(underTest, "gain", gain);
 
-        double result = equalizer.getGain(5);
+        double result = underTest.getGain(5);
 
         assertThat(result).isEqualTo(5d);
     }
 
     @Test
     public void shouldThrowExceptionWhenGettingBandLessThanZero() {
-        Equalizer equalizer = new Equalizer(10);
-
-        assertThatThrownBy(() -> equalizer.getGain(-1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> underTest.getGain(-1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void shouldThrowExceptionWhenGettingBandGreaterThanMax() {
-        Equalizer equalizer = new Equalizer(10);
-
-        assertThatThrownBy(() -> equalizer.getGain(10)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> underTest.getGain(10)).isInstanceOf(IllegalArgumentException.class);
     }
 }

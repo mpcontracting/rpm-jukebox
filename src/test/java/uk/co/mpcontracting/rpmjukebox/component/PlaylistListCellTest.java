@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.component;
 
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -14,10 +15,15 @@ import static org.mockito.Mockito.*;
 
 public class PlaylistListCellTest extends AbstractGUITest implements Constants {
 
+    private PlaylistListCell underTest;
+
+    @Before
+    public void setup() {
+        underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
+    }
+
     @Test
     public void shouldUpdateItem() {
-        PlaylistListCell underTest = new PlaylistListCell(new PlaylistStringConverter<>());
-
         underTest.updateItem(new Playlist(1, "Playlist", 10), false);
 
         assertThat(underTest.getText()).isEqualTo("Playlist");
@@ -26,8 +32,6 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
 
     @Test
     public void shouldUpdateItemNotEditableWhenReservedPlaylist() {
-        PlaylistListCell underTest = new PlaylistListCell(new PlaylistStringConverter<>());
-
         underTest.updateItem(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10), false);
 
         assertThat(underTest.getText()).isEqualTo("Favourites");
@@ -36,7 +40,6 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
 
     @Test
     public void shouldUpdateItemAutoEditWhenGraphicIsTextField() {
-        PlaylistListCell underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
         TextField textField = mock(TextField.class);
         when(underTest.getGraphic()).thenReturn(textField);
 
@@ -49,8 +52,6 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
 
     @Test
     public void shouldUpdateItemAsEmpty() {
-        PlaylistListCell underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
-
         underTest.updateItem(new Playlist(1, "Playlist", 10), true);
 
         // These are also set in the super class
@@ -63,7 +64,7 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
         PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
         playlistStringConverter.setPlaylist(new Playlist(1, "Playlist", 10));
 
-        PlaylistListCell underTest = spy(new PlaylistListCell(playlistStringConverter));
+        underTest = spy(new PlaylistListCell(playlistStringConverter));
         TextField textField = spy(new TextField("Playlist Updated"));
         ReflectionTestUtils.invokeMethod(textField, "setFocused", true);
         when(underTest.getGraphic()).thenReturn(textField);
@@ -85,7 +86,6 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
 
     @Test
     public void shouldStartEditNoCommit() {
-        PlaylistListCell underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
         TextField textField = spy(new TextField("Playlist"));
         when(underTest.getGraphic()).thenReturn(textField);
 
@@ -103,8 +103,6 @@ public class PlaylistListCellTest extends AbstractGUITest implements Constants {
 
     @Test
     public void shouldStartEditNoTextField() {
-        PlaylistListCell underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
-
         @SuppressWarnings("unchecked")
         ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
         when(listView.isEditable()).thenReturn(true);

@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ThreadRunnerTest extends AbstractGUITest {
 
     @Autowired
-    private ThreadRunner threadRunner;
+    private ThreadRunner underTest;
 
     private CountDownLatch latch;
     private String threadName;
@@ -26,7 +26,7 @@ public class ThreadRunnerTest extends AbstractGUITest {
 
     @Test
     public void shouldRunOffGuiThread() throws Exception {
-        threadRunner.run(() -> {
+        underTest.run(() -> {
             threadName = Thread.currentThread().getName();
             latch.countDown();
         });
@@ -38,7 +38,7 @@ public class ThreadRunnerTest extends AbstractGUITest {
 
     @Test
     public void shouldRunOnGuiThread() throws Exception {
-        threadRunner.runOnGui(() -> {
+        underTest.runOnGui(() -> {
             threadName = Thread.currentThread().getName();
             latch.countDown();
         });
