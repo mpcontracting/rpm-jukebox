@@ -152,12 +152,12 @@ runtime {
 
         if (org.gradle.internal.os.OperatingSystem.current().windows) {
             installerType = 'msi'
-            imageOptions = ['--resource-dir', "$rootDir/src/main/deploy/package/windows", '--mac-package-name', 'RPM Jukebox']
+            imageOptions = ['--resource-dir', "$rootDir/src/main/deploy/package/windows"]
             installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu']
         }
 
         if (org.gradle.internal.os.OperatingSystem.current().linux) {
-            imageOptions = ['--resource-dir', "$rootDir/src/main/deploy/package/linux", '--mac-package-name', 'RPM Jukebox']
+            imageOptions = ['--resource-dir', "$rootDir/src/main/deploy/package/linux"]
         }
     }
 }
