@@ -106,8 +106,6 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
     }
 
     public static void main(String[] args) {
-        log.info("JavaFX Version - {}", System.getProperty("javafx.version"));
-
         // Look for the config directory and create it if it isn't there
         File homeDir = new File(System.getProperty("user.home"));
 
