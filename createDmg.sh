@@ -2,7 +2,7 @@
 
 VERSION="5.0.0"
 
-NATIVE_DIR="./build/jfx/native"
+NATIVE_DIR="./build/jpackage"
 NATIVE_APP="$NATIVE_DIR/RPM Jukebox.app"
 
 DMG_OUTPUT_DIR="$NATIVE_DIR/dmg"

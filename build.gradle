@@ -114,6 +114,8 @@ jacocoTestCoverageVerification {
             excludes = [
                     // Exclude RpmJukebox as we cannot test the static initialisation fully
                     'uk.co.mpcontracting.rpmjukebox.RpmJukebox',
+                    // Exclude RpmJukeboxLauncher as we cannot test the static initialisation fully
+                    'uk.co.mpcontracting.rpmjukebox.RpmJukeboxLauncher',
                     // Exclude MediaManager as we cannot test the MediaPlayer events
                     'uk.co.mpcontracting.rpmjukebox.manager.MediaManager',
                     // Exclude NativeManager as test coverage is only achievable on OSX
@@ -125,19 +127,39 @@ jacocoTestCoverageVerification {
     }
 }
 
-///////////////////////
-// Build The Runtime //
-///////////////////////
+/////////////////////////
+// JavaFX Build Script //
+/////////////////////////
 
 application {
     mainClassName = 'uk.co.mpcontracting.rpmjukebox.RpmJukeboxLauncher'
-    applicationDefaultJvmArgs = ['-Ddirectory.config=.rpmjukeboxdev']
+    applicationDefaultJvmArgs = ['-Xmx128m']
 }
 
 runtime {
-    options = ['--no-header-files', '--no-man-pages']
+    options.addAll('--no-header-files', '--no-man-pages')
+    modules.addAll('java.desktop', 'java.logging', 'java.management', 'java.naming', 'java.scripting', 'java.sql', 'java.xml', 'jdk.jfr', 'jdk.unsupported')
 
-    modules = ['java.desktop', 'java.logging', 'java.management', 'java.naming', 'java.scripting', 'java.sql', 'java.xml', 'jdk.jfr', 'jdk.unsupported']
+    jpackage {
+        appVersion = "${version}"
+        imageName = 'RPM Jukebox'
+        installerName = "${project.name}"
+
+        if (org.gradle.internal.os.OperatingSystem.current().macOsX) {
+            installerType = 'dmg'
+            imageOptions = ['--resource-dir', "$rootDir/src/main/deploy/package/macosx", '--mac-package-name', 'RPM Jukebox']
+        }
+
+        if (org.gradle.internal.os.OperatingSystem.current().windows) {
+            installerType = 'msi'
+            imageOptions = ['--resource-dir', "$rootDir/src/main/deploy/package/windows", '--mac-package-name', 'RPM Jukebox']
+            installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu']
+        }
+
+        if (org.gradle.internal.os.OperatingSystem.current().linux) {
+            imageOptions = ['--resource-dir', "$rootDir/src/main/deploy/package/linux", '--mac-package-name', 'RPM Jukebox']
+        }
+    }
 }
 
 /////////////////////////
