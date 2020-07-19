@@ -103,16 +103,12 @@ public class ApplicationManager extends EventAwareObject implements ApplicationC
         stage.setTitle(messageManager.getMessage(MESSAGE_WINDOW_TITLE));
 
         // If this is Windows, add a window icon
-        // Also show the window before resizing to work around a Windows 10 bug
         if (settingsManager.getOsType() == OsType.WINDOWS) {
             stage.getIcons().add(new Image(getClass().getResourceAsStream(IMAGE_WINDOW_ICON)));
         }
 
         // Load the window settings
         settingsManager.loadWindowSettings(stage);
-
-        stage.show();
-        stage.requestFocus();
 
         fireEvent(Event.APPLICATION_INITIALISED);
         isInitialised = true;

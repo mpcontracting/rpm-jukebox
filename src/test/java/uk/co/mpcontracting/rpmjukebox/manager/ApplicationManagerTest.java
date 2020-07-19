@@ -118,8 +118,6 @@ public class ApplicationManagerTest implements Constants {
         verify(stage, times(1)).setTitle("WindowTitle");
         verify(stage, never()).getIcons();
         verify(settingsManager, times(1)).loadWindowSettings(stage);
-        verify(stage, times(1)).show();
-        verify(stage, times(1)).requestFocus();
         verify(eventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
 
@@ -138,8 +136,6 @@ public class ApplicationManagerTest implements Constants {
         verify(stage, times(1)).setTitle("WindowTitle");
         verify(stage, times(1)).getIcons();
         verify(settingsManager, times(1)).loadWindowSettings(stage);
-        verify(stage, times(1)).show();
-        verify(stage, times(1)).requestFocus();
         verify(eventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
 
@@ -158,8 +154,6 @@ public class ApplicationManagerTest implements Constants {
         verify(stage, times(1)).setTitle("WindowTitle");
         verify(stage, never()).getIcons();
         verify(settingsManager, times(1)).loadWindowSettings(stage);
-        verify(stage, times(1)).show();
-        verify(stage, times(1)).requestFocus();
         verify(eventManager, times(1)).fireEvent(Event.APPLICATION_INITIALISED);
     }
 
