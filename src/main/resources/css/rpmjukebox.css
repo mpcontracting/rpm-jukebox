@@ -273,14 +273,14 @@
 
 .progress-bar .track {
     -fx-background-color: -jb-foreground-color;
-    -fx-background-insets: 0 10 0 10;
+    -fx-background-insets: -2 10 -2 10;
     -fx-background-radius: 1em;
     -fx-padding: 4;
 }
 
 .progress-bar > .bar {
     -fx-background-color: -jb-border-color;
-    -fx-background-insets: 2 12 2 12;
+    -fx-background-insets: 0 12 0 12;
     -fx-background-radius: 1em;
     -fx-padding: 2;
 }
