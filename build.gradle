@@ -132,13 +132,13 @@ jacocoTestCoverageVerification {
 /////////////////////////
 
 application {
-    mainClassName = 'uk.co.mpcontracting.rpmjukebox.RpmJukeboxLauncher'
+    mainClassName = 'uk.co.mpcontracting.rpmjukebox.RpmJukebox'
     applicationDefaultJvmArgs = ['-Xmx128m']
 }
 
 runtime {
     options.addAll('--no-header-files', '--no-man-pages')
-    modules.addAll('java.desktop', 'java.logging', 'java.management', 'java.naming', 'java.scripting', 'java.sql', 'java.xml', 'jdk.jfr', 'jdk.unsupported')
+    modules.addAll('java.desktop', 'java.logging', 'java.management', 'java.naming', 'java.scripting', 'java.sql', 'java.xml', 'jdk.jfr', 'jdk.unsupported', 'javafx.controls', 'javafx.fxml', 'javafx.media')
 
     jpackage {
         appVersion = "${version}"
