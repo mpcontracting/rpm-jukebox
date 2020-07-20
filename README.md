@@ -7,6 +7,7 @@ A player for the RPM Challenge jukebox written in JavaFX
 
 * Converted to use JDK14
 * JavaFX packages adapted from https://github.com/roskenet due to JDK11+ incompatibility
+* To build you will need a JDK with JavaFX included, e.g. Liberica
 
 ### v4.1.1
 
