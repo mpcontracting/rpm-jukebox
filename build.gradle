@@ -1,3 +1,5 @@
+import org.openjfx.gradle.JavaFXPlatform
+
 buildscript {
     repositories {
         mavenCentral()
@@ -56,7 +58,10 @@ jar {
 javafx {
     version = "14.0.1"
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.media' ]
+    configuration = 'compileOnly'
 }
+
+def classifier = JavaFXPlatform.detect(project).classifier
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
@@ -80,6 +85,11 @@ dependencies {
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'commons-io:commons-io:2.6'
     testImplementation 'com.google.guava:guava:27.1-jre'
+    testImplementation "org.openjfx:javafx-base:14.0.1:$classifier"
+    testImplementation "org.openjfx:javafx-controls:14.0.1:$classifier"
+    testImplementation "org.openjfx:javafx-fxml:14.0.1:$classifier"
+    testImplementation "org.openjfx:javafx-graphics:14.0.1:$classifier"
+    testImplementation "org.openjfx:javafx-media:14.0.1:$classifier"
 
     testCompileOnly 'org.projectlombok:lombok'
 
