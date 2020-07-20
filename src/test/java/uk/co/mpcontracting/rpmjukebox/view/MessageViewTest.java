@@ -1,6 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import javafx.collections.FXCollections;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -72,11 +72,7 @@ public class MessageViewTest extends AbstractGUITest {
         setField(underTest, "owner", null);
         setField(underTest, "stage", null);
 
-        Parent parent = mock(Parent.class);
-        Scene scene = mock(Scene.class);
-        when(parent.getScene()).thenReturn(scene);
-        when(parent.getStyleClass()).thenReturn(FXCollections.observableArrayList());
-        when(underTest.getView()).thenReturn(parent);
+        when(underTest.getView()).thenReturn(new Group());
 
         threadRunner.runOnGui(() -> underTest.initialise());
 
