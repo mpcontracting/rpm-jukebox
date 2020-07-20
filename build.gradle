@@ -124,8 +124,6 @@ jacocoTestCoverageVerification {
             excludes = [
                     // Exclude RpmJukebox as we cannot test the static initialisation fully
                     'uk.co.mpcontracting.rpmjukebox.RpmJukebox',
-                    // Exclude RpmJukeboxLauncher as we cannot test the static initialisation fully
-                    'uk.co.mpcontracting.rpmjukebox.RpmJukeboxLauncher',
                     // Exclude MediaManager as we cannot test the MediaPlayer events
                     'uk.co.mpcontracting.rpmjukebox.manager.MediaManager',
                     // Exclude NativeManager as test coverage is only achievable on OSX
