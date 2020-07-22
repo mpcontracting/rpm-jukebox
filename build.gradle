@@ -146,7 +146,9 @@ application {
 
 runtime {
     options.addAll('--no-header-files', '--no-man-pages')
-    modules.addAll('java.desktop', 'java.logging', 'java.management', 'java.naming', 'java.scripting', 'java.sql', 'java.xml', 'jdk.jfr', 'jdk.unsupported', 'javafx.controls', 'javafx.fxml', 'javafx.media')
+
+    // Note that the java.sql module is required by GSon as it sets up a default serializer/deserializer for java.sql.Time
+    modules.addAll('java.naming', 'java.sql', 'javafx.controls', 'javafx.fxml', 'javafx.media')
 
     jpackage {
         appVersion = "${version}"
