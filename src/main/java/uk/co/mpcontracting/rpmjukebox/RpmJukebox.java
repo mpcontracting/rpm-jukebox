@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox;
 
-import de.felixroske.jfxsupport.AbstractJavaFxApplicationSupport;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -11,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
+import uk.co.mpcontracting.rpmjukebox.javafx.AbstractJavaFxApplicationSupport;
 import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
@@ -106,6 +106,8 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Cons
     }
 
     public static void main(String[] args) {
+        log.info("JavaFX Version - {}", System.getProperty("javafx.runtime.version"));
+
         // Look for the config directory and create it if it isn't there
         File homeDir = new File(System.getProperty("user.home"));
 

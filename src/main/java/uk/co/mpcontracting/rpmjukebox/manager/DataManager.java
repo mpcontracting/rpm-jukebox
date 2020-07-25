@@ -34,20 +34,15 @@ public class DataManager implements Constants {
 
     private static final int ARTIST_ID = 1;
     private static final int ARTIST_NAME = 2;
-    private static final int ARTIST_IMAGE = 3;
     private static final int ARTIST_BIOGRAPHY = 4;
     private static final int ARTIST_MEMBERS = 5;
     private static final int ARTIST_GENRES = 6;
 
     private static final int ALBUM_ID = 1;
     private static final int ALBUM_NAME = 2;
-    private static final int ALBUM_IMAGE = 3;
     private static final int ALBUM_YEAR = 4;
-    private static final int ALBUM_DESCRIPTION = 5;
 
-    private static final int TRACK_ID = 1;
     private static final int TRACK_NAME = 2;
-    private static final int TRACK_LOCATION = 3;
     private static final int TRACK_PREFERRED = 4;
     private static final int TRACK_INDEX = 5;
     private static final int TRACK_GENRE = 6;

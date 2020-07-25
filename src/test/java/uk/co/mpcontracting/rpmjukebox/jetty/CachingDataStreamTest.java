@@ -25,13 +25,13 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 @RunWith(MockitoJUnitRunner.class)
 public class CachingDataStreamTest {
 
-    private AsyncContext mockAsyncContext;
-    private ServletOutputStream mockServletOutputStream;
+    private AsyncContext asyncContext;
+    private ServletOutputStream servletOutputStream;
 
     @Before
     public void setup() {
-        mockAsyncContext = mock(AsyncContext.class);
-        mockServletOutputStream = mock(ServletOutputStream.class);
+        asyncContext = mock(AsyncContext.class);
+        servletOutputStream = mock(ServletOutputStream.class);
     }
 
     @Test
@@ -40,16 +40,16 @@ public class CachingDataStreamTest {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte) 255);
 
-        ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
-        CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
-                mockAsyncContext, mockServletOutputStream);
-        when(mockServletOutputStream.isReady()).thenReturn(true);
+        ByteArrayInputStream byteArrayInputStream = spy(new ByteArrayInputStream(array));
+        CachingDataStream underTest = new CachingDataStream(CacheType.TRACK, "123", true, byteArrayInputStream,
+                asyncContext, servletOutputStream);
+        when(servletOutputStream.isReady()).thenReturn(true);
 
-        dataStream.onWritePossible();
+        underTest.onWritePossible();
 
-        verify(mockAsyncContext, times(1)).complete();
-        verify(mockServletOutputStream, times(5)).write(any(), anyInt(), anyInt());
-        verify(spyInputStream, times(1)).close();
+        verify(asyncContext, times(1)).complete();
+        verify(servletOutputStream, times(5)).write(any(), anyInt(), anyInt());
+        verify(byteArrayInputStream, times(1)).close();
     }
 
     @Test
@@ -59,25 +59,25 @@ public class CachingDataStreamTest {
         Arrays.fill(array, (byte) 255);
 
         ApplicationContext originalContext = (ApplicationContext) getField(ContextHelper.class, "applicationContext");
-        ApplicationContext mockContext = mock(ApplicationContext.class);
-        setField(ContextHelper.class, "applicationContext", mockContext);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        setField(ContextHelper.class, "applicationContext", applicationContext);
 
-        CacheManager mockCacheManager = mock(CacheManager.class);
-        when(mockContext.getBean(CacheManager.class)).thenReturn(mockCacheManager);
+        CacheManager cacheManager = mock(CacheManager.class);
+        when(applicationContext.getBean(CacheManager.class)).thenReturn(cacheManager);
 
         try {
-            ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
+            ByteArrayInputStream byteArrayInputStream = spy(new ByteArrayInputStream(array));
 
-            CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", false, spyInputStream,
-                    mockAsyncContext, mockServletOutputStream);
-            when(mockServletOutputStream.isReady()).thenReturn(true);
+            CachingDataStream underTest = new CachingDataStream(CacheType.TRACK, "123", false, byteArrayInputStream,
+                    asyncContext, servletOutputStream);
+            when(servletOutputStream.isReady()).thenReturn(true);
 
-            dataStream.onWritePossible();
+            underTest.onWritePossible();
 
-            verify(mockAsyncContext, times(1)).complete();
-            verify(mockServletOutputStream, times(5)).write(any(), anyInt(), anyInt());
-            verify(mockCacheManager, times(1)).writeCache(CacheType.TRACK, "123", array);
-            verify(spyInputStream, times(1)).close();
+            verify(asyncContext, times(1)).complete();
+            verify(servletOutputStream, times(5)).write(any(), anyInt(), anyInt());
+            verify(cacheManager, times(1)).writeCache(CacheType.TRACK, "123", array);
+            verify(byteArrayInputStream, times(1)).close();
         } finally {
             setField(ContextHelper.class, "applicationContext", originalContext);
         }
@@ -89,16 +89,16 @@ public class CachingDataStreamTest {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte) 255);
 
-        ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
-        CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
-                mockAsyncContext, mockServletOutputStream);
-        when(mockServletOutputStream.isReady()).thenReturn(false);
+        ByteArrayInputStream byteArrayInputStream = spy(new ByteArrayInputStream(array));
+        CachingDataStream underTest = new CachingDataStream(CacheType.TRACK, "123", true, byteArrayInputStream,
+                asyncContext, servletOutputStream);
+        when(servletOutputStream.isReady()).thenReturn(false);
 
-        dataStream.onWritePossible();
+        underTest.onWritePossible();
 
-        verify(mockAsyncContext, never()).complete();
-        verify(mockServletOutputStream, never()).write(any(), anyInt(), anyInt());
-        verify(spyInputStream, never()).close();
+        verify(asyncContext, never()).complete();
+        verify(servletOutputStream, never()).write(any(), anyInt(), anyInt());
+        verify(byteArrayInputStream, never()).close();
     }
 
     @Test
@@ -107,15 +107,15 @@ public class CachingDataStreamTest {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte) 255);
 
-        ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
-        CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
-                mockAsyncContext, mockServletOutputStream);
+        ByteArrayInputStream byteArrayInputStream = spy(new ByteArrayInputStream(array));
+        CachingDataStream underTest = new CachingDataStream(CacheType.TRACK, "123", true, byteArrayInputStream,
+                asyncContext, servletOutputStream);
 
-        dataStream.onError(new Exception("CachingDataStreamTest.shouldDealWithAnError()"));
+        underTest.onError(new Exception("CachingDataStreamTest.shouldDealWithAnError()"));
 
-        verify(mockAsyncContext, times(1)).complete();
-        verify(mockServletOutputStream, never()).write(any(), anyInt(), anyInt());
-        verify(spyInputStream, times(1)).close();
+        verify(asyncContext, times(1)).complete();
+        verify(servletOutputStream, never()).write(any(), anyInt(), anyInt());
+        verify(byteArrayInputStream, times(1)).close();
     }
 
     @Test
@@ -124,17 +124,17 @@ public class CachingDataStreamTest {
         byte[] array = new byte[20000];
         Arrays.fill(array, (byte) 255);
 
-        ByteArrayInputStream spyInputStream = spy(new ByteArrayInputStream(array));
-        CachingDataStream dataStream = new CachingDataStream(CacheType.TRACK, "123", true, spyInputStream,
-                mockAsyncContext, mockServletOutputStream);
+        ByteArrayInputStream byteArrayInputStream = spy(new ByteArrayInputStream(array));
+        CachingDataStream underTest = new CachingDataStream(CacheType.TRACK, "123", true, byteArrayInputStream,
+                asyncContext, servletOutputStream);
         doThrow(new RuntimeException("CachingDataStreamTest.shouldDealWithAnErrorWhenAsyncContextThrowsAnException()"))
-                .when(mockAsyncContext).complete();
+                .when(asyncContext).complete();
 
-        dataStream.onError(
+        underTest.onError(
                 new EofException("CachingDataStreamTest.shouldDealWithAnErrorWhenAsyncContextThrowsAnException()"));
 
-        verify(mockAsyncContext, times(1)).complete();
-        verify(mockServletOutputStream, never()).write(any(), anyInt(), anyInt());
-        verify(spyInputStream, times(1)).close();
+        verify(asyncContext, times(1)).complete();
+        verify(servletOutputStream, never()).write(any(), anyInt(), anyInt());
+        verify(byteArrayInputStream, times(1)).close();
     }
 }

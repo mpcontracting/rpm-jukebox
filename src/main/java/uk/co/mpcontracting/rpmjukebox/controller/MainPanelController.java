@@ -2,7 +2,6 @@ package uk.co.mpcontracting.rpmjukebox.controller;
 
 import com.google.gson.reflect.TypeToken;
 import com.igormaznitsa.commons.version.Version;
-import de.felixroske.jfxsupport.FXMLController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,6 +23,7 @@ import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.javafx.FXMLController;
 import uk.co.mpcontracting.rpmjukebox.manager.*;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
@@ -766,11 +766,7 @@ public class MainPanelController extends EventAwareObject implements Constants {
                         // If we're not playing or paused and the playlist is not empty
                         // then enable the play button so we can play the playlist
                         if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
-                            if (isPlaylistPlayable()) {
-                                playPauseButton.setDisable(false);
-                            } else {
-                                playPauseButton.setDisable(true);
-                            }
+                            playPauseButton.setDisable(!isPlaylistPlayable());
                         }
                     }
                 }

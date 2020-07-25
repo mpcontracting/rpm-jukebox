@@ -22,46 +22,46 @@ import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getTestReso
 public class InternetManagerTest {
 
     @Mock
-    private EventManager mockEventManager;
+    private EventManager eventManager;
 
     @Mock
-    private SettingsManager mockSettingsManager;
+    private SettingsManager settingsManager;
 
-    private InternetManager internetManager;
+    private InternetManager underTest;
 
     @Before
     public void setup() {
-        internetManager = new InternetManager();
-        internetManager.wireSettingsManager(mockSettingsManager);
+        underTest = new InternetManager();
+        underTest.wireSettingsManager(settingsManager);
 
-        setField(internetManager, "eventManager", mockEventManager);
+        setField(underTest, "eventManager", eventManager);
     }
 
     @Test
     @SneakyThrows
     public void shouldOpenConnectionToFile() {
-        URL spyDataFile = spy(new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath()));
+        URL url = spy(new URL("file:///" + getTestResourceFile("data/rpm-data.gz").getAbsolutePath()));
 
-        internetManager.openConnection(spyDataFile);
+        underTest.openConnection(url);
 
-        verify(mockSettingsManager, never()).getSystemSettings();
-        verify(spyDataFile, times(1)).openConnection();
+        verify(settingsManager, never()).getSystemSettings();
+        verify(url, times(1)).openConnection();
     }
 
     @Test
     @SneakyThrows
     public void shouldOpenConnectionNoProxy() {
-        when(mockSettingsManager.getSystemSettings()).thenReturn(SystemSettings.builder().build());
+        when(settingsManager.getSystemSettings()).thenReturn(SystemSettings.builder().build());
 
-        URL mockUrl = mock(URL.class);
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockUrl.openConnection()).thenReturn(mockConnection);
+        URL url = mock(URL.class);
+        HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
+        when(url.openConnection()).thenReturn(httpURLConnection);
 
-        internetManager.openConnection(mockUrl);
+        underTest.openConnection(url);
 
-        verify(mockUrl, times(1)).openConnection();
-        verify(mockUrl, never()).openConnection(any());
-        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
+        verify(url, times(1)).openConnection();
+        verify(url, never()).openConnection(any());
+        verify(httpURLConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
@@ -71,17 +71,17 @@ public class InternetManagerTest {
                 .proxyHost("localhost")
                 .build();
 
-        when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        URL mockUrl = mock(URL.class);
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockUrl.openConnection()).thenReturn(mockConnection);
+        URL url = mock(URL.class);
+        HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
+        when(url.openConnection()).thenReturn(httpURLConnection);
 
-        internetManager.openConnection(mockUrl);
+        underTest.openConnection(url);
 
-        verify(mockUrl, times(1)).openConnection();
-        verify(mockUrl, never()).openConnection(any());
-        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
+        verify(url, times(1)).openConnection();
+        verify(url, never()).openConnection(any());
+        verify(httpURLConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
@@ -91,17 +91,17 @@ public class InternetManagerTest {
                 .proxyPort(8080)
                 .build();
 
-        when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        URL mockUrl = mock(URL.class);
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockUrl.openConnection()).thenReturn(mockConnection);
+        URL url = mock(URL.class);
+        HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
+        when(url.openConnection()).thenReturn(httpURLConnection);
 
-        internetManager.openConnection(mockUrl);
+        underTest.openConnection(url);
 
-        verify(mockUrl, times(1)).openConnection();
-        verify(mockUrl, never()).openConnection(any());
-        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
+        verify(url, times(1)).openConnection();
+        verify(url, never()).openConnection(any());
+        verify(httpURLConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
@@ -112,17 +112,17 @@ public class InternetManagerTest {
                 .proxyPort(8080)
                 .build();
 
-        when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        URL mockUrl = mock(URL.class);
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockUrl.openConnection(any())).thenReturn(mockConnection);
+        URL url = mock(URL.class);
+        HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
+        when(url.openConnection(any())).thenReturn(httpURLConnection);
 
-        internetManager.openConnection(mockUrl);
+        underTest.openConnection(url);
 
-        verify(mockUrl, never()).openConnection();
-        verify(mockUrl, times(1)).openConnection(any());
-        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
+        verify(url, never()).openConnection();
+        verify(url, times(1)).openConnection(any());
+        verify(httpURLConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
@@ -134,17 +134,17 @@ public class InternetManagerTest {
                 .proxyRequiresAuthentication(false)
                 .build();
 
-        when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        URL mockUrl = mock(URL.class);
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockUrl.openConnection(any())).thenReturn(mockConnection);
+        URL url = mock(URL.class);
+        HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
+        when(url.openConnection(any())).thenReturn(httpURLConnection);
 
-        internetManager.openConnection(mockUrl);
+        underTest.openConnection(url);
 
-        verify(mockUrl, never()).openConnection();
-        verify(mockUrl, times(1)).openConnection(any());
-        verify(mockConnection, never()).setRequestProperty(anyString(), anyString());
+        verify(url, never()).openConnection();
+        verify(url, times(1)).openConnection(any());
+        verify(httpURLConnection, never()).setRequestProperty(anyString(), anyString());
     }
 
     @Test
@@ -158,16 +158,16 @@ public class InternetManagerTest {
                 .proxyPassword("password")
                 .build();
 
-        when(mockSettingsManager.getSystemSettings()).thenReturn(systemSettings);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
 
-        URL mockUrl = mock(URL.class);
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockUrl.openConnection(any())).thenReturn(mockConnection);
+        URL url = mock(URL.class);
+        HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
+        when(url.openConnection(any())).thenReturn(httpURLConnection);
 
-        internetManager.openConnection(mockUrl);
+        underTest.openConnection(url);
 
-        verify(mockUrl, never()).openConnection();
-        verify(mockUrl, times(1)).openConnection(any());
-        verify(mockConnection, times(1)).setRequestProperty(anyString(), anyString());
+        verify(url, never()).openConnection();
+        verify(url, times(1)).openConnection(any());
+        verify(httpURLConnection, times(1)).setRequestProperty(anyString(), anyString());
     }
 }

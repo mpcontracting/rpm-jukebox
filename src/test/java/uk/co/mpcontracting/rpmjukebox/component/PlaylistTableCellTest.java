@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import org.junit.Before;
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
@@ -7,27 +8,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PlaylistTableCellTest extends AbstractGUITest {
 
+    private PlaylistTableCell<String> underTest;
+
+    @Before
+    public void setup() {
+        underTest = new PlaylistTableCell<>();
+    }
+
     @Test
     public void shouldUpdateItem() {
-        PlaylistTableCell<String> playlistTableCell = new PlaylistTableCell<>();
-        playlistTableCell.updateItem("Value", false);
+        underTest.updateItem("Value", false);
 
-        assertThat(playlistTableCell.getText()).isEqualTo("Value");
+        assertThat(underTest.getText()).isEqualTo("Value");
     }
 
     @Test
     public void shouldUpdateItemAsEmpty() {
-        PlaylistTableCell<String> playlistTableCell = new PlaylistTableCell<>();
-        playlistTableCell.updateItem("Value", true);
+        underTest.updateItem("Value", true);
 
-        assertThat(playlistTableCell.getText()).isNull();
+        assertThat(underTest.getText()).isNull();
     }
 
     @Test
     public void shouldUpdateItemAsNull() {
-        PlaylistTableCell<String> playlistTableCell = new PlaylistTableCell<>();
-        playlistTableCell.updateItem(null, false);
+        underTest.updateItem(null, false);
 
-        assertThat(playlistTableCell.getText()).isNull();
+        assertThat(underTest.getText()).isNull();
     }
 }

@@ -1,7 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.manager;
 
 import com.igormaznitsa.commons.version.Version;
-import de.felixroske.jfxsupport.GUIState;
 import javafx.application.HostServices;
 import lombok.SneakyThrows;
 import org.junit.Before;
@@ -12,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.javafx.GuiState;
 import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
 
 import java.io.ByteArrayInputStream;
@@ -28,124 +28,125 @@ import static org.springframework.test.util.ReflectionTestUtils.*;
 public class UpdateManagerTest {
 
     @Mock
-    private AppProperties mockAppProperties;
+    private AppProperties appProperties;
 
     @Mock
-    private EventManager mockEventManager;
+    private EventManager eventManager;
 
     @Mock
-    private SettingsManager mockSettingsManager;
+    private SettingsManager settingsManager;
 
     @Mock
-    private InternetManager mockInternetManager;
+    private InternetManager internetManager;
 
     @Mock
-    private HttpURLConnection mockHttpURLConnection;
+    private HttpURLConnection httpURLConnection;
 
     @Mock
-    private HostServices mockHostServices;
+    private HostServices hostServices;
 
-    private UpdateManager updateManager;
-    private ThreadRunner threadRunner = new ThreadRunner(Executors.newSingleThreadExecutor());
+    private final ThreadRunner threadRunner = new ThreadRunner(Executors.newSingleThreadExecutor());
+
+    private UpdateManager underTest;
 
     @Before
     @SneakyThrows
     public void setup() {
-        updateManager = new UpdateManager(mockAppProperties, threadRunner);
-        updateManager.wireSettingsManager(mockSettingsManager);
-        updateManager.wireInternetManager(mockInternetManager);
+        underTest = new UpdateManager(appProperties, threadRunner);
+        underTest.wireSettingsManager(settingsManager);
+        underTest.wireInternetManager(internetManager);
 
-        setField(updateManager, "eventManager", mockEventManager);
-        setField(GUIState.class, "hostServices", mockHostServices);
+        setField(underTest, "eventManager", eventManager);
+        setField(GuiState.class, "hostServices", hostServices);
 
         URL versionUrl = new URL("http://www.example.com");
 
-        when(mockAppProperties.getVersionUrl()).thenReturn(versionUrl.toString());
-        when(mockSettingsManager.getVersion()).thenReturn(new Version("1.0.0"));
-        when(mockInternetManager.openConnection(versionUrl)).thenReturn(mockHttpURLConnection);
+        when(appProperties.getVersionUrl()).thenReturn(versionUrl.toString());
+        when(settingsManager.getVersion()).thenReturn(new Version("1.0.0"));
+        when(internetManager.openConnection(versionUrl)).thenReturn(httpURLConnection);
     }
 
     @Test
     @SneakyThrows
     public void shouldFindUpdatesAvailable() {
-        when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
-        when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("99.99.99".getBytes()));
+        when(httpURLConnection.getResponseCode()).thenReturn(200);
+        when(httpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("99.99.99".getBytes()));
 
-        invokeMethod(updateManager, "checkForUpdates");
+        invokeMethod(underTest, "checkForUpdates");
 
-        assertThat(getField(updateManager, "newVersion")).isNotNull();
-        verify(mockEventManager, times(1)).fireEvent(Event.NEW_VERSION_AVAILABLE,
+        assertThat(getField(underTest, "newVersion")).isNotNull();
+        verify(eventManager, times(1)).fireEvent(Event.NEW_VERSION_AVAILABLE,
                 new Version("99.99.99"));
     }
 
     @Test
     @SneakyThrows
     public void shouldNotFindUpdatesAvailable() {
-        when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
-        when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("0.0.1".getBytes()));
+        when(httpURLConnection.getResponseCode()).thenReturn(200);
+        when(httpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream("0.0.1".getBytes()));
 
-        invokeMethod(updateManager, "checkForUpdates");
+        invokeMethod(underTest, "checkForUpdates");
 
-        assertThat(getField(updateManager, "newVersion")).isNull();
-        verify(mockEventManager, never()).fireEvent(Event.NEW_VERSION_AVAILABLE, new Version("0.0.1"));
+        assertThat(getField(underTest, "newVersion")).isNull();
+        verify(eventManager, never()).fireEvent(Event.NEW_VERSION_AVAILABLE, new Version("0.0.1"));
     }
 
     @Test
     @SneakyThrows
     public void shouldNotFindUpdatesOnConnectionError() {
-        doThrow(new RuntimeException("UpdateManagerTest.shouldNotFindUpdatesOnConnectionError()")).when(mockInternetManager)
+        doThrow(new RuntimeException("UpdateManagerTest.shouldNotFindUpdatesOnConnectionError()")).when(internetManager)
                 .openConnection(any());
 
-        invokeMethod(updateManager, "checkForUpdates");
+        invokeMethod(underTest, "checkForUpdates");
 
-        assertThat(getField(updateManager, "newVersion")).isNull();
-        verify(mockEventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
+        assertThat(getField(underTest, "newVersion")).isNull();
+        verify(eventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
     }
 
     @Test
     @SneakyThrows
     public void shouldNotFindUpdatesOn404() {
-        when(mockHttpURLConnection.getResponseCode()).thenReturn(404);
+        when(httpURLConnection.getResponseCode()).thenReturn(404);
 
-        invokeMethod(updateManager, "checkForUpdates");
+        invokeMethod(underTest, "checkForUpdates");
 
-        assertThat(getField(updateManager, "newVersion")).isNull();
-        verify(mockEventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
+        assertThat(getField(underTest, "newVersion")).isNull();
+        verify(eventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
     }
 
     @Test
     @SneakyThrows
     public void shouldNotFindUpdatesAvailableOnEmptyVersionString() {
-        when(mockHttpURLConnection.getResponseCode()).thenReturn(200);
-        when(mockHttpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{}));
+        when(httpURLConnection.getResponseCode()).thenReturn(200);
+        when(httpURLConnection.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{}));
 
-        invokeMethod(updateManager, "checkForUpdates");
+        invokeMethod(underTest, "checkForUpdates");
 
-        assertThat(getField(updateManager, "newVersion")).isNull();
-        verify(mockEventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
+        assertThat(getField(underTest, "newVersion")).isNull();
+        verify(eventManager, never()).fireEvent(eq(Event.NEW_VERSION_AVAILABLE), any());
     }
 
     @Test
     @SneakyThrows
     public void shouldDownloadNewVersion() {
-        when(mockAppProperties.getWebsiteUrl()).thenReturn("http://www.website.url");
+        when(appProperties.getWebsiteUrl()).thenReturn("http://www.website.url");
 
-        invokeMethod(updateManager, "downloadNewVersion");
+        invokeMethod(underTest, "downloadNewVersion");
 
         // Wait for invocation
         sleep(500);
 
-        verify(mockHostServices, times(1)).showDocument(mockAppProperties.getWebsiteUrl());
+        verify(hostServices, times(1)).showDocument(appProperties.getWebsiteUrl());
     }
 
     @Test
     @SneakyThrows
     public void shouldCheckForUpdatesOnApplicationInitialisedEvent() {
-        updateManager.eventReceived(Event.APPLICATION_INITIALISED);
+        underTest.eventReceived(Event.APPLICATION_INITIALISED);
 
         // Wait for invocation
         sleep(500);
 
-        verify(mockInternetManager, times(1)).openConnection(any());
+        verify(internetManager, times(1)).openConnection(any());
     }
 }

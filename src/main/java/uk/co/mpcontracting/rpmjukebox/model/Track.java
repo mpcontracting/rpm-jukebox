@@ -2,23 +2,22 @@ package uk.co.mpcontracting.rpmjukebox.model;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.List;
 
-import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
-import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
-
 @Data
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Track implements Serializable, Cloneable {
-    private String artistId;
+    @EqualsAndHashCode.Include private String artistId;
     private String artistName;
-    private String albumId;
+    @EqualsAndHashCode.Include private String albumId;
     private String albumName;
     private String albumImage;
     private int year;
-    private String trackId;
+    @EqualsAndHashCode.Include private String trackId;
     private String trackName;
     private int index;
     private String location;
@@ -27,38 +26,6 @@ public class Track implements Serializable, Cloneable {
 
     private int playlistId;
     private int playlistIndex;
-
-    @Override
-    public int hashCode() {
-        return reflectionHashCode(this,
-                "artistName",
-                "albumName",
-                "albumImage",
-                "year",
-                "trackName",
-                "index",
-                "location",
-                "isPreferred",
-                "genres",
-                "playlistId",
-                "playlistIndex");
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        return reflectionEquals(this, object,
-                "artistName",
-                "albumName",
-                "albumImage",
-                "year",
-                "trackName",
-                "index",
-                "location",
-                "isPreferred",
-                "genres",
-                "playlistId",
-                "playlistIndex");
-    }
 
     @Override
     public Track clone() {

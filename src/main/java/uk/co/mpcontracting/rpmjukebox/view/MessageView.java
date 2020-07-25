@@ -1,7 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import de.felixroske.jfxsupport.FXMLView;
 import javafx.scene.control.Label;
+import uk.co.mpcontracting.rpmjukebox.javafx.FXMLView;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 

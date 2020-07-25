@@ -13,52 +13,52 @@ import static org.mockito.Mockito.when;
 public class LoveButtonTableCellTest extends AbstractGUITest implements Constants {
 
     @Mock
-    private PlaylistManager mockPlaylistManager;
+    private PlaylistManager playlistManager;
 
-    private LoveButtonTableCell loveButtonTableCell;
+    private LoveButtonTableCell underTest;
 
     @Before
     public void setup() {
-        loveButtonTableCell = new LoveButtonTableCell(mockPlaylistManager);
+        underTest = new LoveButtonTableCell(playlistManager);
     }
 
     @Test
     public void shouldUpdateItemWhenTrackIsInFavourites() {
         String trackId = "trackId";
-        when(mockPlaylistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(true);
+        when(playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(true);
 
-        loveButtonTableCell.updateItem(trackId, false);
+        underTest.updateItem(trackId, false);
 
-        assertThat(loveButtonTableCell.getId()).isEqualTo(STYLE_LOVE_BUTTON_ON);
+        assertThat(underTest.getId()).isEqualTo(STYLE_LOVE_BUTTON_ON);
     }
 
     @Test
     public void shouldUpdateItemWhenTrackIsNotInFavourites() {
         String trackId = "trackId";
-        when(mockPlaylistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
+        when(playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
 
-        loveButtonTableCell.updateItem(trackId, false);
+        underTest.updateItem(trackId, false);
 
-        assertThat(loveButtonTableCell.getId()).isEqualTo(STYLE_LOVE_BUTTON_OFF);
+        assertThat(underTest.getId()).isEqualTo(STYLE_LOVE_BUTTON_OFF);
     }
 
     @Test
     public void shouldUpdateItemAsEmpty() {
         String trackId = "trackId";
-        when(mockPlaylistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
+        when(playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
 
-        loveButtonTableCell.updateItem(trackId, true);
+        underTest.updateItem(trackId, true);
 
-        assertThat(loveButtonTableCell.getId()).isNull();
+        assertThat(underTest.getId()).isNull();
     }
 
     @Test
     public void shouldUpdateItemAsNull() {
         String trackId = "trackId";
-        when(mockPlaylistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
+        when(playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
 
-        loveButtonTableCell.updateItem(null, false);
+        underTest.updateItem(null, false);
 
-        assertThat(loveButtonTableCell.getId()).isNull();
+        assertThat(underTest.getId()).isNull();
     }
 }

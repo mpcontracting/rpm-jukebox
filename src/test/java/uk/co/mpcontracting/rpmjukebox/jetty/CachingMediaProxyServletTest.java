@@ -28,137 +28,137 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 @RunWith(MockitoJUnitRunner.class)
 public class CachingMediaProxyServletTest {
 
-    private HttpServletRequest mockServletRequest;
-    private HttpServletResponse mockServletResponse;
-    private CacheManager mockCacheManager;
-    private InternetManager mockInternetManager;
-    private ServletOutputStream mockServletOutputStream;
+    private HttpServletRequest httpServletRequest;
+    private HttpServletResponse httpServletResponse;
+    private CacheManager cacheManager;
+    private InternetManager internetManager;
+    private ServletOutputStream servletOutputStream;
 
     private ApplicationContext originalContext;
-    private CachingMediaProxyServlet spyServlet;
+    private CachingMediaProxyServlet underTest;
 
     @Before
     @SneakyThrows
     public void setup() {
-        mockServletRequest = mock(HttpServletRequest.class);
-        mockServletResponse = mock(HttpServletResponse.class);
-        mockCacheManager = mock(CacheManager.class);
-        mockInternetManager = mock(InternetManager.class);
-        mockServletOutputStream = mock(ServletOutputStream.class);
+        httpServletRequest = mock(HttpServletRequest.class);
+        httpServletResponse = mock(HttpServletResponse.class);
+        cacheManager = mock(CacheManager.class);
+        internetManager = mock(InternetManager.class);
+        servletOutputStream = mock(ServletOutputStream.class);
 
-        when(mockServletResponse.getOutputStream()).thenReturn(mockServletOutputStream);
+        when(httpServletResponse.getOutputStream()).thenReturn(servletOutputStream);
 
         originalContext = (ApplicationContext) getField(ContextHelper.class, "applicationContext");
-        ApplicationContext mockContext = mock(ApplicationContext.class);
-        when(mockContext.getBean(CacheManager.class)).thenReturn(mockCacheManager);
-        when(mockContext.getBean(InternetManager.class)).thenReturn(mockInternetManager);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        when(applicationContext.getBean(CacheManager.class)).thenReturn(cacheManager);
+        when(applicationContext.getBean(InternetManager.class)).thenReturn(internetManager);
 
-        setField(ContextHelper.class, "applicationContext", mockContext);
+        setField(ContextHelper.class, "applicationContext", applicationContext);
 
-        spyServlet = spy(new CachingMediaProxyServlet());
+        underTest = spy(new CachingMediaProxyServlet());
     }
 
     @Test
     @SneakyThrows
     public void shouldGetCachedFile() {
-        when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
-        when(mockServletRequest.getParameter("id")).thenReturn("123");
-        when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
-        when(mockServletRequest.getMethod()).thenReturn("GET");
+        when(httpServletRequest.getParameter("cacheType")).thenReturn("TRACK");
+        when(httpServletRequest.getParameter("id")).thenReturn("123");
+        when(httpServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
+        when(httpServletRequest.getMethod()).thenReturn("GET");
 
-        File mockCachedFile = mock(File.class);
-        when(mockCachedFile.length()).thenReturn(1000L);
+        File file = mock(File.class);
+        when(file.length()).thenReturn(1000L);
 
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(of(mockCachedFile));
-        doReturn(mock(FileInputStream.class)).when(spyServlet).getFileInputStream(any());
+        when(cacheManager.readCache(any(), anyString())).thenReturn(of(file));
+        doReturn(mock(FileInputStream.class)).when(underTest).getFileInputStream(any());
 
-        spyServlet.doGet(mockServletRequest, mockServletResponse);
+        underTest.doGet(httpServletRequest, httpServletResponse);
 
-        verify(mockServletResponse, times(1)).setContentLengthLong(1000L);
-        verify(mockServletOutputStream, times(1)).setWriteListener(any());
+        verify(httpServletResponse, times(1)).setContentLengthLong(1000L);
+        verify(servletOutputStream, times(1)).setWriteListener(any());
     }
 
     @Test
     public void shouldNotGetCachedFileWhenRequestMethodIsHead() {
-        when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
-        when(mockServletRequest.getParameter("id")).thenReturn("123");
-        when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
-        when(mockServletRequest.getMethod()).thenReturn("HEAD");
+        when(httpServletRequest.getParameter("cacheType")).thenReturn("TRACK");
+        when(httpServletRequest.getParameter("id")).thenReturn("123");
+        when(httpServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
+        when(httpServletRequest.getMethod()).thenReturn("HEAD");
 
-        File mockCachedFile = mock(File.class);
-        when(mockCachedFile.length()).thenReturn(1000L);
+        File file = mock(File.class);
+        when(file.length()).thenReturn(1000L);
 
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(of(mockCachedFile));
+        when(cacheManager.readCache(any(), anyString())).thenReturn(of(file));
 
-        spyServlet.doGet(mockServletRequest, mockServletResponse);
+        underTest.doGet(httpServletRequest, httpServletResponse);
 
-        verify(mockServletResponse, times(1)).setContentLengthLong(1000L);
-        verify(mockServletOutputStream, never()).setWriteListener(any());
+        verify(httpServletResponse, times(1)).setContentLengthLong(1000L);
+        verify(servletOutputStream, never()).setWriteListener(any());
     }
 
     @Test
     @SneakyThrows
     public void shouldGetFileFromUrl() {
-        when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
-        when(mockServletRequest.getParameter("id")).thenReturn("123");
-        when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
-        when(mockServletRequest.getMethod()).thenReturn("GET");
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(empty());
+        when(httpServletRequest.getParameter("cacheType")).thenReturn("TRACK");
+        when(httpServletRequest.getParameter("id")).thenReturn("123");
+        when(httpServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
+        when(httpServletRequest.getMethod()).thenReturn("GET");
+        when(cacheManager.readCache(any(), anyString())).thenReturn(empty());
 
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockConnection.getResponseCode()).thenReturn(200);
-        when(mockConnection.getContentLength()).thenReturn(1000);
+        HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
+        when(httpURLConnection.getResponseCode()).thenReturn(200);
+        when(httpURLConnection.getContentLength()).thenReturn(1000);
 
-        when(mockInternetManager.openConnection(any())).thenReturn(mockConnection);
+        when(internetManager.openConnection(any())).thenReturn(httpURLConnection);
 
-        spyServlet.doGet(mockServletRequest, mockServletResponse);
+        underTest.doGet(httpServletRequest, httpServletResponse);
 
-        verify(mockServletResponse, times(1)).setContentLength(1000);
-        verify(mockServletResponse, never()).setStatus(anyInt());
-        verify(mockServletOutputStream, times(1)).setWriteListener(any());
+        verify(httpServletResponse, times(1)).setContentLength(1000);
+        verify(httpServletResponse, never()).setStatus(anyInt());
+        verify(servletOutputStream, times(1)).setWriteListener(any());
     }
 
     @Test
     @SneakyThrows
     public void shouldNotGetFileFromUrlWhenRequestMethodIsHead() {
-        when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
-        when(mockServletRequest.getParameter("id")).thenReturn("123");
-        when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
-        when(mockServletRequest.getMethod()).thenReturn("HEAD");
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(empty());
+        when(httpServletRequest.getParameter("cacheType")).thenReturn("TRACK");
+        when(httpServletRequest.getParameter("id")).thenReturn("123");
+        when(httpServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
+        when(httpServletRequest.getMethod()).thenReturn("HEAD");
+        when(cacheManager.readCache(any(), anyString())).thenReturn(empty());
 
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockConnection.getResponseCode()).thenReturn(200);
-        when(mockConnection.getContentLength()).thenReturn(1000);
+        HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
+        when(httpURLConnection.getResponseCode()).thenReturn(200);
+        when(httpURLConnection.getContentLength()).thenReturn(1000);
 
-        when(mockInternetManager.openConnection(any())).thenReturn(mockConnection);
+        when(internetManager.openConnection(any())).thenReturn(httpURLConnection);
 
-        spyServlet.doGet(mockServletRequest, mockServletResponse);
+        underTest.doGet(httpServletRequest, httpServletResponse);
 
-        verify(mockServletResponse, times(1)).setContentLength(1000);
-        verify(mockServletResponse, never()).setStatus(anyInt());
-        verify(mockServletOutputStream, never()).setWriteListener(any());
+        verify(httpServletResponse, times(1)).setContentLength(1000);
+        verify(httpServletResponse, never()).setStatus(anyInt());
+        verify(servletOutputStream, never()).setWriteListener(any());
     }
 
     @Test
     @SneakyThrows
     public void shouldNotGetFileFromUrlWhenHttpError() {
-        when(mockServletRequest.getParameter("cacheType")).thenReturn("TRACK");
-        when(mockServletRequest.getParameter("id")).thenReturn("123");
-        when(mockServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
-        when(mockServletRequest.getMethod()).thenReturn("GET");
-        when(mockCacheManager.readCache(any(), anyString())).thenReturn(empty());
+        when(httpServletRequest.getParameter("cacheType")).thenReturn("TRACK");
+        when(httpServletRequest.getParameter("id")).thenReturn("123");
+        when(httpServletRequest.getParameter("url")).thenReturn("http://www.example.com/example.mp3");
+        when(httpServletRequest.getMethod()).thenReturn("GET");
+        when(cacheManager.readCache(any(), anyString())).thenReturn(empty());
 
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockConnection.getResponseCode()).thenReturn(404);
+        HttpURLConnection httpURLConnection = mock(HttpURLConnection.class);
+        when(httpURLConnection.getResponseCode()).thenReturn(404);
 
-        when(mockInternetManager.openConnection(any())).thenReturn(mockConnection);
+        when(internetManager.openConnection(any())).thenReturn(httpURLConnection);
 
-        spyServlet.doGet(mockServletRequest, mockServletResponse);
+        underTest.doGet(httpServletRequest, httpServletResponse);
 
-        verify(mockServletResponse, never()).setContentLength(anyInt());
-        verify(mockServletResponse, times(1)).setStatus(404);
-        verify(mockServletOutputStream, never()).setWriteListener(any());
+        verify(httpServletResponse, never()).setContentLength(anyInt());
+        verify(httpServletResponse, times(1)).setStatus(404);
+        verify(servletOutputStream, never()).setWriteListener(any());
     }
 
     @After

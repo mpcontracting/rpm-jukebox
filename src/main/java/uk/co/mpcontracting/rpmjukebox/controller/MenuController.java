@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import de.felixroske.jfxsupport.FXMLController;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.javafx.FXMLController;
 import uk.co.mpcontracting.rpmjukebox.manager.*;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.support.OsType;
@@ -324,7 +324,7 @@ public class MenuController extends EventAwareObject {
     }
 
     private void updateCreatePlaylistFromAlbum() {
-        menuEditCreatePlaylistFromAlbum.setDisable(!ofNullable(trackTableController.getSelectedTrack()).isPresent());
+        menuEditCreatePlaylistFromAlbum.setDisable(ofNullable(trackTableController.getSelectedTrack()).isEmpty());
     }
 
     private void updateShuffle() {
@@ -413,11 +413,7 @@ public class MenuController extends EventAwareObject {
                 // If we're not playing or paused and the playlist is not empty
                 // then enable the play button so we can play the playlist
                 if (!mediaManager.isPlaying() && !mediaManager.isPaused()) {
-                    if (mainPanelController.isPlaylistPlayable()) {
-                        menuControlsPlayPause.setDisable(false);
-                    } else {
-                        menuControlsPlayPause.setDisable(true);
-                    }
+                    menuControlsPlayPause.setDisable(!mainPanelController.isPlaylistPlayable());
                 }
 
                 break;

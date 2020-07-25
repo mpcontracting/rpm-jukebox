@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import de.felixroske.jfxsupport.FXMLController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,6 +14,7 @@ import uk.co.mpcontracting.rpmjukebox.component.TrackTableModel;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableView;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.javafx.FXMLController;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 
@@ -23,7 +23,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 public class TrackTableController extends EventAwareObject {
 
     @FXML
-    private TrackTableView<TrackTableModel> trackTableView;
+    private TrackTableView trackTableView;
 
     @FXML
     private TableColumn<TrackTableModel, String> loveColumn;
@@ -72,7 +72,7 @@ public class TrackTableController extends EventAwareObject {
         });
 
         // Cell factories
-        loveColumn.setCellFactory(new LoveButtonTableCellFactory<>());
+        loveColumn.setCellFactory(new LoveButtonTableCellFactory());
         trackNameColumn.setCellFactory(new TrackTableCellFactory<>());
         artistNameColumn.setCellFactory(new TrackTableCellFactory<>());
         albumYearColumn.setCellFactory(new TrackTableCellFactory<>());

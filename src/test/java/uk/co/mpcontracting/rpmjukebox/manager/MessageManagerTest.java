@@ -8,8 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ResourceBundle;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
@@ -17,30 +16,30 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 public class MessageManagerTest {
 
     @Mock
-    private ResourceBundle mockResourceBundle;
+    private ResourceBundle resourceBundle;
 
-    private MessageManager messageManager;
+    private MessageManager underTest;
 
     @Before
     public void setup() {
-        messageManager = new MessageManager();
+        underTest = new MessageManager();
 
-        setField(messageManager, "messageBundle", mockResourceBundle);
+        setField(underTest, "messageBundle", resourceBundle);
 
-        when(mockResourceBundle.getString("settings.copyright.2")).thenReturn("Version {0}");
+        when(resourceBundle.getString("settings.copyright.2")).thenReturn("Version {0}");
     }
 
     @Test
     public void shouldReturnCorrectMessageWithoutArguments() {
-        String message = messageManager.getMessage("settings.copyright.2");
+        String message = underTest.getMessage("settings.copyright.2");
 
-        assertThat("Message should be 'Version {0}'", message, equalTo("Version {0}"));
+        assertThat(message).isEqualTo("Version {0}");
     }
 
     @Test
     public void shouldReturnCorrectMessageWithArguments() {
-        String message = messageManager.getMessage("settings.copyright.2", "XXX");
+        String message = underTest.getMessage("settings.copyright.2", "XXX");
 
-        assertThat("Message should be 'Version XXX'", message, equalTo("Version XXX"));
+        assertThat(message).isEqualTo("Version XXX");
     }
 }

@@ -4,9 +4,9 @@ import javafx.scene.control.TableCell;
 import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 
-public class LoveButtonTableCell<S, T> extends TableCell<TrackTableModel, String> implements Constants {
+public class LoveButtonTableCell extends TableCell<TrackTableModel, String> implements Constants {
 
-    private PlaylistManager playlistManager;
+    private final PlaylistManager playlistManager;
 
     public LoveButtonTableCell(PlaylistManager playlistManager) {
         this.playlistManager = playlistManager;

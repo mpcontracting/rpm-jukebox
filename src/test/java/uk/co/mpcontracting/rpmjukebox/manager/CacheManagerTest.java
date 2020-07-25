@@ -27,37 +27,36 @@ import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getDateTime
 public class CacheManagerTest {
 
     @Mock
-    private AppProperties mockAppProperties;
+    private AppProperties appProperties;
 
     @Mock
-    private SettingsManager mockSettingsManager;
+    private SettingsManager settingsManager;
 
     @Mock
-    private SystemSettings mockSystemSettings;
+    private SystemSettings systemSettings;
 
-    private File cacheDirectory = new File(getConfigDirectory(), "cache");
-    private HashGenerator hashGenerator;
-    private CacheManager cacheManager;
+    private final File cacheDirectory = new File(getConfigDirectory(), "cache");
+    private final HashGenerator hashGenerator = new HashGenerator();
+
+    private CacheManager underTest;
 
     @Before
     public void setup() {
-        hashGenerator = new HashGenerator();
+        underTest = new CacheManager(appProperties, hashGenerator);
+        underTest.wireSettingsManager(settingsManager);
 
-        cacheManager = new CacheManager(mockAppProperties, hashGenerator);
-        cacheManager.wireSettingsManager(mockSettingsManager);
+        when(appProperties.getCacheDirectory()).thenReturn("cache");
+        when(appProperties.getJettyPort()).thenReturn(43125);
+        when(settingsManager.getFileFromConfigDirectory(anyString())).thenReturn(cacheDirectory);
+        when(settingsManager.getSystemSettings()).thenReturn(systemSettings);
+        when(systemSettings.getCacheSizeMb()).thenReturn(1);
 
-        when(mockAppProperties.getCacheDirectory()).thenReturn("cache");
-        when(mockAppProperties.getJettyPort()).thenReturn(43125);
-        when(mockSettingsManager.getFileFromConfigDirectory(anyString())).thenReturn(cacheDirectory);
-        when(mockSettingsManager.getSystemSettings()).thenReturn(mockSystemSettings);
-        when(mockSystemSettings.getCacheSizeMb()).thenReturn(1);
-
-        cacheManager.initialise();
+        underTest.initialise();
     }
 
     @Test
     public void shouldReturnAValidInternalUrl() {
-        String result = cacheManager.constructInternalUrl(CacheType.IMAGE, "12345", "http://www.example.com");
+        String result = underTest.constructInternalUrl(CacheType.IMAGE, "12345", "http://www.example.com");
 
         assertThat(result).isEqualTo("http://localhost:43125/cache?cacheType=IMAGE&id=12345&url=http%3A%2F%2Fwww.example.com");
     }
@@ -65,9 +64,9 @@ public class CacheManagerTest {
     @Test
     public void shouldThrowExceptionConstructingInternalUrl() {
         doThrow(new RuntimeException("CacheManagerTest.shouldThrowExceptionConstructingInternalUrl"))
-                .when(mockAppProperties).getJettyPort();
+                .when(appProperties).getJettyPort();
 
-        assertThatThrownBy(() -> cacheManager.constructInternalUrl(CacheType.TRACK, "12345", "http://www.example.com"))
+        assertThatThrownBy(() -> underTest.constructInternalUrl(CacheType.TRACK, "12345", "http://www.example.com"))
                 .isInstanceOf(RuntimeException.class);
     }
 
@@ -79,7 +78,7 @@ public class CacheManagerTest {
 
         writeCacheFile(cacheType, id, cacheContent);
 
-        File file = cacheManager.readCache(cacheType, id).orElse(null);
+        File file = underTest.readCache(cacheType, id).orElse(null);
         String result = readCacheFile(file);
 
         assertThat(result).isEqualTo(cacheContent);
@@ -93,9 +92,9 @@ public class CacheManagerTest {
 
         writeCacheFile(cacheType, id, cacheContent);
 
-        ReflectionTestUtils.setField(cacheManager, "cacheDirectory", mock(File.class));
+        ReflectionTestUtils.setField(underTest, "cacheDirectory", mock(File.class));
 
-        File file = cacheManager.readCache(cacheType, id).orElse(null);
+        File file = underTest.readCache(cacheType, id).orElse(null);
 
         assertThat(file).isNull();
     }
@@ -108,7 +107,7 @@ public class CacheManagerTest {
 
         writeCacheFile(cacheType, id, cacheContent);
 
-        File file = cacheManager.readCache(cacheType, id).orElse(null);
+        File file = underTest.readCache(cacheType, id).orElse(null);
         String result = readCacheFile(file);
 
         assertThat(result).isEqualTo(cacheContent);
@@ -121,7 +120,7 @@ public class CacheManagerTest {
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldWriteImageCache()";
 
-        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        underTest.writeCache(cacheType, id, cacheContent.getBytes());
 
         File file = new File(cacheDirectory, hashGenerator.generateHash(id));
         String result = readCacheFile(file);
@@ -136,9 +135,9 @@ public class CacheManagerTest {
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldFailToWriteImageCacheOnException()";
 
-        ReflectionTestUtils.setField(cacheManager, "cacheDirectory", mock(File.class));
+        ReflectionTestUtils.setField(underTest, "cacheDirectory", mock(File.class));
 
-        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        underTest.writeCache(cacheType, id, cacheContent.getBytes());
 
         File file = new File(cacheDirectory, hashGenerator.generateHash(id));
 
@@ -151,7 +150,7 @@ public class CacheManagerTest {
         String id = "12345";
         String cacheContent = "CacheManagerTest.shouldWriteTrackCache()";
 
-        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        underTest.writeCache(cacheType, id, cacheContent.getBytes());
 
         File file = new File(cacheDirectory, id);
         String result = readCacheFile(file);
@@ -161,7 +160,7 @@ public class CacheManagerTest {
 
     @Test
     public void shouldReturnCacheMiss() {
-        File file = cacheManager.readCache(CacheType.IMAGE, "12345").orElse(null);
+        File file = underTest.readCache(CacheType.IMAGE, "12345").orElse(null);
 
         assertThat(file).isNull();
     }
@@ -177,7 +176,7 @@ public class CacheManagerTest {
         originalFile.setLastModified(getDateTimeInMillis(1971, 1, 1, 0, 0));
         long originalModified = originalFile.lastModified();
 
-        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        underTest.writeCache(cacheType, id, cacheContent.getBytes());
 
         File newFile = new File(cacheDirectory, id);
 
@@ -201,9 +200,9 @@ public class CacheManagerTest {
             file.setLastModified(getDateTimeInMillis(1971, 1, 1, 0, 50 - i));
         }
 
-        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        underTest.writeCache(cacheType, id, cacheContent.getBytes());
 
-        File cachedFile = cacheManager.readCache(cacheType, id).orElse(null);
+        File cachedFile = underTest.readCache(cacheType, id).orElse(null);
 
         assertThat(requireNonNull(cacheDirectory.listFiles()).length).isEqualTo(21);
         assertThat(cachedFile).isNotNull();
@@ -226,9 +225,9 @@ public class CacheManagerTest {
             file.setLastModified(getDateTimeInMillis(1971, 1, 1, 0, 0));
         }
 
-        cacheManager.writeCache(cacheType, id, cacheContent.getBytes());
+        underTest.writeCache(cacheType, id, cacheContent.getBytes());
 
-        File cachedFile = cacheManager.readCache(cacheType, id).orElse(null);
+        File cachedFile = underTest.readCache(cacheType, id).orElse(null);
 
         assertThat(requireNonNull(cacheDirectory.listFiles()).length).isEqualTo(21);
         assertThat(cachedFile).isNotNull();

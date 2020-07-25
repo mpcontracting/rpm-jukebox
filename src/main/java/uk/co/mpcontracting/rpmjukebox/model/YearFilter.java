@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class YearFilter {
-    private String display;
-    private String year;
+    private final String display;
+    private final String year;
 
     @Override
     public String toString() {

@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 public class ThreadRunner {
 
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
 
     public ThreadRunner(ExecutorService executorService) {
         this.executorService = executorService;

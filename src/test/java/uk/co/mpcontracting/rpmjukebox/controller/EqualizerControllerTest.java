@@ -14,40 +14,39 @@ import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
 
 import javax.annotation.PostConstruct;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class EqualizerControllerTest extends AbstractGUITest {
 
     @Autowired
-    private EqualizerController equalizerController;
+    private EqualizerController underTest;
 
     @Autowired
-    private EqualizerView equalizerView;
+    private EqualizerView originalEqualizerView;
 
     @Mock
-    private MediaManager mockMediaManager;
+    private MediaManager mediaManager;
 
-    private EqualizerView spyEqualizerView;
+    private EqualizerView equalizerView;
 
     @SneakyThrows
     @PostConstruct
     public void constructView() {
-        spyEqualizerView = spy(equalizerView);
+        equalizerView = spy(originalEqualizerView);
 
-        setField(equalizerController, "equalizerView", spyEqualizerView);
+        setField(underTest, "equalizerView", equalizerView);
 
-        init(spyEqualizerView);
+        init(equalizerView);
     }
 
     @Before
     public void setup() {
-        setField(equalizerController, "eventManager", getMockEventManager());
-        setField(equalizerController, "mediaManager", mockMediaManager);
+        setField(underTest, "eventManager", getMockEventManager());
+        setField(underTest, "mediaManager", mediaManager);
 
-        doNothing().when(spyEqualizerView).close();
+        doNothing().when(equalizerView).close();
     }
 
     @Test
@@ -58,14 +57,14 @@ public class EqualizerControllerTest extends AbstractGUITest {
             equalizer.setGain(i, 0.5d);
         }
 
-        when(mockMediaManager.getEqualizer()).thenReturn(equalizer);
+        when(mediaManager.getEqualizer()).thenReturn(equalizer);
 
-        equalizerController.updateSliderValues();
+        underTest.updateSliderValues();
 
         for (int i = 0; i < 10; i++) {
             Slider slider = find("#eq" + i);
 
-            assertThat("Slider " + i + " should have a value of 0.5", slider.getValue(), equalTo(0.5d));
+            assertThat(slider.getValue()).isEqualTo(0.5d);
         }
     }
 
@@ -73,7 +72,7 @@ public class EqualizerControllerTest extends AbstractGUITest {
     public void shouldClickOkButton() {
         clickOn("#okButton");
 
-        verify(spyEqualizerView, times(1)).close();
+        verify(equalizerView, times(1)).close();
     }
 
     @Test

@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.test.support;
 
-import de.roskenet.jfxsupport.test.GuiTest;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import lombok.AccessLevel;
@@ -15,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.EventManager;
+import uk.co.mpcontracting.rpmjukebox.test.javafx.GuiTest;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
 import javax.annotation.PostConstruct;
