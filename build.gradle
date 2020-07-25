@@ -177,23 +177,3 @@ runtime {
         }
     }
 }
-
-/////////////////////////
-// JavaFX Build Script //
-/////////////////////////
-
-/*jfx {
-    appName = 'RPM Jukebox'
-    vendor = 'Matt Parker'
-    nativeReleaseVersion = "${version}"
-    mainClass = 'uk.co.mpcontracting.rpmjukebox.RpmJukebox'
-    jfxMainAppJarName = "${project.name}-${version}.jar"
-    jvmArgs = ['-Xmx128m']
-    //verbose = true
-    bundleArguments = [
-            'copyright': '©2016-2020 Matt Parker',
-            'systemWide': 'true',
-            'win.menuGroup': 'RPM Jukebox',
-            'win.msi.productVersion': "${version}"
-    ]
-}*/
