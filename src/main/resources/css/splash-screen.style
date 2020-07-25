@@ -1,7 +1,4 @@
--fx-background-color: black;
+-fx-background-color: transparent;
 -fx-text-fill: white;
--fx-padding: 0 0 0 3;
--fx-border-color: white;
--fx-border-style: solid;
--fx-border-insets: 0 1 1 1;
--fx-border-width: 0 1 1 1;
+-fx-padding: 274 0 0 7;
+-fx-border-insets: 278 0 0 0;

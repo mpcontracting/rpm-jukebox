@@ -1,9 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import de.felixroske.jfxsupport.FXMLView;
 import javafx.scene.control.Label;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
+import uk.co.mpcontracting.rpmjukebox.javafx.FXMLView;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
 import uk.co.mpcontracting.rpmjukebox.support.ContextHelper;
 

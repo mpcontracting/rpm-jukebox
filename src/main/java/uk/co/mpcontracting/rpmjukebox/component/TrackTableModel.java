@@ -10,13 +10,13 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 @Getter
 public class TrackTableModel {
 
-    private Track track;
-    private StringProperty trackId;
-    private StringProperty trackName;
-    private StringProperty artistName;
-    private IntegerProperty albumYear;
-    private StringProperty albumName;
-    private StringProperty genres;
+    private final Track track;
+    private final StringProperty trackId;
+    private final StringProperty trackName;
+    private final StringProperty artistName;
+    private final IntegerProperty albumYear;
+    private final StringProperty albumName;
+    private final StringProperty genres;
 
     public TrackTableModel(Track track) {
         this.track = track;

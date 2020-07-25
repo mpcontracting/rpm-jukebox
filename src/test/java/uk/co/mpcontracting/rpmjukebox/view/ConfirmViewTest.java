@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import de.felixroske.jfxsupport.GUIState;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -11,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
+import uk.co.mpcontracting.rpmjukebox.javafx.GuiState;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
 import static org.mockito.Mockito.*;
@@ -22,56 +22,56 @@ public class ConfirmViewTest extends AbstractGUITest {
     private ConfirmView confirmView;
 
     @Mock
-    private ConfirmController mockConfirmController;
+    private ConfirmController confirmController;
 
     private Stage originalStage;
-    private ConfirmView spyConfirmView;
+    private ConfirmView underTest;
 
     @Before
     public void setup() {
-        spyConfirmView = spy(confirmView);
-        originalStage = GUIState.getStage();
-        setField(GUIState.class, "stage", mock(Stage.class));
-        setField(spyConfirmView, "confirmController", mockConfirmController);
+        underTest = spy(confirmView);
+        originalStage = GuiState.getStage();
+        setField(GuiState.class, "stage", mock(Stage.class));
+        setField(underTest, "confirmController", confirmController);
     }
 
     @Test
     public void shouldSetMessage() {
-        Parent mockView = mock(Parent.class);
-        when(spyConfirmView.getView()).thenReturn(mockView);
+        Parent view = mock(Parent.class);
+        when(underTest.getView()).thenReturn(view);
 
-        Scene mockScene = mock(Scene.class);
-        when(mockView.getScene()).thenReturn(mockScene);
+        Scene scene = mock(Scene.class);
+        when(view.getScene()).thenReturn(scene);
 
-        Parent mockRoot = mock(Parent.class);
-        when(mockScene.getRoot()).thenReturn(mockRoot);
+        Parent root = mock(Parent.class);
+        when(scene.getRoot()).thenReturn(root);
 
-        Label mockLabel = mock(Label.class);
-        when(mockRoot.lookup("#message")).thenReturn(mockLabel);
+        Label label = mock(Label.class);
+        when(root.lookup("#message")).thenReturn(label);
 
-        spyConfirmView.setMessage("Test Message");
+        underTest.setMessage("Test Message");
 
-        verify(mockLabel, times(1)).setText("Test Message");
+        verify(label, times(1)).setText("Test Message");
     }
 
     @Test
     public void shouldSetRunnables() {
-        spyConfirmView.setRunnables(null, null);
+        underTest.setRunnables(null, null);
 
-        verify(mockConfirmController, times(1)).setRunnables(any(), any());
+        verify(confirmController, times(1)).setRunnables(any(), any());
     }
 
     @Test
     public void shouldShow() {
-        setField(spyConfirmView, "stage", mock(Stage.class));
+        setField(underTest, "stage", mock(Stage.class));
 
-        spyConfirmView.show(false);
+        underTest.show(false);
 
-        verify(mockConfirmController, times(1)).setOkFocused();
+        verify(confirmController, times(1)).setOkFocused();
     }
 
     @After
     public void cleanup() {
-        setField(GUIState.class, "stage", originalStage);
+        setField(GuiState.class, "stage", originalStage);
     }
 }

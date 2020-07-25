@@ -7,9 +7,9 @@ import lombok.Getter;
 @EqualsAndHashCode
 public class TrackSearch {
 
-    private String keywords;
-    private TrackFilter trackFilter;
-    private TrackSort trackSort;
+    private final String keywords;
+    private final TrackFilter trackFilter;
+    private final TrackSort trackSort;
 
     public TrackSearch(String keywords) {
         this(keywords, TrackSort.DEFAULT_SORT);

@@ -7,7 +7,7 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 import static java.util.Optional.ofNullable;
 
 @Slf4j
-public class TrackTableView<T> extends TableView<TrackTableModel> {
+public class TrackTableView extends TableView<TrackTableModel> {
 
     public void highlightTrack(Track track) {
         log.debug("Highlighting track - {}", track);

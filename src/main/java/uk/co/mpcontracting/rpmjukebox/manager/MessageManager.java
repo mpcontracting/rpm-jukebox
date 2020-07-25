@@ -9,7 +9,7 @@ import java.util.ResourceBundle;
 @Component
 public class MessageManager implements Constants {
 
-    private ResourceBundle messageBundle;
+    private final ResourceBundle messageBundle;
 
     public MessageManager() {
         // Load up the resource bundle

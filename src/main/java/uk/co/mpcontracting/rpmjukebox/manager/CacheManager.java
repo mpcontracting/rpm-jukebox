@@ -15,6 +15,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -64,7 +65,7 @@ public class CacheManager implements Constants {
     @SneakyThrows
     public String constructInternalUrl(CacheType cacheType, String id, String location) {
         return "http://localhost:" + appProperties.getJettyPort() + "/cache?cacheType=" + cacheType + "&id=" + id + "&url="
-                + URLEncoder.encode(location, "UTF-8");
+                + URLEncoder.encode(location, StandardCharsets.UTF_8);
     }
 
     @Synchronized

@@ -12,28 +12,28 @@ public class TrackTableModelTest extends AbstractGUITest {
     @Test
     public void shouldInitialise() {
         Track track = generateTrack(1, "Genre 1", "Genre 2");
-        TrackTableModel trackTableModel = new TrackTableModel(track);
+        TrackTableModel underTest = new TrackTableModel(track);
 
-        assertThat(trackTableModel.getTrack()).isEqualTo(track);
-        assertThat(trackTableModel.getTrackId().get()).isEqualTo("7891");
-        assertThat(trackTableModel.getTrackName().get()).isEqualTo("Track Name 1");
-        assertThat(trackTableModel.getArtistName().get()).isEqualTo("Artist Name 1");
-        assertThat(trackTableModel.getAlbumYear().get()).isEqualTo(2001);
-        assertThat(trackTableModel.getAlbumName().get()).isEqualTo("Album Name 1");
-        assertThat(trackTableModel.getGenres().get()).isEqualTo("Genre 1, Genre 2");
+        assertThat(underTest.getTrack()).isEqualTo(track);
+        assertThat(underTest.getTrackId().get()).isEqualTo("7891");
+        assertThat(underTest.getTrackName().get()).isEqualTo("Track Name 1");
+        assertThat(underTest.getArtistName().get()).isEqualTo("Artist Name 1");
+        assertThat(underTest.getAlbumYear().get()).isEqualTo(2001);
+        assertThat(underTest.getAlbumName().get()).isEqualTo("Album Name 1");
+        assertThat(underTest.getGenres().get()).isEqualTo("Genre 1, Genre 2");
     }
 
     @Test
     public void shouldInitialiseWithNoGenres() {
         Track track = generateTrack(1);
-        TrackTableModel trackTableModel = new TrackTableModel(track);
+        TrackTableModel underTest = new TrackTableModel(track);
 
-        assertThat(trackTableModel.getTrack()).isEqualTo(track);
-        assertThat(trackTableModel.getTrackId().get()).isEqualTo("7891");
-        assertThat(trackTableModel.getTrackName().get()).isEqualTo("Track Name 1");
-        assertThat(trackTableModel.getArtistName().get()).isEqualTo("Artist Name 1");
-        assertThat(trackTableModel.getAlbumYear().get()).isEqualTo(2001);
-        assertThat(trackTableModel.getAlbumName().get()).isEqualTo("Album Name 1");
-        assertThat(trackTableModel.getGenres().get()).isEqualTo("");
+        assertThat(underTest.getTrack()).isEqualTo(track);
+        assertThat(underTest.getTrackId().get()).isEqualTo("7891");
+        assertThat(underTest.getTrackName().get()).isEqualTo("Track Name 1");
+        assertThat(underTest.getArtistName().get()).isEqualTo("Artist Name 1");
+        assertThat(underTest.getAlbumYear().get()).isEqualTo(2001);
+        assertThat(underTest.getAlbumName().get()).isEqualTo("Album Name 1");
+        assertThat(underTest.getGenres().get()).isEqualTo("");
     }
 }

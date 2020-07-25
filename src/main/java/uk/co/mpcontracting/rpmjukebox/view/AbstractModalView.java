@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import de.felixroske.jfxsupport.AbstractFxmlView;
 import javafx.scene.Scene;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.paint.Color;
@@ -10,6 +9,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.javafx.AbstractFxmlView;
 
 import static java.util.Optional.ofNullable;
 

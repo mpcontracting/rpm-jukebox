@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testfx.util.WaitForAsyncUtils;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.manager.*;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
@@ -17,8 +18,6 @@ import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 import uk.co.mpcontracting.rpmjukebox.view.MenuView;
 
 import javax.annotation.PostConstruct;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -37,31 +36,31 @@ public class MenuControllerTest extends AbstractGUITest {
     private MessageManager messageManager;
 
     @Autowired
-    private MenuController menuController;
+    private MenuController underTest;
 
     @Autowired
     private MenuView menuView;
 
     @Mock
-    private RpmJukebox mockRpmJukebox;
+    private RpmJukebox rpmJukebox;
 
     @Mock
-    private MainPanelController mockMainPanelController;
+    private MainPanelController mainPanelController;
 
     @Mock
-    private TrackTableController mockTrackTableController;
+    private TrackTableController trackTableController;
 
     @Mock
-    private ApplicationManager mockApplicationManager;
+    private ApplicationManager applicationManager;
 
     @Mock
-    private SettingsManager mockSettingsManager;
+    private SettingsManager settingsManager;
 
     @Mock
-    private PlaylistManager mockPlaylistManager;
+    private PlaylistManager playlistManager;
 
     @Mock
-    private MediaManager mockMediaManager;
+    private MediaManager mediaManager;
 
     @SneakyThrows
     @PostConstruct
@@ -71,18 +70,18 @@ public class MenuControllerTest extends AbstractGUITest {
 
     @Before
     public void setup() {
-        setField(menuController, "eventManager", getMockEventManager());
-        setField(menuController, "rpmJukebox", mockRpmJukebox);
-        setField(menuController, "mainPanelController", mockMainPanelController);
-        setField(menuController, "trackTableController", mockTrackTableController);
-        setField(menuController, "applicationManager", mockApplicationManager);
-        setField(menuController, "settingsManager", mockSettingsManager);
-        setField(menuController, "playlistManager", mockPlaylistManager);
-        setField(menuController, "mediaManager", mockMediaManager);
+        setField(underTest, "eventManager", getMockEventManager());
+        setField(underTest, "rpmJukebox", rpmJukebox);
+        setField(underTest, "mainPanelController", mainPanelController);
+        setField(underTest, "trackTableController", trackTableController);
+        setField(underTest, "applicationManager", applicationManager);
+        setField(underTest, "settingsManager", settingsManager);
+        setField(underTest, "playlistManager", playlistManager);
+        setField(underTest, "mediaManager", mediaManager);
 
-        when(mockSettingsManager.getOsType()).thenReturn(OsType.WINDOWS);
+        when(settingsManager.getOsType()).thenReturn(OsType.WINDOWS);
 
-        menuController.initialize();
+        underTest.initialize();
     }
 
     @Test
@@ -111,8 +110,8 @@ public class MenuControllerTest extends AbstractGUITest {
     public void shouldHandleFileExitAction() {
         clickOnMenuItem("#menuFileExit");
 
-        verify(mockApplicationManager, times(1)).stop();
-        verify(mockRpmJukebox, times(1)).stop();
+        verify(applicationManager, times(1)).stop();
+        verify(rpmJukebox, times(1)).stop();
     }
 
     @Test
@@ -171,11 +170,11 @@ public class MenuControllerTest extends AbstractGUITest {
 
         checkMenuControlsShuffleOff.setSelected(true);
         checkMenuControlsShuffleOn.setSelected(false);
-        when(mockPlaylistManager.isShuffle()).thenReturn(true);
+        when(playlistManager.isShuffle()).thenReturn(true);
 
         clickOnMenuItem("#checkMenuControlsShuffleOff");
 
-        verify(mockPlaylistManager, times(1)).setShuffle(false, false);
+        verify(playlistManager, times(1)).setShuffle(false, false);
         verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_SHUFFLE);
 
         assertThat(checkMenuControlsShuffleOff.isSelected()).isFalse();
@@ -189,11 +188,11 @@ public class MenuControllerTest extends AbstractGUITest {
 
         checkMenuControlsShuffleOff.setSelected(false);
         checkMenuControlsShuffleOn.setSelected(true);
-        when(mockPlaylistManager.isShuffle()).thenReturn(false);
+        when(playlistManager.isShuffle()).thenReturn(false);
 
         clickOnMenuItem("#checkMenuControlsShuffleOff");
 
-        verify(mockPlaylistManager, never()).setShuffle(false, false);
+        verify(playlistManager, never()).setShuffle(false, false);
         verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_SHUFFLE);
 
         assertThat(checkMenuControlsShuffleOff.isSelected()).isTrue();
@@ -207,11 +206,11 @@ public class MenuControllerTest extends AbstractGUITest {
 
         checkMenuControlsShuffleOff.setSelected(false);
         checkMenuControlsShuffleOn.setSelected(true);
-        when(mockPlaylistManager.isShuffle()).thenReturn(false);
+        when(playlistManager.isShuffle()).thenReturn(false);
 
         clickOnMenuItem("#checkMenuControlsShuffleOn");
 
-        verify(mockPlaylistManager, times(1)).setShuffle(true, false);
+        verify(playlistManager, times(1)).setShuffle(true, false);
         verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_SHUFFLE);
 
         assertThat(checkMenuControlsShuffleOff.isSelected()).isTrue();
@@ -225,11 +224,11 @@ public class MenuControllerTest extends AbstractGUITest {
 
         checkMenuControlsShuffleOff.setSelected(true);
         checkMenuControlsShuffleOn.setSelected(false);
-        when(mockPlaylistManager.isShuffle()).thenReturn(true);
+        when(playlistManager.isShuffle()).thenReturn(true);
 
         clickOnMenuItem("#checkMenuControlsShuffleOn");
 
-        verify(mockPlaylistManager, never()).setShuffle(true, false);
+        verify(playlistManager, never()).setShuffle(true, false);
         verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_SHUFFLE);
 
         assertThat(checkMenuControlsShuffleOff.isSelected()).isFalse();
@@ -245,11 +244,11 @@ public class MenuControllerTest extends AbstractGUITest {
         checkMenuControlsRepeatOff.setSelected(true);
         checkMenuControlsRepeatAll.setSelected(false);
         checkMenuControlsRepeatOne.setSelected(false);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.ALL);
 
         clickOnMenuItem("#checkMenuControlsRepeatOff");
 
-        verify(mockPlaylistManager, times(1)).setRepeat(Repeat.OFF);
+        verify(playlistManager, times(1)).setRepeat(Repeat.OFF);
         verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_REPEAT);
 
         assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
@@ -266,11 +265,11 @@ public class MenuControllerTest extends AbstractGUITest {
         checkMenuControlsRepeatOff.setSelected(false);
         checkMenuControlsRepeatAll.setSelected(true);
         checkMenuControlsRepeatOne.setSelected(false);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
 
         clickOnMenuItem("#checkMenuControlsRepeatOff");
 
-        verify(mockPlaylistManager, never()).setRepeat(Repeat.OFF);
+        verify(playlistManager, never()).setRepeat(Repeat.OFF);
         verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_REPEAT);
 
         assertThat(checkMenuControlsRepeatOff.isSelected()).isTrue();
@@ -287,11 +286,11 @@ public class MenuControllerTest extends AbstractGUITest {
         checkMenuControlsRepeatOff.setSelected(false);
         checkMenuControlsRepeatAll.setSelected(true);
         checkMenuControlsRepeatOne.setSelected(false);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ONE);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.ONE);
 
         clickOnMenuItem("#checkMenuControlsRepeatAll");
 
-        verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ALL);
+        verify(playlistManager, times(1)).setRepeat(Repeat.ALL);
         verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_REPEAT);
 
         assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
@@ -308,11 +307,11 @@ public class MenuControllerTest extends AbstractGUITest {
         checkMenuControlsRepeatOff.setSelected(false);
         checkMenuControlsRepeatAll.setSelected(false);
         checkMenuControlsRepeatOne.setSelected(true);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.ALL);
 
         clickOnMenuItem("#checkMenuControlsRepeatAll");
 
-        verify(mockPlaylistManager, never()).setRepeat(Repeat.OFF);
+        verify(playlistManager, never()).setRepeat(Repeat.OFF);
         verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_REPEAT);
 
         assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
@@ -329,11 +328,11 @@ public class MenuControllerTest extends AbstractGUITest {
         checkMenuControlsRepeatOff.setSelected(false);
         checkMenuControlsRepeatAll.setSelected(false);
         checkMenuControlsRepeatOne.setSelected(true);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.OFF);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
 
         clickOnMenuItem("#checkMenuControlsRepeatOne");
 
-        verify(mockPlaylistManager, times(1)).setRepeat(Repeat.ONE);
+        verify(playlistManager, times(1)).setRepeat(Repeat.ONE);
         verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_REPEAT);
 
         assertThat(checkMenuControlsRepeatOff.isSelected()).isTrue();
@@ -350,11 +349,11 @@ public class MenuControllerTest extends AbstractGUITest {
         checkMenuControlsRepeatOff.setSelected(true);
         checkMenuControlsRepeatAll.setSelected(false);
         checkMenuControlsRepeatOne.setSelected(false);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ONE);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.ONE);
 
         clickOnMenuItem("#checkMenuControlsRepeatOne");
 
-        verify(mockPlaylistManager, never()).setRepeat(Repeat.ONE);
+        verify(playlistManager, never()).setRepeat(Repeat.ONE);
         verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_REPEAT);
 
         assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
@@ -431,17 +430,12 @@ public class MenuControllerTest extends AbstractGUITest {
         checkMenuControlsRepeatAll.setSelected(false);
         checkMenuControlsRepeatOne.setSelected(false);
 
-        when(mockPlaylistManager.isShuffle()).thenReturn(true);
-        when(mockPlaylistManager.getRepeat()).thenReturn(Repeat.ALL);
+        when(playlistManager.isShuffle()).thenReturn(true);
+        when(playlistManager.getRepeat()).thenReturn(Repeat.ALL);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(APPLICATION_INITIALISED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(APPLICATION_INITIALISED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuFileImportPlaylist.isDisable()).isFalse();
         assertThat(menuFileExportPlaylist.isDisable()).isFalse();
@@ -478,14 +472,9 @@ public class MenuControllerTest extends AbstractGUITest {
         menuControlsPrevious.setDisable(true);
         menuControlsNext.setDisable(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(MEDIA_PLAYING));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(MEDIA_PLAYING);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PAUSE));
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -505,14 +494,9 @@ public class MenuControllerTest extends AbstractGUITest {
         menuControlsPrevious.setDisable(false);
         menuControlsNext.setDisable(false);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(MEDIA_PAUSED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(MEDIA_PAUSED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -532,14 +516,9 @@ public class MenuControllerTest extends AbstractGUITest {
         menuControlsPrevious.setDisable(false);
         menuControlsNext.setDisable(false);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(MEDIA_STOPPED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(MEDIA_STOPPED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -559,14 +538,9 @@ public class MenuControllerTest extends AbstractGUITest {
         menuControlsPrevious.setDisable(false);
         menuControlsNext.setDisable(false);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(END_OF_MEDIA));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(END_OF_MEDIA);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -583,19 +557,14 @@ public class MenuControllerTest extends AbstractGUITest {
         menuEditCreatePlaylistFromAlbum.setDisable(true);
         menuControlsPlayPause.setDisable(true);
 
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
-        when(mockMainPanelController.isPlaylistPlayable()).thenReturn(true);
+        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
+        when(mainPanelController.isPlaylistPlayable()).thenReturn(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_CREATED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_CREATED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -610,19 +579,14 @@ public class MenuControllerTest extends AbstractGUITest {
         menuEditCreatePlaylistFromAlbum.setDisable(true);
         menuControlsPlayPause.setDisable(false);
 
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
-        when(mockMainPanelController.isPlaylistPlayable()).thenReturn(false);
+        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
+        when(mainPanelController.isPlaylistPlayable()).thenReturn(false);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_CREATED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_CREATED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isTrue();
@@ -637,19 +601,14 @@ public class MenuControllerTest extends AbstractGUITest {
         menuEditCreatePlaylistFromAlbum.setDisable(false);
         menuControlsPlayPause.setDisable(true);
 
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(null);
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
-        when(mockMainPanelController.isPlaylistPlayable()).thenReturn(true);
+        when(trackTableController.getSelectedTrack()).thenReturn(null);
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
+        when(mainPanelController.isPlaylistPlayable()).thenReturn(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_CREATED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_CREATED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isTrue();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -664,19 +623,14 @@ public class MenuControllerTest extends AbstractGUITest {
         menuEditCreatePlaylistFromAlbum.setDisable(true);
         menuControlsPlayPause.setDisable(true);
 
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
-        when(mockMainPanelController.isPlaylistPlayable()).thenReturn(true);
+        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
+        when(mainPanelController.isPlaylistPlayable()).thenReturn(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_DELETED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_DELETED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -691,19 +645,14 @@ public class MenuControllerTest extends AbstractGUITest {
         menuEditCreatePlaylistFromAlbum.setDisable(true);
         menuControlsPlayPause.setDisable(true);
 
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-        when(mockMediaManager.isPlaying()).thenReturn(false);
-        when(mockMediaManager.isPaused()).thenReturn(false);
-        when(mockMainPanelController.isPlaylistPlayable()).thenReturn(true);
+        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+        when(mediaManager.isPlaying()).thenReturn(false);
+        when(mediaManager.isPaused()).thenReturn(false);
+        when(mainPanelController.isPlaylistPlayable()).thenReturn(true);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_SELECTED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_SELECTED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -715,16 +664,11 @@ public class MenuControllerTest extends AbstractGUITest {
         MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
         menuEditCreatePlaylistFromAlbum.setDisable(true);
 
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_CONTENT_UPDATED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(PLAYLIST_CONTENT_UPDATED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
     }
@@ -738,16 +682,11 @@ public class MenuControllerTest extends AbstractGUITest {
         menuEditCreatePlaylistFromAlbum.setDisable(true);
         menuControlsPlayPause.setDisable(true);
 
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(TRACK_SELECTED));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(TRACK_SELECTED);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isFalse();
@@ -762,16 +701,11 @@ public class MenuControllerTest extends AbstractGUITest {
         menuEditCreatePlaylistFromAlbum.setDisable(true);
         menuControlsPlayPause.setDisable(false);
 
-        when(mockTrackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
 
-        CountDownLatch latch = new CountDownLatch(1);
+        threadRunner.runOnGui(() -> underTest.eventReceived(TRACK_QUEUED_FOR_PLAYING));
 
-        threadRunner.runOnGui(() -> {
-            menuController.eventReceived(TRACK_QUEUED_FOR_PLAYING);
-            latch.countDown();
-        });
-
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
         assertThat(menuControlsPlayPause.isDisable()).isTrue();

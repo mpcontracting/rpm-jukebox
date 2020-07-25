@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.component;
 
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import org.junit.Before;
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
@@ -11,22 +12,27 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class ProgressSplashScreenTest extends AbstractGUITest {
 
+    private ProgressSplashScreen underTest;
+
+    @Before
+    public void setup() {
+        underTest = new ProgressSplashScreen();
+    }
+
     @Test
     public void shouldGetParent() {
-        ProgressSplashScreen splashScreen = new ProgressSplashScreen();
-        Parent parent = splashScreen.getParent();
+        Parent parent = underTest.getParent();
 
         assertThat(parent).isNotNull();
     }
 
     @Test
     public void shouldUpdateProgress() {
-        ProgressSplashScreen splashScreen = new ProgressSplashScreen();
-        Label mockProgressLabel = mock(Label.class);
-        setField(splashScreen, "progressLabel", mockProgressLabel);
+        Label label = mock(Label.class);
+        setField(underTest, "progressLabel", label);
 
-        splashScreen.updateProgress("Test message");
+        underTest.updateProgress("Test message");
 
-        verify(mockProgressLabel, times(1)).setText("Test message");
+        verify(label, times(1)).setText("Test message");
     }
 }

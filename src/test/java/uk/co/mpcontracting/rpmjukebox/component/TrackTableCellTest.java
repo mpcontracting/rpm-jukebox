@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import org.junit.Before;
 import org.junit.Test;
 import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
 
@@ -7,27 +8,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackTableCellTest extends AbstractGUITest {
 
+    private TrackTableCell<String> underTest;
+
+    @Before
+    public void setup() {
+        underTest = new TrackTableCell<>();
+    }
+
     @Test
     public void shouldUpdateItem() {
-        TrackTableCell<String> trackTableCell = new TrackTableCell<>();
-        trackTableCell.updateItem("Value", false);
+        underTest.updateItem("Value", false);
 
-        assertThat(trackTableCell.getText()).isEqualTo("Value");
+        assertThat(underTest.getText()).isEqualTo("Value");
     }
 
     @Test
     public void shouldUpdateItemAsEmpty() {
-        TrackTableCell<String> trackTableCell = new TrackTableCell<>();
-        trackTableCell.updateItem("Value", true);
+        underTest.updateItem("Value", true);
 
-        assertThat(trackTableCell.getText()).isNull();
+        assertThat(underTest.getText()).isNull();
     }
 
     @Test
     public void shouldUpdateItemAsNull() {
-        TrackTableCell<String> trackTableCell = new TrackTableCell<>();
-        trackTableCell.updateItem(null, false);
+        underTest.updateItem(null, false);
 
-        assertThat(trackTableCell.getText()).isNull();
+        assertThat(underTest.getText()).isNull();
     }
 }
