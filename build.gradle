@@ -171,8 +171,8 @@ runtime {
 
         if (org.gradle.internal.os.OperatingSystem.current().linux) {
             resourceDir = file("$rootDir/src/main/deploy/package/linux")
-            imageName = 'rpm-jukebox'
-            installerName = 'rpm-jukebox'
+            imageName = 'RPMJukebox'
+            installerName = 'RPMJukebox'
             installerOptions = ['--linux-shortcut', '--linux-menu-group', 'Audio']
         }
     }
