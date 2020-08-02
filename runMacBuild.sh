@@ -18,7 +18,7 @@ JAR_FILE="rpm-jukebox-$VERSION.jar"
 SIGNING_ID="Developer ID Application: $APPLE_DEV_ID"
 
 # Run the build
-./gradlew clean build jpackageImage
+./gradlew clean build jpackageImage -x test
 
 # Remove attributes on the app
 xattr -rc "$NATIVE_APP"
@@ -39,6 +39,7 @@ rm -rf $TMP_DIR
 
 # Sign the app and the runtime
 codesign -s "$SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/MacOS/libjli.dylib"
+codesign -s "$SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/libapplauncher.dylib"
 codesign -s "$SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/RPM Jukebox"
 codesign -s "$SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP"
 
