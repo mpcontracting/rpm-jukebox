@@ -11,14 +11,16 @@ SRC_DIR="$NATIVE_DIR/src"
 SRC_APP="$SRC_DIR/$APP_NAME"
 DMG_OUTPUT_DIR="$NATIVE_DIR/dmg"
 DMG_OUTPUT_FILE="$DMG_OUTPUT_DIR/rpm-jukebox-$VERSION.dmg"
+PKG_OUTPUT_FILE="$DMG_OUTPUT_DIR/rpm-jukebox-$VERSION.pkg"
 TMP_DIR="$NATIVE_DIR/tmp"
 JAR_PATH="$NATIVE_APP/Contents/app"
 JAR_FILE="rpm-jukebox-$VERSION.jar"
 
-SIGNING_ID="Developer ID Application: $APPLE_DEV_ID"
+APP_SIGNING_ID="Developer ID Application: $APPLE_DEV_ID"
+INSTALLER_SIGNING_ID="3rd Party Mac Developer Installer: $APPLE_DEV_ID"
 
 # Run the build
-./gradlew clean build jpackageImage -x test
+./gradlew clean build jpackageImage
 
 # Remove attributes on the app
 xattr -rc "$NATIVE_APP"
@@ -31,17 +33,17 @@ mv "$JAR_PATH/$JAR_FILE" "$TMP_DIR"
 pushd "$TMP_DIR"
   jar xf "$JAR_FILE"
   rm "$JAR_FILE"
-  find . -name *.dylib | xargs codesign -s "$SIGNING_ID" -f -v
+  find . -name *.dylib | xargs codesign -s "$APP_SIGNING_ID" -f -v
   jar cmf META-INF/MANIFEST.MF "$JAR_PATH/$JAR_FILE" *
 popd
 
 rm -rf $TMP_DIR
 
 # Sign the app and the runtime
-codesign -s "$SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/MacOS/libjli.dylib"
-codesign -s "$SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/libapplauncher.dylib"
-codesign -s "$SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/RPM Jukebox"
-codesign -s "$SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP"
+codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/MacOS/libjli.dylib"
+codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/libapplauncher.dylib"
+codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/RPM Jukebox"
+codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP"
 
 # Create the source dir and move the patched and signed native app into it
 rm -rf $SRC_DIR
@@ -65,7 +67,10 @@ create-dmg \
   $SRC_DIR
 
 # Sign the DMG
-codesign -s "$SIGNING_ID" --options runtime --entitlements macos.entitlements -vvvv --deep "$DMG_OUTPUT_FILE"
+codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -vvvv --deep "$DMG_OUTPUT_FILE"
+
+# Create and sign the package
+productbuild --component "$SRC_APP" /Applications/ "$PKG_OUTPUT_FILE" --sign "$INSTALLER_SIGNING_ID"
 
 # Upload the DMG for verification
 REQUEST_UUID=`xcrun altool -t osx -f "$DMG_OUTPUT_FILE" --primary-bundle-id "uk.co.mpcontracting.rpmjukebox-$VERSION" --notarize-app -u "$APPLE_ID" -p @keychain:"Apple Developer: $APPLE_ID" | grep RequestUUID | awk '{print $3}'`
