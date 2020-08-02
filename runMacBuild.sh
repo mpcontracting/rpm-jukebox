@@ -40,6 +40,10 @@ popd
 rm -rf $TMP_DIR
 
 # Sign the app and the runtime
+codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/Home/bin/java"
+codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/Home/bin/jrunscript"
+codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/Home/bin/keytool"
+codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/Home/lib/jspawnhelper"
 codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/MacOS/libjli.dylib"
 codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/libapplauncher.dylib"
 codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/RPM Jukebox"
