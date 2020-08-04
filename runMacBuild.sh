@@ -1,6 +1,9 @@
 #!/bin/sh
 
 VERSION="5.0.0"
+BUILD_NUMBER="8"
+
+CURRENT_YEAR="$(date +%Y)"
 
 PROJECT_ROOT=`pwd`
 APP_NAME="RPM Jukebox.app"
@@ -20,7 +23,23 @@ APP_SIGNING_ID="Developer ID Application: $APPLE_DEV_ID"
 INSTALLER_SIGNING_ID="3rd Party Mac Developer Installer: $APPLE_DEV_ID"
 
 # Run the build
-./gradlew clean build jpackageImage
+./gradlew clean build jpackageImage -x test
+
+# Replace the strings in the Info.plist file
+pushd "$NATIVE_APP/Contents"
+  perl -i -p0e "s|\<key>CFBundleVersion\<\/key\>\s*\<string\>$VERSION\<\/string\>|'<key>CFBundleVersion</key><string>$BUILD_NUMBER</string>'|se" Info.plist
+  sed -i'.bak' -e "s/>Unknown</>public.app-category.music</g" Info.plist
+  sed -i'.bak' -e "s/>Copyright (C) $CURRENT_YEAR</>(C) $CURRENT_YEAR Matt Parker</g" Info.plist
+
+  rm -f Info.plist.bak
+popd
+
+pushd "$NATIVE_APP/Contents/runtime/Contents"
+  perl -i -p0e "s|\<key>CFBundleVersion\<\/key\>\s*\<string\>$VERSION\<\/string\>|'<key>CFBundleVersion</key><string>$BUILD_NUMBER</string>'|se" Info.plist
+  sed -i'.bak' -e "s/>com.oracle.java.uk.co.mpcontracting.rpmjukebox</>uk.co.mpcontracting.rpmjukebox</g" Info.plist
+
+  rm -f Info.plist.bak
+popd
 
 # Remove attributes on the app
 xattr -rc "$NATIVE_APP"
