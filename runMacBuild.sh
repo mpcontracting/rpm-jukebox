@@ -23,7 +23,7 @@ APP_SIGNING_ID="Developer ID Application: $APPLE_DEV_ID"
 INSTALLER_SIGNING_ID="3rd Party Mac Developer Installer: $APPLE_DEV_ID"
 
 # Run the build
-./gradlew clean build jpackageImage -x test
+./gradlew clean build jpackageImage
 
 # Replace the strings in the Info.plist file
 pushd "$NATIVE_APP/Contents"
