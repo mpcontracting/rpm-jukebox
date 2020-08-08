@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERSION="5.0.0"
-BUILD_NUMBER="8"
+BUILD_NUMBER="1"
 
 CURRENT_YEAR="$(date +%Y)"
 
@@ -12,18 +12,16 @@ NATIVE_APP="$NATIVE_DIR/$APP_NAME"
 
 SRC_DIR="$NATIVE_DIR/src"
 SRC_APP="$SRC_DIR/$APP_NAME"
-DMG_OUTPUT_DIR="$NATIVE_DIR/dmg"
-DMG_OUTPUT_FILE="$DMG_OUTPUT_DIR/rpm-jukebox-$VERSION.dmg"
-PKG_OUTPUT_FILE="$DMG_OUTPUT_DIR/rpm-jukebox-$VERSION.pkg"
+DEST_DIR="$NATIVE_DIR/dest"
+DMG_OUTPUT_FILE="$DEST_DIR/rpm-jukebox-$VERSION.dmg"
 TMP_DIR="$NATIVE_DIR/tmp"
 JAR_PATH="$NATIVE_APP/Contents/app"
 JAR_FILE="rpm-jukebox-$VERSION.jar"
 
 APP_SIGNING_ID="Developer ID Application: $APPLE_DEV_ID"
-INSTALLER_SIGNING_ID="3rd Party Mac Developer Installer: $APPLE_DEV_ID"
 
 # Run the build
-./gradlew clean build jpackageImage
+./gradlew clean build jpackageImage -x test
 
 # Replace the strings in the Info.plist file
 pushd "$NATIVE_APP/Contents"
@@ -59,10 +57,6 @@ popd
 rm -rf $TMP_DIR
 
 # Sign the app and the runtime
-codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/Home/bin/java"
-codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/Home/bin/jrunscript"
-codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/Home/bin/keytool"
-codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/Home/lib/jspawnhelper"
 codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/runtime/Contents/MacOS/libjli.dylib"
 codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/libapplauncher.dylib"
 codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -f -v "$NATIVE_APP/Contents/MacOS/RPM Jukebox"
@@ -73,9 +67,9 @@ rm -rf $SRC_DIR
 mkdir -p $SRC_DIR
 mv "$NATIVE_APP" $SRC_DIR
 
-# Create the DMG output directory
-rm -rf $DMG_OUTPUT_DIR
-mkdir -p $DMG_OUTPUT_DIR
+# Create the destination directory
+rm -rf $DEST_DIR
+mkdir -p $DEST_DIR
 
 # Create the DMG
 create-dmg \
@@ -91,9 +85,6 @@ create-dmg \
 
 # Sign the DMG
 codesign -s "$APP_SIGNING_ID" --options runtime --entitlements macos.entitlements -vvvv --deep "$DMG_OUTPUT_FILE"
-
-# Create and sign the package
-productbuild --component "$SRC_APP" /Applications/ "$PKG_OUTPUT_FILE" --sign "$INSTALLER_SIGNING_ID"
 
 # Upload the DMG for verification
 REQUEST_UUID=`xcrun altool -t osx -f "$DMG_OUTPUT_FILE" --primary-bundle-id "uk.co.mpcontracting.rpmjukebox-$VERSION" --notarize-app -u "$APPLE_ID" -p @keychain:"Apple Developer: $APPLE_ID" | grep RequestUUID | awk '{print $3}'`
