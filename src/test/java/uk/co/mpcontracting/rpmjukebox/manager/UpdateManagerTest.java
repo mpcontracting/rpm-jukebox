@@ -63,6 +63,7 @@ public class UpdateManagerTest {
 
         when(appProperties.getVersionUrl()).thenReturn(versionUrl.toString());
         when(settingsManager.getVersion()).thenReturn(new Version("1.0.0"));
+        when(settingsManager.isAppStoreBuild()).thenReturn(false);
         when(internetManager.openConnection(versionUrl)).thenReturn(httpURLConnection);
     }
 
@@ -137,6 +138,16 @@ public class UpdateManagerTest {
         sleep(500);
 
         verify(hostServices, times(1)).showDocument(appProperties.getWebsiteUrl());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldNotCheckForUpdatesIfIsAppStoreBuild() {
+        when(settingsManager.isAppStoreBuild()).thenReturn(true);
+
+        invokeMethod(underTest, "checkForUpdates");
+
+        verify(internetManager, never()).openConnection(any());
     }
 
     @Test

@@ -21,7 +21,7 @@ JAR_FILE="rpm-jukebox-$VERSION.jar"
 APP_SIGNING_ID="Developer ID Application: $APPLE_DEV_ID"
 
 # Run the build
-./gradlew clean build jpackageImage -x test
+./gradlew clean build jpackageImage -PappStoreBuild="false"
 
 # Replace the strings in the Info.plist file
 pushd "$NATIVE_APP/Contents"

@@ -4,6 +4,8 @@ import javafx.scene.input.DataFormat;
 
 public interface Constants {
 
+    String APP_STORE_BUILD = "appStoreBuild";
+
     String I18N_MESSAGE_BUNDLE = "i18n.message-bundle";
     String UNSPECIFIED_GENRE = "";
     DataFormat DND_TRACK_DATA_FORMAT = new DataFormat("dyn.dnd.track.data.format");

@@ -102,6 +102,33 @@ public class SettingsManagerTest extends AbstractGUITest implements Constants {
     }
 
     @Test
+    public void shouldBeAppStoreBuild() {
+        System.setProperty(APP_STORE_BUILD, "true");
+
+        boolean result = underTest.isAppStoreBuild();
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void shouldNotBeAppStoreBuild() {
+        System.setProperty(APP_STORE_BUILD, "false");
+
+        boolean result = underTest.isAppStoreBuild();
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void shouldNotBeAppStoreBuildWhenPropertyIsNull() {
+        System.clearProperty(APP_STORE_BUILD);
+
+        boolean result = underTest.isAppStoreBuild();
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
     public void shouldGetFileFromConfigDirectory() {
         File correctValue = new File(RpmJukebox.getConfigDirectory(), "test");
         File result = underTest.getFileFromConfigDirectory("test");

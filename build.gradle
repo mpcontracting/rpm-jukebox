@@ -141,7 +141,12 @@ jacocoTestCoverageVerification {
 
 application {
     mainClassName = 'uk.co.mpcontracting.rpmjukebox.RpmJukebox'
-    applicationDefaultJvmArgs = ['-Xmx128m']
+
+    if (project.hasProperty("appStoreBuild") && project.property("appStoreBuild") == "true") {
+        applicationDefaultJvmArgs = ['-Xmx128m', '-DappStoreBuild=true']
+    } else {
+        applicationDefaultJvmArgs = ['-Xmx128m', '-DappStoreBuild=false']
+    }
 }
 
 runtime {

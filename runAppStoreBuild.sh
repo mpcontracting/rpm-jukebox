@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERSION="5.0.0"
-BUILD_NUMBER="13"
+BUILD_NUMBER="14"
 
 CURRENT_YEAR="$(date +%Y)"
 
@@ -22,7 +22,7 @@ APP_SIGNING_ID="Apple Distribution: $APPLE_DEV_ID"
 INSTALLER_SIGNING_ID="3rd Party Mac Developer Installer: $APPLE_DEV_ID"
 
 # Run the build
-./gradlew clean build jpackageImage -x test
+./gradlew clean build jpackageImage -PappStoreBuild="true"
 
 # Copy the Java executables with the patched Info.plist entries
 pushd "$NATIVE_APP/Contents/runtime/Contents/Home/bin"

@@ -112,6 +112,10 @@ public class SettingsManager implements Constants {
         userSettingsLoaded = false;
     }
 
+    boolean isAppStoreBuild() {
+        return Boolean.parseBoolean(System.getProperty(APP_STORE_BUILD));
+    }
+
     File getFileFromConfigDirectory(String relativePath) {
         return new File(RpmJukebox.getConfigDirectory(), relativePath);
     }

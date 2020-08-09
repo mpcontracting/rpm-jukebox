@@ -43,6 +43,10 @@ public class UpdateManager extends EventAwareObject implements Constants {
     }
 
     private void checkForUpdates() {
+        if (settingsManager.isAppStoreBuild()) {
+            return;
+        }
+
         log.debug("Checking for updates to version - {}", settingsManager.getVersion());
         log.debug("Version url - {}", appProperties.getVersionUrl());
 
