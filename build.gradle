@@ -1,6 +1,33 @@
 import org.openjfx.gradle.JavaFXPlatform
 
 buildscript {
+    ext {
+        app_version = "5.0.0"
+        compatibility = "17"
+        spring_boot_version = "2.7.1"
+
+        // Plugin versions
+        dependency_management_plugin = "1.0.14.RELEASE"
+        dependency_check_plugin = "7.2.1"
+        javafx_plugin = "0.0.13"
+        badass_runtime_plugin = "1.12.7"
+        jacoco_plugin = "0.8.8"
+
+        // Compile dependency versions
+        javafx_version = "17.0.2"
+        lucene_version = "9.4.0"
+        lucene_analyzers_version = "8.11.2"
+        commons_version_version = "1.0.0"
+        jna_version = "5.12.1"
+
+        // Test dependency versions
+        commons_io_version = "2.11.0"
+        guava_version = "31.1-jre"
+        testfx_core_version = "4.0.16-alpha"
+        testfx_junit_version = "4.0.15-alpha"
+        openjfx_monacle_version = "jdk-12.0.1+2"
+    }
+
     repositories {
         mavenCentral()
         maven {
@@ -9,11 +36,11 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE'
-        classpath 'org.owasp:dependency-check-gradle:5.3.2'
-        classpath 'org.openjfx:javafx-plugin:0.0.9'
-        classpath 'org.beryx.runtime:org.beryx.runtime.gradle.plugin:1.11.1'
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${spring_boot_version}"
+        classpath "io.spring.gradle:dependency-management-plugin:${dependency_management_plugin}"
+        classpath "org.owasp:dependency-check-gradle:${dependency_check_plugin}"
+        classpath "org.openjfx:javafx-plugin:${javafx_plugin}"
+        classpath "org.beryx:badass-runtime-plugin:${badass_runtime_plugin}"
     }
 }
 
@@ -22,17 +49,17 @@ repositories {
     mavenLocal()
 }
 
-apply plugin: 'application'
-apply plugin: 'java'
-apply plugin: 'jacoco'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'org.owasp.dependencycheck'
-apply plugin: 'org.openjfx.javafxplugin'
-apply plugin: 'org.beryx.runtime'
+apply plugin: "application"
+apply plugin: "java"
+apply plugin: "jacoco"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "org.owasp.dependencycheck"
+apply plugin: "org.openjfx.javafxplugin"
+apply plugin: "org.beryx.runtime"
 
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        mavenBom "org.springframework.boot:spring-boot-dependencies:${spring_boot_version}"
     }
 }
 
@@ -45,91 +72,89 @@ dependencyCheck {
     failOnError = true
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = "${compatibility}"
+targetCompatibility = "${compatibility}"
 
-group 'uk.co.mpcontracting'
-version = '5.0.0'
+group "uk.co.mpcontracting"
+version = "${app_version}"
 
 jar {
     archivesBaseName = "${project.name}"
 }
 
 javafx {
-    version = "14.0.1"
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.media' ]
-    configuration = 'compileOnly'
+    version = "${javafx_version}"
+    modules = [ "javafx.controls", "javafx.fxml", "javafx.media" ]
 }
 
-def classifier = JavaFXPlatform.detect(project).classifier
+def build_platform = JavaFXPlatform.detect(project).classifier
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'javax.validation:validation-api'
-    implementation 'org.hibernate.validator:hibernate-validator'
-    implementation 'org.apache.lucene:lucene-core:6.1.0'
-    implementation 'org.apache.lucene:lucene-queries:6.1.0'
-    implementation 'org.apache.lucene:lucene-analyzers-common:6.1.0'
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'com.google.code.gson:gson'
-    implementation 'com.igormaznitsa:commons-version:1.0.0'
-    implementation 'org.eclipse.jetty:jetty-servlet'
-    implementation 'net.java.dev.jna:jna:5.5.0'
+    implementation "org.springframework.boot:spring-boot-starter"
+    implementation "javax.validation:validation-api"
+    implementation "org.hibernate.validator:hibernate-validator"
+    implementation "org.apache.lucene:lucene-core:${lucene_version}"
+    implementation "org.apache.lucene:lucene-analyzers-common:${lucene_analyzers_version}"
+    implementation "org.apache.commons:commons-lang3"
+    implementation "com.google.code.gson:gson"
+    implementation "com.igormaznitsa:commons-version:${commons_version_version}"
+    implementation "org.eclipse.jetty:jetty-servlet"
+    implementation "net.java.dev.jna:jna:${jna_version}"
 
-    compileOnly 'org.projectlombok:lombok'
+    compileOnly "org.projectlombok:lombok"
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.testfx:testfx-core:4.0.16-alpha'
-    testImplementation 'org.testfx:testfx-junit:4.0.15-alpha'
-    testImplementation 'org.testfx:openjfx-monocle:jdk-12.0.1+2'
-    testImplementation 'org.assertj:assertj-core'
-    testImplementation 'commons-io:commons-io:2.6'
-    testImplementation 'com.google.guava:guava:27.1-jre'
-    testImplementation "org.openjfx:javafx-base:14.0.1:$classifier"
-    testImplementation "org.openjfx:javafx-controls:14.0.1:$classifier"
-    testImplementation "org.openjfx:javafx-fxml:14.0.1:$classifier"
-    testImplementation "org.openjfx:javafx-graphics:14.0.1:$classifier"
-    testImplementation "org.openjfx:javafx-media:14.0.1:$classifier"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.testfx:testfx-core:${testfx_core_version}"
+    testImplementation "org.testfx:testfx-junit:${testfx_junit_version}"
+    testImplementation "org.testfx:openjfx-monocle:${openjfx_monacle_version}"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "commons-io:commons-io:${commons_io_version}"
+    testImplementation "com.google.guava:guava:${guava_version}"
+    testImplementation "org.openjfx:javafx-base:${javafx_version}:${build_platform}"
+    testImplementation "org.openjfx:javafx-controls:${javafx_version}:${build_platform}"
+    testImplementation "org.openjfx:javafx-fxml:${javafx_version}:${build_platform}"
+    testImplementation "org.openjfx:javafx-graphics:${javafx_version}:${build_platform}"
+    testImplementation "org.openjfx:javafx-media:${javafx_version}:${build_platform}"
 
-    testCompileOnly 'org.projectlombok:lombok'
+    testCompileOnly "org.projectlombok:lombok"
 
-    annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor "org.projectlombok:lombok"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-    testAnnotationProcessor 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testAnnotationProcessor "org.projectlombok:lombok"
+    testAnnotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 test.finalizedBy jacocoTestReport
 check.dependsOn jacocoTestCoverageVerification
 
 jacoco {
-    toolVersion = '0.8.5'
+    toolVersion = "${jacoco_plugin}"
 }
 
 jacocoTestCoverageVerification {
     violationRules {
         rule {
-            element = 'CLASS'
+            element = "CLASS"
             limit {
-                counter = 'INSTRUCTION'
-                value = 'COVEREDRATIO'
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
                 minimum = 0.8
             }
             limit {
-                counter = 'BRANCH'
-                value = 'COVEREDRATIO'
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
                 minimum = 0.8
             }
             excludes = [
-                    // Exclude RpmJukebox as we cannot test the static initialisation fully
-                    'uk.co.mpcontracting.rpmjukebox.RpmJukebox',
-                    // Exclude MediaManager as we cannot test the MediaPlayer events
-                    'uk.co.mpcontracting.rpmjukebox.manager.MediaManager',
-                    // Exclude NativeManager as test coverage is only achievable on OSX
-                    'uk.co.mpcontracting.rpmjukebox.manager.NativeManager',
-                    // Exclude the javafx package as it's imported from a 3rd party project
-                    'uk.co.mpcontracting.rpmjukebox.javafx.*'
+                // Exclude RpmJukebox as we cannot test the static initialisation fully
+                "uk.co.mpcontracting.rpmjukebox.RpmJukebox",
+                // Exclude MediaManager as we cannot test the MediaPlayer events
+                "uk.co.mpcontracting.rpmjukebox.manager.MediaManager",
+                // Exclude NativeManager as test coverage is only achievable on OSX
+                "uk.co.mpcontracting.rpmjukebox.manager.NativeManager",
+                // Exclude the javafx package as it"s imported from a 3rd party project
+                "uk.co.mpcontracting.rpmjukebox.javafx.*"
             ]
         }
     }
@@ -140,45 +165,45 @@ jacocoTestCoverageVerification {
 /////////////////////////
 
 application {
-    mainClassName = 'uk.co.mpcontracting.rpmjukebox.RpmJukebox'
+    mainClassName = "uk.co.mpcontracting.rpmjukebox.RpmJukebox"
 
     if (project.hasProperty("appStoreBuild") && project.property("appStoreBuild") == "true") {
-        applicationDefaultJvmArgs = ['-Xmx128m', '-DappStoreBuild=true']
+        applicationDefaultJvmArgs = ["-Xmx128m", "-DappStoreBuild=true"]
     } else {
-        applicationDefaultJvmArgs = ['-Xmx128m', '-DappStoreBuild=false']
+        applicationDefaultJvmArgs = ["-Xmx128m", "-DappStoreBuild=false"]
     }
 }
 
 runtime {
-    options.addAll('--no-header-files', '--no-man-pages')
+    options.addAll("--no-header-files", "--no-man-pages")
 
     // Note that the java.sql module is required by GSon as it sets up a default serializer/deserializer for java.sql.Time
-    modules.addAll('java.naming', 'java.sql', 'javafx.controls', 'javafx.fxml', 'javafx.media')
+    modules.addAll("java.naming", "java.sql", "javafx.controls", "javafx.fxml", "javafx.media")
 
     jpackage {
         appVersion = "${version}"
 
         if (org.gradle.internal.os.OperatingSystem.current().macOsX) {
             resourceDir = file("$rootDir/src/main/deploy/package/macosx")
-            imageName = 'RPM Jukebox'
-            imageOptions = ['--mac-package-name', 'RPM Jukebox']
-            installerType = 'dmg'
-            installerName = 'RPM Jukebox'
+            imageName = "RPM Jukebox"
+            imageOptions = ["--mac-package-name", "RPM Jukebox"]
+            installerType = "dmg"
+            installerName = "RPM Jukebox"
         }
 
         if (org.gradle.internal.os.OperatingSystem.current().windows) {
             resourceDir = file("$rootDir/src/main/deploy/package/windows")
-            imageName = 'RPM Jukebox'
-            installerType = 'msi'
-            installerName = 'RPM Jukebox'
-            installerOptions = ['--win-dir-chooser', '--win-menu', '--win-menu-group', 'RPM Jukebox']
+            imageName = "RPM Jukebox"
+            installerType = "msi"
+            installerName = "RPM Jukebox"
+            installerOptions = ["--win-dir-chooser", "--win-menu", "--win-menu-group", "RPM Jukebox"]
         }
 
         if (org.gradle.internal.os.OperatingSystem.current().linux) {
             resourceDir = file("$rootDir/src/main/deploy/package/linux")
-            imageName = 'RPMJukebox'
-            installerName = 'RPMJukebox'
-            installerOptions = ['--linux-shortcut', '--linux-menu-group', 'Audio']
+            imageName = "RPMJukebox"
+            installerName = "RPMJukebox"
+            installerOptions = ["--linux-shortcut", "--linux-menu-group", "Audio"]
         }
     }
 }

@@ -9,7 +9,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.*;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.search.*;
 import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.store.Directory;
@@ -29,6 +28,7 @@ import uk.co.mpcontracting.rpmjukebox.search.TrackField;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSort;
 import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import uk.co.mpcontracting.rpmjukebox.support.ThrowingConsumer;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -41,8 +41,9 @@ import java.util.concurrent.TimeUnit;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.shuffle;
 import static java.util.Optional.empty;
-import static java.util.Optional.of;
+import static java.util.stream.Stream.of;
 import static org.apache.commons.lang3.StringUtils.stripAccents;
+import static org.apache.lucene.index.IndexWriterConfig.OpenMode.CREATE;
 
 @Slf4j
 @Component
@@ -100,18 +101,14 @@ public class SearchManager extends EventAwareObject implements Constants {
 
             // Initialise the indexes
             Analyzer analyzer = new WhitespaceAnalyzer();
-            BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
+            IndexSearcher.setMaxClauseCount(Integer.MAX_VALUE);
 
             artistDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(appProperties.getArtistIndexDirectory()).toPath());
-            IndexWriterConfig artistWriterConfig = new IndexWriterConfig(analyzer);
-            artistWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
-            artistWriter = new IndexWriter(artistDirectory, artistWriterConfig);
+            artistWriter = createIndexWriter(artistDirectory, analyzer);
             artistManager = new SearcherManager(artistWriter, null);
 
             trackDirectory = FSDirectory.open(settingsManager.getFileFromConfigDirectory(appProperties.getTrackIndexDirectory()).toPath());
-            IndexWriterConfig trackWriterConfig = new IndexWriterConfig(analyzer);
-            trackWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
-            trackWriter = new IndexWriter(trackDirectory, trackWriterConfig);
+            trackWriter = createIndexWriter(trackDirectory, analyzer);
             trackManager = new SearcherManager(trackWriter, null);
 
             random = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
@@ -156,6 +153,21 @@ public class SearchManager extends EventAwareObject implements Constants {
             log.error("Error initialising SearchManager", e);
 
             throw e;
+        }
+    }
+
+    private IndexWriter createIndexWriter(Directory directory, Analyzer analyzer) throws Exception {
+        try {
+            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
+
+            return new IndexWriter(directory, indexWriterConfig);
+        } catch (IndexFormatTooOldException e) {
+            of(directory.listAll()).forEach((ThrowingConsumer<String>) directory::deleteFile);
+
+            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
+            indexWriterConfig.setOpenMode(CREATE);
+
+            return new IndexWriter(directory, indexWriterConfig);
         }
     }
 
@@ -407,11 +419,11 @@ public class SearchManager extends EventAwareObject implements Constants {
             log.debug("Hits - {}", results.totalHits);
             log.debug("Score docs - {}", scoreDocs.length);
 
-            if (playlistSize < results.totalHits) {
+            if (playlistSize < results.totalHits.value) {
                 final IndexSearcher finalSearcher = trackSearcher;
                 Future<Integer> future = executorService.submit(() -> {
                     while (playlist.size() < playlistSize) {
-                        int docId = (int) (random.nextDouble() * results.totalHits);
+                        int docId = (int) (random.nextDouble() * results.totalHits.value);
                         Track track = getTrackByDocId(finalSearcher, scoreDocs[docId].doc);
 
                         if (!playlist.contains(track)) {
@@ -474,11 +486,11 @@ public class SearchManager extends EventAwareObject implements Constants {
             artistSearcher = artistManager.acquire();
             TopDocs results = artistSearcher.search(new TermQuery(new Term(ArtistField.ARTIST_ID.name(), artistId)), 1);
 
-            if (results.totalHits < 1) {
+            if (results.totalHits.value < 1) {
                 return empty();
             }
 
-            return of(getArtistByDocId(artistSearcher, results.scoreDocs[0].doc));
+            return Optional.of(getArtistByDocId(artistSearcher, results.scoreDocs[0].doc));
         } catch (Exception e) {
             log.error("Unable to run get artist by id", e);
 
@@ -504,11 +516,11 @@ public class SearchManager extends EventAwareObject implements Constants {
             trackSearcher = trackManager.acquire();
             TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.TRACK_ID.name(), trackId)), 1);
 
-            if (results.totalHits < 1) {
+            if (results.totalHits.value < 1) {
                 return empty();
             }
 
-            return of(getTrackByDocId(trackSearcher, results.scoreDocs[0].doc));
+            return Optional.of(getTrackByDocId(trackSearcher, results.scoreDocs[0].doc));
         } catch (Exception e) {
             log.error("Unable to run get track by id", e);
 
@@ -535,7 +547,7 @@ public class SearchManager extends EventAwareObject implements Constants {
             TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.ALBUM_ID.name(), albumId)),
                     appProperties.getMaxSearchHits(), new Sort(new SortField(TrackSort.DEFAULT_SORT.name(), SortField.Type.STRING)));
 
-            return of(getTracksFromScoreDocs(trackSearcher, results.scoreDocs));
+            return Optional.of(getTracksFromScoreDocs(trackSearcher, results.scoreDocs));
         } catch (Exception e) {
             log.error("Unable to run get album by id", e);
 

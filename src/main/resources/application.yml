@@ -1,3 +1,7 @@
+spring:
+  main:
+    allow-circular-references: true
+
 application:
   # Version number
   version: 5.0.0

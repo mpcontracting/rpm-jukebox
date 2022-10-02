@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.util.Collections.singletonList;
+import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
@@ -609,7 +610,7 @@ public class SearchManagerTest implements Constants {
 
         ScoreDoc[] scoreDocs = {new ScoreDoc(1, 0), new ScoreDoc(2, 0)};
         when(indexSearcher.search(any(), anyInt(), any()))
-                .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+                .thenReturn(new TopFieldDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs, null));
         setTrackSearcherDocuments(indexSearcher);
 
         List<Track> result = underTest.search(new TrackSearch("keywords"));
@@ -701,7 +702,7 @@ public class SearchManagerTest implements Constants {
 
         ScoreDoc[] scoreDocs = {new ScoreDoc(1, 0), new ScoreDoc(2, 0)};
         when(indexSearcher.search(any(), anyInt(), any()))
-                .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+                .thenReturn(new TopFieldDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs, null));
         setTrackSearcherDocuments(indexSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetSearchResultsWhenExceptionThrownOnRelease()"))
@@ -728,7 +729,7 @@ public class SearchManagerTest implements Constants {
         }
         ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
-        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs));
         setTrackSearcherDocuments(indexSearcher);
 
         setField(underTest, "executorService", Executors.newSingleThreadExecutor());
@@ -760,7 +761,7 @@ public class SearchManagerTest implements Constants {
         }
         ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
-        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs));
         setTrackSearcherDocuments(indexSearcher);
 
         setField(underTest, "executorService", Executors.newSingleThreadExecutor());
@@ -792,7 +793,7 @@ public class SearchManagerTest implements Constants {
         }
         ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
-        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs));
         setTrackSearcherDocuments(indexSearcher);
 
         setField(underTest, "executorService", Executors.newSingleThreadExecutor());
@@ -827,7 +828,7 @@ public class SearchManagerTest implements Constants {
         }
         ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
-        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs));
         setTrackSearcherDocuments(indexSearcher);
 
         List<Track> result = underTest.getShuffledPlaylist(9, null);
@@ -871,7 +872,7 @@ public class SearchManagerTest implements Constants {
         when(artistManager.acquire()).thenReturn(indexSearcher);
 
         when(indexSearcher.search(any(), anyInt()))
-                .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
+                .thenReturn(new TopDocs(new TotalHits(1, EQUAL_TO), new ScoreDoc[]{new ScoreDoc(1, 0)}));
         setArtistSearcherDocuments(indexSearcher);
 
         Artist artist = underTest.getArtistById("123").orElse(null);
@@ -891,7 +892,7 @@ public class SearchManagerTest implements Constants {
         when(artistManager.acquire()).thenReturn(indexSearcher);
 
         when(indexSearcher.search(any(), anyInt()))
-                .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
+                .thenReturn(new TopDocs(new TotalHits(1, EQUAL_TO), new ScoreDoc[]{new ScoreDoc(1, 0)}));
         setArtistSearcherDocuments(indexSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetArtistByIdWhenExceptionThrownOnRelease()"))
@@ -913,7 +914,7 @@ public class SearchManagerTest implements Constants {
         IndexSearcher indexSearcher = mock(IndexSearcher.class);
         when(artistManager.acquire()).thenReturn(indexSearcher);
 
-        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[]{}, 0));
+        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(0, EQUAL_TO), new ScoreDoc[]{}));
         setArtistSearcherDocuments(indexSearcher);
 
         Artist artist = underTest.getArtistById("123").orElse(null);
@@ -949,7 +950,7 @@ public class SearchManagerTest implements Constants {
         when(trackManager.acquire()).thenReturn(indexSearcher);
 
         when(indexSearcher.search(any(), anyInt()))
-                .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
+                .thenReturn(new TopDocs(new TotalHits(1, EQUAL_TO), new ScoreDoc[]{new ScoreDoc(1, 0)}));
         setTrackSearcherDocuments(indexSearcher);
 
         Track track = underTest.getTrackById("123").orElse(null);
@@ -978,7 +979,7 @@ public class SearchManagerTest implements Constants {
         when(trackManager.acquire()).thenReturn(indexSearcher);
 
         when(indexSearcher.search(any(), anyInt()))
-                .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
+                .thenReturn(new TopDocs(new TotalHits(1, EQUAL_TO), new ScoreDoc[]{new ScoreDoc(1, 0)}));
         setTrackSearcherDocuments(indexSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetTrackByIdWhenExceptionThrownOnRelease()"))
@@ -1009,7 +1010,7 @@ public class SearchManagerTest implements Constants {
         IndexSearcher indexSearcher = mock(IndexSearcher.class);
         when(trackManager.acquire()).thenReturn(indexSearcher);
 
-        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[]{}, 0));
+        when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(0, EQUAL_TO), new ScoreDoc[]{}));
         setArtistSearcherDocuments(indexSearcher);
 
         Track track = underTest.getTrackById("123").orElse(null);
@@ -1051,7 +1052,7 @@ public class SearchManagerTest implements Constants {
         ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(indexSearcher.search(any(), anyInt(), any()))
-                .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+                .thenReturn(new TopFieldDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs, null));
         setTrackSearcherDocuments(indexSearcher);
 
         List<Track> tracks = underTest.getAlbumById("123").orElse(null);
@@ -1072,7 +1073,7 @@ public class SearchManagerTest implements Constants {
         ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
         when(indexSearcher.search(any(), anyInt(), any()))
-                .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+                .thenReturn(new TopFieldDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs, null));
         setTrackSearcherDocuments(indexSearcher);
 
         doThrow(new RuntimeException("SearchManagerTest.shouldGetAlbumByIdWhenExceptionThrownOnRelease()"))
@@ -1090,7 +1091,7 @@ public class SearchManagerTest implements Constants {
         when(trackManager.acquire()).thenReturn(indexSearcher);
 
         when(indexSearcher.search(any(), anyInt(), any()))
-                .thenReturn(new TopFieldDocs(0, new ScoreDoc[]{}, null, 0));
+                .thenReturn(new TopFieldDocs(new TotalHits(0, EQUAL_TO), new ScoreDoc[]{}, null));
         setArtistSearcherDocuments(indexSearcher);
 
         List<Track> tracks = underTest.getAlbumById("123").orElse(null);

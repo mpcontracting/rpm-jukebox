@@ -1,7 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.test.support;
 
+import org.apache.lucene.index.ImpactsEnum;
 import org.apache.lucene.index.PostingsEnum;
+import org.apache.lucene.index.TermState;
 import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
 
 import java.util.Iterator;
@@ -39,12 +42,37 @@ public class TestTermsEnum extends TermsEnum {
     }
 
     @Override
+    public ImpactsEnum impacts(int flags) {
+        return null;
+    }
+
+    @Override
+    public TermState termState() {
+        return null;
+    }
+
+    @Override
+    public AttributeSource attributes() {
+        return null;
+    }
+
+    @Override
+    public boolean seekExact(BytesRef text) {
+        return false;
+    }
+
+    @Override
     public SeekStatus seekCeil(BytesRef text) {
         return null;
     }
 
     @Override
     public void seekExact(long ord) {
+    }
+
+    @Override
+    public void seekExact(BytesRef term, TermState state) {
+
     }
 
     @Override

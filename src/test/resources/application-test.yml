@@ -1,2 +1,6 @@
+spring:
+  main:
+    allow-circular-references: true
+
 application:
   jetty-port: 43126
