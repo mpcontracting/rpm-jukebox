@@ -3,6 +3,12 @@ A player for the RPM Challenge jukebox written in JavaFX
 
 ## Release Notes
 
+### v6.0.0
+
+* Converted to use JDK21 and JavaFX 22.0.1
+* Changed build to use Maven rather than Gradle
+* Refactored code to make it more efficient
+
 ### v5.0.0
 
 * Converted to use JDK14

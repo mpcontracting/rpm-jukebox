@@ -5,97 +5,97 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.media.*?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="uk.co.mpcontracting.rpmjukebox.controller.EqualizerController">
-    <center>
-        <HBox fx:id="sliderHbox" styleClass="sliderHbox">
-            <Slider id="eq0" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-            <Slider id="eq1" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-            <Slider id="eq2" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-            <Slider id="eq3" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-            <Slider id="eq4" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-            <Slider id="eq5" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-            <Slider id="eq6" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-            <Slider id="eq7" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-            <Slider id="eq8" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-            <Slider id="eq9" orientation="VERTICAL">
-                <min>
-                    <EqualizerBand fx:constant="MIN_GAIN"/>
-                </min>
-                <max>
-                    <EqualizerBand fx:constant="MAX_GAIN"/>
-                </max>
-            </Slider>
-        </HBox>
-    </center>
-    <bottom>
-        <HBox styleClass="buttonHbox">
-            <Button id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok"/>
-            <Button id="resetButton" mnemonicParsing="false" onAction="#handleResetButtonAction" text="%button.reset"/>
-        </HBox>
-    </bottom>
+  styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65"
+  xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="uk.co.mpcontracting.rpmjukebox.controller.EqualizerController">
+  <center>
+    <HBox fx:id="sliderHbox" styleClass="sliderHbox">
+      <Slider id="eq0" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+      <Slider id="eq1" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+      <Slider id="eq2" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+      <Slider id="eq3" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+      <Slider id="eq4" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+      <Slider id="eq5" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+      <Slider id="eq6" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+      <Slider id="eq7" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+      <Slider id="eq8" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+      <Slider id="eq9" orientation="VERTICAL">
+        <min>
+          <EqualizerBand fx:constant="MIN_GAIN"/>
+        </min>
+        <max>
+          <EqualizerBand fx:constant="MAX_GAIN"/>
+        </max>
+      </Slider>
+    </HBox>
+  </center>
+  <bottom>
+    <HBox styleClass="buttonHbox">
+      <Button id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok"/>
+      <Button id="resetButton" mnemonicParsing="false" onAction="#handleResetButtonAction" text="%button.reset"/>
+    </HBox>
+  </bottom>
 </BorderPane>

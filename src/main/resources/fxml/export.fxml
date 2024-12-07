@@ -6,24 +6,21 @@
 <?import javafx.scene.layout.HBox?>
 <?import uk.co.mpcontracting.rpmjukebox.component.PercentageTableColumn?>
 <BorderPane styleClass="popUpPanel" stylesheets="@../css/rpmjukebox.css" xmlns="http://javafx.com/javafx/8.0.65"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="uk.co.mpcontracting.rpmjukebox.controller.ExportController">
-    <bottom>
-        <HBox styleClass="buttonHbox" BorderPane.alignment="CENTER">
-            <Button id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok"/>
-            <Button id="cancelButton" fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction"
-                    text="%button.cancel"/>
-        </HBox>
-    </bottom>
-    <center>
-        <TableView fx:id="playlistTableView" prefHeight="200.0" prefWidth="300.0" styleClass="playlistTableView"
-                   stylesheets="@../css/rpmjukebox.css" BorderPane.alignment="CENTER">
-            <columns>
-                <PercentageTableColumn fx:id="selectColumn" editable="false" percentageWidth="0.10" resizable="false"
-                                       sortable="false"/>
-                <PercentageTableColumn fx:id="playlistColumn" editable="false" percentageWidth="0.90" resizable="false"
-                                       sortable="false"/>
-            </columns>
-        </TableView>
-    </center>
+  xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="uk.co.mpcontracting.rpmjukebox.controller.ExportController">
+  <bottom>
+    <HBox styleClass="buttonHbox" BorderPane.alignment="CENTER">
+      <Button id="okButton" mnemonicParsing="false" onAction="#handleOkButtonAction" text="%button.ok"/>
+      <Button id="cancelButton" fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" text="%button.cancel"/>
+    </HBox>
+  </bottom>
+  <center>
+    <TableView fx:id="playlistTableView" prefHeight="200.0" prefWidth="300.0" styleClass="playlistTableView"
+      stylesheets="@../css/rpmjukebox.css" BorderPane.alignment="CENTER">
+      <columns>
+        <PercentageTableColumn fx:id="selectColumn" editable="false" percentageWidth="0.10" resizable="false" sortable="false"/>
+        <PercentageTableColumn fx:id="playlistColumn" editable="false" percentageWidth="0.90" resizable="false" sortable="false"/>
+      </columns>
+    </TableView>
+  </center>
 </BorderPane>

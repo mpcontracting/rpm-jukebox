@@ -1,19 +1,37 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
-public class EventAwareObject implements EventListener {
-    private final EventManager eventManager;
+import lombok.Getter;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import java.util.concurrent.TimeUnit;
 
-    protected EventAwareObject() {
-        eventManager = EventManager.getInstance();
-        eventManager.addEventListener(this);
-    }
+import static lombok.AccessLevel.PROTECTED;
 
-    protected void fireEvent(final Event event, final Object... payload) {
-        eventManager.fireEvent(event, payload);
-    }
+public class EventAwareObject  implements ApplicationContextAware, EventListener {
 
-    @Override
-    public void eventReceived(Event event, Object... payload) {
-        // Override in sub-class to receive events
-    }
+  @Getter(PROTECTED)
+  private ApplicationContext applicationContext;
+  private EventProcessor eventProcessor;
+
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    this.applicationContext = applicationContext;
+
+    eventProcessor = applicationContext.getBean(EventProcessor.class);
+    eventProcessor.addEventListener(this);
+  }
+
+  protected void fireEvent(final Event event, final Object... payload) {
+    eventProcessor.fireEvent(event, payload);
+  }
+
+  protected void fireDelayedEvent(final Event event, final long delay, final TimeUnit timeUnit, final Object... payload) {
+    eventProcessor.fireDelayedEvent(event, delay, timeUnit, payload);
+  }
+
+  @Override
+  public void eventReceived(Event event, Object... payload) {
+    // Override in subclass to receive events
+  }
 }
