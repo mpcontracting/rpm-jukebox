@@ -26,8 +26,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
@@ -40,10 +40,10 @@ class TrackTableCellFactoryTest extends AbstractGuiTest {
   @Autowired
   private StringResourceService stringResourceService;
 
-  @Mock
+  @MockBean
   private SettingsService settingsService;
 
-  @Mock
+  @MockBean
   private PlaylistService playlistService;
 
   private TrackTableCellFactory<String> underTest;
@@ -51,7 +51,7 @@ class TrackTableCellFactoryTest extends AbstractGuiTest {
   @BeforeEach
   void beforeEach() {
     underTest = new TrackTableCellFactory<>(stringResourceService, settingsService, playlistService);
-    setupMockEventProcessor(underTest);
+    setupEventProcessor(underTest);
   }
 
   @Test
@@ -63,7 +63,7 @@ class TrackTableCellFactoryTest extends AbstractGuiTest {
     tableCell.onMouseClickedProperty().get()
         .handle(createMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
-    verify(getMockEventProcessor()).fireEvent(Event.TRACK_SELECTED, track);
+    verify(eventProcessor).fireEvent(Event.TRACK_SELECTED, track);
   }
 
   @Test
@@ -88,7 +88,7 @@ class TrackTableCellFactoryTest extends AbstractGuiTest {
     tableCell.onMouseClickedProperty().get()
         .handle(createMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
-    verify(getMockEventProcessor(), never()).fireEvent(Event.TRACK_SELECTED, track);
+    verify(eventProcessor, never()).fireEvent(Event.TRACK_SELECTED, track);
   }
 
   @Test

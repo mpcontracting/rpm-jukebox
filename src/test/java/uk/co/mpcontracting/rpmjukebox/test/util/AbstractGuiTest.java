@@ -14,18 +14,13 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.event.EventProcessor;
@@ -34,24 +29,25 @@ import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
 @Slf4j
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
 public abstract class AbstractGuiTest extends GuiTest {
 
   static {
+    String testConfigDirectory = ".rpmjukeboxtest";
+
     System.setProperty("JAVAFX_HEADLESS", "true");
-    System.setProperty("directory.config", ".rpmjukeboxtest");
+    System.setProperty("directory.config", testConfigDirectory);
     System.setProperty("spring.profiles.active", "test");
-    setField(RpmJukebox.class, "configDirectory",
-        new File(System.getProperty("user.home") + File.separator + ".rpmjukeboxtest"));
     Locale.setDefault(Locale.UK);
+
+    setField(
+        RpmJukebox.class,
+        "configDirectory",
+        new File(System.getProperty("user.home") + File.separator + testConfigDirectory)
+    );
   }
 
-  @Autowired
-  private EventProcessor eventProcessor;
-
-  @Mock
-  @Getter(AccessLevel.PROTECTED)
-  private EventProcessor mockEventProcessor;
+  @MockBean
+  protected EventProcessor eventProcessor;
 
   @PostConstruct
   public void constructView() throws Exception {
@@ -70,11 +66,7 @@ public abstract class AbstractGuiTest extends GuiTest {
     deleteConfigDirectory();
   }
 
-  protected void setupMockEventProcessor(EventAwareObject eventAwareObject) {
-    setField(eventAwareObject, mockEventProcessor);
-  }
-
-  protected void restoreEventProcessor(EventAwareObject eventAwareObject) {
+  protected void setupEventProcessor(EventAwareObject eventAwareObject) {
     setField(eventAwareObject, eventProcessor);
   }
 

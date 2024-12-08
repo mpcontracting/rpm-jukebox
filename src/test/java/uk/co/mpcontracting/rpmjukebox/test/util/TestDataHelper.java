@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static java.util.Optional.of;
 
 import com.github.javafaker.Faker;
+import com.igormaznitsa.commons.version.Version;
 import java.util.Optional;
 import javafx.event.EventType;
 import javafx.scene.input.ContextMenuEvent;
@@ -26,6 +27,10 @@ public final class TestDataHelper {
 
   public static Faker getFaker() {
     return FAKER;
+  }
+
+  public static Version createVersion() {
+    return new Version(FAKER.numerify("##.##.##"));
   }
 
   public static int createPlaylistId() {
@@ -90,6 +95,10 @@ public final class TestDataHelper {
 
   public static int createYear() {
     return FAKER.number().numberBetween(1950, 2020);
+  }
+
+  public static String createYearString() {
+    return Integer.toString(createYear());
   }
 
   public static String createTrackId() {

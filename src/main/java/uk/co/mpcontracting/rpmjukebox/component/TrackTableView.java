@@ -1,10 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import static java.util.Optional.ofNullable;
+
 import javafx.scene.control.TableView;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
-
-import static java.util.Optional.ofNullable;
 
 @Slf4j
 public class TrackTableView extends TableView<TrackTableModel> {

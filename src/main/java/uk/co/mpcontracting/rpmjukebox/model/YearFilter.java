@@ -1,5 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
-public class YearFilter {
+public record YearFilter(String display, String year) {
 
+  @Override
+  public String toString() {
+    return display;
+  }
 }

@@ -28,11 +28,9 @@ import javafx.scene.input.TransferMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
-import uk.co.mpcontracting.rpmjukebox.event.EventProcessor;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
@@ -44,24 +42,17 @@ class PlaylistListCellFactoryTest extends AbstractGuiTest {
   @Autowired
   private StringResourceService stringResourceService;
 
-  @Mock
-  private ApplicationContext applicationContext;
-
-  @Mock
+  @MockBean
   private PlaylistService playlistService;
 
-  @Mock
+  @MockBean
   private MainPanelController mainPanelController;
 
   private PlaylistListCellFactory underTest;
 
   @BeforeEach
   void beforeEach() {
-    underTest = new PlaylistListCellFactory(stringResourceService, playlistService);
-    setupMockEventProcessor(underTest);
-
-    when(applicationContext.getBean(EventProcessor.class)).thenReturn(getMockEventProcessor());
-    underTest.setApplicationContext(applicationContext);
+    underTest = new PlaylistListCellFactory(stringResourceService, playlistService, mainPanelController);
   }
 
   @Test
@@ -76,8 +67,6 @@ class PlaylistListCellFactoryTest extends AbstractGuiTest {
 
   @Test
   void shouldClickDeletePlaylistItem() {
-    when(applicationContext.getBean(MainPanelController.class)).thenReturn(mainPanelController);
-
     ListView<Playlist> listView = createListView();
     ListCell<Playlist> listCell = underTest.call(listView);
     listView.getSelectionModel().select(5);

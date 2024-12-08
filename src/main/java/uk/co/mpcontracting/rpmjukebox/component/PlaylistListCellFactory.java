@@ -14,17 +14,17 @@ import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import lombok.RequiredArgsConstructor;
 import uk.co.mpcontracting.rpmjukebox.controller.MainPanelController;
-import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
 import uk.co.mpcontracting.rpmjukebox.service.StringResourceService;
 
 @RequiredArgsConstructor
-public class PlaylistListCellFactory extends EventAwareObject implements Callback<ListView<Playlist>, ListCell<Playlist>> {
+public class PlaylistListCellFactory implements Callback<ListView<Playlist>, ListCell<Playlist>> {
 
   private final StringResourceService stringResourceService;
   private final PlaylistService playlistService;
+  private final MainPanelController mainPanelController;
 
   @Override
   public ListCell<Playlist> call(ListView<Playlist> listView) {
@@ -44,9 +44,8 @@ public class PlaylistListCellFactory extends EventAwareObject implements Callbac
     deletePlaylistItem.setOnAction(event -> {
       Playlist playlist = listView.getSelectionModel().getSelectedItem();
 
-      getApplicationContext().getBean(MainPanelController.class)
-          .showConfirmView(stringResourceService.getString(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()),
-              true, () -> playlistService.deletePlaylist(playlist.getPlaylistId()), null);
+      mainPanelController.showConfirmView(stringResourceService.getString(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()),
+          true, () -> playlistService.deletePlaylist(playlist.getPlaylistId()), null);
     });
     contextMenu.getItems().add(deletePlaylistItem);
 

@@ -37,6 +37,10 @@ public class SettingsController {
   @FXML
   private Button cancelButton;
 
+  void bindSystemSettings() {
+
+  }
+
   @FXML
   protected void handleReindexButtonAction() {
 

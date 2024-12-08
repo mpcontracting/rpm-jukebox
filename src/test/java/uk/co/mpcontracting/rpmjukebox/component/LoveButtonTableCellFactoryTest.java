@@ -21,7 +21,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
@@ -29,7 +29,7 @@ import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
 class LoveButtonTableCellFactoryTest extends AbstractGuiTest {
 
-  @Mock
+  @MockBean
   private PlaylistService playlistService;
 
   private LoveButtonTableCellFactory underTest;
@@ -37,7 +37,7 @@ class LoveButtonTableCellFactoryTest extends AbstractGuiTest {
   @BeforeEach
   void beforeEach() {
     underTest = new LoveButtonTableCellFactory(playlistService);
-    setupMockEventProcessor(underTest);
+    setupEventProcessor(underTest);
   }
 
   @Test
@@ -61,7 +61,7 @@ class LoveButtonTableCellFactoryTest extends AbstractGuiTest {
 
     verify(playlistService, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
     verify(playlistService).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-    verify(getMockEventProcessor()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+    verify(eventProcessor).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
   }
 
   @Test
@@ -85,7 +85,7 @@ class LoveButtonTableCellFactoryTest extends AbstractGuiTest {
 
     verify(playlistService).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
     verify(playlistService, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-    verify(getMockEventProcessor()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+    verify(eventProcessor).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
   }
 
   @Test
@@ -100,7 +100,7 @@ class LoveButtonTableCellFactoryTest extends AbstractGuiTest {
 
     verify(playlistService, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
     verify(playlistService, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-    verify(getMockEventProcessor(), never()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+    verify(eventProcessor, never()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
   }
 
   @Test
@@ -115,7 +115,7 @@ class LoveButtonTableCellFactoryTest extends AbstractGuiTest {
 
     verify(playlistService, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
     verify(playlistService, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-    verify(getMockEventProcessor(), never()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+    verify(eventProcessor, never()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
   }
 
   @Test
@@ -130,6 +130,6 @@ class LoveButtonTableCellFactoryTest extends AbstractGuiTest {
 
     verify(playlistService, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
     verify(playlistService, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-    verify(getMockEventProcessor(), never()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+    verify(eventProcessor, never()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
   }
 }

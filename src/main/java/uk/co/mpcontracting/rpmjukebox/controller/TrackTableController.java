@@ -6,6 +6,7 @@ import javafx.scene.control.TableColumn;
 import lombok.extern.slf4j.Slf4j;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableModel;
 import uk.co.mpcontracting.rpmjukebox.component.TrackTableView;
+import uk.co.mpcontracting.rpmjukebox.model.Track;
 
 @Slf4j
 @FXMLController
@@ -31,4 +32,8 @@ public class TrackTableController {
 
   @FXML
   private TableColumn<TrackTableModel, String> genresColumn;
+
+  public Track getSelectedTrack() {
+    return null;
+  }
 }

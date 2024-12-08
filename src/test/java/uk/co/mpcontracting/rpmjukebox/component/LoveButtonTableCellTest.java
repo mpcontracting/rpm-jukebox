@@ -9,13 +9,13 @@ import static uk.co.mpcontracting.rpmjukebox.util.Constants.STYLE_LOVE_BUTTON_ON
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
 import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
 class LoveButtonTableCellTest extends AbstractGuiTest {
 
-  @Mock
+  @MockBean
   private PlaylistService playlistService;
 
   private LoveButtonTableCell underTest;
