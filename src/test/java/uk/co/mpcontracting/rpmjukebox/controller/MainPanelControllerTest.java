@@ -184,9 +184,6 @@ class MainPanelControllerTest extends AbstractGuiTest {
   @MockBean
   private TrackTableController trackTableController;
 
-  @Autowired
-  private StringResourceService stringResourceService;
-
   @MockBean
   private CacheService cacheService;
 
@@ -204,6 +201,9 @@ class MainPanelControllerTest extends AbstractGuiTest {
 
   @MockBean
   private SettingsService settingsService;
+
+  @Autowired
+  private StringResourceService stringResourceService;
 
   @MockBean
   private UpdateService updateService;

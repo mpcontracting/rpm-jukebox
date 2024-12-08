@@ -344,8 +344,8 @@ public class MainPanelController extends EventAwareObject {
     }
   }
 
-  private boolean isPlaylistPlayable() {
-    return playlistService.getPlaylist(currentSelectedPlaylistId).filter(playlist -> !playlist.isEmpty()).isPresent();
+  boolean isPlaylistUnplayable() {
+    return playlistService.getPlaylist(currentSelectedPlaylistId).filter(playlist -> !playlist.isEmpty()).isEmpty();
   }
 
   @FXML
@@ -671,7 +671,7 @@ public class MainPanelController extends EventAwareObject {
             // If we're not playing or paused and the playlist is not empty
             // then enable the play button so we can play the playlist
             if (!mediaService.isPlaying() && !mediaService.isPaused()) {
-              playPauseButton.setDisable(!isPlaylistPlayable());
+              playPauseButton.setDisable(isPlaylistUnplayable());
             }
           }
         }
