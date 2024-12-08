@@ -1,7 +1,15 @@
 package uk.co.mpcontracting.rpmjukebox;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.util.Collection;
 import javafx.scene.image.Image;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +19,7 @@ import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
 import uk.co.mpcontracting.rpmjukebox.service.ApplicationLifecycleService;
 import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-import java.io.File;
-import java.util.Collection;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-public class RpmJukeboxTest extends AbstractGuiTest {
+class RpmJukeboxTest extends AbstractGuiTest {
 
   @Autowired
   private RpmJukebox rpmJukebox;
@@ -33,18 +33,13 @@ public class RpmJukeboxTest extends AbstractGuiTest {
   @Mock
   private ApplicationLifecycleService applicationLifecycleService;
 
-  @BeforeEach
-  public void beforeEach() {
-    when(applicationContext.getBean(ApplicationLifecycleService.class)).thenReturn(applicationLifecycleService);
-  }
-
   @Test
-  public void shouldRunMain() {
+  void shouldRunMain() {
     assertThatThrownBy(() -> RpmJukebox.main(null)).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
-  public void shouldRunMainWhereLoggingFileAlreadyExists() throws Exception {
+  void shouldRunMainWhereLoggingFileAlreadyExists() throws Exception {
     File loggingFile = new File(RpmJukebox.getConfigDirectory(), "logback.xml");
     loggingFile.createNewFile();
 
@@ -52,28 +47,30 @@ public class RpmJukeboxTest extends AbstractGuiTest {
   }
 
   @Test
-  public void shouldReturnEmptyListForDefaultIcons() {
+  void shouldReturnEmptyListForDefaultIcons() {
     Collection<Image> defaultIcons = rpmJukebox.loadDefaultIcons();
 
     assertThat(defaultIcons).isEmpty();
   }
 
   @Test
-  public void shouldCallStartOnApplicationManagerInBeforeInitialView() {
+  void shouldCallStartOnApplicationManagerInBeforeInitialView() {
+    when(applicationContext.getBean(ApplicationLifecycleService.class)).thenReturn(applicationLifecycleService);
+
     rpmJukebox.beforeInitialView(null, applicationContext);
 
     verify(applicationLifecycleService).start(any());
   }
 
   @Test
-  public void shouldNotCallStartOnApplicationManagerInBeforeInitialViewWithNullContext() {
+  void shouldNotCallStartOnApplicationManagerInBeforeInitialViewWithNullContext() {
     rpmJukebox.beforeInitialView(null, null);
 
     verify(applicationLifecycleService, never()).start(any());
   }
 
   @Test
-  public void shouldUpdateSplashProgress() throws Exception {
+  void shouldUpdateSplashProgress() throws Exception {
     ReflectionTestUtils.setField(rpmJukebox, "splashScreen", splashScreen);
 
     rpmJukebox.updateSplashProgress("Test message");

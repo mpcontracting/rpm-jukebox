@@ -1,12 +1,12 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
-import javafx.application.Platform;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javafx.application.Platform;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

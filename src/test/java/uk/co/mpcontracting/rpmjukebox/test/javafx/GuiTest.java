@@ -2,6 +2,9 @@ package uk.co.mpcontracting.rpmjukebox.test.javafx;
 
 // Adapted from https://github.com/roskenet/springboot-javafx-test to use JUnit 5
 
+import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElseGet;
+
 import de.felixroske.jfxsupport.AbstractFxmlView;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -12,9 +15,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import org.testfx.framework.junit5.ApplicationTest;
-import java.util.Objects;
-
-import static java.util.Objects.requireNonNullElseGet;
 
 public abstract class GuiTest extends ApplicationTest implements ApplicationContextAware {
 
@@ -59,7 +59,7 @@ public abstract class GuiTest extends ApplicationTest implements ApplicationCont
 
   @Override
   public void start(Stage stage) {
-    Objects.requireNonNull(viewBean, "No view to set up! Have you called init() before?");
+    requireNonNull(viewBean, "No view to set up! Have you called init() before?");
 
     Scene scene = viewBean.getView().getScene();
     stage.setScene(requireNonNullElseGet(scene, () -> new Scene(viewBean.getView())));

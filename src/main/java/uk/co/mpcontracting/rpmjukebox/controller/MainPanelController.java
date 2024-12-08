@@ -95,6 +95,10 @@ public class MainPanelController extends EventAwareObject {
   @FXML
   private Button randomButton;
 
+  public void showConfirmView(String message, boolean blurBackground, Runnable okRunnable, Runnable cancelRunnable) {
+
+  }
+
   @FXML
   protected void handleNewVersionButtonAction() {
 

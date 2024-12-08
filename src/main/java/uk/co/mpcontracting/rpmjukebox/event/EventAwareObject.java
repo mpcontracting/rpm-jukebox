@@ -1,14 +1,14 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
+import static lombok.AccessLevel.PROTECTED;
+
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import java.util.concurrent.TimeUnit;
 
-import static lombok.AccessLevel.PROTECTED;
-
-public class EventAwareObject  implements ApplicationContextAware, EventListener {
+public class EventAwareObject implements ApplicationContextAware, EventListener {
 
   @Getter(PROTECTED)
   private ApplicationContext applicationContext;

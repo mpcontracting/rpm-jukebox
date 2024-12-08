@@ -15,6 +15,9 @@ public class ApplicationLifecycleService extends EventAwareObject {
   @SneakyThrows
   public void start(Stage stage) {
     log.info("Starting application");
+
+    // TODO : Loop through all AbstractModalViews and initialise them
+    // TODO : Loop through all EventAwareObjects and set the Spring context if it's not done already
   }
 
   public void stop() {
