@@ -17,6 +17,14 @@ public class SearchService {
   @Getter
   private List<String> yearList;
 
+  public void initialise() throws Exception {
+
+  }
+
+  void shutdown() {
+
+  }
+
   @Synchronized
   public void indexData() throws Exception {
 

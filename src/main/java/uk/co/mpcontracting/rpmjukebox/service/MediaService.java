@@ -45,4 +45,8 @@ public class MediaService {
   public boolean isPaused() {
     return false;
   }
+
+  void cleanUpResources() {
+
+  }
 }
