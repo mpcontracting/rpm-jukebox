@@ -18,6 +18,11 @@ public class SearchService {
   private List<String> yearList;
 
   @Synchronized
+  public void indexData() throws Exception {
+
+  }
+
+  @Synchronized
   public List<Track> search(TrackSearch trackSearch) {
     return Collections.emptyList();
   }

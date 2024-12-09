@@ -15,6 +15,9 @@ import uk.co.mpcontracting.rpmjukebox.model.Track;
 public class PlaylistService {
 
   @Getter
+  private int currentPlaylistId;
+
+  @Getter
   private Playlist playingPlaylist;
 
   @Getter
@@ -100,6 +103,10 @@ public class PlaylistService {
 
   public boolean playNextTrack(boolean overrideRepeatOne) {
     return false;
+  }
+
+  public Track getTrackAtPlayingPlaylistIndex() {
+    return null;
   }
 
   public void clearSelectedTrack() {

@@ -1,33 +1,28 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
-import static lombok.AccessLevel.PROTECTED;
-
 import java.util.concurrent.TimeUnit;
-import lombok.Getter;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import lombok.Synchronized;
+import uk.co.mpcontracting.rpmjukebox.util.ContextHelper;
 
-public class EventAwareObject implements ApplicationContextAware, EventListener {
+public class EventAwareObject implements EventListener {
 
-  @Getter(PROTECTED)
-  private ApplicationContext applicationContext;
   private EventProcessor eventProcessor;
 
-  @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    this.applicationContext = applicationContext;
+  @Synchronized
+  private EventProcessor getEventProcessor() {
+    if (eventProcessor == null) {
+      eventProcessor = ContextHelper.getBean(EventProcessor.class);
+    }
 
-    eventProcessor = applicationContext.getBean(EventProcessor.class);
-    eventProcessor.addEventListener(this);
+    return eventProcessor;
   }
 
   protected void fireEvent(final Event event, final Object... payload) {
-    eventProcessor.fireEvent(event, payload);
+    getEventProcessor().fireEvent(event, payload);
   }
 
   protected void fireDelayedEvent(final Event event, final long delay, final TimeUnit timeUnit, final Object... payload) {
-    eventProcessor.fireDelayedEvent(event, delay, timeUnit, payload);
+    getEventProcessor().fireDelayedEvent(event, delay, timeUnit, payload);
   }
 
   @Override
