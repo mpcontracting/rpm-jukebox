@@ -15,7 +15,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import uk.co.mpcontracting.rpmjukebox.model.Artist;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 
@@ -57,28 +56,6 @@ public final class TestDataHelper {
 
   public static String createArtistName() {
     return FAKER.lorem().characters(10, 20);
-  }
-
-  public static String createArtistImage() {
-    return FAKER.internet().url();
-  }
-
-  public static String createArtistBiography() {
-    return FAKER.lorem().characters(50, 100);
-  }
-
-  public static String createArtistMembers() {
-    return FAKER.lorem().characters(25, 50);
-  }
-
-  public static Artist createArtist() {
-    return Artist.builder()
-        .artistId(createArtistId())
-        .artistName(createArtistName())
-        .artistImage(createArtistImage())
-        .biography(createArtistBiography())
-        .members(createArtistMembers())
-        .build();
   }
 
   public static String createAlbumId() {
