@@ -4,14 +4,15 @@ import java.util.concurrent.TimeUnit;
 import lombok.Synchronized;
 import uk.co.mpcontracting.rpmjukebox.util.ContextHelper;
 
-public class EventAwareObject implements EventListener {
+public abstract class EventAwareObject implements EventListener {
 
   private EventProcessor eventProcessor;
 
   @Synchronized
-  private EventProcessor getEventProcessor() {
+  protected EventProcessor getEventProcessor() {
     if (eventProcessor == null) {
       eventProcessor = ContextHelper.getBean(EventProcessor.class);
+      eventProcessor.addEventListener(this);
     }
 
     return eventProcessor;

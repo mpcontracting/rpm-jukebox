@@ -1,26 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
-import de.felixroske.jfxsupport.FXMLController;
-import javafx.fxml.FXML;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
-import uk.co.mpcontracting.rpmjukebox.service.ApplicationLifecycleService;
-import uk.co.mpcontracting.rpmjukebox.service.MediaService;
-import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
-import uk.co.mpcontracting.rpmjukebox.service.SettingsService;
-import uk.co.mpcontracting.rpmjukebox.service.StringResourceService;
-import uk.co.mpcontracting.rpmjukebox.util.OsType;
-
 import static java.util.Optional.ofNullable;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_NEXT;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_PLAY_PAUSE;
@@ -44,6 +23,27 @@ import static uk.co.mpcontracting.rpmjukebox.model.Repeat.ONE;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_MENU_CONTROLS_PAUSE;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_MENU_CONTROLS_PLAY;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_MENU_FILE_EXIT;
+
+import de.felixroske.jfxsupport.FXMLController;
+import javafx.fxml.FXML;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.event.Event;
+import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.service.ApplicationLifecycleService;
+import uk.co.mpcontracting.rpmjukebox.service.MediaService;
+import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
+import uk.co.mpcontracting.rpmjukebox.service.SettingsService;
+import uk.co.mpcontracting.rpmjukebox.service.StringResourceService;
+import uk.co.mpcontracting.rpmjukebox.util.OsType;
 
 @Slf4j
 @FXMLController

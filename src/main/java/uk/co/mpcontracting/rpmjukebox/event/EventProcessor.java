@@ -20,8 +20,7 @@ public class EventProcessor {
   }
 
   public void fireEvent(Event event, Object... payload) {
-    Platform.runLater(() ->
-        eventListeners.forEach(eventListener -> eventListener.eventReceived(event, payload)));
+    Platform.runLater(() -> eventListeners.forEach(eventListener -> eventListener.eventReceived(event, payload)));
   }
 
   public void fireDelayedEvent(Event event, long delay, TimeUnit timeUnit, Object... payload) {

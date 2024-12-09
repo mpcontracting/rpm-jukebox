@@ -1,5 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import static uk.co.mpcontracting.rpmjukebox.event.Event.DATA_INDEXED;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_DOWNLOAD_INDEX;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SETTINGS_COPYRIGHT_2;
+
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -21,10 +25,6 @@ import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.util.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.util.ValidationHelper;
 import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
-
-import static uk.co.mpcontracting.rpmjukebox.event.Event.DATA_INDEXED;
-import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_DOWNLOAD_INDEX;
-import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SETTINGS_COPYRIGHT_2;
 
 @Slf4j
 @FXMLController
