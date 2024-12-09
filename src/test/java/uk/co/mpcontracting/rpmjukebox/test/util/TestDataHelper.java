@@ -111,6 +111,10 @@ public final class TestDataHelper {
         .build();
   }
 
+  public static String createKeywords() {
+    return FAKER.rockBand().name();
+  }
+
   public static KeyEvent createKeyEvent(EventType<KeyEvent> eventType, KeyCode keyCode) {
     return new KeyEvent(eventType, null, null, keyCode, false, false, false, false);
   }
@@ -124,9 +128,7 @@ public final class TestDataHelper {
     return new ContextMenuEvent(source, null, ContextMenuEvent.CONTEXT_MENU_REQUESTED, 0, 0, 0, 0, false, null);
   }
 
-  public static DragEvent createDragEvent(EventType<DragEvent> eventType, Dragboard dragboard, TransferMode transferMode,
-      Object gestureSource) {
+  public static DragEvent createDragEvent(EventType<DragEvent> eventType, Dragboard dragboard, TransferMode transferMode, Object gestureSource) {
     return new DragEvent(eventType, dragboard, 0, 0, 0, 0, transferMode, gestureSource, null, null);
   }
-
 }

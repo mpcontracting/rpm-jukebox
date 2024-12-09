@@ -1,7 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createYear;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createYearString;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
 
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ class YearFilterTest {
   @Test
   void shouldReturnDisplayFromToString() {
     String display = getFaker().lorem().characters(20, 30);
-    YearFilter yearFilter = new YearFilter(display, Integer.toString(createYear()));
+    YearFilter yearFilter = new YearFilter(display, createYearString());
 
     assertThat(yearFilter.toString()).isEqualTo(display);
   }
