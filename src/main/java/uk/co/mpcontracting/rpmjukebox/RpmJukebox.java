@@ -2,7 +2,6 @@ package uk.co.mpcontracting.rpmjukebox;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
-import static uk.co.mpcontracting.rpmjukebox.event.Event.UPDATE_LOADING_PROGRESS;
 
 import de.felixroske.jfxsupport.AbstractJavaFxApplicationSupport;
 import java.io.BufferedReader;
@@ -21,14 +20,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.StringUtils;
 import uk.co.mpcontracting.rpmjukebox.component.ProgressSplashScreen;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.event.EventListener;
 import uk.co.mpcontracting.rpmjukebox.service.ApplicationLifecycleService;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
 @Slf4j
 @SpringBootApplication
-public class RpmJukebox extends AbstractJavaFxApplicationSupport implements EventListener {
+public class RpmJukebox extends AbstractJavaFxApplicationSupport {
 
   @Getter
   private static File configDirectory;
@@ -64,18 +61,11 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport implements Even
     System.exit(0);
   }
 
-  void updateSplashProgress(String message) {
+  public void updateSplashProgress(String message) {
     try {
       Platform.runLater(() -> ofNullable(splashScreen).ifPresent(splashScreen -> splashScreen.updateProgress(message)));
     } catch (IllegalStateException e) {
       log.warn("JavaFX toolkit not initialized");
-    }
-  }
-
-  @Override
-  public void eventReceived(Event event, Object... payload) {
-    if (event == UPDATE_LOADING_PROGRESS) {
-      updateSplashProgress((String) payload[0]);
     }
   }
 

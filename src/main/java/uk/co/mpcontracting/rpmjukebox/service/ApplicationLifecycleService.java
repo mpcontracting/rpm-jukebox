@@ -17,10 +17,13 @@ public class ApplicationLifecycleService extends EventAwareObject {
     log.info("Starting application");
 
     // TODO : Loop through all AbstractModalViews and initialise them
-    // TODO : Loop through all EventAwareObjects and set the Spring context if it's not done already
   }
 
   public void stop() {
     log.info("Stopping application");
+  }
+
+  public void shutdown() {
+
   }
 }

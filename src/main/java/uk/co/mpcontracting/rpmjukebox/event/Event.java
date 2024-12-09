@@ -3,7 +3,6 @@ package uk.co.mpcontracting.rpmjukebox.event;
 public enum Event {
 
   // Application Events
-  UPDATE_LOADING_PROGRESS,
   APPLICATION_INITIALISED,
   NEW_VERSION_AVAILABLE,
   DATA_INDEXED,

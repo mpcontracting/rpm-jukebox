@@ -134,19 +134,19 @@ class SettingsControllerTest extends AbstractGuiTest {
 
   @Test
   void shouldClickOkButton() {
-    String cacheSizeMb = getFaker().numerify("###");
+    int cacheSizeMb = getFaker().number().numberBetween(50, 1000);
     String proxyHost = getFaker().lorem().characters(10);
-    String proxyPort = getFaker().numerify("####");
+    int proxyPort = getFaker().number().numberBetween(80, 65535);
     boolean proxyAuth = getFaker().bool().bool();
     String username = getFaker().lorem().characters(10, 20);
     String password = getFaker().lorem().characters(10, 20);
 
     TextField cacheSizeMbTextField = find("#cacheSizeMbTextField");
-    cacheSizeMbTextField.setText(cacheSizeMb);
+    cacheSizeMbTextField.setText(Integer.toString(cacheSizeMb));
     TextField proxyHostTextField = find("#proxyHostTextField");
     proxyHostTextField.setText(proxyHost);
     TextField proxyPortTextField = find("#proxyPortTextField");
-    proxyPortTextField.setText(proxyPort);
+    proxyPortTextField.setText(Integer.toString(proxyPort));
     CheckBox proxyAuthCheckBox = find("#proxyAuthCheckBox");
     proxyAuthCheckBox.setSelected(proxyAuth);
     TextField proxyUsernameTextField = find("#proxyUsernameTextField");
@@ -159,9 +159,9 @@ class SettingsControllerTest extends AbstractGuiTest {
 
     clickOn("#okButton");
 
-    verify(systemSettings).setCacheSizeMb(Integer.parseInt(cacheSizeMb));
+    verify(systemSettings).setCacheSizeMb(cacheSizeMb);
     verify(systemSettings).setProxyHost(proxyHost);
-    verify(systemSettings).setProxyPort(Integer.parseInt(proxyPort));
+    verify(systemSettings).setProxyPort(proxyPort);
     verify(systemSettings).setProxyRequiresAuthentication(proxyAuth);
     verify(systemSettings).setProxyUsername(username);
     verify(systemSettings).setProxyPassword(password);
