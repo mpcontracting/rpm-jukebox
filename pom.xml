@@ -31,6 +31,7 @@
     <testfx.monocle.version>17.0.10</testfx.monocle.version>
     <faker.version>1.0.2</faker.version>
     <commons-io.version>2.16.1</commons-io.version>
+    <guava.version>33.3.1-jre</guava.version>
 
     <javafx-maven-plugin.version>0.0.8</javafx-maven-plugin.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
@@ -148,6 +149,12 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>${commons-io.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
