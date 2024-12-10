@@ -30,6 +30,10 @@ public class SearchService {
 
   }
 
+  void addTrack(Track track) {
+
+  }
+
   @Synchronized
   public List<Track> search(TrackSearch trackSearch) {
     return Collections.emptyList();
