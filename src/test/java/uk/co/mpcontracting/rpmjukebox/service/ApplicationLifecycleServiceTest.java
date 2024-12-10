@@ -25,12 +25,10 @@ import javafx.stage.Stage;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
 import org.springframework.core.env.Environment;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
@@ -40,7 +38,6 @@ import uk.co.mpcontracting.rpmjukebox.test.util.TestThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.util.OsType;
 import uk.co.mpcontracting.rpmjukebox.util.ThreadRunner;
 
-@ExtendWith(MockitoExtension.class)
 class ApplicationLifecycleServiceTest extends AbstractEventAwareObjectTest {
 
   @Mock

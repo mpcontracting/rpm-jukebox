@@ -7,11 +7,14 @@ import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import uk.co.mpcontracting.rpmjukebox.event.EventProcessor;
 import uk.co.mpcontracting.rpmjukebox.util.ContextHelper;
 
+@ExtendWith(MockitoExtension.class)
 public abstract class AbstractEventAwareObjectTest {
 
   @Mock

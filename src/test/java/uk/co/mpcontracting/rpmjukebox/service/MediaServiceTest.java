@@ -28,15 +28,12 @@ import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.mpcontracting.rpmjukebox.config.ApplicationProperties;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.test.util.AbstractEventAwareObjectTest;
 
-@ExtendWith(MockitoExtension.class)
 class MediaServiceTest extends AbstractEventAwareObjectTest {
 
   @Mock

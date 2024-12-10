@@ -44,4 +44,9 @@ public class SearchService {
   public Optional<Track> getTrackById(String trackId) {
     return Optional.empty();
   }
+
+  @Synchronized
+  Optional<List<Track>> getAlbumById(String albumId) {
+    return Optional.empty();
+  }
 }

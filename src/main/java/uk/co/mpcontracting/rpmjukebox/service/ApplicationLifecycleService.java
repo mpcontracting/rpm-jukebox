@@ -60,6 +60,8 @@ public class ApplicationLifecycleService extends EventAwareObject implements App
   @SneakyThrows
   @EventListener(ContextRefreshedEvent.class)
   public void initialise() {
+    log.info("Initialising ApplicationLifecycleService");
+
     // Don't initialise anything if we're running tests
     if (Arrays.stream(environment.getActiveProfiles()).noneMatch("test"::equals)) {
       searchService.initialise();
