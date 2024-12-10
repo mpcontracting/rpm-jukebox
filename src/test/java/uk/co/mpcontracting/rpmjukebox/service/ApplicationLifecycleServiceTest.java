@@ -3,7 +3,6 @@ package uk.co.mpcontracting.rpmjukebox.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -24,7 +23,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,18 +32,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.event.EventProcessor;
 import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractEventAwareObjectTest;
 import uk.co.mpcontracting.rpmjukebox.test.util.TestThreadRunner;
-import uk.co.mpcontracting.rpmjukebox.util.ContextHelper;
 import uk.co.mpcontracting.rpmjukebox.util.OsType;
 import uk.co.mpcontracting.rpmjukebox.util.ThreadRunner;
 
 @ExtendWith(MockitoExtension.class)
-class ApplicationLifecycleServiceTest {
+class ApplicationLifecycleServiceTest extends AbstractEventAwareObjectTest {
 
   @Mock
   private Environment environment;
@@ -69,35 +65,21 @@ class ApplicationLifecycleServiceTest {
   private StringResourceService stringResourceService;
 
   @Mock
-  private EventProcessor eventProcessor;
-
-  @Mock
   private Stage stage;
 
   @Mock
   private ObservableList<Image> observableList;
 
-  private ApplicationContext originalContext;
   private ApplicationLifecycleService underTest;
 
   @BeforeEach
   void beforeEach() {
-    originalContext = getField(ContextHelper.class, "applicationContext", ApplicationContext.class);
-    ApplicationContext mockContext = mock(ApplicationContext.class);
-    setField(ContextHelper.class, "applicationContext", mockContext);
-
-    lenient().when(mockContext.getBean(EventProcessor.class)).thenReturn(eventProcessor);
     lenient().when(stage.getIcons()).thenReturn(observableList);
 
     ThreadRunner threadRunner = new TestThreadRunner(Executors.newSingleThreadExecutor());
 
     underTest = spy(new ApplicationLifecycleService(environment, threadRunner, rpmJukebox, jettyServer, mediaService, searchService, settingsService, stringResourceService));
-    underTest.setApplicationContext(mockContext);
-  }
-
-  @AfterEach
-  void afterEach() {
-    setField(ContextHelper.class, "applicationContext", originalContext);
+    underTest.setApplicationContext(applicationContext);
   }
 
   @Test
