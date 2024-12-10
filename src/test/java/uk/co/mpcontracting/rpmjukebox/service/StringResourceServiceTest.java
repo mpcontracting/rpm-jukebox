@@ -29,14 +29,14 @@ class StringResourceServiceTest {
   }
 
   @Test
-  public void shouldReturnCorrectMessageWithoutArguments() {
+  void shouldReturnCorrectMessageWithoutArguments() {
     String message = underTest.getString("settings.copyright.2");
 
     assertThat(message).isEqualTo("Version {0}");
   }
 
   @Test
-  public void shouldReturnCorrectMessageWithArguments() {
+  void shouldReturnCorrectMessageWithArguments() {
     String message = underTest.getString("settings.copyright.2", "XXX");
 
     assertThat(message).isEqualTo("Version XXX");
