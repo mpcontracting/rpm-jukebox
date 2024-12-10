@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.test.util;
 
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
 
 import jakarta.annotation.PostConstruct;
@@ -21,6 +22,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.event.EventProcessor;
@@ -30,6 +33,7 @@ import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
 @Slf4j
 @SpringBootTest
+@DirtiesContext(classMode = BEFORE_CLASS)
 public abstract class AbstractGuiTest extends GuiTest {
 
   static {
