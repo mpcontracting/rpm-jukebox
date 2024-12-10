@@ -67,15 +67,6 @@ public class DataService {
             if ("B".equals(getRowData(rowData, 0))) {
               ParserModelArtist parserModelArtist = parseArtist(rowData);
               parserModelData.setArtist(parserModelArtist);
-
-              // TODO : Remove these comments if artist index not needed
-//              searchService.addArtist(Artist.builder()
-//                  .artistId(parserModelArtist.getArtistId())
-//                  .artistName(parserModelArtist.getArtistName())
-//                  .artistImage(applicationProperties.getS3BucketUrl() + getArtistImageKey(parserModelArtist))
-//                  .biography(parserModelArtist.getBiography())
-//                  .members(parserModelArtist.getMembers())
-//                  .build());
             } else if ("A".equals(getRowData(rowData, 0))) {
               parserModelData.setAlbum(parseAlbum(rowData));
             } else if ("T".equals(getRowData(rowData, 0))) {
@@ -113,11 +104,6 @@ public class DataService {
       log.error("Unable to open connection to data file {}", dataFile, e);
     }
   }
-
-  // TODO : Remove these comments if artist index not needed
-//  private String getArtistImageKey(ParserModelArtist parserModelArtist) {
-//    return "image/artist/" + parserModelArtist.getArtistId();
-//  }
 
   private String getAlbumImageKey(ParserModelArtist parserModelArtist, ParserModelAlbum parserModelAlbum) {
     return "image/album/" +

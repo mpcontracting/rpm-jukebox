@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.igormaznitsa.commons.version.Version;
 import java.io.File;
 import java.net.URL;
+import java.time.LocalDateTime;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,22 @@ public class SettingsService {
 
   File getFileFromConfigDirectory(String relativePath) {
     return new File(RpmJukebox.getConfigDirectory(), relativePath);
+  }
+
+  boolean isNewVersion() {
+    return false;
+  }
+
+  boolean hasDataFileExpired() {
+    return false;
+  }
+
+  LocalDateTime getLastIndexedDate() {
+    return null;
+  }
+
+  void setLastIndexedDate(LocalDateTime localDateTime) {
+
   }
 
   void loadWindowSettings(Stage stage) {

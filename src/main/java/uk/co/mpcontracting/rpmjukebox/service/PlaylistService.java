@@ -73,7 +73,7 @@ public class PlaylistService extends EventAwareObject {
 
   @PostConstruct
   public void initialise() {
-    log.info("Initialising PlaylistManager");
+    log.info("Initialising {}", getClass().getSimpleName());
 
     playlistMap.put(PLAYLIST_ID_SEARCH, new Playlist(PLAYLIST_ID_SEARCH,
         stringResourceService.getString(MESSAGE_PLAYLIST_SEARCH),

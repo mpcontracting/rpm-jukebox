@@ -53,7 +53,7 @@ public class MediaService extends EventAwareObject {
 
   @PostConstruct
   public void initialise() {
-    log.info("Initialising MediaService");
+    log.info("Initialising {}", getClass().getSimpleName());
 
     muted = false;
     volume = applicationProperties.getDefaultVolume();
