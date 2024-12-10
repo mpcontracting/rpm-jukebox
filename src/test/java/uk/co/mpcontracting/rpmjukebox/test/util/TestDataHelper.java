@@ -28,6 +28,12 @@ public final class TestDataHelper {
     return FAKER;
   }
 
+  public static <T extends Enum<T>> T getRandomEnum(Class<T> enumClass) {
+    T[] enumConstants = enumClass.getEnumConstants();
+
+    return enumConstants[getFaker().number().numberBetween(0, enumConstants.length)];
+  }
+
   public static Version createVersion() {
     return new Version(FAKER.numerify("##.##.##"));
   }

@@ -2,11 +2,13 @@ package uk.co.mpcontracting.rpmjukebox.service;
 
 import com.google.gson.Gson;
 import com.igormaznitsa.commons.version.Version;
+import java.io.File;
 import java.net.URL;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.util.OsType;
 
@@ -28,6 +30,10 @@ public class SettingsService {
 
   @Getter
   private Gson gson;
+
+  File getFileFromConfigDirectory(String relativePath) {
+    return new File(RpmJukebox.getConfigDirectory(), relativePath);
+  }
 
   void loadWindowSettings(Stage stage) {
 
