@@ -13,6 +13,8 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.config.ApplicationProperties;
@@ -28,7 +30,10 @@ public class JettyServer extends EventAwareObject {
   private final RpmJukebox rpmJukebox;
   private final ApplicationProperties applicationProperties;
   private final StringResourceService stringResourceService;
-  private final ApplicationLifecycleService applicationLifecycleService;
+
+  @Lazy
+  @Autowired
+  private ApplicationLifecycleService applicationLifecycleService;
 
   private Server server;
 

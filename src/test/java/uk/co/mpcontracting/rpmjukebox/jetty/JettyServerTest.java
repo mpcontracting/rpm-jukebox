@@ -9,6 +9,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SPLASH_ALREADY_RUNNING;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SPLASH_INITIALISING_CACHE;
 
@@ -55,7 +56,9 @@ class JettyServerTest {
 
   @BeforeEach
   void beforeEach() {
-    underTest = spy(new JettyServer(rpmJukebox, applicationProperties, stringResourceService, applicationLifecycleService));
+    underTest = spy(new JettyServer(rpmJukebox, applicationProperties, stringResourceService));
+
+    setField(underTest, "applicationLifecycleService", applicationLifecycleService);
 
     lenient().doReturn(server).when(underTest).constructServer();
     lenient().doReturn(serverConnector).when(underTest).constructServerConnector(server);
