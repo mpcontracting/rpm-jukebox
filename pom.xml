@@ -25,6 +25,7 @@
     <spring-boot-javafx.version>2.1.6</spring-boot-javafx.version>
     <lucene.version>6.1.0</lucene.version>
     <commons-version.version>1.0.0</commons-version.version>
+    <jna.version>5.15.0</jna.version>
 
     <textfx.version>4.0.18</textfx.version>
     <testfx.monocle.version>17.0.10</testfx.monocle.version>
@@ -97,6 +98,11 @@
       <groupId>com.igormaznitsa</groupId>
       <artifactId>commons-version</artifactId>
       <version>${commons-version.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>${jna.version}</version>
     </dependency>
 
     <dependency>
