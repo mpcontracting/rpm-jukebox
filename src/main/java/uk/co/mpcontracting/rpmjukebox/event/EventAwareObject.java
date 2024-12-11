@@ -1,12 +1,20 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
+import jakarta.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 import lombok.Synchronized;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.mpcontracting.rpmjukebox.util.ContextHelper;
 
 public abstract class EventAwareObject implements EventListener {
 
+  @Autowired
   private EventProcessor eventProcessor;
+
+  @PostConstruct
+  public void postConstruct() {
+    eventProcessor.addEventListener(this);
+  }
 
   @Synchronized
   protected EventProcessor getEventProcessor() {

@@ -190,7 +190,7 @@
         <configuration>
           <mainClass>uk.co.mpcontracting.rpmjukebox.RpmJukebox</mainClass>
           <options>
-            <option>-Ddirectory.config=.rpmjukeboxdev</option>
+            <option>-Ddirectory.config=.rpmjukeboxdev --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/jdk.internal.ref=ALL-UNNAMED</option>
           </options>
         </configuration>
       </plugin>

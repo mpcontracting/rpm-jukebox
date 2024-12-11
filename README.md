@@ -19,7 +19,7 @@ Download the JavaFX SDK v22.0.1 [from here](https://gluonhq.com/products/javafx/
 Add a run configuration with the following as VM options
 
 ```
--Ddirectory.config=.rpmjukeboxdev -Dconsole.log.only=true --module-path <path-to-sdk>/javafx-sdk-22.0.1/lib --add-modules=javafx.controls,javafx.fxml
+-Ddirectory.config=.rpmjukeboxdev -Dconsole.log.only=true --module-path <path-to-sdk>/javafx-sdk-22.0.1/lib --add-modules=javafx.controls,javafx.fxml,javafx.media
 ```
 
 ## Building a release
