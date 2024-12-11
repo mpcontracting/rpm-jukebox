@@ -12,7 +12,6 @@ import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_STOPPED;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.MUTE_UPDATED;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.TIME_UPDATED;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_QUEUED_FOR_PLAYING;
-import static uk.co.mpcontracting.rpmjukebox.util.CacheType.TRACK;
 
 import jakarta.annotation.PostConstruct;
 import javafx.scene.media.Media;
@@ -65,8 +64,9 @@ public class MediaService extends EventAwareObject {
         track.getTrackName(), track.getLocation());
 
     currentTrack = track;
-    currentMedia = new Media(cacheService.constructInternalUrl(TRACK, track.getTrackId(),
-        track.getLocation().replace("%2Emp3", ".mp3")));
+//    currentMedia = new Media(cacheService.constructInternalUrl(TRACK, track.getTrackId(),
+//        track.getLocation().replace("%2Emp3", ".mp3")));
+    currentMedia = new Media(track.getLocation().replace("%2Emp3", ".mp3"));
 
     createNewMediaPlayer();
 

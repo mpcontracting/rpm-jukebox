@@ -3,8 +3,10 @@ package uk.co.mpcontracting.rpmjukebox.event;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.TEST_EVENT;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
 
 import java.util.concurrent.Executors;
 import lombok.SneakyThrows;
@@ -40,6 +42,15 @@ class EventAwareObjectTest extends AbstractGuiTest {
     };
 
     receivedEvent = null;
+  }
+
+  @Test
+  void shouldRunPostConstruct() {
+    setField(underTest, "eventProcessor", eventProcessor);
+
+    underTest.postConstruct();
+
+    verify(eventProcessor).addEventListener(underTest);
   }
 
   @Test
