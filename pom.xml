@@ -274,8 +274,10 @@
             </dirsets>
           </modulepath>
           <addmodules>
+            <addmodule>java.naming</addmodule>
             <addmodule>javafx.controls</addmodule>
             <addmodule>javafx.fxml</addmodule>
+            <addmodule>javafx.media</addmodule>
           </addmodules>
         </configuration>
       </plugin>
@@ -292,6 +294,7 @@
           <resourcedir>${project.basedir}/src/main/deploy/${os.detected.name}</resourcedir>
           <mainjar>${project.artifactId}-${project.version}.jar</mainjar>
           <mainclass>uk.co.mpcontracting.rpmjukebox.RpmJukebox</mainclass>
+          <javaoptions>--add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/jdk.internal.ref=ALL-UNNAMED</javaoptions>
           <macsign>true</macsign>
           <!--suppress UnresolvedMavenProperty -->
           <macsigningkeyusername>Developer ID Application: ${env.APPLE_DEV_ID}</macsigningkeyusername>
