@@ -1,7 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
@@ -15,9 +15,8 @@ import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SPLASH_INITI
 
 import java.net.BindException;
 import lombok.SneakyThrows;
-import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +49,7 @@ class JettyServerTest {
   private Server server;
 
   @Mock
-  private ServerConnector serverConnector;
+  private ServletContextHandler servletContextHandler;
 
   private JettyServer underTest;
 
@@ -60,8 +59,8 @@ class JettyServerTest {
 
     setField(underTest, "applicationLifecycleService", applicationLifecycleService);
 
-    lenient().doReturn(server).when(underTest).constructServer();
-    lenient().doReturn(serverConnector).when(underTest).constructServerConnector(server);
+    lenient().doReturn(server).when(underTest).constructServer(anyInt());
+    lenient().doReturn(servletContextHandler).when(underTest).constructServletContextHandler();
 
     lenient().when(stringResourceService.getString(MESSAGE_SPLASH_INITIALISING_CACHE)).thenReturn(MESSAGE_INITIALISING_CACHE);
     lenient().when(stringResourceService.getString(MESSAGE_SPLASH_ALREADY_RUNNING)).thenReturn(MESSAGE_ALREADY_RUNNING);
@@ -77,8 +76,7 @@ class JettyServerTest {
     underTest.initialise();
 
     verify(rpmJukebox).updateSplashProgress(MESSAGE_INITIALISING_CACHE);
-    verify(serverConnector).setPort(jettyPort);
-    verify(server).setHandler(any(Handler.class));
+    verify(server).setHandler(servletContextHandler);
     verify(server).start();
   }
 

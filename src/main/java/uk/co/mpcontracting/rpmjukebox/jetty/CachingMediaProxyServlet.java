@@ -39,6 +39,7 @@ public class CachingMediaProxyServlet extends HttpServlet {
         response.setContentLengthLong(cachedFile.get().length());
 
         if (!request.getMethod().equals("HEAD")) {
+          log.debug("Opening data stream to cached file - {}", id);
           openDataStream(request, response, cacheType, id, true, getFileInputStream(cachedFile.get()));
         }
       } else {
@@ -50,6 +51,7 @@ public class CachingMediaProxyServlet extends HttpServlet {
           response.setContentLength(connection.getContentLength());
 
           if (!request.getMethod().equals("HEAD")) {
+            log.debug("Opening data stream to URL - {}", id);
             openDataStream(request, response, cacheType, id, false, connection.getInputStream());
           }
         } else {

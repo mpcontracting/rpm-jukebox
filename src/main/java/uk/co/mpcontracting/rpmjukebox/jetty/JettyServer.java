@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -44,18 +41,8 @@ public class JettyServer extends EventAwareObject {
 
     rpmJukebox.updateSplashProgress(stringResourceService.getString(MESSAGE_SPLASH_INITIALISING_CACHE));
 
-    server = constructServer();
-
-    try (ServerConnector serverConnector = constructServerConnector(server)) {
-      serverConnector.setPort(applicationProperties.getJettyPort());
-      server.setConnectors(new Connector[]{serverConnector});
-    }
-
-    ServletContextHandler context = new ServletContextHandler();
-    context.setContextPath("/");
-    context.addServlet(CachingMediaProxyServlet.class, "/cache");
-
-    server.setHandler(new DefaultHandler());
+    server = constructServer(applicationProperties.getJettyPort());
+    server.setHandler(constructServletContextHandler());
 
     try {
       server.start();
@@ -76,12 +63,15 @@ public class JettyServer extends EventAwareObject {
     }
   }
 
-  protected Server constructServer() {
-    return new Server();
+  protected Server constructServer(int port) {
+    return new Server(port);
   }
 
-  protected ServerConnector constructServerConnector(Server server) {
-    return new ServerConnector(server);
+  protected ServletContextHandler constructServletContextHandler() {
+    ServletContextHandler servletContextHandler = new ServletContextHandler("/");
+    servletContextHandler.addServlet(CachingMediaProxyServlet.class, "/cache");
+
+    return servletContextHandler;
   }
 
   public void stop() throws Exception {
