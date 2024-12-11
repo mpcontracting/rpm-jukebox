@@ -2,7 +2,7 @@
 
 [![Build and test](https://github.com/mpcontracting/rpm-jukebox/actions/workflows/on_push_to_main.yaml/badge.svg?branch=main)](https://github.com/mpcontracting/rpm-jukebox/actions/workflows/on_push_to_main.yaml)
 
-A jukebox for the RPM Challenge written in JavaFX
+A jukebox for the RPM Challenge written in JavaFX and SpringBoot
 
 ## Running in Maven
 
