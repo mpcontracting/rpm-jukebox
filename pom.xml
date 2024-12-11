@@ -13,7 +13,7 @@
 
   <groupId>uk.co.mpcontracting</groupId>
   <artifactId>rpm-jukebox</artifactId>
-  <version>6.0.0</version>
+  <version>6.0.1</version>
 
   <properties>
     <!-- Download the JavaFX jmods package from here - https://gluonhq.com/products/javafx/ -->
