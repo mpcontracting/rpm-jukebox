@@ -57,8 +57,9 @@ public class MediaService extends EventAwareObject {
         track.getTrackName(), track.getLocation());
 
     currentTrack = track;
-    currentMedia = new Media(cacheService.constructInternalUrl(TRACK, track.getTrackId(),
-        track.getLocation().replace("%2Emp3", ".mp3")));
+    //currentMedia = new Media(cacheService.constructInternalUrl(TRACK, track.getTrackId(),
+    //    track.getLocation().replace("%2Emp3", ".mp3")));
+    currentMedia = new Media(track.getLocation());
 
     createNewMediaPlayer();
 

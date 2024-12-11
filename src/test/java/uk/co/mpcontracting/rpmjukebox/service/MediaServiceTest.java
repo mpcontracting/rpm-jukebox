@@ -80,11 +80,12 @@ class MediaServiceTest extends AbstractEventAwareObjectTest {
 
   @Test
   void shouldPlayTrack() {
-    String source = "http://localhost:43125/cache?cacheType=TRACK&id=trackId&url=http%3A%2F%2Fwww.example.com%2Fmedia.mp3";
+    //String source = "http://localhost:43125/cache?cacheType=TRACK&id=trackId&url=http%3A%2F%2Fwww.example.com%2Fmedia.mp3";
+    String source = "http://www.example.com/media%2Emp3";
 
-    when(track.getTrackId()).thenReturn("trackId");
+    //when(track.getTrackId()).thenReturn("trackId");
     when(track.getLocation()).thenReturn("http://www.example.com/media%2Emp3");
-    when(cacheService.constructInternalUrl(any(), anyString(), anyString())).thenReturn(source);
+    //when(cacheService.constructInternalUrl(any(), anyString(), anyString())).thenReturn(source);
 
     underTest.playTrack(track);
 
