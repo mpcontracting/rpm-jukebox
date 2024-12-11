@@ -160,6 +160,13 @@
   </dependencies>
 
   <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.7.1</version>
+      </extension>
+    </extensions>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -281,7 +288,8 @@
           <input>${project.build.directory}/jlink/libs</input>
           <runtimeimage>${project.build.directory}/jlink/image</runtimeimage>
           <appversion>${project.version}</appversion>
-          <icon>${project.basedir}/artwork/rpmjukebox.icns</icon>
+          <resourcedir>${project.basedir/src/main/deploy/${os.detected.name}</resourcedir>
+          <!--<icon>${project.basedir}/artwork/rpmjukebox.icns</icon>-->
           <mainjar>${project.artifactId}-${project.version}.jar</mainjar>
           <mainclass>uk.co.mpcontracting.rpmjukebox.RpmJukebox</mainclass>
           <macsign>true</macsign>
