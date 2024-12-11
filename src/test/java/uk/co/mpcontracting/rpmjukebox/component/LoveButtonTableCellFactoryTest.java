@@ -1,136 +1,135 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_CONTENT_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createGenre;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createMouseEvent;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createPlaylistId;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createTrack;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createTrackId;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.PLAYLIST_ID_FAVOURITES;
+
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
+import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.generateTrack;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.getMouseEvent;
+class LoveButtonTableCellFactoryTest extends AbstractGuiTest {
 
-public class LoveButtonTableCellFactoryTest extends AbstractGUITest implements Constants {
+  @MockBean
+  private PlaylistService playlistService;
 
-    @Mock
-    private PlaylistManager playlistManager;
+  private LoveButtonTableCellFactory underTest;
 
-    private LoveButtonTableCellFactory underTest;
+  @BeforeEach
+  void beforeEach() {
+    underTest = new LoveButtonTableCellFactory(playlistService);
+    setupEventProcessor(underTest);
+  }
 
-    @Before
-    public void setup() {
-        underTest = new LoveButtonTableCellFactory();
-        setField(underTest, "eventManager", getMockEventManager());
-        setField(underTest, "playlistManager", playlistManager);
+  @Test
+  void shouldSinglePrimaryClickOnCellTrackInPlaylist() {
+    TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
+    tableCell.setItem(createTrackId());
 
-        reset(playlistManager);
-    }
+    Track track = createTrack(1, createGenre(), createGenre());
+    track.setPlaylistId(createPlaylistId());
+    TrackTableModel trackTableModel = new TrackTableModel(track);
 
-    @Test
-    public void shouldSinglePrimaryClickOnCellTrackInPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
-        tableCell.setItem("trackId");
+    @SuppressWarnings("unchecked")
+    TableRow<TrackTableModel> mockTableRow = (TableRow<TrackTableModel>) mock(TableRow.class);
+    when(mockTableRow.getItem()).thenReturn(trackTableModel);
 
-        Track track = generateTrack(1, "Genre 1", "Genre 2");
-        track.setPlaylistId(999);
-        TrackTableModel trackTableModel = new TrackTableModel(track);
+    ReflectionTestUtils.invokeMethod(tableCell, "setTableRow", mockTableRow);
 
-        @SuppressWarnings("unchecked")
-        TableRow<TrackTableModel> mockTableRow = (TableRow<TrackTableModel>) mock(TableRow.class);
-        when(mockTableRow.getItem()).thenReturn(trackTableModel);
+    when(playlistService.isTrackInPlaylist(anyInt(), anyString())).thenReturn(true);
 
-        ReflectionTestUtils.invokeMethod(tableCell, "setTableRow", mockTableRow);
+    tableCell.onMouseClickedProperty().get().handle(createMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
-        when(playlistManager.isTrackInPlaylist(anyInt(), anyString())).thenReturn(true);
+    verify(playlistService, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(playlistService).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(eventProcessor).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+  }
 
-        tableCell.onMouseClickedProperty().get()
-                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
+  @Test
+  void shouldSinglePrimaryClickOnCellTrackNotInPlaylist() {
+    TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
+    tableCell.setItem(createTrackId());
 
-        verify(playlistManager, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(playlistManager, times(1)).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
-    }
+    Track track = createTrack(1, createGenre(), createGenre());
+    track.setPlaylistId(createPlaylistId());
+    TrackTableModel trackTableModel = new TrackTableModel(track);
 
-    @Test
-    public void shouldSinglePrimaryClickOnCellTrackNotInPlaylist() {
-        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
-        tableCell.setItem("trackId");
+    @SuppressWarnings("unchecked")
+    TableRow<TrackTableModel> mockTableRow = (TableRow<TrackTableModel>) mock(TableRow.class);
+    when(mockTableRow.getItem()).thenReturn(trackTableModel);
 
-        Track track = generateTrack(1, "Genre 1", "Genre 2");
-        track.setPlaylistId(999);
-        TrackTableModel trackTableModel = new TrackTableModel(track);
+    ReflectionTestUtils.invokeMethod(tableCell, "setTableRow", mockTableRow);
 
-        @SuppressWarnings("unchecked")
-        TableRow<TrackTableModel> mockTableRow = (TableRow<TrackTableModel>) mock(TableRow.class);
-        when(mockTableRow.getItem()).thenReturn(trackTableModel);
+    when(playlistService.isTrackInPlaylist(anyInt(), anyString())).thenReturn(false);
 
-        ReflectionTestUtils.invokeMethod(tableCell, "setTableRow", mockTableRow);
+    tableCell.onMouseClickedProperty().get().handle(createMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
-        when(playlistManager.isTrackInPlaylist(anyInt(), anyString())).thenReturn(false);
+    verify(playlistService).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(playlistService, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(eventProcessor).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+  }
 
-        tableCell.onMouseClickedProperty().get()
-                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
+  @Test
+  void shouldSinglePrimaryClickOnCellNullItem() {
+    TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
+    tableCell.setItem(null);
 
-        verify(playlistManager, times(1)).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(playlistManager, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
-    }
+    Track track = createTrack(1, createGenre(), createGenre());
+    track.setPlaylistId(createPlaylistId());
 
-    @Test
-    public void shouldSinglePrimaryClickOnCellNullItem() {
-        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
-        tableCell.setItem(null);
+    tableCell.onMouseClickedProperty().get().handle(createMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
 
-        Track track = generateTrack(1, "Genre 1", "Genre 2");
-        track.setPlaylistId(999);
+    verify(playlistService, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(playlistService, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(eventProcessor, never()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+  }
 
-        tableCell.onMouseClickedProperty().get()
-                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 1));
+  @Test
+  void shouldDoublePrimaryClickOnCell() {
+    TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
+    tableCell.setItem(null);
 
-        verify(playlistManager, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(playlistManager, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
-    }
+    Track track = createTrack(1, createGenre(), createGenre());
+    track.setPlaylistId(createPlaylistId());
 
-    @Test
-    public void shouldDoublePrimaryClickOnCell() {
-        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
-        tableCell.setItem(null);
+    tableCell.onMouseClickedProperty().get().handle(createMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
 
-        Track track = generateTrack(1, "Genre 1", "Genre 2");
-        track.setPlaylistId(999);
+    verify(playlistService, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(playlistService, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(eventProcessor, never()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+  }
 
-        tableCell.onMouseClickedProperty().get()
-                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.PRIMARY, 2));
+  @Test
+  void shouldSingleSecondaryClickOnCell() {
+    TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
+    tableCell.setItem(null);
 
-        verify(playlistManager, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(playlistManager, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
-    }
+    Track track = createTrack(1, createGenre(), createGenre());
+    track.setPlaylistId(createPlaylistId());
 
-    @Test
-    public void shouldSingleSecondaryClickOnCell() {
-        TableCell<TrackTableModel, String> tableCell = underTest.call(new TableColumn<>());
-        tableCell.setItem(null);
+    tableCell.onMouseClickedProperty().get().handle(createMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
 
-        Track track = generateTrack(1, "Genre 1", "Genre 2");
-        track.setPlaylistId(999);
-
-        tableCell.onMouseClickedProperty().get()
-                .handle(getMouseEvent(MouseEvent.MOUSE_CLICKED, MouseButton.SECONDARY, 1));
-
-        verify(playlistManager, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(playlistManager, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
-        verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
-    }
+    verify(playlistService, never()).addTrackToPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(playlistService, never()).removeTrackFromPlaylist(PLAYLIST_ID_FAVOURITES, track);
+    verify(eventProcessor, never()).fireEvent(PLAYLIST_CONTENT_UPDATED, track.getPlaylistId());
+  }
 }

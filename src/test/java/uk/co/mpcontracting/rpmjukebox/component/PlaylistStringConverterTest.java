@@ -1,81 +1,86 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import org.junit.Before;
-import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createPlaylistName;
 
-public class PlaylistStringConverterTest extends AbstractGUITest {
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-    private PlaylistStringConverter<Playlist> underTest;
+class PlaylistStringConverterTest extends AbstractGuiTest {
 
-    @Before
-    public void setup() {
-        underTest = new PlaylistStringConverter<>();
-    }
+  private PlaylistStringConverter<Playlist> underTest;
 
-    @Test
-    public void shouldSetPlaylist() {
-        Playlist playlist = mock(Playlist.class);
-        when(playlist.getPlaylistId()).thenReturn(1);
-        when(playlist.getName()).thenReturn("Playlist");
+  @BeforeEach
+  void beforeEach() {
+    underTest = new PlaylistStringConverter<>();
+  }
 
-        underTest.setPlaylist(playlist);
+  @Test
+  void shouldSetPlaylist() {
+    String playlistName = createPlaylistName();
 
-        Playlist resultPlaylist = (Playlist) getField(underTest, "playlist");
-        String resultName = (String) getField(underTest, "originalName");
+    Playlist playlist = mock(Playlist.class);
+    when(playlist.getName()).thenReturn(playlistName);
 
-        assertThat(resultPlaylist).isEqualTo(playlist);
-        assertThat(resultName).isEqualTo("Playlist");
-    }
+    underTest.setPlaylist(playlist);
 
-    @Test
-    public void shouldGetToString() {
-        Playlist playlist = mock(Playlist.class);
-        when(playlist.getPlaylistId()).thenReturn(1);
-        when(playlist.getName()).thenReturn("Playlist");
+    Playlist resultPlaylist = (Playlist) getField(underTest, "playlist");
+    String resultName = (String) getField(underTest, "originalName");
 
-        assertThat(underTest.toString(playlist)).isEqualTo("Playlist");
-    }
+    assertThat(resultPlaylist).isEqualTo(playlist);
+    assertThat(resultName).isEqualTo(playlistName);
+  }
 
-    @Test
-    public void shouldGetFromString() {
-        Playlist playlist = new Playlist(5, "Playlist", 10);
+  @Test
+  void shouldGetToString() {
+    String playlistName = createPlaylistName();
+    Playlist playlist = mock(Playlist.class);
+    when(playlist.getName()).thenReturn(playlistName);
 
-        underTest.setPlaylist(playlist);
+    assertThat(underTest.toString(playlist)).isEqualTo(playlistName);
+  }
 
-        Playlist result = underTest.fromString("Playlist From String");
+  @Test
+  void shouldGetFromString() {
+    String playlistFromStringName = createPlaylistName();
+    Playlist playlist = new Playlist(5, createPlaylistName(), 10);
 
-        assertThat(result.getPlaylistId()).isEqualTo(5);
-        assertThat(result.getName()).isEqualTo("Playlist From String");
-    }
+    underTest.setPlaylist(playlist);
 
-    @Test
-    public void shouldGetFromNullString() {
-        Playlist playlist = new Playlist(5, "Playlist", 10);
+    Playlist result = underTest.fromString(playlistFromStringName);
 
-        underTest.setPlaylist(playlist);
+    assertThat(result.getPlaylistId()).isEqualTo(5);
+    assertThat(result.getName()).isEqualTo(playlistFromStringName);
+  }
 
-        Playlist result = underTest.fromString(null);
+  @Test
+  void shouldGetFromNullString() {
+    String playlistName = createPlaylistName();
+    Playlist playlist = new Playlist(5, playlistName, 10);
 
-        assertThat(result.getPlaylistId()).isEqualTo(5);
-        assertThat(result.getName()).isEqualTo("Playlist");
-    }
+    underTest.setPlaylist(playlist);
 
-    @Test
-    public void shouldGetFromEmptyString() {
-        Playlist playlist = new Playlist(5, "Playlist", 10);
+    Playlist result = underTest.fromString(null);
 
-        underTest.setPlaylist(playlist);
+    assertThat(result.getPlaylistId()).isEqualTo(5);
+    assertThat(result.getName()).isEqualTo(playlistName);
+  }
 
-        Playlist result = underTest.fromString(" ");
+  @Test
+  void shouldGetFromEmptyString() {
+    String playlistName = createPlaylistName();
+    Playlist playlist = new Playlist(5, playlistName, 10);
 
-        assertThat(result.getPlaylistId()).isEqualTo(5);
-        assertThat(result.getName()).isEqualTo("Playlist");
-    }
+    underTest.setPlaylist(playlist);
+
+    Playlist result = underTest.fromString(" ");
+
+    assertThat(result.getPlaylistId()).isEqualTo(5);
+    assertThat(result.getName()).isEqualTo(playlistName);
+  }
 }

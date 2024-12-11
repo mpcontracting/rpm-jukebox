@@ -1,2098 +1,2109 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static javafx.scene.input.KeyCode.A;
+import static javafx.scene.input.KeyCode.BACK_SPACE;
+import static javafx.scene.input.KeyCode.DELETE;
+import static javafx.scene.input.KeyEvent.KEY_PRESSED;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.APPLICATION_INITIALISED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.BUFFER_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.DATA_INDEXED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.END_OF_MEDIA;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_PAUSED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_PLAYING;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_STOPPED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_NEXT;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_PLAY_PAUSE;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_PREVIOUS;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_REPEAT;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_SHUFFLE;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_VOLUME_DOWN;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_VOLUME_MUTE;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_VOLUME_UP;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_EDIT_ADD_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_EDIT_DELETE_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_EDIT_RANDOM_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_FILE_EXPORT_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_FILE_IMPORT_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_FILE_SETTINGS;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_VIEW_EQUALIZER;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MUTE_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.NEW_VERSION_AVAILABLE;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_CREATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_DELETED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_SELECTED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.TIME_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_QUEUED_FOR_PLAYING;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_SELECTED;
+import static uk.co.mpcontracting.rpmjukebox.model.Repeat.ALL;
+import static uk.co.mpcontracting.rpmjukebox.model.Repeat.OFF;
+import static uk.co.mpcontracting.rpmjukebox.model.Repeat.ONE;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createKeyEvent;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createPlaylistName;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createTrack;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createVersion;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createYearString;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.getField;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.getNonNullField;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_PAUSE;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_PLAY;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_REPEAT_ALL;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_REPEAT_OFF;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_REPEAT_ONE;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_SHUFFLE_OFF;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_SHUFFLE_ON;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_VOLUME_OFF;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_VOLUME_ON;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_NEW_VERSION_AVAILABLE;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.PLAYLIST_ID_FAVOURITES;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.PLAYLIST_ID_SEARCH;
+
 import com.google.gson.Gson;
 import com.igormaznitsa.commons.version.Version;
+import de.felixroske.jfxsupport.GUIState;
+import jakarta.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import lombok.SneakyThrows;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.testfx.util.WaitForAsyncUtils;
 import uk.co.mpcontracting.rpmjukebox.component.ImageFactory;
 import uk.co.mpcontracting.rpmjukebox.component.SliderProgressBar;
-import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
-import uk.co.mpcontracting.rpmjukebox.event.Event;
-import uk.co.mpcontracting.rpmjukebox.javafx.GuiState;
-import uk.co.mpcontracting.rpmjukebox.manager.*;
+import uk.co.mpcontracting.rpmjukebox.config.ApplicationProperties;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.model.YearFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackFilter;
 import uk.co.mpcontracting.rpmjukebox.search.TrackSearch;
+import uk.co.mpcontracting.rpmjukebox.service.CacheService;
+import uk.co.mpcontracting.rpmjukebox.service.MediaService;
+import uk.co.mpcontracting.rpmjukebox.service.NativeService;
+import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
+import uk.co.mpcontracting.rpmjukebox.service.SearchService;
+import uk.co.mpcontracting.rpmjukebox.service.SettingsService;
+import uk.co.mpcontracting.rpmjukebox.service.StringResourceService;
+import uk.co.mpcontracting.rpmjukebox.service.UpdateService;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
-import uk.co.mpcontracting.rpmjukebox.view.*;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
+import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
+import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
+import uk.co.mpcontracting.rpmjukebox.view.ExportView;
+import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
+import uk.co.mpcontracting.rpmjukebox.view.MessageView;
+import uk.co.mpcontracting.rpmjukebox.view.SettingsView;
+import uk.co.mpcontracting.rpmjukebox.view.TrackTableView;
 
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileReader;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+class MainPanelControllerTest extends AbstractGuiTest {
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.util.ReflectionTestUtils.getField;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.event.Event.*;
-import static uk.co.mpcontracting.rpmjukebox.test.support.TestHelper.*;
+  @Autowired
+  private ApplicationProperties applicationProperties;
 
-public class MainPanelControllerTest extends AbstractGUITest implements Constants {
+  @MockBean
+  private ImageFactory imageFactory;
 
-    @Autowired
-    private AppProperties appProperties;
+  @MockBean
+  private ConfirmView confirmView;
 
-    @Autowired
-    private ThreadRunner threadRunner;
+  @MockBean
+  private EqualizerView equalizerView;
 
-    @Autowired
-    private MainPanelController mainPanelController;
+  @MockBean
+  private ExportView exportView;
 
-    @Autowired
-    private MainPanelView mainPanelView;
+  @MockBean
+  private MessageView messageView;
 
-    @Autowired
-    private MessageManager messageManager;
+  @MockBean
+  private SettingsView settingsView;
 
-    @Mock
-    private ImageFactory imageFactory;
+  @MockBean
+  private TrackTableView trackTableView;
 
-    @Mock
-    private EqualizerView equalizerView;
+  @MockBean
+  private EqualizerController equalizerController;
 
-    @Mock
-    private SettingsView settingsView;
+  @MockBean
+  private ExportController exportController;
 
-    @Mock
-    private ExportView exportView;
+  @MockBean
+  private SettingsController settingsController;
 
-    @Mock
-    private MessageView messageView;
+  @MockBean
+  private TrackTableController trackTableController;
 
-    @Mock
-    private ConfirmView confirmView;
+  @MockBean
+  private CacheService cacheService;
 
-    @Mock
-    private TrackTableView trackTableView;
+  @MockBean
+  private MediaService mediaService;
 
-    @Mock
-    private TrackTableController trackTableController;
+  @MockBean
+  private NativeService nativeService;
 
-    @Mock
-    private EqualizerController equalizerController;
+  @MockBean
+  private PlaylistService playlistService;
 
-    @Mock
-    private SettingsController settingsController;
+  @MockBean
+  private SearchService searchService;
 
-    @Mock
-    private ExportController exportController;
+  @MockBean
+  private SettingsService settingsService;
 
-    @Mock
-    private SettingsManager settingsManager;
+  @Autowired
+  private StringResourceService stringResourceService;
 
-    @Mock
-    private SearchManager searchManager;
+  @MockBean
+  private UpdateService updateService;
 
-    @Mock
-    private PlaylistManager playlistManager;
+  @Autowired
+  private MainPanelView mainPanelView;
 
-    @Mock
-    private MediaManager mediaManager;
+  @SpyBean
+  private MainPanelController underTest;
 
-    @Mock
-    private CacheManager cacheManager;
+  private Stage existingStage;
+  private Parent root;
 
-    @Mock
-    private NativeManager nativeManager;
+  @SneakyThrows
+  @PostConstruct
+  void postConstruct() {
+    init(mainPanelView);
+  }
 
-    @Mock
-    private UpdateManager updateManager;
+  @BeforeEach
+  void beforeEach() {
+    existingStage = GUIState.getStage();
 
-    private MainPanelController underTest;
-    private Stage existingStage;
-    private Parent root;
+    Stage stage = mock(Stage.class);
+    Scene scene = mock(Scene.class);
+    root = mock(Parent.class);
+    when(stage.getScene()).thenReturn(scene);
+    when(scene.getRoot()).thenReturn(root);
+    setField(GUIState.class, "stage", stage);
 
-    @SneakyThrows
-    @PostConstruct
-    public void constructView() {
-        init(mainPanelView);
-    }
+    Platform.runLater(() -> {
+      getNonNullField(underTest, "searchTextField", TextField.class).setText(null);
+      getNonNullField(underTest, "yearFilterComboBox", ComboBox.class).getItems().clear();
+      getNonNullField(underTest, "playlistPanelListView", ListView.class).getItems().clear();
+    });
 
-    @Before
-    @SneakyThrows
+    WaitForAsyncUtils.waitForFxEvents();
+
+    reset(eventProcessor);
+    reset(playlistService);
+    reset(searchService);
+  }
+
+  @AfterEach
+  void afterEach() {
+    setField(GUIState.class, "stage", existingStage);
+  }
+
+  /////////////////////////
+  // Component Listeners //
+  /////////////////////////
+
+  @Test
+  void shouldUpdateSearchTextSearchCriteria() {
+    String searchText = getFaker().lorem().characters(10, 20);
+    TextField searchTextField = getNonNullField(underTest, "searchTextField", TextField.class);
+
+    Platform.runLater(() -> searchTextField.setText(searchText));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    verify(searchService).search(new TrackSearch(searchText));
+    verify(eventProcessor).fireEvent(PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+  }
+
+  @Test
+  void shouldUpdateYearFilterSearchCriteria() {
+    String year1 = createYearString();
+    String year2 = createYearString();
+    String year3 = createYearString();
+
     @SuppressWarnings("unchecked")
-    public void setup() {
-        existingStage = GuiState.getStage();
-
-        Stage stage = mock(Stage.class);
-        Scene scene = mock(Scene.class);
-        root = mock(Parent.class);
-        when(stage.getScene()).thenReturn(scene);
-        when(scene.getRoot()).thenReturn(root);
-        setField(GuiState.class, "stage", stage);
-
-        setField(mainPanelController, "imageFactory", imageFactory);
-        setField(mainPanelController, "eventManager", getMockEventManager());
-        setField(mainPanelController, "equalizerView", equalizerView);
-        setField(mainPanelController, "settingsView", settingsView);
-        setField(mainPanelController, "exportView", exportView);
-        setField(mainPanelController, "messageView", messageView);
-        setField(mainPanelController, "confirmView", confirmView);
-        setField(mainPanelController, "trackTableView", trackTableView);
-        setField(mainPanelController, "trackTableController", trackTableController);
-        setField(mainPanelController, "equalizerController", equalizerController);
-        setField(mainPanelController, "settingsController", settingsController);
-        setField(mainPanelController, "exportController", exportController);
-        setField(mainPanelController, "settingsManager", settingsManager);
-        setField(mainPanelController, "searchManager", searchManager);
-        setField(mainPanelController, "playlistManager", playlistManager);
-        setField(mainPanelController, "mediaManager", mediaManager);
-        setField(mainPanelController, "cacheManager", cacheManager);
-        setField(mainPanelController, "nativeManager", nativeManager);
-        setField(mainPanelController, "updateManager", updateManager);
-
-        threadRunner.runOnGui(() -> {
-            ((TextField) getNonNullField(mainPanelController, "searchTextField")).setText(null);
-            ((ComboBox<YearFilter>) getNonNullField(mainPanelController, "yearFilterComboBox")).getItems().clear();
-            ((ListView<Playlist>) getNonNullField(mainPanelController, "playlistPanelListView")).getItems().clear();
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        reset(searchManager);
-        reset(playlistManager);
-        reset(getMockEventManager());
-
-        underTest = spy(mainPanelController);
-    }
+    ComboBox<YearFilter> yearFilterComboBox = getNonNullField(underTest, "yearFilterComboBox", ComboBox.class);
+    yearFilterComboBox.getItems().add(new YearFilter(year1, year1));
+    yearFilterComboBox.getItems().add(new YearFilter(year2, year2));
+    yearFilterComboBox.getItems().add(new YearFilter(year3, year3));
 
-    @Test
-    @SneakyThrows
-    public void shouldShowMessageView() {
-        underTest.showMessageView("Message", true);
+    Platform.runLater(() -> yearFilterComboBox.getSelectionModel().select(1));
 
-        // Wait for the UI thread
-        Thread.sleep(250);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        verify(messageView, times(1)).setMessage("Message");
-        verify(messageView, times(1)).show(anyBoolean());
-    }
+    verify(playlistService).setPlaylistTracks(PLAYLIST_ID_SEARCH, emptyList());
+    verify(eventProcessor, never()).fireEvent(PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldShowMessageViewAlreadyShowing() {
-        when(messageView.isShowing()).thenReturn(true);
+  @Test
+  void shouldUpdateYearFilterAndSearchTextSearchCriteria() {
+    String year1 = createYearString();
+    String year2 = createYearString();
+    String year3 = createYearString();
 
-        underTest.showMessageView("Message", true);
+    @SuppressWarnings("unchecked")
+    ComboBox<YearFilter> yearFilterComboBox = getNonNullField(underTest, "yearFilterComboBox", ComboBox.class);
+    yearFilterComboBox.getItems().add(new YearFilter(year1, year1));
+    yearFilterComboBox.getItems().add(new YearFilter(year2, year2));
+    yearFilterComboBox.getItems().add(new YearFilter(year3, year3));
 
-        // Wait for the UI thread
-        Thread.sleep(250);
+    String searchText = getFaker().lorem().characters(10, 20);
+    TextField searchTextField = getNonNullField(underTest, "searchTextField", TextField.class);
 
-        verify(messageView, times(1)).setMessage("Message");
-        verify(messageView, never()).show(anyBoolean());
-    }
+    Platform.runLater(() -> {
+      yearFilterComboBox.getSelectionModel().select(1);
+      searchTextField.setText(searchText);
+    });
 
-    @Test
-    @SneakyThrows
-    public void shouldCloseMessageView() {
-        underTest.closeMessageView();
+    WaitForAsyncUtils.waitForFxEvents();
 
-        // Wait for the UI thread
-        Thread.sleep(250);
+    verify(searchService).search(new TrackSearch(searchText, new TrackFilter(null, year2)));
+    verify(eventProcessor).fireEvent(PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+  }
 
-        verify(messageView, times(1)).close();
-    }
+  @Test
+  void shouldUpdatePlayingPlaylistOnYearFilterUpdate() {
+    String year1 = createYearString();
+    String year2 = createYearString();
+    String year3 = createYearString();
 
-    @Test
-    @SneakyThrows
-    public void shouldShowConfirmView() {
-        Runnable okRunnable = mock(Runnable.class);
-        Runnable cancelRunnable = mock(Runnable.class);
+    @SuppressWarnings("unchecked")
+    ComboBox<YearFilter> yearFilterComboBox = getNonNullField(underTest, "yearFilterComboBox", ComboBox.class);
+    yearFilterComboBox.getItems().add(new YearFilter(year1, year1));
+    yearFilterComboBox.getItems().add(new YearFilter(year2, year2));
+    yearFilterComboBox.getItems().add(new YearFilter(year3, year3));
 
-        underTest.showConfirmView("Message", true, okRunnable, cancelRunnable);
+    @SuppressWarnings("unchecked")
+    List<Track> tracks = mock(List.class);
 
-        // Wait for the UI thread
-        Thread.sleep(250);
+    Playlist playlist = mock(Playlist.class);
+    when(playlist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
+    when(playlist.getTracks()).thenReturn(tracks);
+    when(playlistService.getPlayingPlaylist()).thenReturn(playlist);
 
-        verify(confirmView, times(1)).setMessage("Message");
-        verify(confirmView, times(1)).setRunnables(okRunnable, cancelRunnable);
-        verify(confirmView, times(1)).show(anyBoolean());
-    }
+    Platform.runLater(() -> yearFilterComboBox.getSelectionModel().select(1));
 
-    @Test
-    @SneakyThrows
-    public void shouldShowConfirmViewAlreadyShowing() {
-        when(confirmView.isShowing()).thenReturn(true);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        Runnable okRunnable = mock(Runnable.class);
-        Runnable cancelRunnable = mock(Runnable.class);
+    verify(playlistService).setPlaylistTracks(PLAYLIST_ID_SEARCH, tracks);
+    verify(playlist).getTracks();
+    verify(eventProcessor, never()).fireEvent(PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+  }
 
-        underTest.showConfirmView("Message", true, okRunnable, cancelRunnable);
+  //////////////////////
+  // Manipulate Views //
+  //////////////////////
 
-        // Wait for the UI thread
-        Thread.sleep(250);
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void shouldShowMessageView(boolean blurBackground) {
+    String message = getFaker().lorem().characters(10, 20);
 
-        verify(confirmView, times(1)).setMessage("Message");
-        verify(confirmView, times(1)).setRunnables(okRunnable, cancelRunnable);
-        verify(confirmView, never()).show(anyBoolean());
-    }
+    underTest.showMessageView(message, blurBackground);
 
-    @Test
-    @SneakyThrows
-    public void shouldUpdateSearchTextSearchCriteria() {
-        TextField searchTextField = (TextField) getNonNullField(underTest, "searchTextField");
+    verify(messageView).setMessage(message);
+    verify(messageView).show(blurBackground);
+  }
 
-        threadRunner.runOnGui(() -> searchTextField.setText("Search"));
+  @Test
+  void shouldShowMessageViewAlreadyShowing() {
+    String message = getFaker().lorem().characters(10, 20);
 
-        WaitForAsyncUtils.waitForFxEvents();
+    when(messageView.isShowing()).thenReturn(true);
 
-        TrackSearch trackSearch = new TrackSearch("Search");
+    underTest.showMessageView(message, true);
 
-        verify(searchManager, times(1)).search(trackSearch);
-        verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
-    }
+    verify(messageView).setMessage(message);
+    verify(messageView, never()).show(anyBoolean());
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldUpdateYearFilterSearchCriteria() {
-        @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
-        yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
-        yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
-        yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
+  @Test
+  void shouldCloseMessageView() {
+    underTest.closeMessageView();
 
-        threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().select(1));
+    verify(messageView).close();
+  }
 
-        WaitForAsyncUtils.waitForFxEvents();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void shouldShowConfirmView(boolean blurBackground) {
+    String message = getFaker().lorem().characters(10, 20);
+    Runnable okRunnable = mock(Runnable.class);
+    Runnable cancelRunnable = mock(Runnable.class);
 
-        verify(playlistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, Collections.emptyList());
-        verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
-    }
+    underTest.showConfirmView(message, blurBackground, okRunnable, cancelRunnable);
 
-    @Test
-    @SneakyThrows
-    public void shouldUpdateYearFilterAndSearchTextSearchCriteria() {
-        @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
-        yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
-        yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
-        yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
+    verify(confirmView).setMessage(message);
+    verify(confirmView).setRunnables(okRunnable, cancelRunnable);
+    verify(confirmView).show(blurBackground);
+  }
 
-        TextField searchTextField = (TextField) getNonNullField(underTest, "searchTextField");
+  @Test
+  void shouldShowConfirmViewAlreadyShowing() {
+    String message = getFaker().lorem().characters(10, 20);
+    Runnable okRunnable = mock(Runnable.class);
+    Runnable cancelRunnable = mock(Runnable.class);
 
-        threadRunner.runOnGui(() -> {
-            yearFilterComboBox.getSelectionModel().select(1);
+    when(confirmView.isShowing()).thenReturn(true);
 
-            reset(playlistManager);
+    underTest.showConfirmView(message, true, okRunnable, cancelRunnable);
 
-            searchTextField.setText("Search");
-        });
+    verify(confirmView).setMessage(message);
+    verify(confirmView).setRunnables(okRunnable, cancelRunnable);
+    verify(confirmView, never()).show(anyBoolean());
+  }
 
-        WaitForAsyncUtils.waitForFxEvents();
+  //////////////////////
+  // GUI Interactions //
+  //////////////////////
 
-        TrackSearch trackSearch = new TrackSearch("Search", new TrackFilter(null, "2001"));
+  @Test
+  void shouldClickNewVersionButton() {
+    clickOnNode("#newVersionButton");
 
-        verify(searchManager, times(1)).search(trackSearch);
-        verify(getMockEventManager(), times(1)).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
-    }
+    verify(updateService).downloadNewVersion();
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldUpdatePlayingPlaylistOnYearFilterUpdate() {
-        @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
-        yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
-        yearFilterComboBox.getItems().add(new YearFilter("2001", "2001"));
-        yearFilterComboBox.getItems().add(new YearFilter("2002", "2002"));
-
-        @SuppressWarnings("unchecked")
-        List<Track> tracks = mock(List.class);
-
-        Playlist playlist = mock(Playlist.class);
-        when(playlist.getPlaylistId()).thenReturn(PLAYLIST_ID_SEARCH);
-        when(playlist.getTracks()).thenReturn(tracks);
-        when(playlistManager.getPlayingPlaylist()).thenReturn(playlist);
-
-        threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().select(1));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        verify(playlistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, tracks);
-        verify(playlist, times(1)).getTracks();
-        verify(getMockEventManager(), never()).fireEvent(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
-    }
+  @Test
+  void shouldClickAddPlaylistButton() {
+    clickOnNode("#addPlaylistButton");
 
-    @Test
-    public void shouldClickNewVersionButton() {
-        clickOnNode("#newVersionButton");
+    verify(playlistService).createPlaylist();
+  }
 
-        verify(updateManager, times(1)).downloadNewVersion();
-    }
+  @Test
+  void shouldClickDeletePlaylistButton() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Playlist playlist = new Playlist(1, createPlaylistName(), 10);
 
-    @Test
-    public void shouldClickAddPlaylistButton() {
-        clickOnNode("#addPlaylistButton");
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(playlist);
+      playlistPanelListView.getSelectionModel().select(0);
+    });
 
-        verify(playlistManager, times(1)).createPlaylist();
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldClickDeletePlaylistButton() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Playlist playlist = new Playlist(1, "Playlist 1", 10);
+    clickOnNode("#deletePlaylistButton");
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(playlist);
-            playlistPanelListView.getSelectionModel().select(0);
-        });
+    ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
-        WaitForAsyncUtils.waitForFxEvents();
+    verify(confirmView).setMessage(stringResourceService.getString(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
+    verify(confirmView).setRunnables(okRunnable.capture(), any());
+    verify(confirmView).show(anyBoolean());
 
-        clickOnNode("#deletePlaylistButton");
+    okRunnable.getValue().run();
 
-        ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
+    verify(playlistService).deletePlaylist(playlist.getPlaylistId());
+  }
 
-        verify(confirmView, times(1))
-                .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
-        verify(confirmView, times(1)).setRunnables(okRunnable.capture(), any());
-        verify(confirmView, times(1)).show(anyBoolean());
+  @Test
+  void shouldClickDeletePlaylistButtonWithReservedPlaylist() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Playlist playlist = new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10);
 
-        okRunnable.getValue().run();
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(playlist);
+      playlistPanelListView.getSelectionModel().select(0);
+    });
 
-        verify(playlistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldClickDeletePlaylistButtonWithReservedPlaylist() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Playlist playlist = new Playlist(PLAYLIST_ID_SEARCH, "Playlist 1", 10);
+    clickOnNode("#deletePlaylistButton");
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(playlist);
-            playlistPanelListView.getSelectionModel().select(0);
-        });
+    verify(confirmView, never()).show(anyBoolean());
+  }
 
-        WaitForAsyncUtils.waitForFxEvents();
+  @Test
+  void shouldClickDeletePlaylistButtonWithNullPlaylist() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        clickOnNode("#deletePlaylistButton");
+    Platform.runLater(() -> playlistPanelListView.getSelectionModel().clearSelection());
 
-        verify(confirmView, never()).show(anyBoolean());
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldClickDeletePlaylistButtonWithNullPlaylist() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    clickOnNode("#deletePlaylistButton");
 
-        threadRunner.runOnGui(() -> playlistPanelListView.getSelectionModel().clearSelection());
+    verify(confirmView, never()).show(anyBoolean());
+  }
 
-        WaitForAsyncUtils.waitForFxEvents();
+  @Test
+  void shouldClickSettingsButton() {
+    clickOnNode("#settingsButton");
 
-        clickOnNode("#deletePlaylistButton");
+    verify(settingsController).bindSystemSettings();
+    verify(settingsView).show(true);
+  }
 
-        verify(confirmView, never()).show(anyBoolean());
+  @Test
+  @SneakyThrows
+  void shouldClickImportPlaylistButton() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10));
+      playlistPanelListView.getSelectionModel().select(0);
+    });
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    FileChooser fileChooser = mock(FileChooser.class);
+    when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+
+    File file = mock(File.class);
+    when(fileChooser.showOpenDialog(any())).thenReturn(file);
+    doReturn(fileChooser).when(underTest).constructFileChooser();
+
+    FileReader fileReader = mock(FileReader.class);
+    doReturn(fileReader).when(underTest).constructFileReader(any());
+
+    Gson gson = mock(Gson.class);
+    when(settingsService.getGson()).thenReturn(gson);
+
+    Playlist playlist = new Playlist(1, createPlaylistName(), 10);
+    for (int i = 0; i < 10; i++) {
+      Track track = mock(Track.class);
+      when(track.getTrackId()).thenReturn(Integer.toString(i));
+
+      playlist.addTrack(track);
+      when(searchService.getTrackById(Integer.toString(i))).thenReturn(of(track));
     }
 
-    @Test
-    @SneakyThrows
-    public void shouldClickImportPlaylistButton() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    List<PlaylistSettings> playlistSettings = new ArrayList<>();
+    playlistSettings.add(new PlaylistSettings(playlist));
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
-            playlistPanelListView.getSelectionModel().select(0);
-        });
+    when(gson.fromJson(any(FileReader.class), any(Type.class))).thenReturn(playlistSettings);
 
-        WaitForAsyncUtils.waitForFxEvents();
+    Platform.runLater(underTest::handleImportPlaylistButtonAction);
 
-        FileChooser fileChooser = mock(FileChooser.class);
-        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+    WaitForAsyncUtils.waitForFxEvents();
 
-        File file = mock(File.class);
-        when(fileChooser.showOpenDialog(any())).thenReturn(file);
-        doReturn(fileChooser).when(underTest).constructFileChooser();
+    ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
 
-        FileReader fileReader = mock(FileReader.class);
-        doReturn(fileReader).when(underTest).constructFileReader(any());
+    verify(playlistService).addPlaylist(playlistCaptor.capture());
 
-        Gson gson = mock(Gson.class);
-        when(settingsManager.getGson()).thenReturn(gson);
+    Playlist result = playlistCaptor.getValue();
 
-        Playlist playlist = new Playlist(1, "Playlist", 10);
-        for (int i = 0; i < 10; i++) {
-            Track track = mock(Track.class);
-            when(track.getTrackId()).thenReturn(Integer.toString(i));
+    assertThat(result).isEqualTo(playlist);
+    assertThat(result.getTracks()).hasSize(playlist.getTracks().size());
 
-            playlist.addTrack(track);
-            when(searchManager.getTrackById(Integer.toString(i))).thenReturn(of(track));
-        }
+    verify(playlistService).getPlaylists();
+    verify(root).setEffect(any(BoxBlur.class));
+    verify(root).setEffect(null);
+  }
 
-        List<PlaylistSettings> playlistSettings = new ArrayList<>();
-        playlistSettings.add(new PlaylistSettings(playlist));
+  @Test
+  @SneakyThrows
+  void shouldClickImportPlaylistButtonWithNullTracksFromSearch() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        when(gson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10));
+      playlistPanelListView.getSelectionModel().select(0);
+    });
 
-        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        WaitForAsyncUtils.waitForFxEvents();
+    FileChooser fileChooser = mock(FileChooser.class);
+    when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
 
-        ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
+    File file = mock(File.class);
+    when(fileChooser.showOpenDialog(any())).thenReturn(file);
+    doReturn(fileChooser).when(underTest).constructFileChooser();
 
-        verify(playlistManager, times(1)).addPlaylist(playlistCaptor.capture());
+    FileReader fileReader = mock(FileReader.class);
+    doReturn(fileReader).when(underTest).constructFileReader(any());
 
-        Playlist result = playlistCaptor.getValue();
+    Gson gson = mock(Gson.class);
+    when(settingsService.getGson()).thenReturn(gson);
 
-        assertThat(result).isEqualTo(playlist);
-        assertThat(result.getTracks()).hasSize(playlist.getTracks().size());
+    Playlist playlist = new Playlist(1, createPlaylistName(), 10);
+    for (int i = 0; i < 10; i++) {
+      Track track = mock(Track.class);
+      when(track.getTrackId()).thenReturn(Integer.toString(i));
 
-        verify(playlistManager, times(1)).getPlaylists();
-        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(root, times(1)).setEffect(null);
+      playlist.addTrack(track);
     }
 
-    @Test
-    @SneakyThrows
-    public void shouldClickImportPlaylistButtonWithNullTracksFromSearch() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    List<PlaylistSettings> playlistSettings = new ArrayList<>();
+    playlistSettings.add(new PlaylistSettings(playlist));
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
-            playlistPanelListView.getSelectionModel().select(0);
-        });
+    when(gson.fromJson(any(FileReader.class), any(Type.class))).thenReturn(playlistSettings);
+    when(searchService.getTrackById(any())).thenReturn(empty());
 
-        WaitForAsyncUtils.waitForFxEvents();
+    Platform.runLater(underTest::handleImportPlaylistButtonAction);
 
-        FileChooser fileChooser = mock(FileChooser.class);
-        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+    WaitForAsyncUtils.waitForFxEvents();
 
-        File file = mock(File.class);
-        when(fileChooser.showOpenDialog(any())).thenReturn(file);
-        doReturn(fileChooser).when(underTest).constructFileChooser();
+    ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
 
-        FileReader fileReader = mock(FileReader.class);
-        doReturn(fileReader).when(underTest).constructFileReader(any());
+    verify(playlistService).addPlaylist(playlistCaptor.capture());
 
-        Gson gson = mock(Gson.class);
-        when(settingsManager.getGson()).thenReturn(gson);
+    Playlist result = playlistCaptor.getValue();
 
-        Playlist playlist = new Playlist(1, "Playlist", 10);
-        for (int i = 0; i < 10; i++) {
-            Track track = mock(Track.class);
-            when(track.getTrackId()).thenReturn(Integer.toString(i));
+    assertThat(result).isEqualTo(playlist);
+    assertThat(result.getTracks()).isEmpty();
 
-            playlist.addTrack(track);
-        }
+    verify(playlistService).getPlaylists();
+    verify(root).setEffect(any(BoxBlur.class));
+    verify(root).setEffect(null);
+  }
 
-        List<PlaylistSettings> playlistSettings = new ArrayList<>();
-        playlistSettings.add(new PlaylistSettings(playlist));
+  @Test
+  @SneakyThrows
+  void shouldClickImportPlaylistButtonWithNullPlaylistSettings() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        when(gson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(playlistSettings);
-        when(searchManager.getTrackById(any())).thenReturn(empty());
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10));
+      playlistPanelListView.getSelectionModel().select(0);
+    });
 
-        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        WaitForAsyncUtils.waitForFxEvents();
+    FileChooser fileChooser = mock(FileChooser.class);
+    when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
 
-        ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
+    File file = mock(File.class);
+    when(fileChooser.showOpenDialog(any())).thenReturn(file);
+    doReturn(fileChooser).when(underTest).constructFileChooser();
 
-        verify(playlistManager, times(1)).addPlaylist(playlistCaptor.capture());
+    FileReader fileReader = mock(FileReader.class);
+    doReturn(fileReader).when(underTest).constructFileReader(any());
 
-        Playlist result = playlistCaptor.getValue();
+    Gson gson = mock(Gson.class);
+    when(settingsService.getGson()).thenReturn(gson);
+    when(gson.fromJson(any(FileReader.class), any(Type.class))).thenReturn(null);
 
-        assertThat(result).isEqualTo(playlist);
-        assertThat(result.getTracks()).isEmpty();
+    Platform.runLater(underTest::handleImportPlaylistButtonAction);
 
-        verify(playlistManager, times(1)).getPlaylists();
-        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(root, times(1)).setEffect(null);
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldClickImportPlaylistButtonWithNullPlaylistSettings() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    verify(playlistService, never()).addPlaylist(any());
+    verify(playlistService, never()).getPlaylists();
+    verify(root).setEffect(any(BoxBlur.class));
+    verify(root).setEffect(null);
+  }
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
-            playlistPanelListView.getSelectionModel().select(0);
-        });
+  @Test
+  void shouldClickImportPlaylistButtonWithNullFile() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        WaitForAsyncUtils.waitForFxEvents();
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10));
+      playlistPanelListView.getSelectionModel().select(0);
+    });
 
-        FileChooser fileChooser = mock(FileChooser.class);
-        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+    WaitForAsyncUtils.waitForFxEvents();
 
-        File file = mock(File.class);
-        when(fileChooser.showOpenDialog(any())).thenReturn(file);
-        doReturn(fileChooser).when(underTest).constructFileChooser();
+    FileChooser fileChooser = mock(FileChooser.class);
+    when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+    when(fileChooser.showOpenDialog(any())).thenReturn(null);
+    doReturn(fileChooser).when(underTest).constructFileChooser();
 
-        FileReader fileReader = mock(FileReader.class);
-        doReturn(fileReader).when(underTest).constructFileReader(any());
+    Platform.runLater(underTest::handleImportPlaylistButtonAction);
 
-        Gson gson = mock(Gson.class);
-        when(settingsManager.getGson()).thenReturn(gson);
-        when(gson.fromJson(Mockito.any(FileReader.class), Mockito.any(Type.class))).thenReturn(null);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
+    verify(playlistService, never()).addPlaylist(any());
+    verify(playlistService, never()).getPlaylists();
+    verify(root).setEffect(any(BoxBlur.class));
+    verify(root).setEffect(null);
+  }
 
-        WaitForAsyncUtils.waitForFxEvents();
+  @Test
+  @SneakyThrows
+  void shouldClickImportPlaylistButtonWhenExceptionThrown() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        verify(playlistManager, never()).addPlaylist(any());
-        verify(playlistManager, never()).getPlaylists();
-        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(root, times(1)).setEffect(null);
-    }
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10));
+      playlistPanelListView.getSelectionModel().select(0);
+    });
 
-    @Test
-    @SneakyThrows
-    public void shouldClickImportPlaylistButtonWithNullFile() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    WaitForAsyncUtils.waitForFxEvents();
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
-            playlistPanelListView.getSelectionModel().select(0);
-        });
+    FileChooser fileChooser = mock(FileChooser.class);
+    when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
 
-        WaitForAsyncUtils.waitForFxEvents();
+    File file = mock(File.class);
+    when(fileChooser.showOpenDialog(any())).thenReturn(file);
+    doReturn(fileChooser).when(underTest).constructFileChooser();
 
-        FileChooser fileChooser = mock(FileChooser.class);
-        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
-        when(fileChooser.showOpenDialog(any())).thenReturn(null);
-        doReturn(fileChooser).when(underTest).constructFileChooser();
+    doThrow(new RuntimeException("MainPanelControllerTest.shouldClickImportPlaylistButtonWhenExceptionThrown()"))
+        .when(underTest).constructFileReader(any());
 
-        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
+    Platform.runLater(underTest::handleImportPlaylistButtonAction);
 
-        WaitForAsyncUtils.waitForFxEvents();
+    WaitForAsyncUtils.waitForFxEvents();
 
-        verify(playlistManager, never()).addPlaylist(any());
-        verify(playlistManager, never()).getPlaylists();
-        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(root, times(1)).setEffect(null);
-    }
+    verify(playlistService, never()).addPlaylist(any());
+    verify(playlistService, never()).getPlaylists();
+    verify(root).setEffect(any(BoxBlur.class));
+    verify(root).setEffect(null);
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldClickImportPlaylistButtonWhenExceptionThrown() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+  @Test
+  void shouldClickExportPlaylistButton() {
+    clickOnNode("#exportPlaylistButton");
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
-            playlistPanelListView.getSelectionModel().select(0);
-        });
+    verify(exportController).bindPlaylists();
+    verify(exportView).show(true);
+  }
 
-        WaitForAsyncUtils.waitForFxEvents();
+  @Test
+  void shouldClickPreviousButton() {
+    clickOnNode("#previousButton");
 
-        FileChooser fileChooser = mock(FileChooser.class);
-        when(fileChooser.getExtensionFilters()).thenReturn(FXCollections.observableArrayList());
+    verify(mediaService, never()).setSeekPositionPercent(0d);
+    verify(playlistService).playPreviousTrack(true);
+  }
 
-        File file = mock(File.class);
-        when(fileChooser.showOpenDialog(any())).thenReturn(file);
-        doReturn(fileChooser).when(underTest).constructFileChooser();
+  @Test
+  void shouldClickPreviousButtonWhenPlayingLessThanEqualCutoff() {
+    when(mediaService.getPlayingTimeSeconds()).thenReturn((double) applicationProperties.getPreviousSecondsCutoff());
 
-        doThrow(new RuntimeException("MainPanelControllerTest.shouldClickImportPlaylistButtonWhenExceptionThrown()"))
-                .when(underTest).constructFileReader(any());
+    clickOnNode("#previousButton");
 
-        threadRunner.runOnGui(underTest::handleImportPlaylistButtonAction);
+    verify(mediaService, never()).setSeekPositionPercent(0d);
+    verify(playlistService).playPreviousTrack(true);
+  }
 
-        WaitForAsyncUtils.waitForFxEvents();
+  @Test
+  void shouldClickPreviousButtonWhenPlayingGreaterThanCutoff() {
+    when(mediaService.getPlayingTimeSeconds()).thenReturn(applicationProperties.getPreviousSecondsCutoff() + 1d);
 
-        verify(playlistManager, never()).addPlaylist(any());
-        verify(playlistManager, never()).getPlaylists();
-        verify(root, times(1)).setEffect(Mockito.any(BoxBlur.class));
-        verify(root, times(1)).setEffect(null);
-    }
+    clickOnNode("#previousButton");
 
-    @Test
-    public void shouldClickExportPlaylistButton() {
-        clickOnNode("#exportPlaylistButton");
+    verify(mediaService).setSeekPositionPercent(0d);
+    verify(playlistService, never()).playPreviousTrack(true);
+  }
 
-        verify(exportController, times(1)).bindPlaylists();
-        verify(exportView, times(1)).show(true);
-    }
+  @Test
+  void shouldClickPlayPauseButton() {
+    Playlist playlist = mock(Playlist.class);
+    when(playlist.isEmpty()).thenReturn(true);
+    when(playlistService.getPlaylist(anyInt())).thenReturn(of(playlist));
 
-    @Test
-    public void shouldClickSettingsButton() {
-        clickOnNode("#settingsButton");
+    clickOnNode("#playPauseButton");
 
-        verify(settingsController, times(1)).bindSystemSettings();
-        verify(settingsView, times(1)).show(true);
-    }
+    verify(playlistService, never()).pauseCurrentTrack();
+    verify(playlistService, never()).resumeCurrentTrack();
+    verify(playlistService, never()).playPlaylist(anyInt());
+    verify(playlistService).playCurrentTrack(true);
+  }
 
-    @Test
-    public void shouldClickPreviousButton() {
-        clickOnNode("#previousButton");
+  @Test
+  void shouldClickPlayPauseButtonWhenPlaying() {
+    when(mediaService.isPlaying()).thenReturn(true);
 
-        verify(mediaManager, never()).setSeekPositionPercent(0d);
-        verify(playlistManager, times(1)).playPreviousTrack(true);
-    }
+    clickOnNode("#playPauseButton");
 
-    @Test
-    public void shouldClickPreviousButtonWhenPlayingLessThanEqualCutoff() {
-        when(mediaManager.getPlayingTimeSeconds()).thenReturn((double) appProperties.getPreviousSecondsCutoff());
+    verify(playlistService).pauseCurrentTrack();
+    verify(playlistService, never()).resumeCurrentTrack();
+    verify(playlistService, never()).playPlaylist(anyInt());
+    verify(playlistService, never()).playCurrentTrack(true);
+  }
 
-        clickOnNode("#previousButton");
+  @Test
+  void shouldClickPlayPauseButtonWhenPaused() {
+    when(mediaService.isPaused()).thenReturn(true);
 
-        verify(mediaManager, never()).setSeekPositionPercent(0d);
-        verify(playlistManager, times(1)).playPreviousTrack(true);
-    }
+    clickOnNode("#playPauseButton");
 
-    @Test
-    public void shouldClickPreviousButtonWhenPlayingGreaterThanCutoff() {
-        when(mediaManager.getPlayingTimeSeconds()).thenReturn(appProperties.getPreviousSecondsCutoff() + 1d);
+    verify(playlistService, never()).pauseCurrentTrack();
+    verify(playlistService).resumeCurrentTrack();
+    verify(playlistService, never()).playPlaylist(anyInt());
+    verify(playlistService, never()).playCurrentTrack(true);
+  }
 
-        clickOnNode("#previousButton");
+  @Test
+  void shouldClickPlayPauseButtonWhenPlaylistSelected() {
+    Playlist playlist = mock(Playlist.class);
+    when(playlist.isEmpty()).thenReturn(false);
+    when(playlistService.getPlaylist(anyInt())).thenReturn(of(playlist));
+    when(playlistService.getSelectedTrack()).thenReturn(null);
 
-        verify(mediaManager, times(1)).setSeekPositionPercent(0d);
-        verify(playlistManager, never()).playPreviousTrack(true);
-    }
+    clickOnNode("#playPauseButton");
 
-    @Test
-    public void shouldClickPlayPauseButton() {
-        Playlist playlist = mock(Playlist.class);
-        when(playlist.isEmpty()).thenReturn(true);
-        when(playlistManager.getPlaylist(anyInt())).thenReturn(of(playlist));
-
-        clickOnNode("#playPauseButton");
-
-        verify(playlistManager, never()).pauseCurrentTrack();
-        verify(playlistManager, never()).resumeCurrentTrack();
-        verify(playlistManager, never()).playPlaylist(anyInt());
-        verify(playlistManager, times(1)).playCurrentTrack(true);
-    }
+    verify(playlistService, never()).pauseCurrentTrack();
+    verify(playlistService, never()).resumeCurrentTrack();
+    verify(playlistService).playPlaylist(anyInt());
+    verify(playlistService, never()).playCurrentTrack(true);
+  }
 
-    @Test
-    public void shouldClickPlayPauseButtonWhenPlaying() {
-        when(mediaManager.isPlaying()).thenReturn(true);
+  @Test
+  void shouldClickPlayPauseButtonWhenPlaylistAndTrackSelected() {
+    Playlist playlist = mock(Playlist.class);
+    when(playlist.isEmpty()).thenReturn(false);
+    when(playlistService.getPlaylist(anyInt())).thenReturn(of(playlist));
+    when(playlistService.getSelectedTrack()).thenReturn(mock(Track.class));
 
-        clickOnNode("#playPauseButton");
+    clickOnNode("#playPauseButton");
 
-        verify(playlistManager, times(1)).pauseCurrentTrack();
-        verify(playlistManager, never()).resumeCurrentTrack();
-        verify(playlistManager, never()).playPlaylist(anyInt());
-        verify(playlistManager, never()).playCurrentTrack(true);
-    }
+    verify(playlistService, never()).pauseCurrentTrack();
+    verify(playlistService, never()).resumeCurrentTrack();
+    verify(playlistService, never()).playPlaylist(anyInt());
+    verify(playlistService).playCurrentTrack(true);
+  }
 
-    @Test
-    public void shouldClickPlayPauseButtonWhenPaused() {
-        when(mediaManager.isPaused()).thenReturn(true);
+  @Test
+  void shouldClickNextButton() {
+    clickOnNode("#nextButton");
 
-        clickOnNode("#playPauseButton");
+    verify(playlistService).playNextTrack(true);
+  }
 
-        verify(playlistManager, never()).pauseCurrentTrack();
-        verify(playlistManager, times(1)).resumeCurrentTrack();
-        verify(playlistManager, never()).playPlaylist(anyInt());
-        verify(playlistManager, never()).playCurrentTrack(true);
-    }
+  @ParameterizedTest
+  @MethodSource("getVolumeCombinations")
+  void shouldClickVolumeButton(boolean isMuted, String imageUrl) {
+    when(mediaService.isMuted()).thenReturn(isMuted);
 
-    @Test
-    public void shouldClickPlayPauseButtonWhenPlaylistSelected() {
-        Playlist playlist = mock(Playlist.class);
-        when(playlist.isEmpty()).thenReturn(false);
-        when(playlistManager.getPlaylist(anyInt())).thenReturn(of(playlist));
-        when(playlistManager.getSelectedTrack()).thenReturn(null);
-
-        clickOnNode("#playPauseButton");
-
-        verify(playlistManager, never()).pauseCurrentTrack();
-        verify(playlistManager, never()).resumeCurrentTrack();
-        verify(playlistManager, times(1)).playPlaylist(anyInt());
-        verify(playlistManager, never()).playCurrentTrack(true);
-    }
+    clickOnNode("#volumeButton");
 
-    @Test
-    public void shouldClickPlayPauseButtonWhenPlaylistAndTrackSelected() {
-        Playlist playlist = mock(Playlist.class);
-        when(playlist.isEmpty()).thenReturn(false);
-        when(playlistManager.getPlaylist(anyInt())).thenReturn(of(playlist));
-        when(playlistManager.getSelectedTrack()).thenReturn(mock(Track.class));
-
-        clickOnNode("#playPauseButton");
-
-        verify(playlistManager, never()).pauseCurrentTrack();
-        verify(playlistManager, never()).resumeCurrentTrack();
-        verify(playlistManager, never()).playPlaylist(anyInt());
-        verify(playlistManager, times(1)).playCurrentTrack(true);
-    }
+    verify(mediaService).setMuted();
 
-    @Test
-    public void shouldClickNextButton() {
-        clickOnNode("#nextButton");
+    Button volumeButton = find("#volumeButton");
+    assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + imageUrl + "')");
+  }
 
-        verify(playlistManager, times(1)).playNextTrack(true);
-    }
+  private static Stream<Arguments> getVolumeCombinations() {
+    return Stream.of(
+        Arguments.of(true, IMAGE_VOLUME_OFF),
+        Arguments.of(false, IMAGE_VOLUME_ON)
+    );
+  }
 
-    @Test
-    public void shouldClickVolumeButtonWhenMuted() {
-        when(mediaManager.isMuted()).thenReturn(true);
+  @ParameterizedTest
+  @MethodSource("getShuffleCombinations")
+  void shouldClickShuffleButton(boolean isShuffle, String imageUrl) {
+    when(playlistService.isShuffle()).thenReturn(isShuffle);
 
-        clickOnNode("#volumeButton");
+    clickOnNode("#shuffleButton");
 
-        verify(mediaManager, times(1)).setMuted();
+    verify(playlistService).setShuffle(!isShuffle, false);
 
-        Button volumeButton = find("#volumeButton");
-        assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_VOLUME_OFF + "')");
-    }
+    Button shuffleButton = find("#shuffleButton");
+    assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + imageUrl + "')");
+  }
 
-    @Test
-    public void shouldClickVolumeButtonWhenNotMuted() {
-        when(mediaManager.isMuted()).thenReturn(false);
+  private static Stream<Arguments> getShuffleCombinations() {
+    return Stream.of(
+        Arguments.of(true, IMAGE_SHUFFLE_ON),
+        Arguments.of(false, IMAGE_SHUFFLE_OFF)
+    );
+  }
 
-        clickOnNode("#volumeButton");
+  @ParameterizedTest
+  @MethodSource("getRepeatCombinations")
+  void shouldClickRepeatButton(Repeat repeat, String imageUrl) {
+    when(playlistService.getRepeat()).thenReturn(repeat);
 
-        verify(mediaManager, times(1)).setMuted();
+    clickOnNode("#repeatButton");
 
-        Button volumeButton = find("#volumeButton");
-        assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')");
-    }
+    verify(playlistService).updateRepeat();
 
-    @Test
-    public void shouldClickShuffleButtonWhenShuffled() {
-        when(playlistManager.isShuffle()).thenReturn(true);
+    Button repeatButton = find("#repeatButton");
+    assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + imageUrl + "')");
+  }
 
-        clickOnNode("#shuffleButton");
+  private static Stream<Arguments> getRepeatCombinations() {
+    return Stream.of(
+        Arguments.of(OFF, IMAGE_REPEAT_OFF),
+        Arguments.of(ONE, IMAGE_REPEAT_ONE),
+        Arguments.of(ALL, IMAGE_REPEAT_ALL)
+    );
+  }
 
-        verify(playlistManager, times(1)).setShuffle(false, false);
+  @Test
+  void shouldClickEqButton() {
+    clickOnNode("#eqButton");
 
-        Button shuffleButton = find("#shuffleButton");
-        assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_SHUFFLE_ON + "')");
-    }
+    verify(equalizerController).updateSliderValues();
+    verify(equalizerView).show(true);
+  }
 
-    @Test
-    public void shouldClickShuffleButtonWhenNotShuffled() {
-        when(playlistManager.isShuffle()).thenReturn(false);
+  @Test
+  void shouldClickRandomButtonWithYearFilter() {
+    String year = createYearString();
 
-        clickOnNode("#shuffleButton");
+    @SuppressWarnings("unchecked")
+    ComboBox<YearFilter> yearFilterComboBox = getNonNullField(underTest, "yearFilterComboBox", ComboBox.class);
+    yearFilterComboBox.getItems().add(new YearFilter(year, year));
 
-        verify(playlistManager, times(1)).setShuffle(true, false);
+    Platform.runLater(() -> yearFilterComboBox.getSelectionModel().select(0));
 
-        Button shuffleButton = find("#shuffleButton");
-        assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    public void shouldClickRepeatButtonWhenRepeatOff() {
-        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
+    @SuppressWarnings("unchecked")
+    List<Track> tracks = (List<Track>) mock(List.class);
 
-        clickOnNode("#repeatButton");
+    when(searchService.getShuffledPlaylist(anyInt(), anyString())).thenReturn(tracks);
 
-        verify(playlistManager, times(1)).updateRepeat();
+    clickOnNode("#randomButton");
 
-        Button repeatButton = find("#repeatButton");
-        assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
-    }
+    verify(searchService).getShuffledPlaylist(applicationProperties.getShuffledPlaylistSize(), year);
+    verify(playlistService).setPlaylistTracks(PLAYLIST_ID_SEARCH, tracks);
+    verify(playlistService).playPlaylist(PLAYLIST_ID_SEARCH);
+  }
 
-    @Test
-    public void shouldClickRepeatButtonWhenRepeatOne() {
-        when(playlistManager.getRepeat()).thenReturn(Repeat.ONE);
+  @Test
+  void shouldClickRandomButtonWithNoYearFilter() {
+    String year = createYearString();
 
-        clickOnNode("#repeatButton");
+    @SuppressWarnings("unchecked")
+    ComboBox<YearFilter> yearFilterComboBox = getNonNullField(underTest, "yearFilterComboBox", ComboBox.class);
+    yearFilterComboBox.getItems().add(new YearFilter(year, year));
 
-        verify(playlistManager, times(1)).updateRepeat();
+    Platform.runLater(() -> yearFilterComboBox.getSelectionModel().clearSelection());
 
-        Button repeatButton = find("#repeatButton");
-        assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_ONE + "')");
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    public void shouldClickRepeatButtonWhenRepeatAll() {
-        when(playlistManager.getRepeat()).thenReturn(Repeat.ALL);
+    @SuppressWarnings("unchecked")
+    List<Track> tracks = (List<Track>) mock(List.class);
 
-        clickOnNode("#repeatButton");
+    when(searchService.getShuffledPlaylist(applicationProperties.getShuffledPlaylistSize(), null)).thenReturn(tracks);
 
-        verify(playlistManager, times(1)).updateRepeat();
+    clickOnNode("#randomButton");
 
-        Button repeatButton = find("#repeatButton");
-        assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_ALL + "')");
-    }
+    verify(searchService).getShuffledPlaylist(applicationProperties.getShuffledPlaylistSize(), null);
+    verify(playlistService).setPlaylistTracks(PLAYLIST_ID_SEARCH, tracks);
+    verify(playlistService).playPlaylist(PLAYLIST_ID_SEARCH);
+  }
 
-    @Test
-    public void shouldClickEqButton() {
-        clickOnNode("#eqButton");
+  @Test
+  void shouldFirePlaylistSelected() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-        verify(equalizerController, times(1)).updateSliderValues();
-        verify(equalizerView, times(1)).show(true);
-    }
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10));
+      playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10));
+    });
 
-    @Test
-    @SneakyThrows
-    public void shouldClickRandomButtonWithYearFilter() {
-        @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
-        yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
+    WaitForAsyncUtils.waitForFxEvents();
 
-        threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().select(0));
+    assertThat(playlistPanelListView.getItems()).hasSize(2);
 
-        WaitForAsyncUtils.waitForFxEvents();
+    Platform.runLater(() -> playlistPanelListView.getSelectionModel().select(1));
 
-        @SuppressWarnings("unchecked")
-        List<Track> tracks = (List<Track>) mock(List.class);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        when(searchManager.getShuffledPlaylist(anyInt(), anyString())).thenReturn(tracks);
+    verify(eventProcessor).fireEvent(PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
+  }
 
-        clickOnNode("#randomButton");
+  ///////////////////////////
+  // Keyboard Interactions //
+  ///////////////////////////
 
-        verify(searchManager, times(1)).getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), "2000");
-        verify(playlistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, tracks);
-        verify(playlistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
-    }
+  @Test
+  @SneakyThrows
+  void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithBackSpace() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Playlist playlist = new Playlist(1, createPlaylistName(), 10);
 
-    @Test
-    @SneakyThrows
-    public void shouldClickRandomButtonWithNoYearFilter() {
-        @SuppressWarnings("unchecked")
-        ComboBox<YearFilter> yearFilterComboBox = (ComboBox<YearFilter>) getNonNullField(underTest, "yearFilterComboBox");
-        yearFilterComboBox.getItems().add(new YearFilter("2000", "2000"));
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(playlist);
+      playlistPanelListView.getSelectionModel().select(0);
+    });
 
-        threadRunner.runOnGui(() -> yearFilterComboBox.getSelectionModel().clearSelection());
+    WaitForAsyncUtils.waitForFxEvents();
 
-        WaitForAsyncUtils.waitForFxEvents();
+    playlistPanelListView.onKeyPressedProperty().get().handle(createKeyEvent(KEY_PRESSED, BACK_SPACE));
 
-        @SuppressWarnings("unchecked")
-        List<Track> tracks = (List<Track>) mock(List.class);
+    // Wait for the UI thread
+    Thread.sleep(250);
 
-        when(searchManager.getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), null)).thenReturn(tracks);
+    ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
-        clickOnNode("#randomButton");
+    verify(confirmView).setMessage(stringResourceService.getString(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
+    verify(confirmView).setRunnables(okRunnable.capture(), any());
+    verify(confirmView).show(anyBoolean());
 
-        verify(searchManager, times(1)).getShuffledPlaylist(appProperties.getShuffledPlaylistSize(), null);
-        verify(playlistManager, times(1)).setPlaylistTracks(PLAYLIST_ID_SEARCH, tracks);
-        verify(playlistManager, times(1)).playPlaylist(PLAYLIST_ID_SEARCH);
-    }
+    okRunnable.getValue().run();
 
-    @Test
-    @SneakyThrows
-    public void shouldFirePlaylistSelected() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    verify(playlistService).deletePlaylist(playlist.getPlaylistId());
+  }
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_SEARCH, "Search Playlist", 10));
-            playlistPanelListView.getItems().add(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites Playlist", 10));
-        });
+  @Test
+  @SneakyThrows
+  void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithDelete() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Playlist playlist = new Playlist(1, createPlaylistName(), 10);
 
-        WaitForAsyncUtils.waitForFxEvents();
+    Platform.runLater(() -> {
+      playlistPanelListView.getItems().add(playlist);
+      playlistPanelListView.getSelectionModel().select(0);
+    });
 
-        assertThat(playlistPanelListView.getItems()).hasSize(2);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        threadRunner.runOnGui(() -> playlistPanelListView.getSelectionModel().select(1));
+    playlistPanelListView.onKeyPressedProperty().get().handle(createKeyEvent(KEY_PRESSED, DELETE));
 
-        WaitForAsyncUtils.waitForFxEvents();
+    // Wait for the UI thread
+    Thread.sleep(250);
 
-        verify(getMockEventManager(), times(1)).fireEvent(PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
-    }
+    ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveApplicationInitialised() {
-        find("#yearFilterComboBox").setDisable(true);
-        find("#searchTextField").setDisable(true);
-        find("#addPlaylistButton").setDisable(true);
-        find("#deletePlaylistButton").setDisable(true);
-        find("#importPlaylistButton").setDisable(true);
-        find("#exportPlaylistButton").setDisable(true);
-        find("#settingsButton").setDisable(true);
-        find("#timeSlider").setDisable(true);
-        find("#volumeButton").setDisable(true);
-        find("#volumeSlider").setDisable(true);
-        find("#shuffleButton").setDisable(true);
-        find("#repeatButton").setDisable(true);
-        find("#eqButton").setDisable(true);
-        find("#randomButton").setDisable(true);
-
-        List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
-                new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
-        when(playlistManager.getPlaylists()).thenReturn(playlists);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
-        when(playlistManager.isShuffle()).thenReturn(false);
-        when(mediaManager.isMuted()).thenReturn(false);
-        when(searchManager.getYearList()).thenReturn(null);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(Event.APPLICATION_INITIALISED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
-        YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
-        assertThat(yearFilterComboBox.getItems()).hasSize(1);
-        assertThat(yearFilter.getYear()).isNull();
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(underTest, "observablePlaylists");
-        assertThat(observablePlaylists).hasSize(2);
-
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        assertThat(playlistPanelListView.getSelectionModel().getSelectedIndex()).isEqualTo(0);
-        assertThat(playlistPanelListView.getFocusModel().getFocusedIndex()).isEqualTo(0);
-
-        Button volumeButton = find("#volumeButton");
-        assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')");
-
-        Button shuffleButton = find("#shuffleButton");
-        assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
-
-        Button repeatButton = find("#repeatButton");
-        assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
-
-        assertThat(find("#yearFilterComboBox").isDisabled()).isFalse();
-        assertThat(find("#searchTextField").isDisabled()).isFalse();
-        assertThat(find("#addPlaylistButton").isDisabled()).isFalse();
-        assertThat(find("#deletePlaylistButton").isDisabled()).isFalse();
-        assertThat(find("#importPlaylistButton").isDisabled()).isFalse();
-        assertThat(find("#exportPlaylistButton").isDisabled()).isFalse();
-        assertThat(find("#settingsButton").isDisabled()).isFalse();
-        assertThat(find("#timeSlider").isDisabled()).isFalse();
-        assertThat(find("#volumeButton").isDisabled()).isFalse();
-        assertThat(find("#volumeSlider").isDisabled()).isFalse();
-        assertThat(find("#shuffleButton").isDisabled()).isFalse();
-        assertThat(find("#repeatButton").isDisabled()).isFalse();
-        assertThat(find("#eqButton").isDisabled()).isFalse();
-        assertThat(find("#randomButton").isDisabled()).isFalse();
-    }
+    verify(confirmView).setMessage(stringResourceService.getString(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
+    verify(confirmView).setRunnables(okRunnable.capture(), any());
+    verify(confirmView).show(anyBoolean());
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveApplicationInitialisedWithEmptyYearList() {
-        List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
-                new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
-        when(playlistManager.getPlaylists()).thenReturn(playlists);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
-        when(playlistManager.isShuffle()).thenReturn(false);
-        when(mediaManager.isMuted()).thenReturn(false);
-        when(searchManager.getYearList()).thenReturn(Collections.emptyList());
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(Event.APPLICATION_INITIALISED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
-        YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
-        assertThat(yearFilterComboBox.getItems()).hasSize(1);
-        assertThat(yearFilter.getYear()).isNull();
-    }
+    okRunnable.getValue().run();
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveApplicationInitialisedWithYearList() {
-        List<Playlist> playlists = Arrays.asList(new Playlist(PLAYLIST_ID_SEARCH, "Search", 10),
-                new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10));
-        when(playlistManager.getPlaylists()).thenReturn(playlists);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
-        when(playlistManager.isShuffle()).thenReturn(false);
-        when(mediaManager.isMuted()).thenReturn(false);
-        when(searchManager.getYearList()).thenReturn(Arrays.asList("2000", "2001"));
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(Event.APPLICATION_INITIALISED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
-        YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
-        assertThat(yearFilterComboBox.getItems()).hasSize(3);
-        assertThat(yearFilter.getYear()).isNull();
-    }
+    verify(playlistService).deletePlaylist(playlist.getPlaylistId());
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveApplicationInitialisedWithNoPlaylists() {
-        when(playlistManager.getPlaylists()).thenReturn(Collections.emptyList());
-        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
-        when(playlistManager.isShuffle()).thenReturn(false);
-        when(mediaManager.isMuted()).thenReturn(false);
-        when(searchManager.getYearList()).thenReturn(null);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(Event.APPLICATION_INITIALISED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getField(underTest, "observablePlaylists");
-        assertThat(observablePlaylists).isEmpty();
-    }
+  @Test
+  @SneakyThrows
+  void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithUnknownKey() {
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveDataIndexed() {
-        threadRunner.runOnGui(() -> underTest.eventReceived(Event.DATA_INDEXED));
+    playlistPanelListView.onKeyPressedProperty().get().handle(createKeyEvent(KEY_PRESSED, A));
 
-        WaitForAsyncUtils.waitForFxEvents();
+    // Wait for the UI thread
+    Thread.sleep(250);
 
-        verify(underTest, times(1)).updateYearFilter();
-    }
+    verify(confirmView, never()).show(anyBoolean());
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveNewUpdateAvailable() {
-        Button newVersionButton = find("#newVersionButton");
-        Version version = new Version("99.99.99");
+  //////////////////////
+  // Event Processing //
+  //////////////////////
 
-        threadRunner.runOnGui(() -> {
-            newVersionButton.setText(null);
-            newVersionButton.setDisable(true);
-            newVersionButton.setVisible(false);
+  @Test
+  void shouldReceiveApplicationInitialised() {
+    find("#yearFilterComboBox").setDisable(true);
+    find("#searchTextField").setDisable(true);
+    find("#addPlaylistButton").setDisable(true);
+    find("#deletePlaylistButton").setDisable(true);
+    find("#importPlaylistButton").setDisable(true);
+    find("#exportPlaylistButton").setDisable(true);
+    find("#settingsButton").setDisable(true);
+    find("#timeSlider").setDisable(true);
+    find("#volumeButton").setDisable(true);
+    find("#volumeSlider").setDisable(true);
+    find("#shuffleButton").setDisable(true);
+    find("#repeatButton").setDisable(true);
+    find("#eqButton").setDisable(true);
+    find("#randomButton").setDisable(true);
 
-            underTest.eventReceived(Event.NEW_VERSION_AVAILABLE, version);
-        });
+    List<Playlist> playlists = List.of(
+        new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10),
+        new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10)
+    );
+    when(playlistService.getPlaylists()).thenReturn(playlists);
+    when(playlistService.getRepeat()).thenReturn(OFF);
+    when(playlistService.isShuffle()).thenReturn(false);
+    when(mediaService.isMuted()).thenReturn(false);
+    when(searchService.getYearList()).thenReturn(null);
 
-        WaitForAsyncUtils.waitForFxEvents();
+    Platform.runLater(() -> underTest.eventReceived(APPLICATION_INITIALISED));
 
-        assertThat(newVersionButton.getText()).isEqualTo(messageManager.getMessage(MESSAGE_NEW_VERSION_AVAILABLE, version));
-        assertThat(newVersionButton.isDisabled()).isFalse();
-        assertThat(newVersionButton.isVisible()).isTrue();
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveMuteUpdated() {
-        threadRunner.runOnGui(() -> underTest.eventReceived(Event.MUTE_UPDATED));
+    ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
+    YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
+    assertThat(yearFilterComboBox.getItems()).hasSize(1);
+    assertThat(yearFilter.year()).isNull();
 
-        WaitForAsyncUtils.waitForFxEvents();
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getField(underTest, "observablePlaylists", ObservableList.class);
+    assertThat(observablePlaylists).hasSize(2);
 
-        verify(underTest, times(1)).setVolumeButtonImage();
-    }
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    assertThat(playlistPanelListView.getSelectionModel().getSelectedIndex()).isEqualTo(0);
+    assertThat(playlistPanelListView.getFocusModel().getFocusedIndex()).isEqualTo(0);
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTimeUpdated() {
-        Duration mediaDuration = new Duration(30000);
-        Duration currentTime = new Duration(15000);
-        SliderProgressBar timeSlider = find("#timeSlider");
-        Label playTimeLabel = find("#playTimeLabel");
-
-        threadRunner.runOnGui(() -> {
-            timeSlider.setDisable(true);
-            playTimeLabel.setText(null);
-
-            underTest.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(timeSlider.isDisabled()).isFalse();
-        assertThat(timeSlider.getSliderValue()).isEqualTo(50.0d);
-        assertThat(playTimeLabel.getText()).isEqualTo("00:15/00:30");
-    }
+    Button volumeButton = find("#volumeButton");
+    assertThat(volumeButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_VOLUME_ON + "')");
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTimeUpdatedMediaDurationUnknown() {
-        Duration mediaDuration = Duration.UNKNOWN;
-        Duration currentTime = new Duration(15000);
-        SliderProgressBar timeSlider = find("#timeSlider");
-        Label playTimeLabel = find("#playTimeLabel");
-
-        threadRunner.runOnGui(() -> {
-            timeSlider.setDisable(false);
-            playTimeLabel.setText(null);
-
-            underTest.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(timeSlider.isDisabled()).isTrue();
-        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
-        assertThat(playTimeLabel.getText()).isEqualTo("00:15");
-    }
+    Button shuffleButton = find("#shuffleButton");
+    assertThat(shuffleButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_SHUFFLE_OFF + "')");
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTimeUpdatedZeroMediaDuration() {
-        Duration mediaDuration = Duration.ZERO;
-        Duration currentTime = new Duration(15000);
-        SliderProgressBar timeSlider = find("#timeSlider");
-        Label playTimeLabel = find("#playTimeLabel");
-
-        threadRunner.runOnGui(() -> {
-            timeSlider.setDisable(false);
-            playTimeLabel.setText(null);
-
-            underTest.eventReceived(Event.TIME_UPDATED, mediaDuration, currentTime);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(timeSlider.isDisabled()).isFalse();
-        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
-        assertThat(playTimeLabel.getText()).isEqualTo("00:15");
-    }
+    Button repeatButton = find("#repeatButton");
+    assertThat(repeatButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_REPEAT_OFF + "')");
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveBufferUpdated() {
-        Duration mediaDuration = new Duration(30000);
-        Duration bufferProgressTime = new Duration(15000);
-        SliderProgressBar timeSlider = find("#timeSlider");
+    assertThat(find("#yearFilterComboBox").isDisabled()).isFalse();
+    assertThat(find("#searchTextField").isDisabled()).isFalse();
+    assertThat(find("#addPlaylistButton").isDisabled()).isFalse();
+    assertThat(find("#deletePlaylistButton").isDisabled()).isFalse();
+    assertThat(find("#importPlaylistButton").isDisabled()).isFalse();
+    assertThat(find("#exportPlaylistButton").isDisabled()).isFalse();
+    assertThat(find("#settingsButton").isDisabled()).isFalse();
+    assertThat(find("#timeSlider").isDisabled()).isFalse();
+    assertThat(find("#volumeButton").isDisabled()).isFalse();
+    assertThat(find("#volumeSlider").isDisabled()).isFalse();
+    assertThat(find("#shuffleButton").isDisabled()).isFalse();
+    assertThat(find("#repeatButton").isDisabled()).isFalse();
+    assertThat(find("#eqButton").isDisabled()).isFalse();
+    assertThat(find("#randomButton").isDisabled()).isFalse();
+  }
 
-        threadRunner.runOnGui(() -> {
-            timeSlider.setProgressValue(0);
+  @Test
+  void shouldReceiveApplicationInitialisedWithEmptyYearList() {
+    List<Playlist> playlists = List.of(
+        new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10),
+        new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10)
+    );
+    when(playlistService.getPlaylists()).thenReturn(playlists);
+    when(playlistService.getRepeat()).thenReturn(OFF);
+    when(playlistService.isShuffle()).thenReturn(false);
+    when(mediaService.isMuted()).thenReturn(false);
+    when(searchService.getYearList()).thenReturn(emptyList());
 
-            underTest.eventReceived(Event.BUFFER_UPDATED, mediaDuration, bufferProgressTime);
-        });
+    Platform.runLater(() -> underTest.eventReceived(APPLICATION_INITIALISED));
 
-        WaitForAsyncUtils.waitForFxEvents();
+    WaitForAsyncUtils.waitForFxEvents();
 
-        assertThat(timeSlider.getProgressValue()).isEqualTo(0.5d);
-    }
+    ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
+    YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
+    assertThat(yearFilterComboBox.getItems()).hasSize(1);
+    assertThat(yearFilter.year()).isNull();
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveBufferUpdatedWithNullMediaDuration() {
-        Duration bufferProgressTime = new Duration(15000);
-        SliderProgressBar timeSlider = find("#timeSlider");
+  @Test
+  void shouldReceiveApplicationInitialisedWithYearList() {
+    List<Playlist> playlists = List.of(
+        new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10),
+        new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10)
+    );
+    when(playlistService.getPlaylists()).thenReturn(playlists);
+    when(playlistService.getRepeat()).thenReturn(OFF);
+    when(playlistService.isShuffle()).thenReturn(false);
+    when(mediaService.isMuted()).thenReturn(false);
+    when(searchService.getYearList()).thenReturn(List.of(createYearString(), createYearString()));
 
-        threadRunner.runOnGui(() -> {
-            timeSlider.setProgressValue(0);
+    Platform.runLater(() -> underTest.eventReceived(APPLICATION_INITIALISED));
 
-            underTest.eventReceived(Event.BUFFER_UPDATED, null, bufferProgressTime);
-        });
+    WaitForAsyncUtils.waitForFxEvents();
 
-        WaitForAsyncUtils.waitForFxEvents();
+    ComboBox<YearFilter> yearFilterComboBox = find("#yearFilterComboBox");
+    YearFilter yearFilter = yearFilterComboBox.getSelectionModel().getSelectedItem();
+    assertThat(yearFilterComboBox.getItems()).hasSize(3);
+    assertThat(yearFilter.year()).isNull();
+  }
 
-        assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
-    }
+  @Test
+  void shouldReceiveApplicationInitialisedWithNoPlaylists() {
+    when(playlistService.getPlaylists()).thenReturn(emptyList());
+    when(playlistService.getRepeat()).thenReturn(OFF);
+    when(playlistService.isShuffle()).thenReturn(false);
+    when(mediaService.isMuted()).thenReturn(false);
+    when(searchService.getYearList()).thenReturn(null);
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveBufferUpdatedWithNullBufferProgressTime() {
-        Duration mediaDuration = new Duration(30000);
-        SliderProgressBar timeSlider = find("#timeSlider");
+    Platform.runLater(() -> underTest.eventReceived(APPLICATION_INITIALISED));
 
-        threadRunner.runOnGui(() -> {
-            timeSlider.setProgressValue(0);
+    WaitForAsyncUtils.waitForFxEvents();
 
-            underTest.eventReceived(Event.BUFFER_UPDATED, mediaDuration, null);
-        });
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getField(underTest, "observablePlaylists", ObservableList.class);
+    assertThat(observablePlaylists).isEmpty();
+  }
 
-        WaitForAsyncUtils.waitForFxEvents();
+  @Test
+  void shouldReceiveDataIndexed() {
+    Platform.runLater(() -> underTest.eventReceived(DATA_INDEXED));
 
-        assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveMediaPlaying() {
-        Button playPauseButton = find("#playPauseButton");
-        Button previousButton = find("#previousButton");
-        Button nextButton = find("#nextButton");
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setStyle(null);
-            playPauseButton.setDisable(true);
-            previousButton.setDisable(true);
-            nextButton.setDisable(true);
-
-            underTest.eventReceived(Event.MEDIA_PLAYING);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PAUSE + "')");
-        assertThat(playPauseButton.isDisabled()).isFalse();
-        assertThat(previousButton.isDisabled()).isFalse();
-        assertThat(nextButton.isDisabled()).isFalse();
-    }
+    verify(underTest).updateYearFilter();
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveMediaPaused() {
-        Button playPauseButton = find("#playPauseButton");
-        Button previousButton = find("#previousButton");
-        Button nextButton = find("#nextButton");
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setStyle(null);
-            playPauseButton.setDisable(true);
-            previousButton.setDisable(false);
-            nextButton.setDisable(false);
-
-            underTest.eventReceived(Event.MEDIA_PAUSED);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
-        assertThat(playPauseButton.isDisabled()).isFalse();
-        assertThat(previousButton.isDisabled()).isTrue();
-        assertThat(nextButton.isDisabled()).isTrue();
-    }
+  @Test
+  void shouldReceiveNewVersionAvailable() {
+    Button newVersionButton = find("#newVersionButton");
+    Version version = createVersion();
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveMediaStopped() {
-        Button playPauseButton = find("#playPauseButton");
-        Button previousButton = find("#previousButton");
-        Button nextButton = find("#nextButton");
-        SliderProgressBar timeSlider = find("#timeSlider");
-        Label playTimeLabel = find("#playTimeLabel");
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setStyle(null);
-            playPauseButton.setDisable(false);
-            previousButton.setDisable(false);
-            nextButton.setDisable(false);
-            timeSlider.setSliderValue(99);
-            timeSlider.setProgressValue(99);
-            playTimeLabel.setText(null);
-
-            underTest.eventReceived(Event.MEDIA_STOPPED);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
-        assertThat(playPauseButton.isDisabled()).isFalse();
-        assertThat(previousButton.isDisabled()).isTrue();
-        assertThat(nextButton.isDisabled()).isTrue();
-        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
-        assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
-        assertThat(playTimeLabel.getText()).isEqualTo("00:00/00:00");
-    }
+    Platform.runLater(() -> {
+      newVersionButton.setText(null);
+      newVersionButton.setDisable(true);
+      newVersionButton.setVisible(false);
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveEndOfMedia() {
-        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
-
-        Button playPauseButton = find("#playPauseButton");
-        Button previousButton = find("#previousButton");
-        Button nextButton = find("#nextButton");
-        SliderProgressBar timeSlider = find("#timeSlider");
-        Label playTimeLabel = find("#playTimeLabel");
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setStyle(null);
-            playPauseButton.setDisable(false);
-            previousButton.setDisable(false);
-            nextButton.setDisable(false);
-            timeSlider.setSliderValue(99);
-            timeSlider.setProgressValue(99);
-            playTimeLabel.setText(null);
-
-            underTest.eventReceived(Event.END_OF_MEDIA);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
-        assertThat(playPauseButton.isDisabled()).isFalse();
-        assertThat(previousButton.isDisabled()).isTrue();
-        assertThat(nextButton.isDisabled()).isTrue();
-        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
-        assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
-        assertThat(playTimeLabel.getText()).isEqualTo("00:00/00:00");
-    }
+      underTest.eventReceived(NEW_VERSION_AVAILABLE, version);
+    });
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveEndOfMediaWithRepeatOne() {
-        when(playlistManager.getRepeat()).thenReturn(Repeat.ONE);
-
-        Button playPauseButton = find("#playPauseButton");
-        Button previousButton = find("#previousButton");
-        Button nextButton = find("#nextButton");
-        SliderProgressBar timeSlider = find("#timeSlider");
-        Label playTimeLabel = find("#playTimeLabel");
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setStyle(null);
-            playPauseButton.setDisable(false);
-            previousButton.setDisable(false);
-            nextButton.setDisable(false);
-            timeSlider.setSliderValue(99);
-            timeSlider.setProgressValue(99);
-            playTimeLabel.setText(null);
-
-            underTest.eventReceived(Event.END_OF_MEDIA);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
-        assertThat(playPauseButton.isDisabled()).isFalse();
-        assertThat(previousButton.isDisabled()).isTrue();
-        assertThat(nextButton.isDisabled()).isTrue();
-        assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
-        assertThat(timeSlider.getProgressValue()).isEqualTo(0.99d);
-        assertThat(playTimeLabel.getText()).isEqualTo("00:00/00:00");
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistSelected() {
-        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
-
-        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
-        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
-
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Button playPauseButton = find("#playPauseButton");
-
-        threadRunner.runOnGui(() -> {
-            observablePlaylists.add(search);
-            observablePlaylists.add(favourites);
-            playlistPanelListView.getSelectionModel().clearSelection();
-            playlistPanelListView.getFocusModel().focus(-1);
-            playPauseButton.setDisable(false);
-
-            underTest.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
-
-        verify(underTest, never()).updateObservablePlaylists();
-        verify(playlistManager, times(1)).clearSelectedTrack();
-
-        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
-        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
-        assertThat(playPauseButton.isDisabled()).isTrue();
-    }
+    assertThat(newVersionButton.getText()).isEqualTo(stringResourceService.getString(MESSAGE_NEW_VERSION_AVAILABLE, version));
+    assertThat(newVersionButton.isDisabled()).isFalse();
+    assertThat(newVersionButton.isVisible()).isTrue();
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistSelectedWithNullPayload() {
-        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
-
-        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
-        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
-
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Button playPauseButton = find("#playPauseButton");
-
-        threadRunner.runOnGui(() -> {
-            observablePlaylists.add(search);
-            observablePlaylists.add(favourites);
-            playlistPanelListView.getSelectionModel().clearSelection();
-            playlistPanelListView.getFocusModel().focus(-1);
-            playPauseButton.setDisable(false);
-
-            underTest.eventReceived(Event.PLAYLIST_SELECTED, (Object[]) null);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
-
-        verify(underTest, never()).updateObservablePlaylists();
-        verify(playlistManager, never()).clearSelectedTrack();
-
-        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isNull();
-        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isNull();
-        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
-        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_SEARCH);
-        assertThat(playPauseButton.isDisabled()).isFalse();
-    }
+  @Test
+  void shouldReceiveMuteUpdated() {
+    Platform.runLater(() -> underTest.eventReceived(MUTE_UPDATED));
 
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistSelectedWithEmptyPayload() {
-        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
-
-        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
-        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
-
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Button playPauseButton = find("#playPauseButton");
-
-        threadRunner.runOnGui(() -> {
-            observablePlaylists.add(search);
-            observablePlaylists.add(favourites);
-            playlistPanelListView.getSelectionModel().clearSelection();
-            playlistPanelListView.getFocusModel().focus(-1);
-            playPauseButton.setDisable(false);
-
-            underTest.eventReceived(Event.PLAYLIST_SELECTED);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
-
-        verify(underTest, never()).updateObservablePlaylists();
-        verify(playlistManager, never()).clearSelectedTrack();
-
-        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isNull();
-        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isNull();
-        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
-        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_SEARCH);
-        assertThat(playPauseButton.isDisabled()).isFalse();
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistSelectedExistingPlaylist() {
-        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
-
-        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
-        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
-
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Button playPauseButton = find("#playPauseButton");
-
-        threadRunner.runOnGui(() -> {
-            observablePlaylists.add(search);
-            observablePlaylists.add(favourites);
-            playlistPanelListView.getSelectionModel().clearSelection();
-            playlistPanelListView.getFocusModel().focus(-1);
-            playPauseButton.setDisable(false);
-
-            underTest.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
-
-        verify(underTest, never()).updateObservablePlaylists();
-        verify(playlistManager, never()).clearSelectedTrack();
-
-        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(search);
-        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(search);
-        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
-        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_SEARCH);
-        assertThat(playPauseButton.isDisabled()).isTrue();
-    }
+    verify(underTest).setVolumeButtonImage();
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistSelectedPlaylistIsNotEmpty() {
-        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
-
-        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
-        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        favourites.addTrack(mock(Track.class));
-        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
-
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Button playPauseButton = find("#playPauseButton");
-
-        threadRunner.runOnGui(() -> {
-            observablePlaylists.add(search);
-            observablePlaylists.add(favourites);
-            playlistPanelListView.getSelectionModel().clearSelection();
-            playlistPanelListView.getFocusModel().focus(-1);
-            playPauseButton.setDisable(true);
-
-            underTest.eventReceived(Event.PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
-
-        verify(underTest, never()).updateObservablePlaylists();
-        verify(playlistManager, times(1)).clearSelectedTrack();
-
-        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
-        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
-        assertThat(playPauseButton.isDisabled()).isFalse();
-    }
+  @Test
+  void shouldReceiveTimeUpdated() {
+    Duration mediaDuration = new Duration(30000);
+    Duration currentTime = new Duration(15000);
+    SliderProgressBar timeSlider = find("#timeSlider");
+    Label playTimeLabel = find("#playTimeLabel");
 
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistDeleted() {
-        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
-
-        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
-        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
-
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Button playPauseButton = find("#playPauseButton");
-
-        threadRunner.runOnGui(() -> {
-            observablePlaylists.add(search);
-            observablePlaylists.add(favourites);
-            playlistPanelListView.getSelectionModel().clearSelection();
-            playlistPanelListView.getFocusModel().focus(-1);
-            playPauseButton.setDisable(false);
-
-            underTest.eventReceived(Event.PLAYLIST_DELETED, PLAYLIST_ID_FAVOURITES);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
-
-        verify(underTest, times(1)).updateObservablePlaylists();
-        verify(playlistManager, times(1)).clearSelectedTrack();
-
-        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
-        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
-        assertThat(playPauseButton.isDisabled()).isTrue();
-    }
+    Platform.runLater(() -> {
+      timeSlider.setDisable(true);
+      playTimeLabel.setText(null);
 
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistCreatedWithEdit() {
-        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
-
-        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
-        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
-
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Button playPauseButton = find("#playPauseButton");
-
-        threadRunner.runOnGui(() -> {
-            observablePlaylists.add(search);
-            observablePlaylists.add(favourites);
-            playlistPanelListView.getSelectionModel().clearSelection();
-            playlistPanelListView.getFocusModel().focus(-1);
-            playPauseButton.setDisable(false);
-
-            underTest.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, true);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
-
-        verify(underTest, times(1)).updateObservablePlaylists();
-        verify(playlistManager, times(1)).clearSelectedTrack();
-
-        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(1);
-        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
-        assertThat(playPauseButton.isDisabled()).isTrue();
-    }
+      underTest.eventReceived(TIME_UPDATED, mediaDuration, currentTime);
+    });
 
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistCreatedWithoutEdit() {
-        setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
-
-        Playlist search = new Playlist(PLAYLIST_ID_SEARCH, "Search", 10);
-        Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10);
-        when(playlistManager.getPlaylists()).thenReturn(Arrays.asList(search, favourites));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
-        when(playlistManager.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-
-        @SuppressWarnings("unchecked")
-        ObservableList<Playlist> observablePlaylists = (ObservableList<Playlist>) getNonNullField(underTest, "observablePlaylists");
-
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Button playPauseButton = find("#playPauseButton");
-
-        threadRunner.runOnGui(() -> {
-            observablePlaylists.add(search);
-            observablePlaylists.add(favourites);
-            playlistPanelListView.getSelectionModel().clearSelection();
-            playlistPanelListView.getFocusModel().focus(-1);
-            playPauseButton.setDisable(false);
-
-            underTest.eventReceived(Event.PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, false);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        int currentSelectedPlaylistId = (Integer) getNonNullField(underTest, "currentSelectedPlaylistId");
-
-        verify(underTest, times(1)).updateObservablePlaylists();
-        verify(playlistManager, times(1)).clearSelectedTrack();
-
-        assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
-        assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
-        assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
-        assertThat(playPauseButton.isDisabled()).isTrue();
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTrackSelected() {
-        Button playPauseButton = find("#playPauseButton");
+    assertThat(timeSlider.isDisabled()).isFalse();
+    assertThat(timeSlider.getSliderValue()).isEqualTo(50.0d);
+    assertThat(playTimeLabel.getText()).isEqualTo("00:15/00:30");
+  }
 
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setDisable(true);
+  @Test
+  void shouldReceiveTimeUpdatedMediaDurationUnknown() {
+    Duration mediaDuration = Duration.UNKNOWN;
+    Duration currentTime = new Duration(15000);
+    SliderProgressBar timeSlider = find("#timeSlider");
+    Label playTimeLabel = find("#playTimeLabel");
 
-            underTest.eventReceived(Event.TRACK_SELECTED);
-        });
+    Platform.runLater(() -> {
+      timeSlider.setDisable(false);
+      playTimeLabel.setText(null);
 
-        WaitForAsyncUtils.waitForFxEvents();
+      underTest.eventReceived(TIME_UPDATED, mediaDuration, currentTime);
+    });
 
-        assertThat(playPauseButton.isDisabled()).isFalse();
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTrackQueuedForPlaying() {
-        Button playPauseButton = find("#playPauseButton");
-        ImageView playingImageView = find("#playingImageView");
-        Label playingTrackLabel = find("#playingTrackLabel");
-        Label playingAlbumLabel = find("#playingAlbumLabel");
-        Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = generateTrack(1);
-
-        String albumImageUrl = "http://www.example.com/image.png";
-        Image albumImage = new Image(albumImageUrl);
-
-        when(cacheManager.constructInternalUrl(any(), anyString(), anyString()))
-                .thenReturn(albumImageUrl);
-        doAnswer(invocation -> {
-            ImageView imageView = invocation.getArgument(0);
-            imageView.setImage(albumImage);
-
-            return null;
-        }).when(imageFactory).loadImage(playingImageView, albumImageUrl);
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setDisable(false);
-            playingImageView.setImage(null);
-            playingTrackLabel.setText(null);
-            playingAlbumLabel.setText(null);
-            playingArtistLabel.setText(null);
-
-            underTest.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, track);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(playingTrackLabel.getText()).isEqualTo(track.getTrackName());
-        assertThat(playingAlbumLabel.getText()).isEqualTo(track.getAlbumName());
-        assertThat(playingArtistLabel.getText()).isEqualTo(track.getArtistName());
-        assertThat(playingImageView.getImage()).isNotNull();
-        assertThat(playPauseButton.isDisabled()).isTrue();
-
-        verify(nativeManager, times(1)).displayNotification(track);
-        verify(imageFactory, times(1)).loadImage(playingImageView, albumImageUrl);
-    }
+    assertThat(timeSlider.isDisabled()).isTrue();
+    assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+    assertThat(playTimeLabel.getText()).isEqualTo("00:15");
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTrackQueuedForPlayingNullPayload() {
-        Button playPauseButton = find("#playPauseButton");
-        ImageView playingImageView = find("#playingImageView");
-        Label playingTrackLabel = find("#playingTrackLabel");
-        Label playingAlbumLabel = find("#playingAlbumLabel");
-        Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = generateTrack(1);
-
-        when(cacheManager.constructInternalUrl(any(), anyString(), anyString()))
-                .thenReturn("http://www.example.com/image.png");
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setDisable(false);
-            playingImageView.setImage(null);
-            playingTrackLabel.setText(null);
-            playingAlbumLabel.setText(null);
-            playingArtistLabel.setText(null);
-
-            underTest.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING, (Object[]) null);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(playingTrackLabel.getText()).isNull();
-        assertThat(playingAlbumLabel.getText()).isNull();
-        assertThat(playingArtistLabel.getText()).isNull();
-        assertThat(playingImageView.getImage()).isNull();
-        assertThat(playPauseButton.isDisabled()).isFalse();
-
-        verify(nativeManager, never()).displayNotification(track);
-    }
+  @Test
+  void shouldReceiveTimeUpdatedZeroMediaDuration() {
+    Duration mediaDuration = Duration.ZERO;
+    Duration currentTime = new Duration(15000);
+    SliderProgressBar timeSlider = find("#timeSlider");
+    Label playTimeLabel = find("#playTimeLabel");
 
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTrackQueuedForPlayingEmptyPayload() {
-        Button playPauseButton = find("#playPauseButton");
-        ImageView playingImageView = find("#playingImageView");
-        Label playingTrackLabel = find("#playingTrackLabel");
-        Label playingAlbumLabel = find("#playingAlbumLabel");
-        Label playingArtistLabel = find("#playingArtistLabel");
-        Track track = generateTrack(1);
-
-        when(cacheManager.constructInternalUrl(any(), anyString(), anyString()))
-                .thenReturn("http://www.example.com/image.png");
-
-        threadRunner.runOnGui(() -> {
-            playPauseButton.setDisable(false);
-            playingImageView.setImage(null);
-            playingTrackLabel.setText(null);
-            playingAlbumLabel.setText(null);
-            playingArtistLabel.setText(null);
-
-            underTest.eventReceived(Event.TRACK_QUEUED_FOR_PLAYING);
-        });
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(playingTrackLabel.getText()).isNull();
-        assertThat(playingAlbumLabel.getText()).isNull();
-        assertThat(playingArtistLabel.getText()).isNull();
-        assertThat(playingImageView.getImage()).isNull();
-        assertThat(playPauseButton.isDisabled()).isFalse();
-
-        verify(nativeManager, never()).displayNotification(track);
-    }
+    Platform.runLater(() -> {
+      timeSlider.setDisable(false);
+      playTimeLabel.setText(null);
 
-    @Test
-    @SneakyThrows
-    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithBackSpace() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Playlist playlist = new Playlist(1, "Playlist 1", 10);
+      underTest.eventReceived(TIME_UPDATED, mediaDuration, currentTime);
+    });
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(playlist);
-            playlistPanelListView.getSelectionModel().select(0);
-        });
+    WaitForAsyncUtils.waitForFxEvents();
 
-        WaitForAsyncUtils.waitForFxEvents();
+    assertThat(timeSlider.isDisabled()).isFalse();
+    assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+    assertThat(playTimeLabel.getText()).isEqualTo("00:15");
+  }
 
-        playlistPanelListView.onKeyPressedProperty().get()
-                .handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.BACK_SPACE));
+  @Test
+  void shouldReceiveBufferUpdated() {
+    Duration mediaDuration = new Duration(30000);
+    Duration bufferProgressTime = new Duration(15000);
+    SliderProgressBar timeSlider = find("#timeSlider");
 
-        // Wait for the UI thread
-        Thread.sleep(250);
+    Platform.runLater(() -> {
+      timeSlider.setProgressValue(0);
 
-        ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
+      underTest.eventReceived(BUFFER_UPDATED, mediaDuration, bufferProgressTime);
+    });
 
-        verify(confirmView, times(1))
-                .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
-        verify(confirmView, times(1)).setRunnables(okRunnable.capture(), any());
-        verify(confirmView, times(1)).show(anyBoolean());
+    WaitForAsyncUtils.waitForFxEvents();
 
-        okRunnable.getValue().run();
+    assertThat(timeSlider.getProgressValue()).isEqualTo(0.5d);
+  }
 
-        verify(playlistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
-    }
+  @Test
+  void shouldReceiveBufferUpdatedWithNullMediaDuration() {
+    Duration bufferProgressTime = new Duration(15000);
+    SliderProgressBar timeSlider = find("#timeSlider");
 
-    @Test
-    @SneakyThrows
-    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithDelete() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
-        Playlist playlist = new Playlist(1, "Playlist 1", 10);
+    Platform.runLater(() -> {
+      timeSlider.setProgressValue(0);
 
-        threadRunner.runOnGui(() -> {
-            playlistPanelListView.getItems().add(playlist);
-            playlistPanelListView.getSelectionModel().select(0);
-        });
+      underTest.eventReceived(BUFFER_UPDATED, null, bufferProgressTime);
+    });
 
-        WaitForAsyncUtils.waitForFxEvents();
+    WaitForAsyncUtils.waitForFxEvents();
 
-        playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.DELETE));
+    assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
+  }
 
-        // Wait for the UI thread
-        Thread.sleep(250);
+  @Test
+  void shouldReceiveBufferUpdatedWithNullBufferProgressTime() {
+    Duration mediaDuration = new Duration(30000);
+    SliderProgressBar timeSlider = find("#timeSlider");
 
-        ArgumentCaptor<Runnable> okRunnable = ArgumentCaptor.forClass(Runnable.class);
+    Platform.runLater(() -> {
+      timeSlider.setProgressValue(0);
 
-        verify(confirmView, times(1))
-                .setMessage(messageManager.getMessage(MESSAGE_PLAYLIST_DELETE_ARE_YOU_SURE, playlist.getName()));
-        verify(confirmView, times(1)).setRunnables(okRunnable.capture(), any());
-        verify(confirmView, times(1)).show(anyBoolean());
+      underTest.eventReceived(BUFFER_UPDATED, mediaDuration, null);
+    });
 
-        okRunnable.getValue().run();
+    WaitForAsyncUtils.waitForFxEvents();
 
-        verify(playlistManager, times(1)).deletePlaylist(playlist.getPlaylistId());
-    }
+    assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldTriggerOnKeyPressedOnPlaylistPanelListViewWithUnknownKey() {
-        ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+  @Test
+  void shouldReceiveMediaPlaying() {
+    Button playPauseButton = find("#playPauseButton");
+    Button previousButton = find("#previousButton");
+    Button nextButton = find("#nextButton");
 
-        playlistPanelListView.onKeyPressedProperty().get().handle(getKeyEvent(KeyEvent.KEY_PRESSED, KeyCode.A));
+    Platform.runLater(() -> {
+      playPauseButton.setStyle(null);
+      playPauseButton.setDisable(true);
+      previousButton.setDisable(true);
+      nextButton.setDisable(true);
 
-        // Wait for the UI thread
-        Thread.sleep(250);
+      underTest.eventReceived(MEDIA_PLAYING);
+    });
 
-        verify(confirmView, never()).show(anyBoolean());
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    public void shouldReceiveMenuFileImportPlaylist() {
-        doNothing().when(underTest).handleImportPlaylistButtonAction();
+    assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PAUSE + "')");
+    assertThat(playPauseButton.isDisabled()).isFalse();
+    assertThat(previousButton.isDisabled()).isFalse();
+    assertThat(nextButton.isDisabled()).isFalse();
+  }
 
-        underTest.eventReceived(MENU_FILE_IMPORT_PLAYLIST);
+  @Test
+  void shouldReceiveMediaPaused() {
+    Button playPauseButton = find("#playPauseButton");
+    Button previousButton = find("#previousButton");
+    Button nextButton = find("#nextButton");
 
-        verify(underTest, times(1)).handleImportPlaylistButtonAction();
-    }
+    Platform.runLater(() -> {
+      playPauseButton.setStyle(null);
+      playPauseButton.setDisable(true);
+      previousButton.setDisable(false);
+      nextButton.setDisable(false);
 
-    @Test
-    public void shouldReceiveMenuFileExportPlaylist() {
-        doNothing().when(underTest).handleExportPlaylistButtonAction();
+      underTest.eventReceived(MEDIA_PAUSED);
+    });
 
-        underTest.eventReceived(MENU_FILE_EXPORT_PLAYLIST);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        verify(underTest, times(1)).handleExportPlaylistButtonAction();
-    }
+    assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
+    assertThat(playPauseButton.isDisabled()).isFalse();
+    assertThat(previousButton.isDisabled()).isTrue();
+    assertThat(nextButton.isDisabled()).isTrue();
+  }
 
-    @Test
-    public void shouldReceiveMenuFileSettings() {
-        doNothing().when(underTest).handleSettingsButtonAction();
+  @Test
+  void shouldReceiveMediaStopped() {
+    Button playPauseButton = find("#playPauseButton");
+    Button previousButton = find("#previousButton");
+    Button nextButton = find("#nextButton");
+    SliderProgressBar timeSlider = find("#timeSlider");
+    Label playTimeLabel = find("#playTimeLabel");
 
-        underTest.eventReceived(MENU_FILE_SETTINGS);
+    Platform.runLater(() -> {
+      playPauseButton.setStyle(null);
+      playPauseButton.setDisable(false);
+      previousButton.setDisable(false);
+      nextButton.setDisable(false);
+      timeSlider.setSliderValue(99);
+      timeSlider.setProgressValue(99);
+      playTimeLabel.setText(null);
 
-        verify(underTest, times(1)).handleSettingsButtonAction();
-    }
+      underTest.eventReceived(MEDIA_STOPPED);
+    });
 
-    @Test
-    public void shouldReceiveMenuEditAddPlaylist() {
-        doNothing().when(underTest).handleAddPlaylistButtonAction();
+    WaitForAsyncUtils.waitForFxEvents();
 
-        underTest.eventReceived(MENU_EDIT_ADD_PLAYLIST);
+    assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
+    assertThat(playPauseButton.isDisabled()).isFalse();
+    assertThat(previousButton.isDisabled()).isTrue();
+    assertThat(nextButton.isDisabled()).isTrue();
+    assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+    assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
+    assertThat(playTimeLabel.getText()).isEqualTo("00:00/00:00");
+  }
 
-        verify(underTest, times(1)).handleAddPlaylistButtonAction();
-    }
+  @Test
+  void shouldReceiveEndOfMedia() {
+    when(playlistService.getRepeat()).thenReturn(OFF);
 
-    @Test
-    public void shouldReceiveMenuEditDeletePlaylist() {
-        doNothing().when(underTest).handleDeletePlaylistButtonAction();
+    Button playPauseButton = find("#playPauseButton");
+    Button previousButton = find("#previousButton");
+    Button nextButton = find("#nextButton");
+    SliderProgressBar timeSlider = find("#timeSlider");
+    Label playTimeLabel = find("#playTimeLabel");
 
-        underTest.eventReceived(MENU_EDIT_DELETE_PLAYLIST);
+    Platform.runLater(() -> {
+      playPauseButton.setStyle(null);
+      playPauseButton.setDisable(false);
+      previousButton.setDisable(false);
+      nextButton.setDisable(false);
+      timeSlider.setSliderValue(99);
+      timeSlider.setProgressValue(99);
+      playTimeLabel.setText(null);
 
-        verify(underTest, times(1)).handleDeletePlaylistButtonAction();
-    }
+      underTest.eventReceived(END_OF_MEDIA);
+    });
 
-    @Test
-    public void shouldReceiveEditCreatePlaylistFromAlbumWithSelectedTrack() {
-        Track mockTrack = mock(Track.class);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        when(trackTableController.getSelectedTrack()).thenReturn(mockTrack);
+    assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
+    assertThat(playPauseButton.isDisabled()).isFalse();
+    assertThat(previousButton.isDisabled()).isTrue();
+    assertThat(nextButton.isDisabled()).isTrue();
+    assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+    assertThat(timeSlider.getProgressValue()).isEqualTo(0.0d);
+    assertThat(playTimeLabel.getText()).isEqualTo("00:00/00:00");
+  }
 
-        underTest.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
+  @Test
+  void shouldReceiveEndOfMediaWithRepeatOne() {
+    when(playlistService.getRepeat()).thenReturn(ONE);
 
-        verify(playlistManager, times(1)).createPlaylistFromAlbum(mockTrack);
-    }
+    Button playPauseButton = find("#playPauseButton");
+    Button previousButton = find("#previousButton");
+    Button nextButton = find("#nextButton");
+    SliderProgressBar timeSlider = find("#timeSlider");
+    Label playTimeLabel = find("#playTimeLabel");
 
-    @Test
-    public void shouldReceiveEditCreatePlaylistFromAlbumWithoutSelectedTrack() {
-        when(trackTableController.getSelectedTrack()).thenReturn(null);
+    Platform.runLater(() -> {
+      playPauseButton.setStyle(null);
+      playPauseButton.setDisable(false);
+      previousButton.setDisable(false);
+      nextButton.setDisable(false);
+      timeSlider.setSliderValue(99);
+      timeSlider.setProgressValue(99);
+      playTimeLabel.setText(null);
 
-        underTest.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
+      underTest.eventReceived(END_OF_MEDIA);
+    });
 
-        verify(playlistManager, never()).createPlaylistFromAlbum(any());
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    public void shouldReceiveMenuEditRandomPlaylist() {
-        doNothing().when(underTest).handleRandomButtonAction();
+    assertThat(playPauseButton.getStyle()).isEqualTo("-fx-background-image: url('" + IMAGE_PLAY + "')");
+    assertThat(playPauseButton.isDisabled()).isFalse();
+    assertThat(previousButton.isDisabled()).isTrue();
+    assertThat(nextButton.isDisabled()).isTrue();
+    assertThat(timeSlider.getSliderValue()).isEqualTo(0.0d);
+    assertThat(timeSlider.getProgressValue()).isEqualTo(0.99d);
+    assertThat(playTimeLabel.getText()).isEqualTo("00:00/00:00");
+  }
 
-        underTest.eventReceived(MENU_EDIT_RANDOM_PLAYLIST);
+  @Test
+  void shouldReceivePlaylistSelected() {
+    setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
-        verify(underTest, times(1)).handleRandomButtonAction();
-    }
+    Playlist search = new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10);
+    Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10);
+    when(playlistService.getPlaylists()).thenReturn(List.of(search, favourites));
+    when(playlistService.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+    when(playlistService.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
 
-    @Test
-    public void shouldReceiveMenuControlsPlayPause() {
-        doNothing().when(underTest).handlePlayPauseButtonAction();
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getNonNullField(underTest, "observablePlaylists", ObservableList.class);
 
-        underTest.eventReceived(MENU_CONTROLS_PLAY_PAUSE);
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Button playPauseButton = find("#playPauseButton");
 
-        verify(underTest, times(1)).handlePlayPauseButtonAction();
-    }
+    Platform.runLater(() -> {
+      observablePlaylists.add(search);
+      observablePlaylists.add(favourites);
+      playlistPanelListView.getSelectionModel().clearSelection();
+      playlistPanelListView.getFocusModel().focus(-1);
+      playPauseButton.setDisable(false);
 
-    @Test
-    public void shouldReceiveMenuControlsPrevious() {
-        doNothing().when(underTest).handlePreviousButtonAction();
+      underTest.eventReceived(PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
+    });
 
-        underTest.eventReceived(MENU_CONTROLS_PREVIOUS);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        verify(underTest, times(1)).handlePreviousButtonAction();
-    }
+    int currentSelectedPlaylistId = getNonNullField(underTest, "currentSelectedPlaylistId", Integer.class);
 
-    @Test
-    public void shouldReceiveMenuControlsNext() {
-        doNothing().when(underTest).handleNextButtonAction();
+    verify(underTest, never()).updateObservablePlaylists();
+    verify(playlistService).clearSelectedTrack();
 
-        underTest.eventReceived(MENU_CONTROLS_NEXT);
+    assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+    assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+    assertThat(playPauseButton.isDisabled()).isTrue();
+  }
 
-        verify(underTest, times(1)).handleNextButtonAction();
-    }
+  @Test
+  void shouldReceivePlaylistSelectedWithNullPayload() {
+    setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
-    @Test
-    public void shouldReceiveMenuControlsShuffle() {
-        doNothing().when(underTest).setShuffleButtonImage();
+    Playlist search = new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10);
+    Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10);
+    when(playlistService.getPlaylists()).thenReturn(List.of(search, favourites));
+    when(playlistService.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+    when(playlistService.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
 
-        underTest.eventReceived(MENU_CONTROLS_SHUFFLE);
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getNonNullField(underTest, "observablePlaylists", ObservableList.class);
 
-        verify(underTest, times(1)).setShuffleButtonImage();
-    }
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Button playPauseButton = find("#playPauseButton");
 
-    @Test
-    public void shouldReceiveMenuControlsRepeat() {
-        doNothing().when(underTest).setRepeatButtonImage();
+    Platform.runLater(() -> {
+      observablePlaylists.add(search);
+      observablePlaylists.add(favourites);
+      playlistPanelListView.getSelectionModel().clearSelection();
+      playlistPanelListView.getFocusModel().focus(-1);
+      playPauseButton.setDisable(false);
 
-        underTest.eventReceived(MENU_CONTROLS_REPEAT);
+      underTest.eventReceived(PLAYLIST_SELECTED, (Object[]) null);
+    });
 
-        verify(underTest, times(1)).setRepeatButtonImage();
-    }
+    WaitForAsyncUtils.waitForFxEvents();
 
-    @Test
-    public void shouldReceiveMenuControlsVolumeUpWithPayload() {
-        Slider volumeSlider = find("#volumeSlider");
-        volumeSlider.setValue(10d);
+    int currentSelectedPlaylistId = getNonNullField(underTest, "currentSelectedPlaylistId", Integer.class);
 
-        underTest.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
+    verify(underTest, never()).updateObservablePlaylists();
+    verify(playlistService, never()).clearSelectedTrack();
 
-        assertThat(volumeSlider.getValue()).isEqualTo(20d);
-        verify(mediaManager, times(1)).setVolumePercent(20d);
-    }
+    assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isNull();
+    assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isNull();
+    assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+    assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_SEARCH);
+    assertThat(playPauseButton.isDisabled()).isFalse();
+  }
 
-    @Test
-    public void shouldReceiveMenuControlsVolumeUpWithPayloadOver100() {
-        Slider volumeSlider = find("#volumeSlider");
-        volumeSlider.setValue(95d);
+  @Test
+  void shouldReceivePlaylistSelectedWithEmptyPayload() {
+    setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
-        underTest.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
+    Playlist search = new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10);
+    Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10);
+    when(playlistService.getPlaylists()).thenReturn(List.of(search, favourites));
+    when(playlistService.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+    when(playlistService.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
 
-        assertThat(volumeSlider.getValue()).isEqualTo(100d);
-        verify(mediaManager, times(1)).setVolumePercent(100d);
-    }
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getNonNullField(underTest, "observablePlaylists", ObservableList.class);
 
-    @Test
-    public void shouldReceiveMenuControlsVolumeUpWithoutPayload() {
-        Slider volumeSlider = find("#volumeSlider");
-        volumeSlider.setValue(10d);
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Button playPauseButton = find("#playPauseButton");
 
-        underTest.eventReceived(MENU_CONTROLS_VOLUME_UP);
+    Platform.runLater(() -> {
+      observablePlaylists.add(search);
+      observablePlaylists.add(favourites);
+      playlistPanelListView.getSelectionModel().clearSelection();
+      playlistPanelListView.getFocusModel().focus(-1);
+      playPauseButton.setDisable(false);
 
-        assertThat(volumeSlider.getValue()).isEqualTo(10d);
-        verify(mediaManager, never()).setVolumePercent(anyDouble());
-    }
+      underTest.eventReceived(PLAYLIST_SELECTED);
+    });
 
-    @Test
-    public void shouldReceiveMenuControlsVolumeDownWithPayload() {
-        Slider volumeSlider = find("#volumeSlider");
-        volumeSlider.setValue(90d);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        underTest.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
+    int currentSelectedPlaylistId = getNonNullField(underTest, "currentSelectedPlaylistId", Integer.class);
 
-        assertThat(volumeSlider.getValue()).isEqualTo(80d);
-        verify(mediaManager, times(1)).setVolumePercent(80d);
-    }
+    verify(underTest, never()).updateObservablePlaylists();
+    verify(playlistService, never()).clearSelectedTrack();
 
-    @Test
-    public void shouldReceiveMenuControlsVolumeDownWithPayloadBelowZero() {
-        Slider volumeSlider = find("#volumeSlider");
-        volumeSlider.setValue(5d);
+    assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isNull();
+    assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isNull();
+    assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+    assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_SEARCH);
+    assertThat(playPauseButton.isDisabled()).isFalse();
+  }
 
-        underTest.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
+  @Test
+  void shouldReceivePlaylistSelectedExistingPlaylist() {
+    setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
-        assertThat(volumeSlider.getValue()).isEqualTo(0d);
-        verify(mediaManager, times(1)).setVolumePercent(0d);
-    }
+    Playlist search = new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10);
+    Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10);
+    when(playlistService.getPlaylists()).thenReturn(List.of(search, favourites));
+    when(playlistService.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+    when(playlistService.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
 
-    @Test
-    public void shouldReceiveMenuControlsVolumeDownWithoutPayload() {
-        Slider volumeSlider = find("#volumeSlider");
-        volumeSlider.setValue(10d);
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getNonNullField(underTest, "observablePlaylists", ObservableList.class);
 
-        underTest.eventReceived(MENU_CONTROLS_VOLUME_DOWN);
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Button playPauseButton = find("#playPauseButton");
 
-        assertThat(volumeSlider.getValue()).isEqualTo(10d);
-        verify(mediaManager, never()).setVolumePercent(anyDouble());
-    }
+    Platform.runLater(() -> {
+      observablePlaylists.add(search);
+      observablePlaylists.add(favourites);
+      playlistPanelListView.getSelectionModel().clearSelection();
+      playlistPanelListView.getFocusModel().focus(-1);
+      playPauseButton.setDisable(false);
 
-    @Test
-    public void shouldReceiveMenuControlsVolumeMute() {
-        doNothing().when(underTest).handleVolumeButtonAction();
+      underTest.eventReceived(PLAYLIST_SELECTED, PLAYLIST_ID_SEARCH);
+    });
 
-        underTest.eventReceived(MENU_CONTROLS_VOLUME_MUTE);
+    WaitForAsyncUtils.waitForFxEvents();
 
-        verify(underTest, times(1)).handleVolumeButtonAction();
-    }
+    int currentSelectedPlaylistId = getNonNullField(underTest, "currentSelectedPlaylistId", Integer.class);
 
-    @Test
-    public void shouldReceiveMenuViewEqualizer() {
-        doNothing().when(underTest).handleEqButtonAction();
+    verify(underTest, never()).updateObservablePlaylists();
+    verify(playlistService, never()).clearSelectedTrack();
 
-        underTest.eventReceived(MENU_VIEW_EQUALIZER);
+    assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(search);
+    assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(search);
+    assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+    assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_SEARCH);
+    assertThat(playPauseButton.isDisabled()).isTrue();
+  }
 
-        verify(underTest, times(1)).handleEqButtonAction();
-    }
+  @Test
+  void shouldReceivePlaylistSelectedPlaylistIsNotEmpty() {
+    setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
 
-    @After
-    public void cleanup() {
-        setField(GuiState.class, "stage", existingStage);
-    }
+    Playlist search = new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10);
+    Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10);
+    favourites.addTrack(mock(Track.class));
+    when(playlistService.getPlaylists()).thenReturn(List.of(search, favourites));
+    when(playlistService.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+    when(playlistService.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
+
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getNonNullField(underTest, "observablePlaylists", ObservableList.class);
+
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Button playPauseButton = find("#playPauseButton");
+
+    Platform.runLater(() -> {
+      observablePlaylists.add(search);
+      observablePlaylists.add(favourites);
+      playlistPanelListView.getSelectionModel().clearSelection();
+      playlistPanelListView.getFocusModel().focus(-1);
+      playPauseButton.setDisable(true);
+
+      underTest.eventReceived(PLAYLIST_SELECTED, PLAYLIST_ID_FAVOURITES);
+    });
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    int currentSelectedPlaylistId = getNonNullField(underTest, "currentSelectedPlaylistId", Integer.class);
+
+    verify(underTest, never()).updateObservablePlaylists();
+    verify(playlistService).clearSelectedTrack();
+
+    assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+    assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+    assertThat(playPauseButton.isDisabled()).isFalse();
+  }
+
+  @Test
+  void shouldReceivePlaylistCreatedWithEdit() {
+    setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+
+    Playlist search = new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10);
+    Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10);
+    when(playlistService.getPlaylists()).thenReturn(List.of(search, favourites));
+    when(playlistService.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+    when(playlistService.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
+
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getNonNullField(underTest, "observablePlaylists", ObservableList.class);
+
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Button playPauseButton = find("#playPauseButton");
+
+    Platform.runLater(() -> {
+      observablePlaylists.add(search);
+      observablePlaylists.add(favourites);
+      playlistPanelListView.getSelectionModel().clearSelection();
+      playlistPanelListView.getFocusModel().focus(-1);
+      playPauseButton.setDisable(false);
+
+      underTest.eventReceived(PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, true);
+    });
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    int currentSelectedPlaylistId = getNonNullField(underTest, "currentSelectedPlaylistId", Integer.class);
+
+    verify(underTest).updateObservablePlaylists();
+    verify(playlistService).clearSelectedTrack();
+
+    assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(1);
+    assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+    assertThat(playPauseButton.isDisabled()).isTrue();
+  }
+
+  @Test
+  void shouldReceivePlaylistCreatedWithoutEdit() {
+    setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+
+    Playlist search = new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10);
+    Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10);
+    when(playlistService.getPlaylists()).thenReturn(List.of(search, favourites));
+    when(playlistService.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+    when(playlistService.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
+
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getNonNullField(underTest, "observablePlaylists", ObservableList.class);
+
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Button playPauseButton = find("#playPauseButton");
+
+    Platform.runLater(() -> {
+      observablePlaylists.add(search);
+      observablePlaylists.add(favourites);
+      playlistPanelListView.getSelectionModel().clearSelection();
+      playlistPanelListView.getFocusModel().focus(-1);
+      playPauseButton.setDisable(false);
+
+      underTest.eventReceived(PLAYLIST_CREATED, PLAYLIST_ID_FAVOURITES, false);
+    });
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    int currentSelectedPlaylistId = getNonNullField(underTest, "currentSelectedPlaylistId", Integer.class);
+
+    verify(underTest).updateObservablePlaylists();
+    verify(playlistService).clearSelectedTrack();
+
+    assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+    assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+    assertThat(playPauseButton.isDisabled()).isTrue();
+  }
+
+  @Test
+  void shouldReceivePlaylistDeleted() {
+    setField(underTest, "currentSelectedPlaylistId", PLAYLIST_ID_SEARCH);
+
+    Playlist search = new Playlist(PLAYLIST_ID_SEARCH, createPlaylistName(), 10);
+    Playlist favourites = new Playlist(PLAYLIST_ID_FAVOURITES, createPlaylistName(), 10);
+    when(playlistService.getPlaylists()).thenReturn(List.of(search, favourites));
+    when(playlistService.getPlaylist(PLAYLIST_ID_SEARCH)).thenReturn(of(search));
+    when(playlistService.getPlaylist(PLAYLIST_ID_FAVOURITES)).thenReturn(of(favourites));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
+
+    @SuppressWarnings("unchecked")
+    ObservableList<Playlist> observablePlaylists = getNonNullField(underTest, "observablePlaylists", ObservableList.class);
+
+    ListView<Playlist> playlistPanelListView = find("#playlistPanelListView");
+    Button playPauseButton = find("#playPauseButton");
+
+    Platform.runLater(() -> {
+      observablePlaylists.add(search);
+      observablePlaylists.add(favourites);
+      playlistPanelListView.getSelectionModel().clearSelection();
+      playlistPanelListView.getFocusModel().focus(-1);
+      playPauseButton.setDisable(false);
+
+      underTest.eventReceived(PLAYLIST_DELETED, PLAYLIST_ID_FAVOURITES);
+    });
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    int currentSelectedPlaylistId = getNonNullField(underTest, "currentSelectedPlaylistId", Integer.class);
+
+    verify(underTest).updateObservablePlaylists();
+    verify(playlistService).clearSelectedTrack();
+
+    assertThat(playlistPanelListView.getSelectionModel().getSelectedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getFocusModel().getFocusedItem()).isEqualTo(favourites);
+    assertThat(playlistPanelListView.getEditingIndex()).isEqualTo(-1);
+    assertThat(currentSelectedPlaylistId).isEqualTo(PLAYLIST_ID_FAVOURITES);
+    assertThat(playPauseButton.isDisabled()).isTrue();
+  }
+
+  @Test
+  void shouldReceiveTrackSelected() {
+    Button playPauseButton = find("#playPauseButton");
+
+    Platform.runLater(() -> {
+      playPauseButton.setDisable(true);
+
+      underTest.eventReceived(TRACK_SELECTED);
+    });
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(playPauseButton.isDisabled()).isFalse();
+  }
+
+  @Test
+  void shouldReceiveTrackQueuedForPlaying() {
+    Button playPauseButton = find("#playPauseButton");
+    ImageView playingImageView = find("#playingImageView");
+    Label playingTrackLabel = find("#playingTrackLabel");
+    Label playingAlbumLabel = find("#playingAlbumLabel");
+    Label playingArtistLabel = find("#playingArtistLabel");
+    Track track = createTrack(1);
+
+    String albumImageUrl = "http://www.example.com/image.png";
+    Image albumImage = new Image(albumImageUrl);
+
+    when(cacheService.constructInternalUrl(any(), anyString(), anyString())).thenReturn(albumImageUrl);
+    doAnswer(invocation -> {
+      ImageView imageView = invocation.getArgument(0);
+      imageView.setImage(albumImage);
+
+      return null;
+    }).when(imageFactory).loadImage(playingImageView, albumImageUrl);
+
+    Platform.runLater(() -> {
+      playPauseButton.setDisable(false);
+      playingImageView.setImage(null);
+      playingTrackLabel.setText(null);
+      playingAlbumLabel.setText(null);
+      playingArtistLabel.setText(null);
+
+      underTest.eventReceived(TRACK_QUEUED_FOR_PLAYING, track);
+    });
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(playingTrackLabel.getText()).isEqualTo(track.getTrackName());
+    assertThat(playingAlbumLabel.getText()).isEqualTo(track.getAlbumName());
+    assertThat(playingArtistLabel.getText()).isEqualTo(track.getArtistName());
+    assertThat(playingImageView.getImage()).isNotNull();
+    assertThat(playPauseButton.isDisabled()).isTrue();
+
+    verify(nativeService).displayNotification(track);
+    verify(imageFactory).loadImage(playingImageView, albumImageUrl);
+  }
+
+  @Test
+  void shouldReceiveTrackQueuedForPlayingNullPayload() {
+    Button playPauseButton = find("#playPauseButton");
+    ImageView playingImageView = find("#playingImageView");
+    Label playingTrackLabel = find("#playingTrackLabel");
+    Label playingAlbumLabel = find("#playingAlbumLabel");
+    Label playingArtistLabel = find("#playingArtistLabel");
+    Track track = createTrack(1);
+
+    when(cacheService.constructInternalUrl(any(), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
+
+    Platform.runLater(() -> {
+      playPauseButton.setDisable(false);
+      playingImageView.setImage(null);
+      playingTrackLabel.setText(null);
+      playingAlbumLabel.setText(null);
+      playingArtistLabel.setText(null);
+
+      underTest.eventReceived(TRACK_QUEUED_FOR_PLAYING, (Object[]) null);
+    });
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(playingTrackLabel.getText()).isNull();
+    assertThat(playingAlbumLabel.getText()).isNull();
+    assertThat(playingArtistLabel.getText()).isNull();
+    assertThat(playingImageView.getImage()).isNull();
+    assertThat(playPauseButton.isDisabled()).isFalse();
+
+    verify(nativeService, never()).displayNotification(track);
+  }
+
+  @Test
+  void shouldReceiveTrackQueuedForPlayingEmptyPayload() {
+    Button playPauseButton = find("#playPauseButton");
+    ImageView playingImageView = find("#playingImageView");
+    Label playingTrackLabel = find("#playingTrackLabel");
+    Label playingAlbumLabel = find("#playingAlbumLabel");
+    Label playingArtistLabel = find("#playingArtistLabel");
+    Track track = createTrack(1);
+
+    when(cacheService.constructInternalUrl(any(), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
+
+    Platform.runLater(() -> {
+      playPauseButton.setDisable(false);
+      playingImageView.setImage(null);
+      playingTrackLabel.setText(null);
+      playingAlbumLabel.setText(null);
+      playingArtistLabel.setText(null);
+
+      underTest.eventReceived(TRACK_QUEUED_FOR_PLAYING);
+    });
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(playingTrackLabel.getText()).isNull();
+    assertThat(playingAlbumLabel.getText()).isNull();
+    assertThat(playingArtistLabel.getText()).isNull();
+    assertThat(playingImageView.getImage()).isNull();
+    assertThat(playPauseButton.isDisabled()).isFalse();
+
+    verify(nativeService, never()).displayNotification(track);
+  }
+
+  @Test
+  void shouldReceiveMenuFileImportPlaylist() {
+    doNothing().when(underTest).handleImportPlaylistButtonAction();
+
+    underTest.eventReceived(MENU_FILE_IMPORT_PLAYLIST);
+
+    verify(underTest).handleImportPlaylistButtonAction();
+  }
+
+  @Test
+  void shouldReceiveMenuFileExportPlaylist() {
+    doNothing().when(underTest).handleExportPlaylistButtonAction();
+
+    underTest.eventReceived(MENU_FILE_EXPORT_PLAYLIST);
+
+    verify(underTest).handleExportPlaylistButtonAction();
+  }
+
+  @Test
+  void shouldReceiveMenuFileSettings() {
+    doNothing().when(underTest).handleSettingsButtonAction();
+
+    underTest.eventReceived(MENU_FILE_SETTINGS);
+
+    verify(underTest).handleSettingsButtonAction();
+  }
+
+  @Test
+  void shouldReceiveMenuEditAddPlaylist() {
+    doNothing().when(underTest).handleAddPlaylistButtonAction();
+
+    underTest.eventReceived(MENU_EDIT_ADD_PLAYLIST);
+
+    verify(underTest).handleAddPlaylistButtonAction();
+  }
+
+  @Test
+  void shouldReceiveMenuEditDeletePlaylist() {
+    doNothing().when(underTest).handleDeletePlaylistButtonAction();
+
+    underTest.eventReceived(MENU_EDIT_DELETE_PLAYLIST);
+
+    verify(underTest).handleDeletePlaylistButtonAction();
+  }
+
+  @Test
+  void shouldReceiveEditCreatePlaylistFromAlbumWithSelectedTrack() {
+    Track mockTrack = mock(Track.class);
+
+    when(trackTableController.getSelectedTrack()).thenReturn(mockTrack);
+
+    underTest.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
+
+    verify(playlistService).createPlaylistFromAlbum(mockTrack);
+  }
+
+  @Test
+  void shouldReceiveEditCreatePlaylistFromAlbumWithoutSelectedTrack() {
+    when(trackTableController.getSelectedTrack()).thenReturn(null);
+
+    underTest.eventReceived(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
+
+    verify(playlistService, never()).createPlaylistFromAlbum(any());
+  }
+
+  @Test
+  void shouldReceiveMenuEditRandomPlaylist() {
+    doNothing().when(underTest).handleRandomButtonAction();
+
+    underTest.eventReceived(MENU_EDIT_RANDOM_PLAYLIST);
+
+    verify(underTest).handleRandomButtonAction();
+  }
+
+  @Test
+  void shouldReceiveMenuControlsPlayPause() {
+    doNothing().when(underTest).handlePlayPauseButtonAction();
+
+    underTest.eventReceived(MENU_CONTROLS_PLAY_PAUSE);
+
+    verify(underTest).handlePlayPauseButtonAction();
+  }
+
+  @Test
+  void shouldReceiveMenuControlsPrevious() {
+    doNothing().when(underTest).handlePreviousButtonAction();
+
+    underTest.eventReceived(MENU_CONTROLS_PREVIOUS);
+
+    verify(underTest).handlePreviousButtonAction();
+  }
+
+  @Test
+  void shouldReceiveMenuControlsNext() {
+    doNothing().when(underTest).handleNextButtonAction();
+
+    underTest.eventReceived(MENU_CONTROLS_NEXT);
+
+    verify(underTest).handleNextButtonAction();
+  }
+
+  @Test
+  void shouldReceiveMenuControlsShuffle() {
+    doNothing().when(underTest).setShuffleButtonImage();
+
+    underTest.eventReceived(MENU_CONTROLS_SHUFFLE);
+
+    verify(underTest).setShuffleButtonImage();
+  }
+
+  @Test
+  void shouldReceiveMenuControlsRepeat() {
+    doNothing().when(underTest).setRepeatButtonImage();
+
+    underTest.eventReceived(MENU_CONTROLS_REPEAT);
+
+    verify(underTest).setRepeatButtonImage();
+  }
+
+  @Test
+  void shouldReceiveMenuControlsVolumeUpWithPayload() {
+    Slider volumeSlider = find("#volumeSlider");
+    volumeSlider.setValue(10d);
+
+    underTest.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
+
+    assertThat(volumeSlider.getValue()).isEqualTo(20d);
+    verify(mediaService).setVolumePercent(20d);
+  }
+
+  @Test
+  void shouldReceiveMenuControlsVolumeUpWithPayloadOver100() {
+    Slider volumeSlider = find("#volumeSlider");
+    volumeSlider.setValue(95d);
+
+    underTest.eventReceived(MENU_CONTROLS_VOLUME_UP, 10d);
+
+    assertThat(volumeSlider.getValue()).isEqualTo(100d);
+    verify(mediaService).setVolumePercent(100d);
+  }
+
+  @Test
+  void shouldReceiveMenuControlsVolumeUpWithoutPayload() {
+    Slider volumeSlider = find("#volumeSlider");
+    volumeSlider.setValue(10d);
+
+    underTest.eventReceived(MENU_CONTROLS_VOLUME_UP);
+
+    assertThat(volumeSlider.getValue()).isEqualTo(10d);
+    verify(mediaService, never()).setVolumePercent(anyDouble());
+  }
+
+  @Test
+  void shouldReceiveMenuControlsVolumeDownWithPayload() {
+    Slider volumeSlider = find("#volumeSlider");
+    volumeSlider.setValue(90d);
+
+    underTest.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
+
+    assertThat(volumeSlider.getValue()).isEqualTo(80d);
+    verify(mediaService).setVolumePercent(80d);
+  }
+
+  @Test
+  void shouldReceiveMenuControlsVolumeDownWithPayloadBelowZero() {
+    Slider volumeSlider = find("#volumeSlider");
+    volumeSlider.setValue(5d);
+
+    underTest.eventReceived(MENU_CONTROLS_VOLUME_DOWN, 10d);
+
+    assertThat(volumeSlider.getValue()).isEqualTo(0d);
+    verify(mediaService).setVolumePercent(0d);
+  }
+
+  @Test
+  void shouldReceiveMenuControlsVolumeDownWithoutPayload() {
+    Slider volumeSlider = find("#volumeSlider");
+    volumeSlider.setValue(10d);
+
+    underTest.eventReceived(MENU_CONTROLS_VOLUME_DOWN);
+
+    assertThat(volumeSlider.getValue()).isEqualTo(10d);
+    verify(mediaService, never()).setVolumePercent(anyDouble());
+  }
+
+  @Test
+  void shouldReceiveMenuControlsVolumeMute() {
+    doNothing().when(underTest).handleVolumeButtonAction();
+
+    underTest.eventReceived(MENU_CONTROLS_VOLUME_MUTE);
+
+    verify(underTest).handleVolumeButtonAction();
+  }
+
+  @Test
+  void shouldReceiveMenuViewEqualizer() {
+    doNothing().when(underTest).handleEqButtonAction();
+
+    underTest.eventReceived(MENU_VIEW_EQUALIZER);
+
+    verify(underTest).handleEqButtonAction();
+  }
 }

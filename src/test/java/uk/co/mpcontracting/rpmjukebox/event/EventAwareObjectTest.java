@@ -1,37 +1,76 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
-import lombok.SneakyThrows;
-import org.junit.Before;
-import org.junit.Test;
-import org.testfx.util.WaitForAsyncUtils;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractEventTest;
-
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.TEST_EVENT;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
 
-public class EventAwareObjectTest extends AbstractEventTest {
+import java.util.concurrent.Executors;
+import lombok.SneakyThrows;
+import lombok.Synchronized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.testfx.util.WaitForAsyncUtils;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-    private Event receivedEvent;
+class EventAwareObjectTest extends AbstractGuiTest {
 
-    @Before
-    public void setup() {
-        receivedEvent = null;
-    }
+  private EventProcessor testEventProcessor;
+  private EventAwareObject underTest;
 
-    @Test
-    @SneakyThrows
-    public void shouldFireAnEventOnAnEventAwareObject() {
-        EventAwareObject underTest = new EventAwareObject() {
-            @Override
-            public void eventReceived(Event event, Object... payload) {
-                receivedEvent = event;
-            }
-        };
+  private Event receivedEvent;
 
-        underTest.fireEvent(TEST_EVENT);
+  @BeforeEach
+  void beforeEach() {
+    testEventProcessor = spy(new EventProcessor(Executors.newSingleThreadScheduledExecutor()));
+    underTest = new EventAwareObject() {
+      @Override
+      @Synchronized
+      protected EventProcessor getEventProcessor() {
+        testEventProcessor.addEventListener(this);
 
-        WaitForAsyncUtils.waitForFxEvents();
+        return testEventProcessor;
+      }
 
-        assertThat(receivedEvent).isEqualTo(TEST_EVENT);
-    }
+      @Override
+      public void eventReceived(Event event, Object... payload) {
+        receivedEvent = event;
+      }
+    };
+
+    receivedEvent = null;
+  }
+
+  @Test
+  void shouldRunPostConstruct() {
+    setField(underTest, "eventProcessor", eventProcessor);
+
+    underTest.postConstruct();
+
+    verify(eventProcessor).addEventListener(underTest);
+  }
+
+  @Test
+  void shouldFireEventOnAnEventAwareObject() {
+    underTest.fireEvent(TEST_EVENT);
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(receivedEvent).isEqualTo(TEST_EVENT);
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldFireDelayedEventOnAnEventAwareObject() {
+    long delay = getFaker().number().numberBetween(100, 500);
+
+    underTest.fireDelayedEvent(TEST_EVENT, delay, MILLISECONDS);
+
+    Thread.sleep(delay * 2);
+
+    assertThat(receivedEvent).isEqualTo(TEST_EVENT);
+  }
 }

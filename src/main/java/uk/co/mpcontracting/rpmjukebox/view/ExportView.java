@@ -1,9 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
-import uk.co.mpcontracting.rpmjukebox.javafx.FXMLView;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.I18N_MESSAGE_BUNDLE;
 
-@FXMLView(value = "/fxml/export.fxml", bundle = Constants.I18N_MESSAGE_BUNDLE)
+import de.felixroske.jfxsupport.FXMLView;
+
+@FXMLView(value = "/fxml/export.fxml", bundle = I18N_MESSAGE_BUNDLE)
 public class ExportView extends AbstractModalView {
 
 }

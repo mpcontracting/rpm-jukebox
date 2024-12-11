@@ -1,47 +1,49 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import org.junit.Before;
-import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
 
-public class PercentageTableColumnTest extends AbstractGUITest {
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-    private PercentageTableColumn<String, String> underTest;
+class PercentageTableColumnTest extends AbstractGuiTest {
 
-    @Before
-    public void setup() {
-        underTest = new PercentageTableColumn<>();
-    }
+  private PercentageTableColumn<String, String> underTest;
 
-    @Test
-    public void shouldGetPercentageWidthProperty() {
-        assertThat(underTest.percentageWidthProperty()).isNotNull();
-    }
+  @BeforeEach
+  void beforeEach() {
+    underTest = new PercentageTableColumn<>();
+  }
 
-    @Test
-    public void shouldGetPercentageWidth() {
-        assertThat(underTest.getPercentageWidth()).isEqualTo(1.0d);
-    }
+  @Test
+  void shouldGetPercentageWidthProperty() {
+    assertThat(underTest.percentageWidthProperty()).isNotNull();
+  }
 
-    @Test
-    public void shouldSetPercentageWidth() {
-        underTest.setPercentageWidth(0.5);
+  @Test
+  void shouldGetPercentageWidth() {
+    assertThat(underTest.getPercentageWidth()).isEqualTo(1.0d);
+  }
 
-        assertThat(underTest.getPercentageWidth()).isEqualTo(0.5d);
-    }
+  @Test
+  void shouldSetPercentageWidth() {
+    double width = getFaker().number().randomDouble(1, 0, 1);
+    underTest.setPercentageWidth(width);
 
-    @Test
-    public void shouldFailToSetPercentageWidthLessThanZero() {
-        assertThatThrownBy(() -> underTest.setPercentageWidth(-0.1))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
+    assertThat(underTest.getPercentageWidth()).isEqualTo(width);
+  }
 
-    @Test
-    public void shouldFailToSetPercentageWidthGreaterThanOne() {
-        assertThatThrownBy(() -> underTest.setPercentageWidth(1.1))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
+  @Test
+  void shouldFailToSetPercentageWidthLessThanZero() {
+    assertThatThrownBy(() -> underTest.setPercentageWidth(-0.1))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void shouldFailToSetPercentageWidthGreaterThanOne() {
+    assertThatThrownBy(() -> underTest.setPercentageWidth(1.1))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
 }

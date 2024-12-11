@@ -1,56 +1,61 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import org.junit.Before;
-import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
 
-public class SliderProgressBarTest extends AbstractGUITest {
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-    private SliderProgressBar underTest;
+class SliderProgressBarTest extends AbstractGuiTest {
 
-    @Before
-    public void setup() {
-        underTest = new SliderProgressBar();
-    }
+  private SliderProgressBar underTest;
 
-    @Test
-    public void shouldGetSliderValueProperty() {
-        assertThat(underTest.sliderValueProperty()).isNotNull();
-    }
+  @BeforeEach
+  void beforeEach() {
+    underTest = new SliderProgressBar();
+  }
 
-    @Test
-    public void shouldGetSliderValueChangingProperty() {
-        assertThat(underTest.sliderValueChangingProperty()).isNotNull();
-    }
+  @Test
+  void shouldGetSliderValueProperty() {
+    assertThat(underTest.sliderValueProperty()).isNotNull();
+  }
 
-    @Test
-    public void shouldGetIsSliderValueChanging() {
-        assertThat(underTest.isSliderValueChanging()).isFalse();
-    }
+  @Test
+  void shouldGetSliderValueChangingProperty() {
+    assertThat(underTest.sliderValueChangingProperty()).isNotNull();
+  }
 
-    @Test
-    public void shouldGetSliderValue() {
-        assertThat(underTest.getSliderValue()).isEqualTo(0.0d);
-    }
+  @Test
+  void shouldGetIsSliderValueChanging() {
+    assertThat(underTest.isSliderValueChanging()).isFalse();
+  }
 
-    @Test
-    public void shouldSetSliderValue() {
-        underTest.setSliderValue(0.5);
+  @Test
+  void shouldGetSliderValue() {
+    assertThat(underTest.getSliderValue()).isEqualTo(0.0d);
+  }
 
-        assertThat(underTest.getSliderValue()).isEqualTo(0.5d);
-    }
+  @Test
+  void shouldSetSliderValue() {
+    double sliderValue = getFaker().number().randomDouble(1, 0, 1);
 
-    @Test
-    public void shouldGetProgressValue() {
-        assertThat(underTest.getProgressValue()).isEqualTo(0.0d);
-    }
+    underTest.setSliderValue(sliderValue);
 
-    @Test
-    public void shouldSetProgressValue() {
-        underTest.setProgressValue(50);
+    assertThat(underTest.getSliderValue()).isEqualTo(sliderValue);
+  }
 
-        assertThat(underTest.getProgressValue()).isEqualTo(0.5d);
-    }
+  @Test
+  void shouldGetProgressValue() {
+    assertThat(underTest.getProgressValue()).isEqualTo(0.0d);
+  }
+
+  @Test
+  void shouldSetProgressValue() {
+    double progressValue = getFaker().number().randomDouble(0, 10, 100);
+
+    underTest.setProgressValue(progressValue);
+
+    assertThat(underTest.getProgressValue()).isEqualTo(progressValue / 100);
+  }
 }

@@ -1,18 +1,21 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createYearString;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
 
-@RunWith(MockitoJUnitRunner.class)
-public class YearFilterTest {
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-    @Test
-    public void shouldReturnDisplayFromToString() {
-        YearFilter yearFilter = new YearFilter("Display", "2000");
+@ExtendWith(MockitoExtension.class)
+class YearFilterTest {
 
-        assertThat(yearFilter.toString()).isEqualTo("Display");
-    }
+  @Test
+  void shouldReturnDisplayFromToString() {
+    String display = getFaker().lorem().characters(20, 30);
+    YearFilter yearFilter = new YearFilter(display, createYearString());
+
+    assertThat(yearFilter.toString()).isEqualTo(display);
+  }
 }

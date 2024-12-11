@@ -1,64 +1,63 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import uk.co.mpcontracting.rpmjukebox.manager.PlaylistManager;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createTrackId;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.PLAYLIST_ID_FAVOURITES;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.STYLE_LOVE_BUTTON_OFF;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.STYLE_LOVE_BUTTON_ON;
 
-public class LoveButtonTableCellTest extends AbstractGUITest implements Constants {
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-    @Mock
-    private PlaylistManager playlistManager;
+class LoveButtonTableCellTest extends AbstractGuiTest {
 
-    private LoveButtonTableCell underTest;
+  @MockBean
+  private PlaylistService playlistService;
 
-    @Before
-    public void setup() {
-        underTest = new LoveButtonTableCell(playlistManager);
-    }
+  private LoveButtonTableCell underTest;
 
-    @Test
-    public void shouldUpdateItemWhenTrackIsInFavourites() {
-        String trackId = "trackId";
-        when(playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(true);
+  @BeforeEach
+  void beforeEach() {
+    underTest = new LoveButtonTableCell(playlistService);
+  }
 
-        underTest.updateItem(trackId, false);
+  @Test
+  void shouldUpdateItemWhenTrackIsInFavourites() {
+    String trackId = createTrackId();
+    when(playlistService.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(true);
 
-        assertThat(underTest.getId()).isEqualTo(STYLE_LOVE_BUTTON_ON);
-    }
+    underTest.updateItem(trackId, false);
 
-    @Test
-    public void shouldUpdateItemWhenTrackIsNotInFavourites() {
-        String trackId = "trackId";
-        when(playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
+    assertThat(underTest.getId()).isEqualTo(STYLE_LOVE_BUTTON_ON);
+  }
 
-        underTest.updateItem(trackId, false);
+  @Test
+  void shouldUpdateItemWhenTrackIsNotInFavourites() {
+    String trackId = createTrackId();
+    when(playlistService.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
 
-        assertThat(underTest.getId()).isEqualTo(STYLE_LOVE_BUTTON_OFF);
-    }
+    underTest.updateItem(trackId, false);
 
-    @Test
-    public void shouldUpdateItemAsEmpty() {
-        String trackId = "trackId";
-        when(playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
+    assertThat(underTest.getId()).isEqualTo(STYLE_LOVE_BUTTON_OFF);
+  }
 
-        underTest.updateItem(trackId, true);
+  @Test
+  void shouldUpdateItemAsEmpty() {
+    String trackId = createTrackId();
 
-        assertThat(underTest.getId()).isNull();
-    }
+    underTest.updateItem(trackId, true);
 
-    @Test
-    public void shouldUpdateItemAsNull() {
-        String trackId = "trackId";
-        when(playlistManager.isTrackInPlaylist(PLAYLIST_ID_FAVOURITES, trackId)).thenReturn(false);
+    assertThat(underTest.getId()).isNull();
+  }
 
-        underTest.updateItem(null, false);
+  @Test
+  void shouldUpdateItemAsNull() {
+    underTest.updateItem(null, false);
 
-        assertThat(underTest.getId()).isNull();
-    }
+    assertThat(underTest.getId()).isNull();
+  }
 }

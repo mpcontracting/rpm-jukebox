@@ -1,713 +1,734 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.controller.MenuController.VOLUME_DELTA;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.APPLICATION_INITIALISED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.END_OF_MEDIA;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_PAUSED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_PLAYING;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_STOPPED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_NEXT;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_PLAY_PAUSE;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_PREVIOUS;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_REPEAT;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_SHUFFLE;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_VOLUME_DOWN;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_VOLUME_MUTE;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_CONTROLS_VOLUME_UP;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_EDIT_ADD_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_EDIT_DELETE_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_EDIT_RANDOM_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_FILE_EXPORT_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_FILE_IMPORT_PLAYLIST;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_FILE_SETTINGS;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MENU_VIEW_EQUALIZER;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_CONTENT_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_CREATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_DELETED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_SELECTED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_QUEUED_FOR_PLAYING;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_SELECTED;
+import static uk.co.mpcontracting.rpmjukebox.model.Repeat.ALL;
+import static uk.co.mpcontracting.rpmjukebox.model.Repeat.OFF;
+import static uk.co.mpcontracting.rpmjukebox.model.Repeat.ONE;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_MENU_CONTROLS_PAUSE;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_MENU_CONTROLS_PLAY;
+import static uk.co.mpcontracting.rpmjukebox.util.OsType.WINDOWS;
+
+import jakarta.annotation.PostConstruct;
+import javafx.application.Platform;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuItem;
 import lombok.SneakyThrows;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testfx.util.WaitForAsyncUtils;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.manager.*;
-import uk.co.mpcontracting.rpmjukebox.model.Repeat;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
-import uk.co.mpcontracting.rpmjukebox.support.OsType;
-import uk.co.mpcontracting.rpmjukebox.support.ThreadRunner;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
+import uk.co.mpcontracting.rpmjukebox.service.ApplicationLifecycleService;
+import uk.co.mpcontracting.rpmjukebox.service.MediaService;
+import uk.co.mpcontracting.rpmjukebox.service.PlaylistService;
+import uk.co.mpcontracting.rpmjukebox.service.SettingsService;
+import uk.co.mpcontracting.rpmjukebox.service.StringResourceService;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 import uk.co.mpcontracting.rpmjukebox.view.MenuView;
 
-import javax.annotation.PostConstruct;
+class MenuControllerTest extends AbstractGuiTest {
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
-import static uk.co.mpcontracting.rpmjukebox.controller.MenuController.VOLUME_DELTA;
-import static uk.co.mpcontracting.rpmjukebox.event.Event.*;
-import static uk.co.mpcontracting.rpmjukebox.support.Constants.MESSAGE_MENU_CONTROLS_PAUSE;
-import static uk.co.mpcontracting.rpmjukebox.support.Constants.MESSAGE_MENU_CONTROLS_PLAY;
+  @MockBean
+  private RpmJukebox rpmJukebox;
 
-public class MenuControllerTest extends AbstractGUITest {
+  @MockBean
+  private MainPanelController mainPanelController;
 
-    @Autowired
-    private ThreadRunner threadRunner;
+  @MockBean
+  private TrackTableController trackTableController;
 
-    @Autowired
-    private MessageManager messageManager;
+  @MockBean
+  private ApplicationLifecycleService applicationLifecycleService;
 
-    @Autowired
-    private MenuController underTest;
+  @MockBean
+  private MediaService mediaService;
 
-    @Autowired
-    private MenuView menuView;
+  @MockBean
+  private PlaylistService playlistService;
 
-    @Mock
-    private RpmJukebox rpmJukebox;
+  @MockBean
+  private SettingsService settingsService;
 
-    @Mock
-    private MainPanelController mainPanelController;
+  @Autowired
+  private StringResourceService stringResourceService;
 
-    @Mock
-    private TrackTableController trackTableController;
+  @Autowired
+  private MenuView menuView;
 
-    @Mock
-    private ApplicationManager applicationManager;
+  @Autowired
+  private MenuController underTest;
 
-    @Mock
-    private SettingsManager settingsManager;
+  @SneakyThrows
+  @PostConstruct
+  void postConstruct() {
+    init(menuView);
+  }
 
-    @Mock
-    private PlaylistManager playlistManager;
+  @BeforeEach
+  void beforeEach() {
+    when(settingsService.getOsType()).thenReturn(WINDOWS);
 
-    @Mock
-    private MediaManager mediaManager;
+    underTest.initialize();
+  }
 
-    @SneakyThrows
-    @PostConstruct
-    public void constructView() {
-        init(menuView);
-    }
+  @Test
+  void shouldHandleFileImportPlaylistAction() {
+    clickOnMenuItem("#menuFileImportPlaylist");
 
-    @Before
-    public void setup() {
-        setField(underTest, "eventManager", getMockEventManager());
-        setField(underTest, "rpmJukebox", rpmJukebox);
-        setField(underTest, "mainPanelController", mainPanelController);
-        setField(underTest, "trackTableController", trackTableController);
-        setField(underTest, "applicationManager", applicationManager);
-        setField(underTest, "settingsManager", settingsManager);
-        setField(underTest, "playlistManager", playlistManager);
-        setField(underTest, "mediaManager", mediaManager);
+    verify(eventProcessor).fireEvent(MENU_FILE_IMPORT_PLAYLIST);
+  }
 
-        when(settingsManager.getOsType()).thenReturn(OsType.WINDOWS);
+  @Test
+  void shouldHandleFileExportPlaylistAction() {
+    clickOnMenuItem("#menuFileExportPlaylist");
 
-        underTest.initialize();
-    }
+    verify(eventProcessor).fireEvent(MENU_FILE_EXPORT_PLAYLIST);
+  }
 
-    @Test
-    public void shouldHandleFileImportPlaylistAction() {
-        clickOnMenuItem("#menuFileImportPlaylist");
+  @Test
+  void shouldHandleFileSettingsAction() {
+    clickOnMenuItem("#menuFileSettings");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_FILE_IMPORT_PLAYLIST);
-    }
+    verify(eventProcessor).fireEvent(MENU_FILE_SETTINGS);
+  }
 
-    @Test
-    public void shouldHandleFileExportPlaylistAction() {
-        clickOnMenuItem("#menuFileExportPlaylist");
+  @Test
+  @SneakyThrows
+  void shouldHandleFileExitAction() {
+    clickOnMenuItem("#menuFileExit");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_FILE_EXPORT_PLAYLIST);
-    }
+    verify(applicationLifecycleService).stop();
+    verify(rpmJukebox).stop();
+  }
 
-    @Test
-    public void shouldHandleFileSettingsAction() {
-        clickOnMenuItem("#menuFileSettings");
+  @Test
+  void shouldHandleEditAddPlaylistAction() {
+    clickOnMenuItem("#menuEditAddPlaylist");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_FILE_SETTINGS);
-    }
+    verify(eventProcessor).fireEvent(MENU_EDIT_ADD_PLAYLIST);
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldHandleFileExitAction() {
-        clickOnMenuItem("#menuFileExit");
+  @Test
+  void shouldHandleEditDeletePlaylistAction() {
+    clickOnMenuItem("#menuEditDeletePlaylist");
 
-        verify(applicationManager, times(1)).stop();
-        verify(rpmJukebox, times(1)).stop();
-    }
+    verify(eventProcessor).fireEvent(MENU_EDIT_DELETE_PLAYLIST);
+  }
 
-    @Test
-    public void shouldHandleEditAddPlaylistAction() {
-        clickOnMenuItem("#menuEditAddPlaylist");
+  @Test
+  void shouldHandleEditCreatePlaylistFromAlbumAction() {
+    clickOnMenuItem("#menuEditCreatePlaylistFromAlbum");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_EDIT_ADD_PLAYLIST);
-    }
+    verify(eventProcessor).fireEvent(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
+  }
 
-    @Test
-    public void shouldHandleEditDeletePlaylistAction() {
-        clickOnMenuItem("#menuEditDeletePlaylist");
+  @Test
+  void shouldHandleEditRandomPlaylistAction() {
+    clickOnMenuItem("#menuEditRandomPlaylist");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_EDIT_DELETE_PLAYLIST);
-    }
+    verify(eventProcessor).fireEvent(MENU_EDIT_RANDOM_PLAYLIST);
+  }
 
-    @Test
-    public void shouldHandleEditCreatePlaylistFromAlbumAction() {
-        clickOnMenuItem("#menuEditCreatePlaylistFromAlbum");
+  @Test
+  void shouldHandleControlsPlayPauseAction() {
+    clickOnMenuItem("#menuControlsPlayPause");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_EDIT_CREATE_PLAYLIST_FROM_ALBUM);
-    }
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_PLAY_PAUSE);
+  }
 
-    @Test
-    public void shouldHandleEditRandomPlaylistAction() {
-        clickOnMenuItem("#menuEditRandomPlaylist");
+  @Test
+  void shouldHandleControlsPreviousAction() {
+    clickOnMenuItem("#menuControlsPrevious");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_EDIT_RANDOM_PLAYLIST);
-    }
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_PREVIOUS);
+  }
 
-    @Test
-    public void shouldHandleControlsPlayPauseAction() {
-        clickOnMenuItem("#menuControlsPlayPause");
+  @Test
+  void shouldHandleControlsNextAction() {
+    clickOnMenuItem("#menuControlsNext");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_PLAY_PAUSE);
-    }
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_NEXT);
+  }
 
-    @Test
-    public void shouldHandleControlsPreviousAction() {
-        clickOnMenuItem("#menuControlsPrevious");
+  @Test
+  void shouldHandleControlsShuffleOffActionIfShuffleIsOn() {
+    CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
+    CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_PREVIOUS);
-    }
+    checkMenuControlsShuffleOff.setSelected(true);
+    checkMenuControlsShuffleOn.setSelected(false);
+    when(playlistService.isShuffle()).thenReturn(true);
 
-    @Test
-    public void shouldHandleControlsNextAction() {
-        clickOnMenuItem("#menuControlsNext");
+    clickOnMenuItem("#checkMenuControlsShuffleOff");
 
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_NEXT);
-    }
+    verify(playlistService).setShuffle(false, false);
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_SHUFFLE);
 
-    @Test
-    public void shouldHandleControlsShuffleOffActionIfShuffleIsOn() {
-        CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
-        CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
+    assertThat(checkMenuControlsShuffleOff.isSelected()).isFalse();
+    assertThat(checkMenuControlsShuffleOn.isSelected()).isTrue();
+  }
 
-        checkMenuControlsShuffleOff.setSelected(true);
-        checkMenuControlsShuffleOn.setSelected(false);
-        when(playlistManager.isShuffle()).thenReturn(true);
+  @Test
+  void shouldHandleControlsShuffleOffActionIfShuffleIsOff() {
+    CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
+    CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
 
-        clickOnMenuItem("#checkMenuControlsShuffleOff");
+    checkMenuControlsShuffleOff.setSelected(false);
+    checkMenuControlsShuffleOn.setSelected(true);
+    when(playlistService.isShuffle()).thenReturn(false);
 
-        verify(playlistManager, times(1)).setShuffle(false, false);
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_SHUFFLE);
+    clickOnMenuItem("#checkMenuControlsShuffleOff");
 
-        assertThat(checkMenuControlsShuffleOff.isSelected()).isFalse();
-        assertThat(checkMenuControlsShuffleOn.isSelected()).isTrue();
-    }
+    verify(playlistService, never()).setShuffle(false, false);
+    verify(eventProcessor, never()).fireEvent(MENU_CONTROLS_SHUFFLE);
 
-    @Test
-    public void shouldHandleControlsShuffleOffActionIfShuffleIsOff() {
-        CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
-        CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
+    assertThat(checkMenuControlsShuffleOff.isSelected()).isTrue();
+    assertThat(checkMenuControlsShuffleOn.isSelected()).isFalse();
+  }
 
-        checkMenuControlsShuffleOff.setSelected(false);
-        checkMenuControlsShuffleOn.setSelected(true);
-        when(playlistManager.isShuffle()).thenReturn(false);
+  @Test
+  void shouldHandleControlsShuffleOnActionIfShuffleIsOff() {
+    CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
+    CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
 
-        clickOnMenuItem("#checkMenuControlsShuffleOff");
+    checkMenuControlsShuffleOff.setSelected(false);
+    checkMenuControlsShuffleOn.setSelected(true);
+    when(playlistService.isShuffle()).thenReturn(false);
 
-        verify(playlistManager, never()).setShuffle(false, false);
-        verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_SHUFFLE);
+    clickOnMenuItem("#checkMenuControlsShuffleOn");
 
-        assertThat(checkMenuControlsShuffleOff.isSelected()).isTrue();
-        assertThat(checkMenuControlsShuffleOn.isSelected()).isFalse();
-    }
+    verify(playlistService).setShuffle(true, false);
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_SHUFFLE);
 
-    @Test
-    public void shouldHandleControlsShuffleOnActionIfShuffleIsOff() {
-        CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
-        CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
+    assertThat(checkMenuControlsShuffleOff.isSelected()).isTrue();
+    assertThat(checkMenuControlsShuffleOn.isSelected()).isFalse();
+  }
 
-        checkMenuControlsShuffleOff.setSelected(false);
-        checkMenuControlsShuffleOn.setSelected(true);
-        when(playlistManager.isShuffle()).thenReturn(false);
+  @Test
+  void shouldHandleControlsShuffleOnActionIfShuffleIsOn() {
+    CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
+    CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
 
-        clickOnMenuItem("#checkMenuControlsShuffleOn");
+    checkMenuControlsShuffleOff.setSelected(true);
+    checkMenuControlsShuffleOn.setSelected(false);
+    when(playlistService.isShuffle()).thenReturn(true);
 
-        verify(playlistManager, times(1)).setShuffle(true, false);
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_SHUFFLE);
+    clickOnMenuItem("#checkMenuControlsShuffleOn");
 
-        assertThat(checkMenuControlsShuffleOff.isSelected()).isTrue();
-        assertThat(checkMenuControlsShuffleOn.isSelected()).isFalse();
-    }
+    verify(playlistService, never()).setShuffle(true, false);
+    verify(eventProcessor, never()).fireEvent(MENU_CONTROLS_SHUFFLE);
 
-    @Test
-    public void shouldHandleControlsShuffleOnActionIfShuffleIsOn() {
-        CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
-        CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
+    assertThat(checkMenuControlsShuffleOff.isSelected()).isFalse();
+    assertThat(checkMenuControlsShuffleOn.isSelected()).isTrue();
+  }
 
-        checkMenuControlsShuffleOff.setSelected(true);
-        checkMenuControlsShuffleOn.setSelected(false);
-        when(playlistManager.isShuffle()).thenReturn(true);
+  @Test
+  void shouldHandleControlsRepeatOffActionIfRepeatIsAll() {
+    CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
+    CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
+    CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
 
-        clickOnMenuItem("#checkMenuControlsShuffleOn");
+    checkMenuControlsRepeatOff.setSelected(true);
+    checkMenuControlsRepeatAll.setSelected(false);
+    checkMenuControlsRepeatOne.setSelected(false);
+    when(playlistService.getRepeat()).thenReturn(ALL);
 
-        verify(playlistManager, never()).setShuffle(true, false);
-        verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_SHUFFLE);
+    clickOnMenuItem("#checkMenuControlsRepeatOff");
 
-        assertThat(checkMenuControlsShuffleOff.isSelected()).isFalse();
-        assertThat(checkMenuControlsShuffleOn.isSelected()).isTrue();
-    }
+    verify(playlistService).setRepeat(OFF);
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_REPEAT);
 
-    @Test
-    public void shouldHandleControlsRepeatOffActionIfRepeatIsAll() {
-        CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
-        CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
-        CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
+    assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
+    assertThat(checkMenuControlsRepeatAll.isSelected()).isTrue();
+    assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
+  }
 
-        checkMenuControlsRepeatOff.setSelected(true);
-        checkMenuControlsRepeatAll.setSelected(false);
-        checkMenuControlsRepeatOne.setSelected(false);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.ALL);
+  @Test
+  void shouldHandleControlsRepeatOffActionIfRepeatIsOff() {
+    CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
+    CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
+    CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
 
-        clickOnMenuItem("#checkMenuControlsRepeatOff");
+    checkMenuControlsRepeatOff.setSelected(false);
+    checkMenuControlsRepeatAll.setSelected(true);
+    checkMenuControlsRepeatOne.setSelected(false);
+    when(playlistService.getRepeat()).thenReturn(OFF);
 
-        verify(playlistManager, times(1)).setRepeat(Repeat.OFF);
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_REPEAT);
+    clickOnMenuItem("#checkMenuControlsRepeatOff");
 
-        assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
-        assertThat(checkMenuControlsRepeatAll.isSelected()).isTrue();
-        assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
-    }
+    verify(playlistService, never()).setRepeat(OFF);
+    verify(eventProcessor, never()).fireEvent(MENU_CONTROLS_REPEAT);
 
-    @Test
-    public void shouldHandleControlsRepeatOffActionIfRepeatIsOff() {
-        CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
-        CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
-        CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
+    assertThat(checkMenuControlsRepeatOff.isSelected()).isTrue();
+    assertThat(checkMenuControlsRepeatAll.isSelected()).isFalse();
+    assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
+  }
 
-        checkMenuControlsRepeatOff.setSelected(false);
-        checkMenuControlsRepeatAll.setSelected(true);
-        checkMenuControlsRepeatOne.setSelected(false);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
+  @Test
+  void shouldHandleControlsRepeatAllActionIfRepeatIsOne() {
+    CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
+    CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
+    CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
 
-        clickOnMenuItem("#checkMenuControlsRepeatOff");
+    checkMenuControlsRepeatOff.setSelected(false);
+    checkMenuControlsRepeatAll.setSelected(true);
+    checkMenuControlsRepeatOne.setSelected(false);
+    when(playlistService.getRepeat()).thenReturn(ONE);
 
-        verify(playlistManager, never()).setRepeat(Repeat.OFF);
-        verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_REPEAT);
+    clickOnMenuItem("#checkMenuControlsRepeatAll");
 
-        assertThat(checkMenuControlsRepeatOff.isSelected()).isTrue();
-        assertThat(checkMenuControlsRepeatAll.isSelected()).isFalse();
-        assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
-    }
+    verify(playlistService).setRepeat(ALL);
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_REPEAT);
 
-    @Test
-    public void shouldHandleControlsRepeatAllActionIfRepeatIsOne() {
-        CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
-        CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
-        CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
+    assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
+    assertThat(checkMenuControlsRepeatAll.isSelected()).isFalse();
+    assertThat(checkMenuControlsRepeatOne.isSelected()).isTrue();
+  }
 
-        checkMenuControlsRepeatOff.setSelected(false);
-        checkMenuControlsRepeatAll.setSelected(true);
-        checkMenuControlsRepeatOne.setSelected(false);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.ONE);
-
-        clickOnMenuItem("#checkMenuControlsRepeatAll");
-
-        verify(playlistManager, times(1)).setRepeat(Repeat.ALL);
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_REPEAT);
-
-        assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
-        assertThat(checkMenuControlsRepeatAll.isSelected()).isFalse();
-        assertThat(checkMenuControlsRepeatOne.isSelected()).isTrue();
-    }
-
-    @Test
-    public void shouldHandleControlsRepeatAllActionIfRepeatIsAll() {
-        CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
-        CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
-        CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
-
-        checkMenuControlsRepeatOff.setSelected(false);
-        checkMenuControlsRepeatAll.setSelected(false);
-        checkMenuControlsRepeatOne.setSelected(true);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.ALL);
-
-        clickOnMenuItem("#checkMenuControlsRepeatAll");
-
-        verify(playlistManager, never()).setRepeat(Repeat.OFF);
-        verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_REPEAT);
-
-        assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
-        assertThat(checkMenuControlsRepeatAll.isSelected()).isTrue();
-        assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
-    }
-
-    @Test
-    public void shouldHandleControlsRepeatOneActionIfRepeatIsOff() {
-        CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
-        CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
-        CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
-
-        checkMenuControlsRepeatOff.setSelected(false);
-        checkMenuControlsRepeatAll.setSelected(false);
-        checkMenuControlsRepeatOne.setSelected(true);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.OFF);
-
-        clickOnMenuItem("#checkMenuControlsRepeatOne");
-
-        verify(playlistManager, times(1)).setRepeat(Repeat.ONE);
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_REPEAT);
-
-        assertThat(checkMenuControlsRepeatOff.isSelected()).isTrue();
-        assertThat(checkMenuControlsRepeatAll.isSelected()).isFalse();
-        assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
-    }
-
-    @Test
-    public void shouldHandleControlsRepeatOneActionIfRepeatIsOne() {
-        CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
-        CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
-        CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
-
-        checkMenuControlsRepeatOff.setSelected(true);
-        checkMenuControlsRepeatAll.setSelected(false);
-        checkMenuControlsRepeatOne.setSelected(false);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.ONE);
-
-        clickOnMenuItem("#checkMenuControlsRepeatOne");
-
-        verify(playlistManager, never()).setRepeat(Repeat.ONE);
-        verify(getMockEventManager(), never()).fireEvent(MENU_CONTROLS_REPEAT);
-
-        assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
-        assertThat(checkMenuControlsRepeatAll.isSelected()).isFalse();
-        assertThat(checkMenuControlsRepeatOne.isSelected()).isTrue();
-    }
-
-    @Test
-    public void shouldHandleControlsVolumeUpAction() {
-        clickOnMenuItem("#menuControlsVolumeUp");
-
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_VOLUME_UP, VOLUME_DELTA);
-    }
-
-    @Test
-    public void shouldHandleControlsVolumeDownAction() {
-        clickOnMenuItem("#menuControlsVolumeDown");
-
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_VOLUME_DOWN, VOLUME_DELTA);
-    }
-
-    @Test
-    public void shouldHandleControlsVolumeMuteAction() {
-        clickOnMenuItem("#menuControlsVolumeMute");
-
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_CONTROLS_VOLUME_MUTE);
-    }
-
-    @Test
-    public void shouldHandleViewEqualizerAction() {
-        clickOnMenuItem("#menuViewEqualizer");
-
-        verify(getMockEventManager(), times(1)).fireEvent(MENU_VIEW_EQUALIZER);
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceiveApplicationInitialised() {
-        MenuItem menuFileImportPlaylist = findMenuItem("#menuFileImportPlaylist");
-        MenuItem menuFileExportPlaylist = findMenuItem("#menuFileExportPlaylist");
-        MenuItem menuFileSettings = findMenuItem("#menuFileSettings");
-        MenuItem menuEditAddPlaylist = findMenuItem("#menuEditAddPlaylist");
-        MenuItem menuEditDeletePlaylist = findMenuItem("#menuEditDeletePlaylist");
-        MenuItem menuEditRandomPlaylist = findMenuItem("#menuEditRandomPlaylist");
-        CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
-        CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
-        CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
-        CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
-        CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
-        MenuItem menuControlsVolumeUp = findMenuItem("#menuControlsVolumeUp");
-        MenuItem menuControlsVolumeDown = findMenuItem("#menuControlsVolumeDown");
-        MenuItem menuControlsVolumeMute = findMenuItem("#menuControlsVolumeMute");
-        MenuItem menuViewEqualizer = findMenuItem("#menuViewEqualizer");
-
-        menuFileImportPlaylist.setDisable(true);
-        menuFileExportPlaylist.setDisable(true);
-        menuFileSettings.setDisable(true);
-        menuEditAddPlaylist.setDisable(true);
-        menuEditDeletePlaylist.setDisable(true);
-        menuEditRandomPlaylist.setDisable(true);
-        checkMenuControlsShuffleOff.setDisable(true);
-        checkMenuControlsShuffleOn.setDisable(true);
-        checkMenuControlsRepeatOff.setDisable(true);
-        checkMenuControlsRepeatAll.setDisable(true);
-        checkMenuControlsRepeatOne.setDisable(true);
-        menuControlsVolumeUp.setDisable(true);
-        menuControlsVolumeDown.setDisable(true);
-        menuControlsVolumeMute.setDisable(true);
-        menuViewEqualizer.setDisable(true);
-
-        checkMenuControlsShuffleOff.setSelected(false);
-        checkMenuControlsShuffleOn.setSelected(false);
-        checkMenuControlsRepeatOff.setSelected(false);
-        checkMenuControlsRepeatAll.setSelected(false);
-        checkMenuControlsRepeatOne.setSelected(false);
-
-        when(playlistManager.isShuffle()).thenReturn(true);
-        when(playlistManager.getRepeat()).thenReturn(Repeat.ALL);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(APPLICATION_INITIALISED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuFileImportPlaylist.isDisable()).isFalse();
-        assertThat(menuFileExportPlaylist.isDisable()).isFalse();
-        assertThat(menuFileSettings.isDisable()).isFalse();
-        assertThat(menuEditAddPlaylist.isDisable()).isFalse();
-        assertThat(menuEditDeletePlaylist.isDisable()).isFalse();
-        assertThat(menuEditRandomPlaylist.isDisable()).isFalse();
-        assertThat(checkMenuControlsShuffleOff.isDisable()).isFalse();
-        assertThat(checkMenuControlsShuffleOn.isDisable()).isFalse();
-        assertThat(checkMenuControlsRepeatOff.isDisable()).isFalse();
-        assertThat(checkMenuControlsRepeatAll.isDisable()).isFalse();
-        assertThat(checkMenuControlsRepeatOne.isDisable()).isFalse();
-        assertThat(menuControlsVolumeUp.isDisable()).isFalse();
-        assertThat(menuControlsVolumeDown.isDisable()).isFalse();
-        assertThat(menuControlsVolumeMute.isDisable()).isFalse();
-        assertThat(menuViewEqualizer.isDisable()).isFalse();
-
-        assertThat(checkMenuControlsShuffleOff.isSelected()).isFalse();
-        assertThat(checkMenuControlsShuffleOn.isSelected()).isTrue();
-        assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
-        assertThat(checkMenuControlsRepeatAll.isSelected()).isTrue();
-        assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceiveMediaPlaying() {
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-        MenuItem menuControlsPrevious = findMenuItem("#menuControlsPrevious");
-        MenuItem menuControlsNext = findMenuItem("#menuControlsNext");
-
-        menuControlsPlayPause.setText("Test text");
-        menuControlsPlayPause.setDisable(true);
-        menuControlsPrevious.setDisable(true);
-        menuControlsNext.setDisable(true);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(MEDIA_PLAYING));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PAUSE));
-        assertThat(menuControlsPlayPause.isDisable()).isFalse();
-        assertThat(menuControlsPrevious.isDisable()).isFalse();
-        assertThat(menuControlsNext.isDisable()).isFalse();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceiveMediaPaused() {
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-        MenuItem menuControlsPrevious = findMenuItem("#menuControlsPrevious");
-        MenuItem menuControlsNext = findMenuItem("#menuControlsNext");
-
-        menuControlsPlayPause.setText("Test text");
-        menuControlsPlayPause.setDisable(true);
-        menuControlsPrevious.setDisable(false);
-        menuControlsNext.setDisable(false);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(MEDIA_PAUSED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
-        assertThat(menuControlsPlayPause.isDisable()).isFalse();
-        assertThat(menuControlsPrevious.isDisable()).isTrue();
-        assertThat(menuControlsNext.isDisable()).isTrue();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceiveMediaStopped() {
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-        MenuItem menuControlsPrevious = findMenuItem("#menuControlsPrevious");
-        MenuItem menuControlsNext = findMenuItem("#menuControlsNext");
-
-        menuControlsPlayPause.setText("Test text");
-        menuControlsPlayPause.setDisable(true);
-        menuControlsPrevious.setDisable(false);
-        menuControlsNext.setDisable(false);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(MEDIA_STOPPED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
-        assertThat(menuControlsPlayPause.isDisable()).isFalse();
-        assertThat(menuControlsPrevious.isDisable()).isTrue();
-        assertThat(menuControlsNext.isDisable()).isTrue();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceiveEndOfMedia() {
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-        MenuItem menuControlsPrevious = findMenuItem("#menuControlsPrevious");
-        MenuItem menuControlsNext = findMenuItem("#menuControlsNext");
-
-        menuControlsPlayPause.setText("Test text");
-        menuControlsPlayPause.setDisable(true);
-        menuControlsPrevious.setDisable(false);
-        menuControlsNext.setDisable(false);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(END_OF_MEDIA));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuControlsPlayPause.getText()).isEqualTo(messageManager.getMessage(MESSAGE_MENU_CONTROLS_PLAY));
-        assertThat(menuControlsPlayPause.isDisable()).isFalse();
-        assertThat(menuControlsPrevious.isDisable()).isTrue();
-        assertThat(menuControlsNext.isDisable()).isTrue();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistCreated() {
-        MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-
-        menuEditCreatePlaylistFromAlbum.setDisable(true);
-        menuControlsPlayPause.setDisable(true);
-
-        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-        when(mainPanelController.isPlaylistPlayable()).thenReturn(true);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_CREATED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
-        assertThat(menuControlsPlayPause.isDisable()).isFalse();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistCreatedWhenPlaylistIsNotPlayable() {
-        MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-
-        menuEditCreatePlaylistFromAlbum.setDisable(true);
-        menuControlsPlayPause.setDisable(false);
-
-        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-        when(mainPanelController.isPlaylistPlayable()).thenReturn(false);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_CREATED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
-        assertThat(menuControlsPlayPause.isDisable()).isTrue();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistCreatedWhenTrackIsNotSelected() {
-        MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-
-        menuEditCreatePlaylistFromAlbum.setDisable(false);
-        menuControlsPlayPause.setDisable(true);
-
-        when(trackTableController.getSelectedTrack()).thenReturn(null);
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-        when(mainPanelController.isPlaylistPlayable()).thenReturn(true);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_CREATED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isTrue();
-        assertThat(menuControlsPlayPause.isDisable()).isFalse();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistDeleted() {
-        MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-
-        menuEditCreatePlaylistFromAlbum.setDisable(true);
-        menuControlsPlayPause.setDisable(true);
-
-        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-        when(mainPanelController.isPlaylistPlayable()).thenReturn(true);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_DELETED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
-        assertThat(menuControlsPlayPause.isDisable()).isFalse();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistSelected() {
-        MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-
-        menuEditCreatePlaylistFromAlbum.setDisable(true);
-        menuControlsPlayPause.setDisable(true);
-
-        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-        when(mediaManager.isPlaying()).thenReturn(false);
-        when(mediaManager.isPaused()).thenReturn(false);
-        when(mainPanelController.isPlaylistPlayable()).thenReturn(true);
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_SELECTED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
-        assertThat(menuControlsPlayPause.isDisable()).isFalse();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceivePlaylistContentUpdated() {
-        MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
-        menuEditCreatePlaylistFromAlbum.setDisable(true);
-
-        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(PLAYLIST_CONTENT_UPDATED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTrackSelected() {
-        MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-
-        menuEditCreatePlaylistFromAlbum.setDisable(true);
-        menuControlsPlayPause.setDisable(true);
-
-        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(TRACK_SELECTED));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
-        assertThat(menuControlsPlayPause.isDisable()).isFalse();
-    }
-
-    @Test
-    @SneakyThrows
-    public void shouldReceiveTrackQueuedForPlaying() {
-        MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
-        MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
-
-        menuEditCreatePlaylistFromAlbum.setDisable(true);
-        menuControlsPlayPause.setDisable(false);
-
-        when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
-
-        threadRunner.runOnGui(() -> underTest.eventReceived(TRACK_QUEUED_FOR_PLAYING));
-
-        WaitForAsyncUtils.waitForFxEvents();
-
-        assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
-        assertThat(menuControlsPlayPause.isDisable()).isTrue();
-    }
+  @Test
+  void shouldHandleControlsRepeatAllActionIfRepeatIsAll() {
+    CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
+    CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
+    CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
+
+    checkMenuControlsRepeatOff.setSelected(false);
+    checkMenuControlsRepeatAll.setSelected(false);
+    checkMenuControlsRepeatOne.setSelected(true);
+    when(playlistService.getRepeat()).thenReturn(ALL);
+
+    clickOnMenuItem("#checkMenuControlsRepeatAll");
+
+    verify(playlistService, never()).setRepeat(OFF);
+    verify(eventProcessor, never()).fireEvent(MENU_CONTROLS_REPEAT);
+
+    assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
+    assertThat(checkMenuControlsRepeatAll.isSelected()).isTrue();
+    assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
+  }
+
+  @Test
+  void shouldHandleControlsRepeatOneActionIfRepeatIsOff() {
+    CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
+    CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
+    CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
+
+    checkMenuControlsRepeatOff.setSelected(false);
+    checkMenuControlsRepeatAll.setSelected(false);
+    checkMenuControlsRepeatOne.setSelected(true);
+    when(playlistService.getRepeat()).thenReturn(OFF);
+
+    clickOnMenuItem("#checkMenuControlsRepeatOne");
+
+    verify(playlistService).setRepeat(ONE);
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_REPEAT);
+
+    assertThat(checkMenuControlsRepeatOff.isSelected()).isTrue();
+    assertThat(checkMenuControlsRepeatAll.isSelected()).isFalse();
+    assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
+  }
+
+  @Test
+  void shouldHandleControlsRepeatOneActionIfRepeatIsOne() {
+    CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
+    CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
+    CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
+
+    checkMenuControlsRepeatOff.setSelected(true);
+    checkMenuControlsRepeatAll.setSelected(false);
+    checkMenuControlsRepeatOne.setSelected(false);
+    when(playlistService.getRepeat()).thenReturn(ONE);
+
+    clickOnMenuItem("#checkMenuControlsRepeatOne");
+
+    verify(playlistService, never()).setRepeat(ONE);
+    verify(eventProcessor, never()).fireEvent(MENU_CONTROLS_REPEAT);
+
+    assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
+    assertThat(checkMenuControlsRepeatAll.isSelected()).isFalse();
+    assertThat(checkMenuControlsRepeatOne.isSelected()).isTrue();
+  }
+
+  @Test
+  void shouldHandleControlsVolumeUpAction() {
+    clickOnMenuItem("#menuControlsVolumeUp");
+
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_VOLUME_UP, VOLUME_DELTA);
+  }
+
+  @Test
+  void shouldHandleControlsVolumeDownAction() {
+    clickOnMenuItem("#menuControlsVolumeDown");
+
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_VOLUME_DOWN, VOLUME_DELTA);
+  }
+
+  @Test
+  void shouldHandleControlsVolumeMuteAction() {
+    clickOnMenuItem("#menuControlsVolumeMute");
+
+    verify(eventProcessor).fireEvent(MENU_CONTROLS_VOLUME_MUTE);
+  }
+
+  @Test
+  void shouldHandleViewEqualizerAction() {
+    clickOnMenuItem("#menuViewEqualizer");
+
+    verify(eventProcessor).fireEvent(MENU_VIEW_EQUALIZER);
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceiveApplicationInitialised() {
+    MenuItem menuFileImportPlaylist = findMenuItem("#menuFileImportPlaylist");
+    MenuItem menuFileExportPlaylist = findMenuItem("#menuFileExportPlaylist");
+    MenuItem menuFileSettings = findMenuItem("#menuFileSettings");
+    MenuItem menuEditAddPlaylist = findMenuItem("#menuEditAddPlaylist");
+    MenuItem menuEditDeletePlaylist = findMenuItem("#menuEditDeletePlaylist");
+    MenuItem menuEditRandomPlaylist = findMenuItem("#menuEditRandomPlaylist");
+    CheckMenuItem checkMenuControlsShuffleOff = findCheckMenuItem("#checkMenuControlsShuffleOff");
+    CheckMenuItem checkMenuControlsShuffleOn = findCheckMenuItem("#checkMenuControlsShuffleOn");
+    CheckMenuItem checkMenuControlsRepeatOff = findCheckMenuItem("#checkMenuControlsRepeatOff");
+    CheckMenuItem checkMenuControlsRepeatAll = findCheckMenuItem("#checkMenuControlsRepeatAll");
+    CheckMenuItem checkMenuControlsRepeatOne = findCheckMenuItem("#checkMenuControlsRepeatOne");
+    MenuItem menuControlsVolumeUp = findMenuItem("#menuControlsVolumeUp");
+    MenuItem menuControlsVolumeDown = findMenuItem("#menuControlsVolumeDown");
+    MenuItem menuControlsVolumeMute = findMenuItem("#menuControlsVolumeMute");
+    MenuItem menuViewEqualizer = findMenuItem("#menuViewEqualizer");
+
+    menuFileImportPlaylist.setDisable(true);
+    menuFileExportPlaylist.setDisable(true);
+    menuFileSettings.setDisable(true);
+    menuEditAddPlaylist.setDisable(true);
+    menuEditDeletePlaylist.setDisable(true);
+    menuEditRandomPlaylist.setDisable(true);
+    checkMenuControlsShuffleOff.setDisable(true);
+    checkMenuControlsShuffleOn.setDisable(true);
+    checkMenuControlsRepeatOff.setDisable(true);
+    checkMenuControlsRepeatAll.setDisable(true);
+    checkMenuControlsRepeatOne.setDisable(true);
+    menuControlsVolumeUp.setDisable(true);
+    menuControlsVolumeDown.setDisable(true);
+    menuControlsVolumeMute.setDisable(true);
+    menuViewEqualizer.setDisable(true);
+
+    checkMenuControlsShuffleOff.setSelected(false);
+    checkMenuControlsShuffleOn.setSelected(false);
+    checkMenuControlsRepeatOff.setSelected(false);
+    checkMenuControlsRepeatAll.setSelected(false);
+    checkMenuControlsRepeatOne.setSelected(false);
+
+    when(playlistService.isShuffle()).thenReturn(true);
+    when(playlistService.getRepeat()).thenReturn(ALL);
+
+    Platform.runLater(() -> underTest.eventReceived(APPLICATION_INITIALISED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuFileImportPlaylist.isDisable()).isFalse();
+    assertThat(menuFileExportPlaylist.isDisable()).isFalse();
+    assertThat(menuFileSettings.isDisable()).isFalse();
+    assertThat(menuEditAddPlaylist.isDisable()).isFalse();
+    assertThat(menuEditDeletePlaylist.isDisable()).isFalse();
+    assertThat(menuEditRandomPlaylist.isDisable()).isFalse();
+    assertThat(checkMenuControlsShuffleOff.isDisable()).isFalse();
+    assertThat(checkMenuControlsShuffleOn.isDisable()).isFalse();
+    assertThat(checkMenuControlsRepeatOff.isDisable()).isFalse();
+    assertThat(checkMenuControlsRepeatAll.isDisable()).isFalse();
+    assertThat(checkMenuControlsRepeatOne.isDisable()).isFalse();
+    assertThat(menuControlsVolumeUp.isDisable()).isFalse();
+    assertThat(menuControlsVolumeDown.isDisable()).isFalse();
+    assertThat(menuControlsVolumeMute.isDisable()).isFalse();
+    assertThat(menuViewEqualizer.isDisable()).isFalse();
+
+    assertThat(checkMenuControlsShuffleOff.isSelected()).isFalse();
+    assertThat(checkMenuControlsShuffleOn.isSelected()).isTrue();
+    assertThat(checkMenuControlsRepeatOff.isSelected()).isFalse();
+    assertThat(checkMenuControlsRepeatAll.isSelected()).isTrue();
+    assertThat(checkMenuControlsRepeatOne.isSelected()).isFalse();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceiveMediaPlaying() {
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+    MenuItem menuControlsPrevious = findMenuItem("#menuControlsPrevious");
+    MenuItem menuControlsNext = findMenuItem("#menuControlsNext");
+
+    menuControlsPlayPause.setText("Test text");
+    menuControlsPlayPause.setDisable(true);
+    menuControlsPrevious.setDisable(true);
+    menuControlsNext.setDisable(true);
+
+    Platform.runLater(() -> underTest.eventReceived(MEDIA_PLAYING));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuControlsPlayPause.getText()).isEqualTo(stringResourceService.getString(MESSAGE_MENU_CONTROLS_PAUSE));
+    assertThat(menuControlsPlayPause.isDisable()).isFalse();
+    assertThat(menuControlsPrevious.isDisable()).isFalse();
+    assertThat(menuControlsNext.isDisable()).isFalse();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceiveMediaPaused() {
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+    MenuItem menuControlsPrevious = findMenuItem("#menuControlsPrevious");
+    MenuItem menuControlsNext = findMenuItem("#menuControlsNext");
+
+    menuControlsPlayPause.setText("Test text");
+    menuControlsPlayPause.setDisable(true);
+    menuControlsPrevious.setDisable(false);
+    menuControlsNext.setDisable(false);
+
+    Platform.runLater(() -> underTest.eventReceived(MEDIA_PAUSED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuControlsPlayPause.getText()).isEqualTo(stringResourceService.getString(MESSAGE_MENU_CONTROLS_PLAY));
+    assertThat(menuControlsPlayPause.isDisable()).isFalse();
+    assertThat(menuControlsPrevious.isDisable()).isTrue();
+    assertThat(menuControlsNext.isDisable()).isTrue();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceiveMediaStopped() {
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+    MenuItem menuControlsPrevious = findMenuItem("#menuControlsPrevious");
+    MenuItem menuControlsNext = findMenuItem("#menuControlsNext");
+
+    menuControlsPlayPause.setText("Test text");
+    menuControlsPlayPause.setDisable(true);
+    menuControlsPrevious.setDisable(false);
+    menuControlsNext.setDisable(false);
+
+    Platform.runLater(() -> underTest.eventReceived(MEDIA_STOPPED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuControlsPlayPause.getText()).isEqualTo(stringResourceService.getString(MESSAGE_MENU_CONTROLS_PLAY));
+    assertThat(menuControlsPlayPause.isDisable()).isFalse();
+    assertThat(menuControlsPrevious.isDisable()).isTrue();
+    assertThat(menuControlsNext.isDisable()).isTrue();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceiveEndOfMedia() {
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+    MenuItem menuControlsPrevious = findMenuItem("#menuControlsPrevious");
+    MenuItem menuControlsNext = findMenuItem("#menuControlsNext");
+
+    menuControlsPlayPause.setText("Test text");
+    menuControlsPlayPause.setDisable(true);
+    menuControlsPrevious.setDisable(false);
+    menuControlsNext.setDisable(false);
+
+    Platform.runLater(() -> underTest.eventReceived(END_OF_MEDIA));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuControlsPlayPause.getText()).isEqualTo(stringResourceService.getString(MESSAGE_MENU_CONTROLS_PLAY));
+    assertThat(menuControlsPlayPause.isDisable()).isFalse();
+    assertThat(menuControlsPrevious.isDisable()).isTrue();
+    assertThat(menuControlsNext.isDisable()).isTrue();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceivePlaylistCreated() {
+    MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+
+    menuEditCreatePlaylistFromAlbum.setDisable(true);
+    menuControlsPlayPause.setDisable(true);
+
+    when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
+    when(mainPanelController.isPlaylistUnplayable()).thenReturn(false);
+
+    Platform.runLater(() -> underTest.eventReceived(PLAYLIST_CREATED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
+    assertThat(menuControlsPlayPause.isDisable()).isFalse();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceivePlaylistCreatedWhenPlaylistIsNotPlayable() {
+    MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+
+    menuEditCreatePlaylistFromAlbum.setDisable(true);
+    menuControlsPlayPause.setDisable(false);
+
+    when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
+    when(mainPanelController.isPlaylistUnplayable()).thenReturn(true);
+
+    Platform.runLater(() -> underTest.eventReceived(PLAYLIST_CREATED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
+    assertThat(menuControlsPlayPause.isDisable()).isTrue();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceivePlaylistCreatedWhenTrackIsNotSelected() {
+    MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+
+    menuEditCreatePlaylistFromAlbum.setDisable(false);
+    menuControlsPlayPause.setDisable(true);
+
+    when(trackTableController.getSelectedTrack()).thenReturn(null);
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
+    when(mainPanelController.isPlaylistUnplayable()).thenReturn(false);
+
+    Platform.runLater(() -> underTest.eventReceived(PLAYLIST_CREATED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isTrue();
+    assertThat(menuControlsPlayPause.isDisable()).isFalse();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceivePlaylistDeleted() {
+    MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+
+    menuEditCreatePlaylistFromAlbum.setDisable(true);
+    menuControlsPlayPause.setDisable(true);
+
+    when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
+    when(mainPanelController.isPlaylistUnplayable()).thenReturn(false);
+
+    Platform.runLater(() -> underTest.eventReceived(PLAYLIST_DELETED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
+    assertThat(menuControlsPlayPause.isDisable()).isFalse();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceivePlaylistSelected() {
+    MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+
+    menuEditCreatePlaylistFromAlbum.setDisable(true);
+    menuControlsPlayPause.setDisable(true);
+
+    when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+    when(mediaService.isPlaying()).thenReturn(false);
+    when(mediaService.isPaused()).thenReturn(false);
+    when(mainPanelController.isPlaylistUnplayable()).thenReturn(false);
+
+    Platform.runLater(() -> underTest.eventReceived(PLAYLIST_SELECTED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
+    assertThat(menuControlsPlayPause.isDisable()).isFalse();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceivePlaylistContentUpdated() {
+    MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
+    menuEditCreatePlaylistFromAlbum.setDisable(true);
+
+    when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+
+    Platform.runLater(() -> underTest.eventReceived(PLAYLIST_CONTENT_UPDATED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceiveTrackSelected() {
+    MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+
+    menuEditCreatePlaylistFromAlbum.setDisable(true);
+    menuControlsPlayPause.setDisable(true);
+
+    when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+
+    Platform.runLater(() -> underTest.eventReceived(TRACK_SELECTED));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
+    assertThat(menuControlsPlayPause.isDisable()).isFalse();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReceiveTrackQueuedForPlaying() {
+    MenuItem menuEditCreatePlaylistFromAlbum = findMenuItem("#menuEditCreatePlaylistFromAlbum");
+    MenuItem menuControlsPlayPause = findMenuItem("#menuControlsPlayPause");
+
+    menuEditCreatePlaylistFromAlbum.setDisable(true);
+    menuControlsPlayPause.setDisable(false);
+
+    when(trackTableController.getSelectedTrack()).thenReturn(mock(Track.class));
+
+    Platform.runLater(() -> underTest.eventReceived(TRACK_QUEUED_FOR_PLAYING));
+
+    WaitForAsyncUtils.waitForFxEvents();
+
+    assertThat(menuEditCreatePlaylistFromAlbum.isDisable()).isFalse();
+    assertThat(menuControlsPlayPause.isDisable()).isTrue();
+  }
 }

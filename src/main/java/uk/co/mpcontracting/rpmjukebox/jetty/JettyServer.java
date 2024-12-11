@@ -1,101 +1,95 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SPLASH_ALREADY_RUNNING;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SPLASH_INITIALISING_CACHE;
+
+import jakarta.annotation.PostConstruct;
+import java.net.BindException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
-import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
-import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
-
-import javax.annotation.PostConstruct;
-import java.net.BindException;
+import uk.co.mpcontracting.rpmjukebox.config.ApplicationProperties;
+import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
+import uk.co.mpcontracting.rpmjukebox.service.ApplicationLifecycleService;
+import uk.co.mpcontracting.rpmjukebox.service.StringResourceService;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JettyServer implements Constants {
+public class JettyServer extends EventAwareObject {
 
-    private final AppProperties appProperties;
-    private final RpmJukebox rpmJukebox;
-    private final MessageManager messageManager;
+  private final RpmJukebox rpmJukebox;
+  private final ApplicationProperties applicationProperties;
+  private final StringResourceService stringResourceService;
 
-    private ApplicationManager applicationManager;
+  @Lazy
+  @Autowired
+  private ApplicationLifecycleService applicationLifecycleService;
 
-    private Server server;
+  private Server server;
 
-    @Autowired
-    public void wireApplicationManager(ApplicationManager applicationManager) {
-        this.applicationManager = applicationManager;
+  @SneakyThrows
+  @PostConstruct
+  public void initialise() {
+    log.info("Initialising JettyServer on port - {}", applicationProperties.getJettyPort());
+
+    rpmJukebox.updateSplashProgress(stringResourceService.getString(MESSAGE_SPLASH_INITIALISING_CACHE));
+
+    server = constructServer();
+
+    try (ServerConnector serverConnector = constructServerConnector(server)) {
+      serverConnector.setPort(applicationProperties.getJettyPort());
+      server.setConnectors(new Connector[]{serverConnector});
     }
 
-    @SneakyThrows
-    @PostConstruct
-    public void initialise() {
-        log.info("Initialising JettyServer on port - {}", appProperties.getJettyPort());
+    ServletContextHandler context = new ServletContextHandler();
+    context.setContextPath("/");
+    context.addServlet(CachingMediaProxyServlet.class, "/cache");
 
-        rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_INITIALISING_CACHE));
+    server.setHandler(new DefaultHandler());
 
-        server = constructServer();
-
-        ServerConnector connector = constructServerConnector(server);
-        connector.setPort(appProperties.getJettyPort());
-
-        server.setConnectors(new Connector[]{connector});
-
-        ServletContextHandler context = new ServletContextHandler();
-        context.setContextPath("/");
-        context.addServlet(CachingMediaProxyServlet.class, "/cache");
-
-        HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(new Handler[]{context, new DefaultHandler()});
-
-        server.setHandler(handlers);
+    try {
+      server.start();
+    } catch (Exception e) {
+      if (e instanceof BindException) {
+        rpmJukebox.updateSplashProgress(stringResourceService.getString(MESSAGE_SPLASH_ALREADY_RUNNING));
 
         try {
-            server.start();
-        } catch (Exception e) {
-            if (e instanceof BindException) {
-                rpmJukebox.updateSplashProgress(messageManager.getMessage(MESSAGE_SPLASH_ALREADY_RUNNING));
-
-                try {
-                    Thread.sleep(5000);
-                } catch (Exception e2) {
-                    // Do nothing
-                }
-
-                applicationManager.shutdown();
-            } else {
-                throw e;
-            }
+          Thread.sleep(5000);
+        } catch (Exception e2) {
+          // Do nothing
         }
-    }
 
-    // Package level for testing purposes
-    Server constructServer() {
-        return new Server();
+        applicationLifecycleService.shutdown();
+      } else {
+        throw e;
+      }
     }
+  }
 
-    ServerConnector constructServerConnector(Server server) {
-        return new ServerConnector(server);
+  protected Server constructServer() {
+    return new Server();
+  }
+
+  protected ServerConnector constructServerConnector(Server server) {
+    return new ServerConnector(server);
+  }
+
+  public void stop() throws Exception {
+    log.info("Stopping JettyServer");
+
+    if (server != null) {
+      server.stop();
+      server.join();
     }
-
-    public void stop() throws Exception {
-        log.info("Stopping JettyServer");
-
-        if (server != null) {
-            server.stop();
-            server.join();
-        }
-    }
+  }
 }

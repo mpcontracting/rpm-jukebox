@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class EqBand {
-    private int band;
-    private double value;
+
+  private int band;
+  private double value;
 }

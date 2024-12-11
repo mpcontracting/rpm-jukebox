@@ -1,38 +1,41 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
+
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import org.junit.Before;
-import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
+class ProgressSplashScreenTest extends AbstractGuiTest {
 
-public class ProgressSplashScreenTest extends AbstractGUITest {
+  private ProgressSplashScreen underTest;
 
-    private ProgressSplashScreen underTest;
+  @BeforeEach
+  void beforeEach() {
+    underTest = new ProgressSplashScreen();
+  }
 
-    @Before
-    public void setup() {
-        underTest = new ProgressSplashScreen();
-    }
+  @Test
+  void shouldGetParent() {
+    Parent parent = underTest.getParent();
 
-    @Test
-    public void shouldGetParent() {
-        Parent parent = underTest.getParent();
+    assertThat(parent).isNotNull();
+  }
 
-        assertThat(parent).isNotNull();
-    }
+  @Test
+  void shouldUpdateProgress() {
+    String labelText = getFaker().lorem().characters(10, 25);
+    Label label = mock(Label.class);
+    setField(underTest, "progressLabel", label);
 
-    @Test
-    public void shouldUpdateProgress() {
-        Label label = mock(Label.class);
-        setField(underTest, "progressLabel", label);
+    underTest.updateProgress(labelText);
 
-        underTest.updateProgress("Test message");
-
-        verify(label, times(1)).setText("Test message");
-    }
+    verify(label).setText(labelText);
+  }
 }

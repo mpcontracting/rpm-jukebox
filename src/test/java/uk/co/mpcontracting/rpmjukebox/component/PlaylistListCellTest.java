@@ -1,115 +1,128 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createPlaylistName;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.PLAYLIST_ID_FAVOURITES;
+
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+class PlaylistListCellTest extends AbstractGuiTest {
 
-public class PlaylistListCellTest extends AbstractGUITest implements Constants {
+  private PlaylistListCell underTest;
 
-    private PlaylistListCell underTest;
+  @BeforeEach
+  void beforeEach() {
+    underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
+  }
 
-    @Before
-    public void setup() {
-        underTest = spy(new PlaylistListCell(new PlaylistStringConverter<>()));
-    }
+  @Test
+  void shouldUpdateItem() {
+    String playlistName = createPlaylistName();
 
-    @Test
-    public void shouldUpdateItem() {
-        underTest.updateItem(new Playlist(1, "Playlist", 10), false);
+    underTest.updateItem(new Playlist(1, playlistName, 10), false);
 
-        assertThat(underTest.getText()).isEqualTo("Playlist");
-        assertThat(underTest.isEditable()).isTrue();
-    }
+    assertThat(underTest.getText()).isEqualTo(playlistName);
+    assertThat(underTest.isEditable()).isTrue();
+  }
 
-    @Test
-    public void shouldUpdateItemNotEditableWhenReservedPlaylist() {
-        underTest.updateItem(new Playlist(PLAYLIST_ID_FAVOURITES, "Favourites", 10), false);
+  @Test
+  void shouldUpdateItemNotEditableWhenReservedPlaylist() {
+    String playlistName = createPlaylistName();
 
-        assertThat(underTest.getText()).isEqualTo("Favourites");
-        assertThat(underTest.isEditable()).isFalse();
-    }
+    underTest.updateItem(new Playlist(PLAYLIST_ID_FAVOURITES, playlistName, 10), false);
 
-    @Test
-    public void shouldUpdateItemAutoEditWhenGraphicIsTextField() {
-        TextField textField = mock(TextField.class);
-        when(underTest.getGraphic()).thenReturn(textField);
+    assertThat(underTest.getText()).isEqualTo(playlistName);
+    assertThat(underTest.isEditable()).isFalse();
+  }
 
-        underTest.updateItem(new Playlist(1, "Playlist", 10), false);
+  @Test
+  void shouldUpdateItemAutoEditWhenGraphicIsTextField() {
+    TextField textField = mock(TextField.class);
+    when(underTest.getGraphic()).thenReturn(textField);
 
-        assertThat(underTest.getText()).isNull();
-        assertThat(underTest.isEditable()).isTrue();
-        verify(textField, times(1)).selectAll();
-    }
+    underTest.updateItem(new Playlist(1, createPlaylistName(), 10), false);
 
-    @Test
-    public void shouldUpdateItemAsEmpty() {
-        underTest.updateItem(new Playlist(1, "Playlist", 10), true);
+    assertThat(underTest.getText()).isNull();
+    assertThat(underTest.isEditable()).isTrue();
+    verify(textField).selectAll();
+  }
 
-        // These are also set in the super class
-        verify(underTest, times(2)).setText(null);
-        verify(underTest, times(2)).setGraphic(null);
-    }
+  @Test
+  void shouldUpdateItemAsEmpty() {
+    underTest.updateItem(new Playlist(1, createPlaylistName(), 10), true);
 
-    @Test
-    public void shouldStartEditAndCommit() {
-        PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
-        playlistStringConverter.setPlaylist(new Playlist(1, "Playlist", 10));
+    // These are also set in the super class
+    verify(underTest, times(2)).setText(null);
+    verify(underTest, times(2)).setGraphic(null);
+  }
 
-        underTest = spy(new PlaylistListCell(playlistStringConverter));
-        TextField textField = spy(new TextField("Playlist Updated"));
-        ReflectionTestUtils.invokeMethod(textField, "setFocused", true);
-        when(underTest.getGraphic()).thenReturn(textField);
+  @Test
+  void shouldStartEditAndCommit() {
+    String playlistUpdatedName = createPlaylistName();
 
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
-        when(listView.isEditable()).thenReturn(true);
-        when(underTest.getListView()).thenReturn(listView);
+    PlaylistStringConverter<Playlist> playlistStringConverter = new PlaylistStringConverter<>();
+    playlistStringConverter.setPlaylist(new Playlist(1, createPlaylistName(), 10));
 
-        underTest.startEdit();
+    underTest = spy(new PlaylistListCell(playlistStringConverter));
+    TextField textField = spy(new TextField(playlistUpdatedName));
+    ReflectionTestUtils.invokeMethod(textField, "setFocused", true);
+    when(underTest.getGraphic()).thenReturn(textField);
 
-        ReflectionTestUtils.invokeMethod(textField, "setFocused", false);
+    @SuppressWarnings("unchecked")
+    ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
+    when(listView.isEditable()).thenReturn(true);
+    when(underTest.getListView()).thenReturn(listView);
 
-        ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
+    underTest.startEdit();
 
-        verify(underTest, times(1)).commitEdit(playlistCaptor.capture());
-        assertThat(playlistCaptor.getValue().getName()).isEqualTo("Playlist Updated");
-    }
+    ReflectionTestUtils.invokeMethod(textField, "setFocused", false);
 
-    @Test
-    public void shouldStartEditNoCommit() {
-        TextField textField = spy(new TextField("Playlist"));
-        when(underTest.getGraphic()).thenReturn(textField);
+    ArgumentCaptor<Playlist> playlistCaptor = ArgumentCaptor.forClass(Playlist.class);
 
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
-        when(listView.isEditable()).thenReturn(true);
-        when(underTest.getListView()).thenReturn(listView);
+    verify(underTest, times(1)).commitEdit(playlistCaptor.capture());
+    assertThat(playlistCaptor.getValue().getName()).isEqualTo(playlistUpdatedName);
+  }
 
-        underTest.startEdit();
+  @Test
+  void shouldStartEditNoCommit() {
+    TextField textField = spy(new TextField(createPlaylistName()));
+    when(underTest.getGraphic()).thenReturn(textField);
 
-        ReflectionTestUtils.invokeMethod(textField, "setFocused", true);
+    @SuppressWarnings("unchecked")
+    ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
+    when(listView.isEditable()).thenReturn(true);
+    when(underTest.getListView()).thenReturn(listView);
 
-        verify(underTest, never()).commitEdit(any());
-    }
+    underTest.startEdit();
 
-    @Test
-    public void shouldStartEditNoTextField() {
-        @SuppressWarnings("unchecked")
-        ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
-        when(listView.isEditable()).thenReturn(true);
-        when(underTest.getListView()).thenReturn(listView);
+    ReflectionTestUtils.invokeMethod(textField, "setFocused", true);
 
-        underTest.startEdit();
+    verify(underTest, never()).commitEdit(any());
+  }
 
-        verify(underTest, never()).commitEdit(any());
-    }
+  @Test
+  void shouldStartEditNoTextField() {
+    @SuppressWarnings("unchecked")
+    ListView<Playlist> listView = (ListView<Playlist>) mock(ListView.class);
+    when(listView.isEditable()).thenReturn(true);
+    when(underTest.getListView()).thenReturn(listView);
+
+    underTest.startEdit();
+
+    verify(underTest, never()).commitEdit(any());
+  }
 }

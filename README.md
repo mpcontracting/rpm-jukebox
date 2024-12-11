@@ -1,7 +1,45 @@
 # RPM Jukebox
-A player for the RPM Challenge jukebox written in JavaFX
+
+[![Build and test](https://github.com/mpcontracting/rpm-jukebox/actions/workflows/on_push_to_main.yaml/badge.svg?branch=main)](https://github.com/mpcontracting/rpm-jukebox/actions/workflows/on_push_to_main.yaml)
+
+A jukebox for the RPM Challenge written in JavaFX
+
+## Running in Maven
+
+Run with the following Maven command. The JavaFX SDK is not required to run the application with Maven.
+
+```shell
+./mvnw javafx:run
+```
+
+## Running in IntelliJ
+
+Download the JavaFX SDK v22.0.1 [from here](https://gluonhq.com/products/javafx/)
+
+Add a run configuration with the following as VM options
+
+```
+-Ddirectory.config=.rpmjukeboxdev -Dconsole.log.only=true --module-path <path-to-sdk>/javafx-sdk-22.0.1/lib --add-modules=javafx.controls,javafx.fxml,javafx.media
+```
+
+## Building a release
+
+Download the JavaFX jmods v22.0.1 [from here](https://gluonhq.com/products/javafx/)
+
+Update the `javafx.jmods.location` property in the POM to point to the installed jmods.
+
+Run the following Maven command.
+
+```shell
+./mvnw clean package jlink:jlink jpackage:jpackage
+```
 
 ## Release Notes
+
+### v6.0.0
+
+* Converted to use JDK21 and JavaFX 22.0.1
+* Changed build to use Maven rather than Gradle
 
 ### v5.0.0
 

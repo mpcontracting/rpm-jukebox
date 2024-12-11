@@ -1,77 +1,80 @@
 package uk.co.mpcontracting.rpmjukebox.view;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
+
+import de.felixroske.jfxsupport.GUIState;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import uk.co.mpcontracting.rpmjukebox.controller.ConfirmController;
-import uk.co.mpcontracting.rpmjukebox.javafx.GuiState;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
+import uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
+class ConfirmViewTest extends AbstractGuiTest {
 
-public class ConfirmViewTest extends AbstractGUITest {
+  @MockBean
+  private ConfirmController confirmController;
 
-    @Autowired
-    private ConfirmView confirmView;
+  @SpyBean
+  private ConfirmView underTest;
 
-    @Mock
-    private ConfirmController confirmController;
+  private Stage originalStage;
 
-    private Stage originalStage;
-    private ConfirmView underTest;
+  @BeforeEach
+  void beforeEach() {
+    originalStage = GUIState.getStage();
+    setField(GUIState.class, "stage", mock(Stage.class));
+  }
 
-    @Before
-    public void setup() {
-        underTest = spy(confirmView);
-        originalStage = GuiState.getStage();
-        setField(GuiState.class, "stage", mock(Stage.class));
-        setField(underTest, "confirmController", confirmController);
-    }
+  @AfterEach
+  void afterEach() {
+    setField(GUIState.class, "stage", originalStage);
+  }
 
-    @Test
-    public void shouldSetMessage() {
-        Parent view = mock(Parent.class);
-        when(underTest.getView()).thenReturn(view);
+  @Test
+  void shouldSetMessage() {
+    Parent view = mock(Parent.class);
+    when(underTest.getView()).thenReturn(view);
 
-        Scene scene = mock(Scene.class);
-        when(view.getScene()).thenReturn(scene);
+    Scene scene = mock(Scene.class);
+    when(view.getScene()).thenReturn(scene);
 
-        Parent root = mock(Parent.class);
-        when(scene.getRoot()).thenReturn(root);
+    Parent root = mock(Parent.class);
+    when(scene.getRoot()).thenReturn(root);
 
-        Label label = mock(Label.class);
-        when(root.lookup("#message")).thenReturn(label);
+    Label label = mock(Label.class);
+    when(root.lookup("#message")).thenReturn(label);
 
-        underTest.setMessage("Test Message");
+    String message = TestDataHelper.getFaker().lorem().characters(20, 50);
 
-        verify(label, times(1)).setText("Test Message");
-    }
+    underTest.setMessage(message);
 
-    @Test
-    public void shouldSetRunnables() {
-        underTest.setRunnables(null, null);
+    verify(label).setText(message);
+  }
 
-        verify(confirmController, times(1)).setRunnables(any(), any());
-    }
+  @Test
+  void shouldSetRunnables() {
+    underTest.setRunnables(null, null);
 
-    @Test
-    public void shouldShow() {
-        setField(underTest, "stage", mock(Stage.class));
+    verify(confirmController).setRunnables(any(), any());
+  }
 
-        underTest.show(false);
+  @Test
+  void shouldShow() {
+    setField(underTest, "stage", mock(Stage.class));
 
-        verify(confirmController, times(1)).setOkFocused();
-    }
+    underTest.show(false);
 
-    @After
-    public void cleanup() {
-        setField(GuiState.class, "stage", originalStage);
-    }
+    verify(confirmController).setOkFocused();
+  }
 }

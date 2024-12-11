@@ -1,25 +1,27 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createPlaylistName;
 
-public class PlaylistTableModelTest extends AbstractGUITest {
+import org.junit.jupiter.api.Test;
+import uk.co.mpcontracting.rpmjukebox.model.Playlist;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-    @Test
-    public void shouldInitialise() {
-        Playlist playlist = mock(Playlist.class);
-        when(playlist.getPlaylistId()).thenReturn(1);
-        when(playlist.getName()).thenReturn("Playlist");
+class PlaylistTableModelTest extends AbstractGuiTest {
 
-        PlaylistTableModel underTest = new PlaylistTableModel(playlist);
+  @Test
+  void shouldInitialise() {
+    String playlistName = createPlaylistName();
 
-        assertThat(underTest.getPlaylist()).isEqualTo(playlist);
-        assertThat(underTest.getSelected()).isNotNull();
-        assertThat(underTest.getName().get()).isEqualTo("Playlist");
-    }
+    Playlist playlist = mock(Playlist.class);
+    when(playlist.getName()).thenReturn(playlistName);
+
+    PlaylistTableModel underTest = new PlaylistTableModel(playlist);
+
+    assertThat(underTest.getPlaylist()).isEqualTo(playlist);
+    assertThat(underTest.getSelected()).isNotNull();
+    assertThat(underTest.getName().get()).isEqualTo(playlistName);
+  }
 }

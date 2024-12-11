@@ -1,15 +1,19 @@
 package uk.co.mpcontracting.rpmjukebox.search;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.mpcontracting.rpmjukebox.search.TrackSort.DEFAULT_SORT;
 
-public class TrackSortTest {
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-    @Test
-    public void shouldReturnFriendlyName() {
-        String friendlyName = TrackSort.DEFAULT_SORT.getFriendlyName();
+@ExtendWith(MockitoExtension.class)
+class TrackSortTest {
 
-        assertThat(friendlyName).isEqualTo("Default");
-    }
+  @Test
+  void shouldReturnFriendlyName() {
+    String friendlyName = DEFAULT_SORT.getFriendlyName();
+
+    assertThat(friendlyName).isEqualTo("Default");
+  }
 }

@@ -1,38 +1,41 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
-import org.junit.Before;
-import org.junit.Test;
-import uk.co.mpcontracting.rpmjukebox.test.support.AbstractGUITest;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
 
-public class TrackTableCellTest extends AbstractGUITest {
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import uk.co.mpcontracting.rpmjukebox.test.util.AbstractGuiTest;
 
-    private TrackTableCell<String> underTest;
+class TrackTableCellTest extends AbstractGuiTest {
 
-    @Before
-    public void setup() {
-        underTest = new TrackTableCell<>();
-    }
+  private TrackTableCell<String> underTest;
 
-    @Test
-    public void shouldUpdateItem() {
-        underTest.updateItem("Value", false);
+  @BeforeEach
+  void beforeEach() {
+    underTest = new TrackTableCell<>();
+  }
 
-        assertThat(underTest.getText()).isEqualTo("Value");
-    }
+  @Test
+  void shouldUpdateItem() {
+    String value = getFaker().lorem().characters(10 ,20);
 
-    @Test
-    public void shouldUpdateItemAsEmpty() {
-        underTest.updateItem("Value", true);
+    underTest.updateItem(value, false);
 
-        assertThat(underTest.getText()).isNull();
-    }
+    assertThat(underTest.getText()).isEqualTo(value);
+  }
 
-    @Test
-    public void shouldUpdateItemAsNull() {
-        underTest.updateItem(null, false);
+  @Test
+  void shouldUpdateItemAsEmpty() {
+    underTest.updateItem(getFaker().lorem().characters(10 ,20), true);
 
-        assertThat(underTest.getText()).isNull();
-    }
+    assertThat(underTest.getText()).isNull();
+  }
+
+  @Test
+  void shouldUpdateItemAsNull() {
+    underTest.updateItem(null, false);
+
+    assertThat(underTest.getText()).isNull();
+  }
 }

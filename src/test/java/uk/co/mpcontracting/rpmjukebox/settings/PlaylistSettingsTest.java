@@ -1,26 +1,22 @@
 package uk.co.mpcontracting.rpmjukebox.settings;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.mpcontracting.rpmjukebox.model.Playlist;
-import uk.co.mpcontracting.rpmjukebox.model.Track;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createPlaylist;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PlaylistSettingsTest {
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 
-    @Test
-    public void shouldPopulateTracksFromPlaylist() {
-        Playlist playlist = new Playlist(1, "Test Playlist", 10);
-        for (int i = 0; i < 11; i++) {
-            playlist.addTrack(mock(Track.class));
-        }
+@ExtendWith(MockitoExtension.class)
+class PlaylistSettingsTest {
 
-        PlaylistSettings playlistSettings = new PlaylistSettings(playlist);
+  @Test
+  public void shouldPopulateTracksFromPlaylist() {
+    Playlist playlist = createPlaylist().orElseThrow();
 
-        assertThat(playlistSettings.getTracks()).hasSize(10);
-    }
+    PlaylistSettings playlistSettings = new PlaylistSettings(playlist);
+
+    assertThat(playlistSettings.getTracks()).hasSize(playlist.size());
+  }
 }

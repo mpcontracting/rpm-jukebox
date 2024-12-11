@@ -1,107 +1,127 @@
 package uk.co.mpcontracting.rpmjukebox.jetty;
 
-import lombok.SneakyThrows;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.configuration.AppProperties;
-import uk.co.mpcontracting.rpmjukebox.manager.ApplicationManager;
-import uk.co.mpcontracting.rpmjukebox.manager.MessageManager;
-import uk.co.mpcontracting.rpmjukebox.support.Constants;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SPLASH_ALREADY_RUNNING;
+import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SPLASH_INITIALISING_CACHE;
 
 import java.net.BindException;
+import lombok.SneakyThrows;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
+import uk.co.mpcontracting.rpmjukebox.config.ApplicationProperties;
+import uk.co.mpcontracting.rpmjukebox.service.ApplicationLifecycleService;
+import uk.co.mpcontracting.rpmjukebox.service.StringResourceService;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+@ExtendWith(MockitoExtension.class)
+class JettyServerTest {
 
-@RunWith(MockitoJUnitRunner.class)
-public class JettyServerTest implements Constants {
+  private static final String MESSAGE_INITIALISING_CACHE = "InitialiseCache";
+  private static final String MESSAGE_ALREADY_RUNNING = "AlreadyRunning";
 
-    @Mock
-    private AppProperties appProperties;
+  @Mock
+  private RpmJukebox rpmJukebox;
 
-    @Mock
-    private RpmJukebox rpmJukebox;
+  @Mock
+  private ApplicationProperties applicationProperties;
 
-    @Mock
-    private ApplicationManager applicationManager;
+  @Mock
+  private StringResourceService stringResourceService;
 
-    @Mock
-    private MessageManager messageManager;
+  @Mock
+  private ApplicationLifecycleService applicationLifecycleService;
 
-    @Mock
-    private Server server;
+  @Mock
+  private Server server;
 
-    @Mock
-    private ServerConnector serverConnector;
+  @Mock
+  private ServerConnector serverConnector;
 
-    private JettyServer underTest;
+  private JettyServer underTest;
 
-    @Before
-    public void setup() {
-        underTest = spy(new JettyServer(appProperties, rpmJukebox, messageManager));
-        underTest.wireApplicationManager(applicationManager);
+  @BeforeEach
+  void beforeEach() {
+    underTest = spy(new JettyServer(rpmJukebox, applicationProperties, stringResourceService));
 
-        doReturn(server).when(underTest).constructServer();
-        doReturn(serverConnector).when(underTest).constructServerConnector(server);
+    setField(underTest, "applicationLifecycleService", applicationLifecycleService);
 
-        when(messageManager.getMessage(MESSAGE_SPLASH_INITIALISING_CACHE)).thenReturn("InitialiseCache");
-        when(messageManager.getMessage(MESSAGE_SPLASH_ALREADY_RUNNING)).thenReturn("AlreadyRunning");
-    }
+    lenient().doReturn(server).when(underTest).constructServer();
+    lenient().doReturn(serverConnector).when(underTest).constructServerConnector(server);
 
-    @Test
-    @SneakyThrows
-    public void shouldInitialiseJettyServer() {
-        underTest.initialise();
+    lenient().when(stringResourceService.getString(MESSAGE_SPLASH_INITIALISING_CACHE)).thenReturn(MESSAGE_INITIALISING_CACHE);
+    lenient().when(stringResourceService.getString(MESSAGE_SPLASH_ALREADY_RUNNING)).thenReturn(MESSAGE_ALREADY_RUNNING);
+  }
 
-        verify(rpmJukebox, times(1)).updateSplashProgress("InitialiseCache");
-        verify(server, times(1)).start();
-    }
+  @Test
+  @SneakyThrows
+  void shouldInitialiseJettyServer() {
+    int jettyPort = getFaker().number().numberBetween(8080, 9999);
 
-    @Test
-    @SneakyThrows
-    public void shouldShutdownApplicationIfBindExceptionThrownOnServerStart() {
-        doThrow(new BindException("JettyServerTest.shouldShutdownApplicationIfBindExceptionThrownOnServerStart()"))
-                .when(server).start();
+    when(applicationProperties.getJettyPort()).thenReturn(jettyPort);
 
-        underTest.initialise();
+    underTest.initialise();
 
-        verify(rpmJukebox, times(1)).updateSplashProgress("AlreadyRunning");
-        verify(applicationManager, times(1)).shutdown();
-    }
+    verify(rpmJukebox).updateSplashProgress(MESSAGE_INITIALISING_CACHE);
+    verify(serverConnector).setPort(jettyPort);
+    verify(server).setHandler(any(Handler.class));
+    verify(server).start();
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart() {
-        doThrow(new IllegalStateException("JettyServerTest.shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart()"))
-                .when(server).start();
+  @Test
+  @SneakyThrows
+  void shouldShutdownApplicationIfBindExceptionThrownOnServerStart() {
+    doThrow(new BindException("JettyServerTest.shouldShutdownApplicationIfBindExceptionThrownOnServerStart()"))
+        .when(server).start();
 
-        assertThatThrownBy(() -> underTest.initialise()).isInstanceOf(IllegalStateException.class);
+    underTest.initialise();
 
-        verify(applicationManager, never()).shutdown();
-    }
+    verify(rpmJukebox).updateSplashProgress(MESSAGE_ALREADY_RUNNING);
+    verify(applicationLifecycleService).shutdown();
+  }
 
-    @Test
-    @SneakyThrows
-    public void shouldStopJettyServer() {
-        underTest.initialise();
-        underTest.stop();
+  @Test
+  @SneakyThrows
+  void shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart() {
+    doThrow(new IllegalStateException("JettyServerTest.shouldRethrowExceptionIfNonBindExceptionThrownOnServerStart()"))
+        .when(server).start();
 
-        verify(server, times(1)).stop();
-        verify(server, times(1)).join();
-    }
+    assertThatThrownBy(() -> underTest.initialise()).isInstanceOf(IllegalStateException.class);
 
-    @Test
-    @SneakyThrows
-    public void shouldStopJettyServerWhenServerIsNull() {
-        underTest.stop();
+    verify(rpmJukebox, never()).updateSplashProgress(MESSAGE_ALREADY_RUNNING);
+    verify(applicationLifecycleService, never()).shutdown();
+  }
 
-        verify(server, never()).stop();
-        verify(server, never()).join();
-    }
+  @Test
+  @SneakyThrows
+  void shouldStopJettyServer() {
+    underTest.initialise();
+    underTest.stop();
+
+    verify(server).stop();
+    verify(server).join();
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldStopJettyServerWhenServerIsNull() {
+    underTest.stop();
+
+    verify(server, never()).stop();
+    verify(server, never()).join();
+  }
 }

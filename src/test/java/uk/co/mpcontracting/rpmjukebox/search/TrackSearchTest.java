@@ -1,51 +1,60 @@
 package uk.co.mpcontracting.rpmjukebox.search;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.mpcontracting.rpmjukebox.search.TrackSort.ALBUM_SORT;
+import static uk.co.mpcontracting.rpmjukebox.search.TrackSort.DEFAULT_SORT;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createGenre;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createKeywords;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createYearString;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TrackSearchTest {
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-    @Test
-    public void shouldInitialiseWithKeywords() {
-        TrackSearch trackSearch = new TrackSearch("Keywords");
-        TrackFilter trackFilter = trackSearch.getTrackFilter();
+@ExtendWith(MockitoExtension.class)
+class TrackSearchTest {
 
-        assertThat(trackSearch.getKeywords()).isEqualTo("Keywords");
-        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.DEFAULT_SORT);
-        assertThat(trackFilter.getFilter()).isNull();
-    }
+  @Test
+  void shouldInitialiseWithKeywords() {
+    String keywords = createKeywords();
+    TrackSearch trackSearch = new TrackSearch(keywords);
+    TrackFilter trackFilter = trackSearch.getTrackFilter();
 
-    @Test
-    public void shouldInitialiseWithKeywordsAndFilter() {
-        TrackSearch trackSearch = new TrackSearch("Keywords", new TrackFilter("Genre", "2000"));
-        TrackFilter trackFilter = trackSearch.getTrackFilter();
+    assertThat(trackSearch.getKeywords()).isEqualTo(keywords);
+    assertThat(trackSearch.getTrackSort()).isEqualTo(DEFAULT_SORT);
+    assertThat(trackFilter.getFilter()).isNull();
+  }
 
-        assertThat(trackSearch.getKeywords()).isEqualTo("Keywords");
-        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.DEFAULT_SORT);
-        assertThat(trackFilter.getFilter()).isNotNull();
-    }
+  @Test
+  void shouldInitialiseWithKeywordsAndFilter() {
+    String keywords = createKeywords();
+    TrackSearch trackSearch = new TrackSearch(keywords, new TrackFilter(createGenre(), createYearString()));
+    TrackFilter trackFilter = trackSearch.getTrackFilter();
 
-    @Test
-    public void shouldInitialiseWithKeywordsAndSort() {
-        TrackSearch trackSearch = new TrackSearch("Keywords", TrackSort.ALBUM_SORT);
-        TrackFilter trackFilter = trackSearch.getTrackFilter();
+    assertThat(trackSearch.getKeywords()).isEqualTo(keywords);
+    assertThat(trackSearch.getTrackSort()).isEqualTo(DEFAULT_SORT);
+    assertThat(trackFilter.getFilter()).isNotNull();
+  }
 
-        assertThat(trackSearch.getKeywords()).isEqualTo("Keywords");
-        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.ALBUM_SORT);
-        assertThat(trackFilter.getFilter()).isNull();
-    }
+  @Test
+  void shouldInitialiseWithKeywordsAndSort() {
+    String keywords = createKeywords();
+    TrackSearch trackSearch = new TrackSearch(keywords, ALBUM_SORT);
+    TrackFilter trackFilter = trackSearch.getTrackFilter();
 
-    @Test
-    public void shouldInitialiseWithKeywordsFilterAndSort() {
-        TrackSearch trackSearch = new TrackSearch("Keywords", new TrackFilter("Genre", "2000"), TrackSort.ALBUM_SORT);
-        TrackFilter trackFilter = trackSearch.getTrackFilter();
+    assertThat(trackSearch.getKeywords()).isEqualTo(keywords);
+    assertThat(trackSearch.getTrackSort()).isEqualTo(ALBUM_SORT);
+    assertThat(trackFilter.getFilter()).isNull();
+  }
 
-        assertThat(trackSearch.getKeywords()).isEqualTo("Keywords");
-        assertThat(trackSearch.getTrackSort()).isEqualTo(TrackSort.ALBUM_SORT);
-        assertThat(trackFilter.getFilter()).isNotNull();
-    }
+  @Test
+  void shouldInitialiseWithKeywordsFilterAndSort() {
+    String keywords = createKeywords();
+    TrackSearch trackSearch = new TrackSearch(keywords, new TrackFilter(createGenre(), createYearString()), ALBUM_SORT);
+    TrackFilter trackFilter = trackSearch.getTrackFilter();
+
+    assertThat(trackSearch.getKeywords()).isEqualTo(keywords);
+    assertThat(trackSearch.getTrackSort()).isEqualTo(ALBUM_SORT);
+    assertThat(trackFilter.getFilter()).isNotNull();
+  }
 }

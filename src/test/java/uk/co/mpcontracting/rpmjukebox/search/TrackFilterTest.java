@@ -1,50 +1,52 @@
 package uk.co.mpcontracting.rpmjukebox.search;
 
-import org.apache.lucene.queries.TermsQuery;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createGenre;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createYearString;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TrackFilterTest {
+import org.apache.lucene.queries.TermsQuery;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-    @Test
-    public void shouldInitialiseWithNoGenreOrYear() {
-        TrackFilter trackFilter = new TrackFilter(null, null);
+@ExtendWith(MockitoExtension.class)
+class TrackFilterTest {
 
-        assertThat(trackFilter.getFilter()).isNull();
-    }
+  @Test
+  void shouldInitialiseWithNoGenreOrYear() {
+    TrackFilter trackFilter = new TrackFilter(null, null);
 
-    @Test
-    public void shouldInitialiseWithBlankGenreOrYear() {
-        TrackFilter trackFilter = new TrackFilter("", "");
+    assertThat(trackFilter.getFilter()).isNull();
+  }
 
-        assertThat(trackFilter.getFilter()).isNull();
-    }
+  @Test
+  void shouldInitialiseWithBlankGenreOrYear() {
+    TrackFilter trackFilter = new TrackFilter("", "");
 
-    @Test
-    public void shouldInitialiseWithGenre() {
-        TrackFilter trackFilter = new TrackFilter("Genre", null);
-        TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
+    assertThat(trackFilter.getFilter()).isNull();
+  }
 
-        assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
-    }
+  @Test
+  void shouldInitialiseWithGenre() {
+    TrackFilter trackFilter = new TrackFilter(createGenre(), null);
+    TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
 
-    @Test
-    public void shouldInitialiseWithYear() {
-        TrackFilter trackFilter = new TrackFilter(null, "2000");
-        TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
+    assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
+  }
 
-        assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
-    }
+  @Test
+  void shouldInitialiseWithYear() {
+    TrackFilter trackFilter = new TrackFilter(null, createYearString());
+    TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
 
-    @Test
-    public void shouldInitialiseWithGenreAndYear() {
-        TrackFilter trackFilter = new TrackFilter("Genre", "2000");
-        TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
+    assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
+  }
 
-        assertThat(termsQuery.getTermData().size()).isEqualTo(2L);
-    }
+  @Test
+  void shouldInitialiseWithGenreAndYear() {
+    TrackFilter trackFilter = new TrackFilter(createGenre(), createYearString());
+    TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
+
+    assertThat(termsQuery.getTermData().size()).isEqualTo(2L);
+  }
 }

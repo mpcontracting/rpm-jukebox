@@ -1,74 +1,68 @@
 package uk.co.mpcontracting.rpmjukebox.test.javafx;
 
+// Adapted from https://github.com/roskenet/springboot-javafx-test to use JUnit 5
+
+import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElseGet;
+
+import de.felixroske.jfxsupport.AbstractFxmlView;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
-import org.testfx.framework.junit.ApplicationTest;
-import uk.co.mpcontracting.rpmjukebox.javafx.AbstractFxmlView;
+import org.testfx.framework.junit5.ApplicationTest;
 
-import java.util.Objects;
+public abstract class GuiTest extends ApplicationTest implements ApplicationContextAware {
 
-public class GuiTest extends ApplicationTest implements ApplicationContextAware {
+  private ApplicationContext applicationContext;
+  private AbstractFxmlView viewBean;
 
-    @BeforeClass
-    public static void setHeadlessMode() {
-        String headlessProp = System.getProperty("JAVAFX_HEADLESS", "true");
-        boolean headless = Boolean.parseBoolean(headlessProp);
-        String geometryProp = System.getProperty("JAVAFX_GEOMETRY", "1600x1200-32");
+  @BeforeAll
+  public static void setHeadlessMode() {
+    String headlessProp = System.getProperty("JAVAFX_HEADLESS", "true");
+    boolean headless = Boolean.parseBoolean(headlessProp);
+    String geometryProp = System.getProperty("JAVAFX_GEOMETRY", "1600x1200-32");
 
-        if (headless) {
-            System.setProperty("testfx.robot", "glass");
-            System.setProperty("testfx.headless", "true");
-            System.setProperty("prism.order", "sw");
-            System.setProperty("java.awt.headless", "true");
-            System.setProperty("headless.geometry", geometryProp);
-        } else {
-            System.setProperty("java.awt.headless", "false");
-        }
+    if (headless) {
+      System.setProperty("testfx.robot", "glass");
+      System.setProperty("testfx.headless", "true");
+      System.setProperty("prism.order", "sw");
+      System.setProperty("java.awt.headless", "true");
+      System.setProperty("headless.geometry", geometryProp);
+    } else {
+      System.setProperty("java.awt.headless", "false");
     }
+  }
 
-    public static boolean headless;
-    public static String geometry;
+  @Override
+  public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+    this.applicationContext = applicationContext;
+  }
 
-    private ApplicationContext appCtx;
-    private AbstractFxmlView viewBean;
+  protected void init(Class<? extends AbstractFxmlView> viewClass) throws Exception {
+    super.init();
+    viewBean = applicationContext.getBean(viewClass);
+  }
 
-    @Override
-    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
-        this.appCtx = applicationContext;
-    }
+  protected void init(final AbstractFxmlView viewBean) throws Exception {
+    super.init();
+    this.viewBean = viewBean;
+  }
 
-    protected void init(Class<? extends AbstractFxmlView> viewClass) throws Exception {
-        super.init();
-        viewBean = appCtx.getBean(viewClass);
-    }
+  public <T extends Node> T find(final String query) {
+    return lookup(query).query();
+  }
 
-    protected void init(final AbstractFxmlView viewBean) throws Exception {
-        super.init();
-        this.viewBean = viewBean;
-    }
+  @Override
+  public void start(Stage stage) {
+    requireNonNull(viewBean, "No view to set up! Have you called init() before?");
 
-    public <T extends Node> T find(final String query) {
-        return lookup(query).query();
-    }
-
-    @Override
-    public void start(Stage stage) {
-        Objects.requireNonNull(viewBean, "No view to set up! Have you called init() before?");
-
-        Scene scene = viewBean.getView().getScene();
-
-        if (scene == null) {
-            stage.setScene(new Scene(viewBean.getView()));
-        } else {
-            stage.setScene(scene);
-        }
-
-        stage.show();
-    }
+    Scene scene = viewBean.getView().getScene();
+    stage.setScene(requireNonNullElseGet(scene, () -> new Scene(viewBean.getView())));
+    stage.show();
+  }
 }

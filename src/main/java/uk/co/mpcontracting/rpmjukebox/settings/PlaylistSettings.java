@@ -1,25 +1,25 @@
 package uk.co.mpcontracting.rpmjukebox.settings;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.co.mpcontracting.rpmjukebox.model.Playlist;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 public class PlaylistSettings {
-    private int id;
-    private String name;
-    private List<String> tracks;
 
-    public PlaylistSettings(Playlist playlist) {
-        this.id = playlist.getPlaylistId();
-        this.name = playlist.getName();
+  private int id;
+  private String name;
+  private List<String> tracks;
 
-        tracks = new ArrayList<>();
+  public PlaylistSettings(Playlist playlist) {
+    this.id = playlist.getPlaylistId();
+    this.name = playlist.getName();
 
-        playlist.forEach(track -> tracks.add(track.getTrackId()));
-    }
+    tracks = new ArrayList<>();
+
+    playlist.forEach(track -> tracks.add(track.getTrackId()));
+  }
 }
