@@ -40,7 +40,6 @@ Run the following Maven command.
 
 * Converted to use JDK21 and JavaFX 22.0.1
 * Changed build to use Maven rather than Gradle
-* Refactored code to make it more efficient
 
 ### v5.0.0
 
