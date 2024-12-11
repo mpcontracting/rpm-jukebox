@@ -33,6 +33,7 @@
     <commons-io.version>2.16.1</commons-io.version>
     <guava.version>33.3.1-jre</guava.version>
 
+    <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
     <javafx-maven-plugin.version>0.0.8</javafx-maven-plugin.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
     <jlink-maven-plugin.version>0.1.11</jlink-maven-plugin.version>
@@ -164,7 +165,7 @@
       <extension>
         <groupId>kr.motd.maven</groupId>
         <artifactId>os-maven-plugin</artifactId>
-        <version>1.7.1</version>
+        <version>${os-maven-plugin.version}</version>
       </extension>
     </extensions>
     <plugins>
@@ -288,8 +289,7 @@
           <input>${project.build.directory}/jlink/libs</input>
           <runtimeimage>${project.build.directory}/jlink/image</runtimeimage>
           <appversion>${project.version}</appversion>
-          <resourcedir>${project.basedir/src/main/deploy/${os.detected.name}</resourcedir>
-          <!--<icon>${project.basedir}/artwork/rpmjukebox.icns</icon>-->
+          <resourcedir>${project.basedir}/src/main/deploy/${os.detected.name}</resourcedir>
           <mainjar>${project.artifactId}-${project.version}.jar</mainjar>
           <mainclass>uk.co.mpcontracting.rpmjukebox.RpmJukebox</mainclass>
           <macsign>true</macsign>
