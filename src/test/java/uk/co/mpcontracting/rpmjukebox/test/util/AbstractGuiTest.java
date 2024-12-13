@@ -26,7 +26,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.event.EventProcessor;
-import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.test.javafx.GuiTest;
 import uk.co.mpcontracting.rpmjukebox.view.MainPanelView;
 
@@ -52,9 +51,6 @@ public abstract class AbstractGuiTest extends GuiTest {
 
   @MockBean
   protected EventProcessor eventProcessor;
-
-  @MockBean
-  protected JettyServer jettyServer;
 
   @PostConstruct
   public void constructView() throws Exception {

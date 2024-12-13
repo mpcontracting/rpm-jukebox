@@ -1,15 +1,20 @@
 package uk.co.mpcontracting.rpmjukebox.service;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
-import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getRandomEnum;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.getConfigDirectory;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.getDateTimeInMillis;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
@@ -21,14 +26,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URLEncoder;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -39,6 +49,7 @@ import uk.co.mpcontracting.rpmjukebox.config.ApplicationProperties;
 import uk.co.mpcontracting.rpmjukebox.settings.SystemSettings;
 import uk.co.mpcontracting.rpmjukebox.util.CacheType;
 import uk.co.mpcontracting.rpmjukebox.util.HashGenerator;
+import uk.co.mpcontracting.rpmjukebox.util.ThreadRunner;
 
 @ExtendWith(MockitoExtension.class)
 class CacheServiceTest {
@@ -47,19 +58,23 @@ class CacheServiceTest {
   private ApplicationProperties applicationProperties;
 
   @Mock
+  private InternetService internetService;
+
+  @Mock
   private SettingsService settingsService;
 
   @Mock
   private SystemSettings systemSettings;
 
   private final File cacheDirectory = new File(getConfigDirectory(), "cache");
+  private final ThreadRunner threadRunner = new ThreadRunner(Executors.newCachedThreadPool());
   private final HashGenerator hashGenerator = new HashGenerator();
 
   private CacheService underTest;
 
   @BeforeEach
   void beforeEach() {
-    underTest = new CacheService(applicationProperties, hashGenerator, settingsService);
+    underTest = spy(new CacheService(applicationProperties, threadRunner, hashGenerator, internetService, settingsService));
 
     lenient().when(applicationProperties.getCacheDirectory()).thenReturn("cache");
     lenient().when(applicationProperties.getJettyPort()).thenReturn(43125);
@@ -81,29 +96,88 @@ class CacheServiceTest {
     }
   }
 
-  @Test
-  void shouldReturnAValidInternalUrl() {
-    String jettyPort = Integer.toString(applicationProperties.getJettyPort());
-    CacheType cacheType = getRandomEnum(CacheType.class);
-    String id = getFaker().numerify("#####");
-    String location = "http://" + getFaker().internet().url();
-    String expected = String.format("http://localhost:%s/cache?cacheType=%s&id=%s&url=%s", jettyPort, cacheType.name(), id, URLEncoder.encode(location, UTF_8));
+  @SneakyThrows
+  @ParameterizedTest
+  @MethodSource("getCacheTypes")
+  void shouldGetLocationFromCache(CacheType cacheType) {
+    String id = getFaker().numerify("######");
+    String location = "https://" + getFaker().internet().url();
+    File file = mock(File.class);
+    URI uri = mock(URI.class);
+    String path = getFaker().internet().url();
 
-    String result = underTest.constructInternalUrl(cacheType, id, location);
+    when(underTest.readCache(cacheType, id)).thenReturn(of(file));
+    when(file.toURI()).thenReturn(uri);
+    when(uri.toString()).thenReturn(path);
 
-    assertThat(result).isEqualTo(expected);
+    String result = underTest.getFileLocation(cacheType, id, location);
+
+    assertThat(result).isEqualTo(path);
   }
 
-  @Test
-  void shouldThrowExceptionConstructingInternalUrl() {
-    CacheType cacheType = getRandomEnum(CacheType.class);
-    String id = getFaker().numerify("#####");
-    String location = "http://" + getFaker().internet().url();
+  @SneakyThrows
+  @ParameterizedTest
+  @MethodSource("getCacheTypes")
+  void shouldGetLocationFromSource(CacheType cacheType) {
+    String id = getFaker().numerify("######");
+    String location = "https://" + getFaker().internet().url();
+    URL url = URI.create(location).toURL();
+    URLConnection urlConnection = mock(URLConnection.class);
+    InputStream inputStream = mock(InputStream.class);
+    byte[] bytes = new byte[getFaker().number().numberBetween(100, 500)];
+    Arrays.fill(bytes, (byte) getFaker().number().numberBetween(0, 255));
 
-    doThrow(new RuntimeException("CacheManagerTest.shouldThrowExceptionConstructingInternalUrl"))
-        .when(applicationProperties).getJettyPort();
+    when(internetService.openConnection(url)).thenReturn(urlConnection);
+    when(urlConnection.getInputStream()).thenReturn(inputStream);
+    when(inputStream.readAllBytes()).thenReturn(bytes);
+    when(underTest.readCache(cacheType, id)).thenReturn(empty());
 
-    assertThatThrownBy(() -> underTest.constructInternalUrl(cacheType, id, location)).isInstanceOf(RuntimeException.class);
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+
+    doAnswer(invocationOnMock -> {
+      countDownLatch.countDown();
+
+      return null;
+    }).when(underTest).writeCache(eq(cacheType), eq(id), any());
+
+    String result = underTest.getFileLocation(cacheType, id, location);
+
+    countDownLatch.await();
+
+    assertThat(result).isEqualTo(location);
+    verify(underTest).writeCache(cacheType, id, bytes);
+  }
+
+  @SneakyThrows
+  @ParameterizedTest
+  @MethodSource("getCacheTypes")
+  void shouldGetLocationFromSourceNotWriteCacheOnConnectionException(CacheType cacheType) {
+    String id = getFaker().numerify("######");
+    String location = "https://" + getFaker().internet().url();
+    URL url = URI.create(location).toURL();
+    URLConnection urlConnection = mock(URLConnection.class);
+    InputStream inputStream = mock(InputStream.class);
+    byte[] bytes = new byte[getFaker().number().numberBetween(100, 500)];
+    Arrays.fill(bytes, (byte) getFaker().number().numberBetween(0, 255));
+
+    when(internetService.openConnection(url)).thenReturn(urlConnection);
+    when(urlConnection.getInputStream()).thenReturn(inputStream);
+    when(underTest.readCache(cacheType, id)).thenReturn(empty());
+
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+
+    doAnswer(invocationOnMock -> {
+      countDownLatch.countDown();
+
+      throw new IOException("CacheServiceTest.shouldGetAlbumImageUrlFromSourceNotWriteCacheOnConnectionException()");
+    }).when(inputStream).readAllBytes();
+
+    String result = underTest.getFileLocation(cacheType, id, location);
+
+    countDownLatch.await();
+
+    assertThat(result).isEqualTo(location);
+    verify(underTest, never()).writeCache(cacheType, id, bytes);
   }
 
   @ParameterizedTest
@@ -252,8 +326,6 @@ class CacheServiceTest {
         Arguments.of(TRACK)
     );
   }
-
-
 
   @SneakyThrows
   private void writeCacheFile(CacheType cacheType, String id, String cacheContent) {

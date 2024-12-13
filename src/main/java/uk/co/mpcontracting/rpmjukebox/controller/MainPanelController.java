@@ -8,6 +8,7 @@ import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_CREATED;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_DELETED;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_SELECTED;
 import static uk.co.mpcontracting.rpmjukebox.model.Repeat.ONE;
+import static uk.co.mpcontracting.rpmjukebox.util.CacheType.IMAGE;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_PAUSE;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_PLAY;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_REPEAT_ALL;
@@ -70,7 +71,6 @@ import uk.co.mpcontracting.rpmjukebox.service.SettingsService;
 import uk.co.mpcontracting.rpmjukebox.service.StringResourceService;
 import uk.co.mpcontracting.rpmjukebox.service.UpdateService;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
-import uk.co.mpcontracting.rpmjukebox.util.CacheType;
 import uk.co.mpcontracting.rpmjukebox.util.StringHelper;
 import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
 import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
@@ -685,8 +685,7 @@ public class MainPanelController extends EventAwareObject {
           playingAlbumLabel.setText(track.getAlbumName());
           playingArtistLabel.setText(track.getArtistName());
 
-          imageFactory.loadImage(playingImageView, cacheService.constructInternalUrl(CacheType.IMAGE,
-              track.getAlbumId(), track.getAlbumImage()));
+          imageFactory.loadImage(playingImageView, cacheService.getFileLocation(IMAGE, track.getAlbumId(), track.getAlbumImage()));
 
           playPauseButton.setDisable(true);
 

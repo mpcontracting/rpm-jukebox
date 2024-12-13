@@ -1,5 +1,18 @@
 package uk.co.mpcontracting.rpmjukebox.service;
 
+import static java.util.Objects.nonNull;
+import static javafx.scene.media.MediaPlayer.Status.PAUSED;
+import static javafx.scene.media.MediaPlayer.Status.PLAYING;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.BUFFER_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.END_OF_MEDIA;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.EQUALIZER_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_PAUSED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_PLAYING;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_STOPPED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MUTE_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.TIME_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_QUEUED_FOR_PLAYING;
+
 import jakarta.annotation.PostConstruct;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -14,12 +27,6 @@ import uk.co.mpcontracting.rpmjukebox.event.Event;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
-
-import static java.util.Objects.nonNull;
-import static javafx.scene.media.MediaPlayer.Status.PAUSED;
-import static javafx.scene.media.MediaPlayer.Status.PLAYING;
-import static uk.co.mpcontracting.rpmjukebox.event.Event.*;
-import static uk.co.mpcontracting.rpmjukebox.util.CacheType.TRACK;
 
 @Slf4j
 @Service
@@ -57,8 +64,9 @@ public class MediaService extends EventAwareObject {
         track.getTrackName(), track.getLocation());
 
     currentTrack = track;
-    //currentMedia = new Media(cacheService.constructInternalUrl(TRACK, track.getTrackId(),
-    //    track.getLocation().replace("%2Emp3", ".mp3")));
+
+    // Disable caching as JavaFX seems to no longer want to play files that don't have a file extension
+    // currentMedia = new Media(cacheService.getFileLocation(TRACK, track.getTrackId(), track.getLocation()));
     currentMedia = new Media(track.getLocation());
 
     createNewMediaPlayer();
@@ -208,7 +216,7 @@ public class MediaService extends EventAwareObject {
     currentPlayer.setOnEndOfMedia(() -> fireEvent(END_OF_MEDIA));
 
     currentPlayer.setOnError(() -> {
-      log.warn("Error occurred playing media - " + currentPlayer.getError());
+      log.warn("Error occurred playing media", currentPlayer.getError());
 
       fireEvent(END_OF_MEDIA);
     });

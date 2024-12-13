@@ -14,7 +14,7 @@ Run with the following Maven command. The JavaFX SDK is not required to run the 
 
 ## Running in IntelliJ
 
-Download the JavaFX SDK v22.0.1 [from here](https://gluonhq.com/products/javafx/)
+Download the JavaFX SDK v23.0.1 [from here](https://gluonhq.com/products/javafx/)
 
 Add a run configuration with the following as VM options
 
@@ -24,7 +24,7 @@ Add a run configuration with the following as VM options
 
 ## Building a release
 
-Download the JavaFX jmods v22.0.1 [from here](https://gluonhq.com/products/javafx/)
+Download the JavaFX jmods v23.0.1 [from here](https://gluonhq.com/products/javafx/)
 
 Update the `javafx.jmods.location` property in the POM to point to the installed jmods.
 
@@ -35,6 +35,11 @@ Run the following Maven command.
 ```
 
 ## Release Notes
+
+### v6.0.1
+
+* Upgraded to JavaFX 23.0.1
+* Refactored how caching works
 
 ### v6.0.0
 

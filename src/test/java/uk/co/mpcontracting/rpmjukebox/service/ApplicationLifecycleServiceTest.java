@@ -1,7 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -32,7 +31,6 @@ import org.mockito.Mock;
 import org.mockito.verification.VerificationMode;
 import org.springframework.core.env.Environment;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
-import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.test.util.AbstractEventAwareObjectTest;
 import uk.co.mpcontracting.rpmjukebox.test.util.TestThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.util.OsType;
@@ -45,9 +43,6 @@ class ApplicationLifecycleServiceTest extends AbstractEventAwareObjectTest {
 
   @Mock
   private RpmJukebox rpmJukebox;
-
-  @Mock
-  private JettyServer jettyServer;
 
   @Mock
   private MediaService mediaService;
@@ -75,7 +70,7 @@ class ApplicationLifecycleServiceTest extends AbstractEventAwareObjectTest {
 
     ThreadRunner threadRunner = new TestThreadRunner(Executors.newSingleThreadExecutor());
 
-    underTest = spy(new ApplicationLifecycleService(environment, threadRunner, rpmJukebox, jettyServer, mediaService, searchService, settingsService, stringResourceService));
+    underTest = spy(new ApplicationLifecycleService(environment, threadRunner, rpmJukebox, mediaService, searchService, settingsService, stringResourceService));
     underTest.setApplicationContext(applicationContext);
   }
 
@@ -143,7 +138,6 @@ class ApplicationLifecycleServiceTest extends AbstractEventAwareObjectTest {
     verify(settingsService).saveWindowSettings(stage);
     verify(settingsService).saveUserSettings();
     verify(settingsService).saveSystemSettings();
-    verify(jettyServer).stop();
   }
 
   @Test
@@ -159,25 +153,5 @@ class ApplicationLifecycleServiceTest extends AbstractEventAwareObjectTest {
     verify(settingsService, never()).saveWindowSettings(stage);
     verify(settingsService, never()).saveUserSettings();
     verify(settingsService, never()).saveSystemSettings();
-    verify(jettyServer).stop();
-  }
-
-  @Test
-  @SneakyThrows
-  public void shouldStopApplicationWhenExceptionThrown() {
-    doThrow(new RuntimeException("ApplicationManagerTest.shouldStopApplicationWhenExceptionThrown()"))
-        .when(jettyServer).stop();
-
-    setField(underTest, "stage", stage);
-    setField(underTest, "isInitialised", false);
-
-    underTest.stop();
-
-    verify(mediaService).cleanUpResources();
-    verify(searchService).shutdown();
-    verify(settingsService, never()).saveWindowSettings(stage);
-    verify(settingsService, never()).saveUserSettings();
-    verify(settingsService, never()).saveSystemSettings();
-    verify(jettyServer).stop();
   }
 }

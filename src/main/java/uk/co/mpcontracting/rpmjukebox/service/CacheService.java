@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.service;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
@@ -10,7 +9,10 @@ import static uk.co.mpcontracting.rpmjukebox.util.CacheType.TRACK;
 import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.net.URLEncoder;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 import uk.co.mpcontracting.rpmjukebox.config.ApplicationProperties;
 import uk.co.mpcontracting.rpmjukebox.util.CacheType;
 import uk.co.mpcontracting.rpmjukebox.util.HashGenerator;
+import uk.co.mpcontracting.rpmjukebox.util.ThreadRunner;
 
 @Slf4j
 @Service
@@ -32,7 +35,9 @@ import uk.co.mpcontracting.rpmjukebox.util.HashGenerator;
 public class CacheService {
 
   private final ApplicationProperties applicationProperties;
+  private final ThreadRunner threadRunner;
   private final HashGenerator hashGenerator;
+  private final InternetService internetService;
   private final SettingsService settingsService;
 
   private File cacheDirectory;
@@ -58,12 +63,34 @@ public class CacheService {
     };
   }
 
-  public String constructInternalUrl(CacheType cacheType, String id, String location) {
-    return "http://localhost:" + applicationProperties.getJettyPort() + "/cache?cacheType=" + cacheType + "&id=" + id + "&url=" + URLEncoder.encode(location, UTF_8);
+  public String getFileLocation(CacheType cacheType, String id, String location) {
+    return readCache(cacheType, id)
+        .map(file -> file.toURI().toString())
+        .orElseGet(() -> {
+          threadRunner.run(() -> {
+            log.debug("Getting file from the Internet - {} - {}", cacheType, location);
+
+            try {
+              URL url = URI.create(location).toURL();
+
+              try (InputStream inputStream = internetService.openConnection(url).getInputStream()) {
+                byte[] bytes = inputStream.readAllBytes();
+
+                writeCache(cacheType, id, bytes);
+              }
+
+              log.debug("File written to cache {} - {}", cacheType, location);
+            } catch (IOException e) {
+              log.warn("Unable to get file from the Internet - {} - {}", cacheType, location);
+            }
+          });
+
+          return location;
+        });
   }
 
   @Synchronized
-  public Optional<File> readCache(CacheType cacheType, String id) {
+  protected Optional<File> readCache(CacheType cacheType, String id) {
     log.debug("Reading cache : Cache type - {}, ID - {}", cacheType, id);
 
     try {
@@ -88,11 +115,13 @@ public class CacheService {
   }
 
   @Synchronized
-  public void writeCache(CacheType cacheType, String id, byte[] fileContent) {
+  protected void writeCache(CacheType cacheType, String id, byte[] fileContent) {
     log.debug("Writing cache : Cache type - {}, ID - {}", cacheType, id);
 
     try {
       File file = new File(cacheDirectory, (cacheType == TRACK ? id : hashGenerator.generateHash(id)));
+
+      log.info("File - {}", file.getAbsolutePath());
 
       if (file.exists()) {
         if (!file.delete()) {

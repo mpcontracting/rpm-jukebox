@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -65,6 +66,7 @@ import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.getFaker;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.getField;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.getNonNullField;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
+import static uk.co.mpcontracting.rpmjukebox.util.CacheType.IMAGE;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_PAUSE;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_PLAY;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_REPEAT_ALL;
@@ -1810,7 +1812,7 @@ class MainPanelControllerTest extends AbstractGuiTest {
     String albumImageUrl = "http://www.example.com/image.png";
     Image albumImage = new Image(albumImageUrl);
 
-    when(cacheService.constructInternalUrl(any(), anyString(), anyString())).thenReturn(albumImageUrl);
+    when(cacheService.getFileLocation(eq(IMAGE), anyString(), anyString())).thenReturn(albumImageUrl);
     doAnswer(invocation -> {
       ImageView imageView = invocation.getArgument(0);
       imageView.setImage(albumImage);
@@ -1849,7 +1851,7 @@ class MainPanelControllerTest extends AbstractGuiTest {
     Label playingArtistLabel = find("#playingArtistLabel");
     Track track = createTrack(1);
 
-    when(cacheService.constructInternalUrl(any(), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
+    when(cacheService.getFileLocation(eq(IMAGE), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
 
     Platform.runLater(() -> {
       playPauseButton.setDisable(false);
@@ -1881,7 +1883,7 @@ class MainPanelControllerTest extends AbstractGuiTest {
     Label playingArtistLabel = find("#playingArtistLabel");
     Track track = createTrack(1);
 
-    when(cacheService.constructInternalUrl(any(), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
+    when(cacheService.getFileLocation(eq(IMAGE), anyString(), anyString())).thenReturn("http://www.example.com/image.png");
 
     Platform.runLater(() -> {
       playPauseButton.setDisable(false);

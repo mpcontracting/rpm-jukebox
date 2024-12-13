@@ -1,5 +1,25 @@
 package uk.co.mpcontracting.rpmjukebox.service;
 
+import static javafx.scene.media.MediaPlayer.Status.PAUSED;
+import static javafx.scene.media.MediaPlayer.Status.PLAYING;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.EQUALIZER_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.MUTE_UPDATED;
+import static uk.co.mpcontracting.rpmjukebox.event.Event.TRACK_QUEUED_FOR_PLAYING;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createLocation;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createTrackId;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.getField;
+import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
+
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.media.AudioEqualizer;
@@ -14,15 +34,6 @@ import uk.co.mpcontracting.rpmjukebox.config.ApplicationProperties;
 import uk.co.mpcontracting.rpmjukebox.model.Equalizer;
 import uk.co.mpcontracting.rpmjukebox.model.Track;
 import uk.co.mpcontracting.rpmjukebox.test.util.AbstractEventAwareObjectTest;
-
-import static javafx.scene.media.MediaPlayer.Status.PAUSED;
-import static javafx.scene.media.MediaPlayer.Status.PLAYING;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static uk.co.mpcontracting.rpmjukebox.event.Event.*;
-import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.getField;
-import static uk.co.mpcontracting.rpmjukebox.test.util.TestHelper.setField;
 
 class MediaServiceTest extends AbstractEventAwareObjectTest {
 
@@ -80,18 +91,16 @@ class MediaServiceTest extends AbstractEventAwareObjectTest {
 
   @Test
   void shouldPlayTrack() {
-    //String source = "http://localhost:43125/cache?cacheType=TRACK&id=trackId&url=http%3A%2F%2Fwww.example.com%2Fmedia.mp3";
-    String source = "http://www.example.com/media%2Emp3";
+    String trackId = createTrackId();
+    String location = createLocation();
 
-    //when(track.getTrackId()).thenReturn("trackId");
-    when(track.getLocation()).thenReturn("http://www.example.com/media%2Emp3");
-    //when(cacheService.constructInternalUrl(any(), anyString(), anyString())).thenReturn(source);
+    // when(track.getTrackId()).thenReturn(trackId);
+    when(track.getLocation()).thenReturn(location);
+    // when(cacheService.getFileLocation(TRACK, trackId, location)).thenReturn(location);
 
     underTest.playTrack(track);
 
-    Media currentMedia = getField(underTest, "currentMedia", Media.class);
-
-    assertThat(currentMedia.getSource()).isEqualTo(source);
+    assertThat(getField(underTest, "currentMedia", Media.class).getSource()).isEqualTo(location);
     assertThat(getField(underTest, "currentTrack", Track.class)).isSameAs(track);
     verify(mediaPlayer).play();
     verify(eventProcessor).fireEvent(TRACK_QUEUED_FOR_PLAYING, track);

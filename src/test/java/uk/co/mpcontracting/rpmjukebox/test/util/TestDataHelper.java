@@ -73,7 +73,7 @@ public final class TestDataHelper {
   }
 
   public static String createAlbumImage() {
-    return FAKER.internet().url();
+    return "https://" + FAKER.internet().url();
   }
 
   public static int createYear() {
@@ -93,7 +93,7 @@ public final class TestDataHelper {
   }
 
   public static String createLocation() {
-    return FAKER.lorem().characters(10, 20);
+    return "https://" + FAKER.internet().url();
   }
 
   public static String createGenre() {

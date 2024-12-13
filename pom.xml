@@ -21,7 +21,7 @@
     <javafx.jmods.location>${user.home}/Development/JavaFX</javafx.jmods.location>
 
     <java.version>21</java.version>
-    <javafx.version>22.0.1</javafx.version>
+    <javafx.version>23.0.1</javafx.version>
     <spring-boot-javafx.version>2.1.6</spring-boot-javafx.version>
     <lucene.version>6.1.0</lucene.version>
     <commons-version.version>1.0.0</commons-version.version>
