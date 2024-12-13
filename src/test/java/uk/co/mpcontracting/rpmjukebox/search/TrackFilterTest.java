@@ -1,10 +1,13 @@
 package uk.co.mpcontracting.rpmjukebox.search;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.mpcontracting.rpmjukebox.search.TrackField.GENRE;
+import static uk.co.mpcontracting.rpmjukebox.search.TrackField.YEAR;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createGenre;
 import static uk.co.mpcontracting.rpmjukebox.test.util.TestDataHelper.createYearString;
 
-import org.apache.lucene.queries.TermsQuery;
+import java.util.List;
+import org.apache.lucene.search.TermQuery;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,37 +19,41 @@ class TrackFilterTest {
   void shouldInitialiseWithNoGenreOrYear() {
     TrackFilter trackFilter = new TrackFilter(null, null);
 
-    assertThat(trackFilter.getFilter()).isNull();
+    assertThat(trackFilter.getTermQueries()).isEmpty();
   }
 
   @Test
   void shouldInitialiseWithBlankGenreOrYear() {
     TrackFilter trackFilter = new TrackFilter("", "");
 
-    assertThat(trackFilter.getFilter()).isNull();
+    assertThat(trackFilter.getTermQueries()).isEmpty();
   }
 
   @Test
   void shouldInitialiseWithGenre() {
     TrackFilter trackFilter = new TrackFilter(createGenre(), null);
-    TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
+    List<TermQuery> termQueries = trackFilter.getTermQueries();
 
-    assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
+    assertThat(termQueries.size()).isEqualTo(1);
+    assertThat(termQueries.getFirst().getTerm().field()).isEqualTo(GENRE.name());
   }
 
   @Test
   void shouldInitialiseWithYear() {
     TrackFilter trackFilter = new TrackFilter(null, createYearString());
-    TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
+    List<TermQuery> termQueries = trackFilter.getTermQueries();
 
-    assertThat(termsQuery.getTermData().size()).isEqualTo(1L);
+    assertThat(termQueries.size()).isEqualTo(1);
+    assertThat(termQueries.getFirst().getTerm().field()).isEqualTo(YEAR.name());
   }
 
   @Test
   void shouldInitialiseWithGenreAndYear() {
     TrackFilter trackFilter = new TrackFilter(createGenre(), createYearString());
-    TermsQuery termsQuery = (TermsQuery) trackFilter.getFilter();
+    List<TermQuery> termQueries = trackFilter.getTermQueries();
 
-    assertThat(termsQuery.getTermData().size()).isEqualTo(2L);
+    assertThat(termQueries.size()).isEqualTo(2);
+    assertThat(termQueries.getFirst().getTerm().field()).isEqualTo(GENRE.name());
+    assertThat(termQueries.get(1).getTerm().field()).isEqualTo(YEAR.name());
   }
 }

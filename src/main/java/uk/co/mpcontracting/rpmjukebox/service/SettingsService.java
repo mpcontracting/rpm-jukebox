@@ -1,5 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.service;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_PLAYLIST_FAVOURITES;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_PLAYLIST_SEARCH;
@@ -91,7 +93,7 @@ public class SettingsService {
   @SneakyThrows
   @PostConstruct
   public void initialise() {
-    log.info("Initialising {}", getClass().getSimpleName());
+    log.info("Initialising SettingsService");
 
     // Determine the OS type
     String osName = System.getProperty("os.name").toLowerCase();
@@ -154,13 +156,13 @@ public class SettingsService {
       } catch (Exception e) {
         log.error("Unable to determine if data file has expired", e);
       } finally {
-        if (connection != null) {
+        if (nonNull(connection)) {
           connection.disconnect();
         }
       }
     }
 
-    if (lastModified == null) {
+    if (isNull(lastModified)) {
       return false;
     }
 

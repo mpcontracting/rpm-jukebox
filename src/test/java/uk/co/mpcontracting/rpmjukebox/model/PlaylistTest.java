@@ -1,6 +1,5 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -149,7 +148,7 @@ class PlaylistTest {
 
   @Test
   void shouldSetTracks() {
-    underTest.setTracks(asList(mock(Track.class), mock(Track.class)));
+    underTest.setTracks(List.of(mock(Track.class), mock(Track.class)));
 
     assertThat(underTest.getTracks()).hasSize(2);
   }
@@ -158,7 +157,7 @@ class PlaylistTest {
   void shouldAddTrack() {
     Track track1 = createTrack(1);
     Track track2 = createTrack(2);
-    underTest.setTracks(asList(track1, track2));
+    underTest.setTracks(List.of(track1, track2));
 
     Track addedTrack = createTrack(3);
 
@@ -173,7 +172,7 @@ class PlaylistTest {
   void shouldNotAddTrackWhenItAlreadyExists() {
     Track track1 = createTrack(1);
     Track track2 = createTrack(2);
-    underTest.setTracks(asList(track1, track2));
+    underTest.setTracks(List.of(track1, track2));
 
     underTest.addTrack(createTrack(2));
 
@@ -185,7 +184,7 @@ class PlaylistTest {
     Track track1 = createTrack(1);
     Track track2 = createTrack(2);
     Playlist playlist = new Playlist(1, "Playlist", 2);
-    playlist.setTracks(asList(track1, track2));
+    playlist.setTracks(List.of(track1, track2));
 
     playlist.addTrack(createTrack(3));
 
@@ -324,7 +323,7 @@ class PlaylistTest {
         .index(index)
         .location("Location " + index)
         .isPreferred(true)
-        .genres(genres.length < 1 ? null : asList(genres))
+        .genres(genres.length < 1 ? null : List.of(genres))
         .build();
   }
 

@@ -65,7 +65,7 @@ public class TrackTableController extends EventAwareObject {
     trackTableView.setItems(observableTracks);
     trackTableView.setOnKeyPressed(event -> {
       if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
-        if (trackTableView.getSelectionModel().getSelectedItem() != null) {
+        if (nonNull(trackTableView.getSelectionModel().getSelectedItem())) {
           Track track = trackTableView.getSelectionModel().getSelectedItem().getTrack();
 
           log.info("Removing track - {}", track);

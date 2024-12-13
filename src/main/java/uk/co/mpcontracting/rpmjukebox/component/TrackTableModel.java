@@ -1,5 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import static java.util.Objects.nonNull;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -29,7 +31,7 @@ public class TrackTableModel {
 
     StringBuilder builder = new StringBuilder();
 
-    if (track.getGenres() != null) {
+    if (nonNull(track.getGenres())) {
       track.getGenres().forEach(genre -> builder.append(genre).append(", "));
 
       builder.setLength(builder.length() - 2);

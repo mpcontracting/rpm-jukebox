@@ -1,10 +1,10 @@
 package uk.co.mpcontracting.rpmjukebox.test.util;
 
-import static java.util.Arrays.asList;
 import static java.util.Optional.of;
 
 import com.github.javafaker.Faker;
 import com.igormaznitsa.commons.version.Version;
+import java.util.List;
 import java.util.Optional;
 import javafx.event.EventType;
 import javafx.scene.input.ContextMenuEvent;
@@ -73,7 +73,7 @@ public final class TestDataHelper {
   }
 
   public static String createAlbumImage() {
-    return FAKER.internet().url();
+    return "https://" + FAKER.internet().url();
   }
 
   public static int createYear() {
@@ -93,7 +93,7 @@ public final class TestDataHelper {
   }
 
   public static String createLocation() {
-    return FAKER.lorem().characters(10, 20);
+    return "https://" + FAKER.internet().url();
   }
 
   public static String createGenre() {
@@ -113,7 +113,7 @@ public final class TestDataHelper {
         .index(index)
         .location(createLocation())
         .isPreferred(FAKER.bool().bool())
-        .genres(genres.length < 1 ? null : asList(genres))
+        .genres(genres.length < 1 ? null : List.of(genres))
         .build();
   }
 

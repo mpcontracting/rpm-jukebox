@@ -27,7 +27,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import uk.co.mpcontracting.rpmjukebox.RpmJukebox;
 import uk.co.mpcontracting.rpmjukebox.event.EventAwareObject;
-import uk.co.mpcontracting.rpmjukebox.jetty.JettyServer;
 import uk.co.mpcontracting.rpmjukebox.util.ThreadRunner;
 import uk.co.mpcontracting.rpmjukebox.view.AbstractModalView;
 
@@ -42,7 +41,6 @@ public class ApplicationLifecycleService extends EventAwareObject implements App
   private final ThreadRunner threadRunner;
 
   private final RpmJukebox rpmJukebox;
-  private final JettyServer jettyServer;
 
   private final MediaService mediaService;
   private final SearchService searchService;
@@ -60,7 +58,7 @@ public class ApplicationLifecycleService extends EventAwareObject implements App
   @SneakyThrows
   @EventListener(ContextRefreshedEvent.class)
   public void initialise() {
-    log.info("Initialising {}", getClass().getSimpleName());
+    log.info("Initialising ApplicationLifecycleService");
 
     // Don't initialise anything if we're running tests
     if (Arrays.stream(environment.getActiveProfiles()).noneMatch("test"::equals)) {
@@ -113,12 +111,6 @@ public class ApplicationLifecycleService extends EventAwareObject implements App
       settingsService.saveWindowSettings(stage);
       settingsService.saveUserSettings();
       settingsService.saveSystemSettings();
-    }
-
-    try {
-      jettyServer.stop();
-    } catch (Exception e) {
-      log.error("Error shutting down application", e);
     }
   }
 

@@ -14,17 +14,21 @@ Run with the following Maven command. The JavaFX SDK is not required to run the 
 
 ## Running in IntelliJ
 
-Download the JavaFX SDK v22.0.1 [from here](https://gluonhq.com/products/javafx/)
+Download the JavaFX SDK v23.0.1 [from here](https://gluonhq.com/products/javafx/)
 
 Add a run configuration with the following as VM options
 
 ```
--Ddirectory.config=.rpmjukeboxdev -Dconsole.log.only=true --module-path <path-to-sdk>/javafx-sdk-22.0.1/lib --add-modules=javafx.controls,javafx.fxml,javafx.media
+-Ddirectory.config=.rpmjukeboxdev 
+-Dconsole.log.only=true 
+--module-path <path-to-sdk>/javafx-sdk-22.0.1/lib 
+--add-modules=javafx.controls,javafx.fxml,javafx.media 
+--enable-native-access=ALL-UNNAMED
 ```
 
 ## Building a release
 
-Download the JavaFX jmods v22.0.1 [from here](https://gluonhq.com/products/javafx/)
+Download the JavaFX jmods v23.0.1 [from here](https://gluonhq.com/products/javafx/)
 
 Update the `javafx.jmods.location` property in the POM to point to the installed jmods.
 
@@ -35,6 +39,11 @@ Run the following Maven command.
 ```
 
 ## Release Notes
+
+### v6.0.1
+
+* Upgraded to JavaFX 23.0.1
+* Disabled caching as JavaFX 23 won't play files that don't have a file suffix :-(
 
 ### v6.0.0
 

@@ -52,7 +52,7 @@ public class MediaService extends EventAwareObject {
 
   @PostConstruct
   public void initialise() {
-    log.info("Initialising {}", getClass().getSimpleName());
+    log.info("Initialising MediaService");
 
     muted = false;
     volume = applicationProperties.getDefaultVolume();
@@ -64,9 +64,10 @@ public class MediaService extends EventAwareObject {
         track.getTrackName(), track.getLocation());
 
     currentTrack = track;
-//    currentMedia = new Media(cacheService.constructInternalUrl(TRACK, track.getTrackId(),
-//        track.getLocation().replace("%2Emp3", ".mp3")));
-    currentMedia = new Media(track.getLocation().replace("%2Emp3", ".mp3"));
+
+    // Disable caching as JavaFX seems to no longer want to play files that don't have a file extension
+    // currentMedia = new Media(cacheService.getFileLocation(TRACK, track.getTrackId(), track.getLocation()));
+    currentMedia = new Media(track.getLocation());
 
     createNewMediaPlayer();
 
@@ -215,7 +216,7 @@ public class MediaService extends EventAwareObject {
     currentPlayer.setOnEndOfMedia(() -> fireEvent(END_OF_MEDIA));
 
     currentPlayer.setOnError(() -> {
-      log.warn("Error occurred playing media - " + currentPlayer.getError());
+      log.warn("Error occurred playing media", currentPlayer.getError());
 
       fireEvent(END_OF_MEDIA);
     });

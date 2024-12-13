@@ -1,5 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.event;
 
+import static java.util.Objects.isNull;
+
 import jakarta.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 import lombok.Synchronized;
@@ -18,7 +20,7 @@ public abstract class EventAwareObject implements EventListener {
 
   @Synchronized
   protected EventProcessor getEventProcessor() {
-    if (eventProcessor == null) {
+    if (isNull(eventProcessor)) {
       eventProcessor = ContextHelper.getBean(EventProcessor.class);
       eventProcessor.addEventListener(this);
     }

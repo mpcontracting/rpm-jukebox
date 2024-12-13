@@ -3,6 +3,7 @@ package uk.co.mpcontracting.rpmjukebox.service;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.UNSPECIFIED_GENRE;
@@ -169,7 +170,7 @@ public class DataService {
   }
 
   private String cleanGenre(String genre, boolean blankIsUnspecified) {
-    if (genre == null || genre.isEmpty()) {
+    if (isNull(genre) || genre.isEmpty()) {
       return blankIsUnspecified ? UNSPECIFIED_GENRE : null;
     }
 

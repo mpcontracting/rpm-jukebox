@@ -1,9 +1,14 @@
 package uk.co.mpcontracting.rpmjukebox.test.util;
 
+import java.io.IOException;
 import java.util.Iterator;
+import org.apache.lucene.index.ImpactsEnum;
 import org.apache.lucene.index.PostingsEnum;
+import org.apache.lucene.index.TermState;
 import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.IOBooleanSupplier;
 
 public class TestTermsEnum extends TermsEnum {
 
@@ -38,12 +43,42 @@ public class TestTermsEnum extends TermsEnum {
   }
 
   @Override
+  public ImpactsEnum impacts(int i) throws IOException {
+    return null;
+  }
+
+  @Override
+  public TermState termState() throws IOException {
+    return null;
+  }
+
+  @Override
+  public AttributeSource attributes() {
+    return null;
+  }
+
+  @Override
+  public boolean seekExact(BytesRef bytesRef) throws IOException {
+    return false;
+  }
+
+  @Override
+  public IOBooleanSupplier prepareSeekExact(BytesRef bytesRef) throws IOException {
+    return null;
+  }
+
+  @Override
   public SeekStatus seekCeil(BytesRef text) {
     return null;
   }
 
   @Override
   public void seekExact(long ord) {
+  }
+
+  @Override
+  public void seekExact(BytesRef bytesRef, TermState termState) throws IOException {
+
   }
 
   @Override

@@ -1,5 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.model;
 
+import static java.util.Objects.isNull;
+
 import jakarta.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -91,7 +93,7 @@ public class Playlist implements Iterable<Track> {
 
   @Synchronized
   public boolean isTrackInPlaylist(String trackId) {
-    if (trackId == null) {
+    if (isNull(trackId)) {
       return false;
     }
 

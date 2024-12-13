@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_STOPPED;
@@ -8,6 +9,7 @@ import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_CREATED;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_DELETED;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_SELECTED;
 import static uk.co.mpcontracting.rpmjukebox.model.Repeat.ONE;
+import static uk.co.mpcontracting.rpmjukebox.util.CacheType.IMAGE;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_PAUSE;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_PLAY;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_REPEAT_ALL;
@@ -70,7 +72,6 @@ import uk.co.mpcontracting.rpmjukebox.service.SettingsService;
 import uk.co.mpcontracting.rpmjukebox.service.StringResourceService;
 import uk.co.mpcontracting.rpmjukebox.service.UpdateService;
 import uk.co.mpcontracting.rpmjukebox.settings.PlaylistSettings;
-import uk.co.mpcontracting.rpmjukebox.util.CacheType;
 import uk.co.mpcontracting.rpmjukebox.util.StringHelper;
 import uk.co.mpcontracting.rpmjukebox.view.ConfirmView;
 import uk.co.mpcontracting.rpmjukebox.view.EqualizerView;
@@ -474,8 +475,7 @@ public class MainPanelController extends EventAwareObject {
       playlistService.pauseCurrentTrack();
     } else if (mediaService.isPaused()) {
       playlistService.resumeCurrentTrack();
-    } else if (playlistService.getPlaylist(currentSelectedPlaylistId).filter(playlist -> !playlist.isEmpty()).isPresent() &&
-        playlistService.getSelectedTrack() == null) {
+    } else if (playlistService.getPlaylist(currentSelectedPlaylistId).filter(playlist -> !playlist.isEmpty()).isPresent() && isNull(playlistService.getSelectedTrack())) {
       playlistService.playPlaylist(currentSelectedPlaylistId);
     } else {
       playlistService.playCurrentTrack(true);
@@ -600,7 +600,7 @@ public class MainPanelController extends EventAwareObject {
         Duration mediaDuration = (Duration) payload[0];
         Duration bufferProgressTime = (Duration) payload[1];
 
-        if (mediaDuration != null && bufferProgressTime != null) {
+        if (nonNull(mediaDuration) && nonNull(bufferProgressTime)) {
           timeSlider.setProgressValue(bufferProgressTime.divide(mediaDuration.toMillis()).toMillis() * 100.0);
         }
       }
@@ -685,8 +685,7 @@ public class MainPanelController extends EventAwareObject {
           playingAlbumLabel.setText(track.getAlbumName());
           playingArtistLabel.setText(track.getArtistName());
 
-          imageFactory.loadImage(playingImageView, cacheService.constructInternalUrl(CacheType.IMAGE,
-              track.getAlbumId(), track.getAlbumImage()));
+          imageFactory.loadImage(playingImageView, cacheService.getFileLocation(IMAGE, track.getAlbumId(), track.getAlbumImage()));
 
           playPauseButton.setDisable(true);
 

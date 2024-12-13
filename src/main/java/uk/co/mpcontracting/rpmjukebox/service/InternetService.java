@@ -1,7 +1,9 @@
 package uk.co.mpcontracting.rpmjukebox.service;
 
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -20,13 +22,13 @@ public class InternetService {
 
   private final SettingsService settingsService;
 
-  public URLConnection openConnection(URL url) throws Exception {
+  public URLConnection openConnection(URL url) throws IOException {
     log.debug("Opening connection to - {}", url);
 
     if (!"file".equals(url.getProtocol())) {
       SystemSettings systemSettings = settingsService.getSystemSettings();
 
-      if (systemSettings.getProxyHost() != null && systemSettings.getProxyPort() != null) {
+      if (nonNull(systemSettings.getProxyHost()) && nonNull(systemSettings.getProxyPort())) {
         log.debug("Using proxy : Host - {}, Port - {}", systemSettings.getProxyHost(), systemSettings.getProxyPort());
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection(new Proxy(Proxy.Type.HTTP,
