@@ -16,7 +16,7 @@ public class StringResourceService {
 
   @PostConstruct
   public void postConstruct() {
-    log.info("Initialising {}", getClass().getSimpleName());
+    log.info("Initialising StringResourceService");
 
     resourceBundle = ResourceBundle.getBundle(I18N_MESSAGE_BUNDLE);
   }

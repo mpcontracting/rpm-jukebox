@@ -28,7 +28,7 @@ public class NativeService {
 
   @PostConstruct
   public void initialise() {
-    log.info("Initialising {}", getClass().getSimpleName());
+    log.info("Initialising NativeService");
 
     // Make sure the native directory exists
     File nativeDirectory = settingsService.getFileFromConfigDirectory("native");

@@ -91,7 +91,7 @@ public class SettingsService {
   @SneakyThrows
   @PostConstruct
   public void initialise() {
-    log.info("Initialising {}", getClass().getSimpleName());
+    log.info("Initialising SettingsService");
 
     // Determine the OS type
     String osName = System.getProperty("os.name").toLowerCase();

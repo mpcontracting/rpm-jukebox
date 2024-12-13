@@ -113,7 +113,7 @@ public class SearchService extends EventAwareObject {
   private ExecutorService executorService;
 
   public void initialise() throws Exception {
-    log.info("Initialising {}", getClass().getSimpleName());
+    log.info("Initialising SearchService");
 
     try {
       // Initialise the executor service
@@ -160,9 +160,9 @@ public class SearchService extends EventAwareObject {
         search(new TrackSearch(searchWarmer.substring(0, i + 1)));
       }
 
-      log.debug("{} initialised", getClass().getSimpleName());
+      log.debug("SearchService initialised");
     } catch (LockObtainFailedException e) {
-      log.error("{} already initialised", getClass().getSimpleName(), e);
+      log.error("SearchService already initialised", e);
       rpmJukebox.updateSplashProgress(stringResourceService.getString(MESSAGE_SPLASH_ALREADY_RUNNING));
 
       try {
@@ -173,7 +173,7 @@ public class SearchService extends EventAwareObject {
 
       applicationLifecycleService.shutdown();
     } catch (Exception e) {
-      log.error("Error initialising {}", getClass().getSimpleName(), e);
+      log.error("Error initialising SearchService", e);
 
       throw e;
     }

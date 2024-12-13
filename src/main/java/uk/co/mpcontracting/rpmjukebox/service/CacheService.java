@@ -45,7 +45,7 @@ public class CacheService {
 
   @PostConstruct
   public void initialise() {
-    log.info("Initialising {}", getClass().getSimpleName());
+    log.info("Initialising CacheService");
 
     // Look for the cache directory and create it if it isn't there
     cacheDirectory = settingsService.getFileFromConfigDirectory(applicationProperties.getCacheDirectory());
