@@ -2,6 +2,7 @@ package uk.co.mpcontracting.rpmjukebox.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,16 +38,17 @@ import java.util.concurrent.Executors;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.StoredFields;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopFieldDocs;
+import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.BytesRef;
 import org.junit.jupiter.api.AfterEach;
@@ -452,12 +454,10 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
     when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    IndexReader indexReader = mock(IndexReader.class);
-    when(indexSearcher.getIndexReader()).thenReturn(indexReader);
-
     LeafReaderContext leafReaderContext = mock(LeafReaderContext.class);
     List<LeafReaderContext> leafReaderContexts = singletonList(leafReaderContext);
-    when(indexReader.leaves()).thenReturn(leafReaderContexts);
+
+    doReturn(leafReaderContexts).when(underTest).getLeafReaderContexts(indexSearcher);
 
     LeafReader leafReader = mock(LeafReader.class);
     when(leafReaderContext.reader()).thenReturn(leafReader);
@@ -488,12 +488,10 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
     when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    IndexReader indexReader = mock(IndexReader.class);
-    when(indexSearcher.getIndexReader()).thenReturn(indexReader);
-
     LeafReaderContext leafReaderContext = mock(LeafReaderContext.class);
     List<LeafReaderContext> leafReaderContexts = singletonList(leafReaderContext);
-    when(indexReader.leaves()).thenReturn(leafReaderContexts);
+
+    doReturn(leafReaderContexts).when(underTest).getLeafReaderContexts(indexSearcher);
 
     LeafReader leafReader = mock(LeafReader.class);
     when(leafReaderContext.reader()).thenReturn(leafReader);
@@ -524,12 +522,10 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
     when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    IndexReader indexReader = mock(IndexReader.class);
-    when(indexSearcher.getIndexReader()).thenReturn(indexReader);
-
     LeafReaderContext leafReaderContext = mock(LeafReaderContext.class);
     List<LeafReaderContext> leafReaderContexts = singletonList(leafReaderContext);
-    when(indexReader.leaves()).thenReturn(leafReaderContexts);
+
+    doReturn(leafReaderContexts).when(underTest).getLeafReaderContexts(indexSearcher);
 
     LeafReader leafReader = mock(LeafReader.class);
     when(leafReaderContext.reader()).thenReturn(leafReader);
@@ -554,7 +550,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
 
     ScoreDoc[] scoreDocs = {new ScoreDoc(1, 0), new ScoreDoc(2, 0)};
     when(indexSearcher.search(any(), anyInt(), any()))
-        .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+        .thenReturn(new TopFieldDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs, null));
     setTrackSearcherDocuments(indexSearcher);
 
     List<Track> result = underTest.search(new TrackSearch("keywords"));
@@ -646,7 +642,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
 
     ScoreDoc[] scoreDocs = {new ScoreDoc(1, 0), new ScoreDoc(2, 0)};
     when(indexSearcher.search(any(), anyInt(), any()))
-        .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+        .thenReturn(new TopFieldDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs, null));
     setTrackSearcherDocuments(indexSearcher);
 
     doThrow(new RuntimeException("SearchManagerTest.shouldGetSearchResultsWhenExceptionThrownOnRelease()"))
@@ -661,11 +657,9 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
   @SneakyThrows
   void shouldGetShuffledPlaylist() {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
-    when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    IndexReader indexReader = mock(IndexReader.class);
-    when(indexSearcher.getIndexReader()).thenReturn(indexReader);
-    when(indexReader.maxDoc()).thenReturn(100);
+    when(trackManager.acquire()).thenReturn(indexSearcher);
+    doReturn(100).when(underTest).getMaxDoc(indexSearcher);
 
     List<ScoreDoc> scoreDocsList = new ArrayList<>();
     for (int i = 1; i < 10; i++) {
@@ -673,7 +667,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     }
     ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
-    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs));
     setTrackSearcherDocuments(indexSearcher);
 
     setField(underTest, "executorService", Executors.newSingleThreadExecutor());
@@ -692,11 +686,9 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
   @SneakyThrows
   void shouldGetShuffledPlaylistWithYearFilter() {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
-    when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    IndexReader indexReader = mock(IndexReader.class);
-    when(indexSearcher.getIndexReader()).thenReturn(indexReader);
-    when(indexReader.maxDoc()).thenReturn(100);
+    when(trackManager.acquire()).thenReturn(indexSearcher);
+    doReturn(100).when(underTest).getMaxDoc(indexSearcher);
 
     List<ScoreDoc> scoreDocsList = new ArrayList<>();
     for (int i = 1; i < 10; i++) {
@@ -704,7 +696,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     }
     ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
-    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs));
     setTrackSearcherDocuments(indexSearcher);
 
     setField(underTest, "executorService", Executors.newSingleThreadExecutor());
@@ -723,11 +715,9 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
   @SneakyThrows
   void shouldGetShuffledPlaylistWhenExceptionThrownOnRelease() {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
-    when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    IndexReader indexReader = mock(IndexReader.class);
-    when(indexSearcher.getIndexReader()).thenReturn(indexReader);
-    when(indexReader.maxDoc()).thenReturn(100);
+    when(trackManager.acquire()).thenReturn(indexSearcher);
+    doReturn(100).when(underTest).getMaxDoc(indexSearcher);
 
     List<ScoreDoc> scoreDocsList = new ArrayList<>();
     for (int i = 1; i < 10; i++) {
@@ -735,7 +725,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     }
     ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
-    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs));
     setTrackSearcherDocuments(indexSearcher);
 
     setField(underTest, "executorService", Executors.newSingleThreadExecutor());
@@ -757,11 +747,9 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
   @SneakyThrows
   void shouldGetMaxSizeShuffledPlaylistWhenPlaylistSizeGreaterOrEqualToNumberOfSearchResults() {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
-    when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    IndexReader indexReader = mock(IndexReader.class);
-    when(indexSearcher.getIndexReader()).thenReturn(indexReader);
-    when(indexReader.maxDoc()).thenReturn(100);
+    when(trackManager.acquire()).thenReturn(indexSearcher);
+    doReturn(100).when(underTest).getMaxDoc(indexSearcher);
 
     List<ScoreDoc> scoreDocsList = new ArrayList<>();
     for (int i = 1; i < 10; i++) {
@@ -769,7 +757,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     }
     ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
-    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(scoreDocs.length, scoreDocs, 0));
+    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs));
     setTrackSearcherDocuments(indexSearcher);
 
     List<Track> result = underTest.getShuffledPlaylist(9, null);
@@ -792,11 +780,9 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
   @SneakyThrows
   void shouldGetEmptyShuffledPlaylistOnException() {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
-    when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    IndexReader indexReader = mock(IndexReader.class);
-    when(indexSearcher.getIndexReader()).thenReturn(indexReader);
-    when(indexReader.maxDoc()).thenReturn(100);
+    when(trackManager.acquire()).thenReturn(indexSearcher);
+    doReturn(100).when(underTest).getMaxDoc(indexSearcher);
 
     doThrow(new RuntimeException("SearchManagerTest.shouldGetEmptyShuffledPlaylistOnException()"))
         .when(indexSearcher).search(any(), anyInt());
@@ -813,7 +799,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     when(trackManager.acquire()).thenReturn(indexSearcher);
 
     when(indexSearcher.search(any(), anyInt()))
-        .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
+        .thenReturn(new TopDocs(new TotalHits(1, EQUAL_TO), new ScoreDoc[]{new ScoreDoc(1, 0)}));
     setTrackSearcherDocuments(indexSearcher);
 
     Track track = underTest.getTrackById("123").orElse(null);
@@ -842,7 +828,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     when(trackManager.acquire()).thenReturn(indexSearcher);
 
     when(indexSearcher.search(any(), anyInt()))
-        .thenReturn(new TopDocs(1, new ScoreDoc[]{new ScoreDoc(1, 0)}, 0));
+        .thenReturn(new TopDocs(new TotalHits(1, EQUAL_TO), new ScoreDoc[]{new ScoreDoc(1, 0)}));
     setTrackSearcherDocuments(indexSearcher);
 
     doThrow(new RuntimeException("SearchManagerTest.shouldGetTrackByIdWhenExceptionThrownOnRelease()"))
@@ -873,7 +859,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
     when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(0, new ScoreDoc[]{}, 0));
+    when(indexSearcher.search(any(), anyInt())).thenReturn(new TopDocs(new TotalHits(0, EQUAL_TO), new ScoreDoc[]{}));
 
     Track track = underTest.getTrackById("123").orElse(null);
 
@@ -914,7 +900,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
     when(indexSearcher.search(any(), anyInt(), any()))
-        .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+        .thenReturn(new TopFieldDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs, null));
     setTrackSearcherDocuments(indexSearcher);
 
     List<Track> tracks = underTest.getAlbumById("123").orElse(null);
@@ -935,7 +921,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     ScoreDoc[] scoreDocs = scoreDocsList.toArray(new ScoreDoc[0]);
 
     when(indexSearcher.search(any(), anyInt(), any()))
-        .thenReturn(new TopFieldDocs(scoreDocs.length, scoreDocs, null, 0));
+        .thenReturn(new TopFieldDocs(new TotalHits(scoreDocs.length, EQUAL_TO), scoreDocs, null));
     setTrackSearcherDocuments(indexSearcher);
 
     doThrow(new RuntimeException("SearchManagerTest.shouldGetAlbumByIdWhenExceptionThrownOnRelease()"))
@@ -952,7 +938,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
     IndexSearcher indexSearcher = mock(IndexSearcher.class);
     when(trackManager.acquire()).thenReturn(indexSearcher);
 
-    when(indexSearcher.search(any(), anyInt(), any())).thenReturn(new TopFieldDocs(0, new ScoreDoc[]{}, null, 0));
+    when(indexSearcher.search(any(), anyInt(), any())).thenReturn(new TopFieldDocs(new TotalHits(0, EQUAL_TO), new ScoreDoc[]{}, null));
 
     List<Track> tracks = underTest.getAlbumById("123").orElse(null);
 
@@ -999,7 +985,11 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
   }
 
   @SneakyThrows
-  private void setTrackSearcherDocuments(IndexSearcher mockTrackSearcher) {
+  private void setTrackSearcherDocuments(IndexSearcher indexSearcher) {
+    StoredFields storedFields = mock(StoredFields.class);
+
+    doReturn(storedFields).when(underTest).getStoredFields(indexSearcher);
+
     for (int i = 1; i < 10; i++) {
       Document document = mock(Document.class);
       lenient().when(document.get(TrackField.ARTIST_ID.name())).thenReturn("123" + i);
@@ -1015,7 +1005,7 @@ class SearchServiceTest extends AbstractEventAwareObjectTest {
       lenient().when(document.get(TrackField.IS_PREFERRED.name())).thenReturn((i % 2 == 0) ? "false" : "true");
       lenient().when(document.getValues(TrackField.GENRE.name())).thenReturn(new String[]{"Genre 1 " + i, "Genre 2 " + i});
 
-      lenient().when(mockTrackSearcher.doc(i)).thenReturn(document);
+      lenient().when(storedFields.document(i)).thenReturn(document);
     }
   }
 }

@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.shuffle;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.stripAccents;
 import static org.apache.lucene.index.IndexWriterConfig.OpenMode.CREATE_OR_APPEND;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.DATA_INDEXED;
@@ -14,6 +15,7 @@ import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SPLASH_DOWNL
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_SPLASH_INITIALISING_SEARCH;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.UNSPECIFIED_GENRE;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,15 +42,16 @@ import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.StoredFields;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.IndexSearcher;
@@ -118,7 +121,7 @@ public class SearchService extends EventAwareObject {
 
       // Initialise the indexes
       Analyzer analyzer = new WhitespaceAnalyzer();
-      BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
+      IndexSearcher.setMaxClauseCount(Integer.MAX_VALUE);
 
       try {
         trackDirectory = FSDirectory.open(settingsService.getFileFromConfigDirectory(applicationProperties.getTrackIndexDirectory()).toPath());
@@ -290,9 +293,8 @@ public class SearchService extends EventAwareObject {
       trackSearcher = trackManager.acquire();
 
       Set<String> fieldValues = new LinkedHashSet<>();
-      IndexReader indexReader = trackSearcher.getIndexReader();
 
-      for (LeafReaderContext context : indexReader.leaves()) {
+      for (LeafReaderContext context : getLeafReaderContexts(trackSearcher)) {
         try (LeafReader leafReader = context.reader()) {
           Terms terms = leafReader.terms(trackField.name());
 
@@ -325,6 +327,10 @@ public class SearchService extends EventAwareObject {
     }
   }
 
+  protected List<LeafReaderContext> getLeafReaderContexts(IndexSearcher indexSearcher) {
+    return indexSearcher.getIndexReader().leaves();
+  }
+
   @Synchronized
   public List<Track> search(TrackSearch trackSearch) {
     log.debug("Performing search");
@@ -345,7 +351,7 @@ public class SearchService extends EventAwareObject {
       trackSearcher = trackManager.acquire();
       TopFieldDocs results = trackSearcher.search(
           buildKeywordsQuery(prepareKeywords(trackSearch.getKeywords()),
-              trackSearch.getTrackFilter().getFilter()),
+              trackSearch.getTrackFilter().getTermQueries()),
           applicationProperties.getMaxSearchHits(), new Sort(new SortField(trackSearch.getTrackSort().name(), SortField.Type.STRING)));
 
       return getTracksFromScoreDocs(trackSearcher, results.scoreDocs);
@@ -381,7 +387,7 @@ public class SearchService extends EventAwareObject {
     try {
       trackSearcher = trackManager.acquire();
 
-      int maxSearchHits = trackSearcher.getIndexReader().maxDoc();
+      int maxSearchHits = getMaxDoc(trackSearcher);
       List<Track> playlist = new ArrayList<>();
 
       log.debug("Max search hits - {}", maxSearchHits);
@@ -401,11 +407,11 @@ public class SearchService extends EventAwareObject {
       log.debug("Hits - {}", results.totalHits);
       log.debug("Score docs - {}", scoreDocs.length);
 
-      if (playlistSize < results.totalHits) {
+      if (playlistSize < results.totalHits.value()) {
         final IndexSearcher finalSearcher = trackSearcher;
         Future<Integer> future = executorService.submit(() -> {
           while (playlist.size() < playlistSize) {
-            int docId = (int) (secureRandom.nextDouble() * results.totalHits);
+            int docId = (int) (secureRandom.nextDouble() * results.totalHits.value());
             Track track = getTrackByDocId(finalSearcher, scoreDocs[docId].doc);
 
             if (!playlist.contains(track)) {
@@ -456,6 +462,10 @@ public class SearchService extends EventAwareObject {
     }
   }
 
+  protected int getMaxDoc(IndexSearcher indexSearcher) {
+    return indexSearcher.getIndexReader().maxDoc();
+  }
+
   @Synchronized
   public Optional<Track> getTrackById(String trackId) {
     if (trackManager == null) {
@@ -468,7 +478,7 @@ public class SearchService extends EventAwareObject {
       trackSearcher = trackManager.acquire();
       TopDocs results = trackSearcher.search(new TermQuery(new Term(TrackField.TRACK_ID.name(), trackId)), 1);
 
-      if (results.totalHits < 1) {
+      if (results.totalHits.value() < 1) {
         return empty();
       }
 
@@ -524,7 +534,7 @@ public class SearchService extends EventAwareObject {
   }
 
   private Track getTrackByDocId(IndexSearcher trackSearcher, int docId) throws Exception {
-    Document document = trackSearcher.doc(docId);
+    Document document = getStoredFields(trackSearcher).document(docId);
 
     return Track.builder()
         .artistId(document.get(TrackField.ARTIST_ID.name()))
@@ -542,7 +552,11 @@ public class SearchService extends EventAwareObject {
         .build();
   }
 
-  private Query buildKeywordsQuery(String keywords, Query trackFilter) {
+  protected StoredFields getStoredFields(IndexSearcher indexSearcher) throws IOException {
+    return indexSearcher.getIndexReader().storedFields();
+  }
+
+  private Query buildKeywordsQuery(String keywords, List<TermQuery> termQueries) {
     Builder builder = new BooleanQuery.Builder();
 
     if ("*".equals(keywords)) {
@@ -562,9 +576,7 @@ public class SearchService extends EventAwareObject {
       }
     }
 
-    if (trackFilter != null) {
-      builder.add(trackFilter, BooleanClause.Occur.MUST);
-    }
+    ofNullable(termQueries).ifPresent(t -> t.forEach(termQuery -> builder.add(termQuery, Occur.MUST)));
 
     return builder.build();
   }

@@ -7,8 +7,7 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queries.TermsQuery;
-import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 
 @EqualsAndHashCode
 @RequiredArgsConstructor
@@ -16,24 +15,25 @@ public class TrackFilter {
   private final String genre;
   private final String year;
 
-  public Query getFilter() {
-    boolean hasFilters = false;
-    List<Term> termsList = new ArrayList<>();
+  public List<TermQuery> getTermQueries() {
+    //boolean hasFilters = false;
+    List<TermQuery> termQueries = new ArrayList<>();
 
     if (nonNull(genre) && !genre.trim().isEmpty()) {
-      hasFilters = true;
-      termsList.add(new Term(TrackField.GENRE.name(), genre.trim()));
+      //hasFilters = true;
+      termQueries.add(new TermQuery(new Term(TrackField.GENRE.name(), genre.trim())));
     }
 
     if (nonNull(year) && !year.trim().isEmpty()) {
-      hasFilters = true;
-      termsList.add(new Term(TrackField.YEAR.name(), year.trim()));
+      //hasFilters = true;
+      termQueries.add(new TermQuery(new Term(TrackField.YEAR.name(), year.trim())));
     }
 
-    if (hasFilters) {
-      return new TermsQuery(termsList);
-    }
 
-    return null;
+//    if (hasFilters) {
+//      return new TermInSetQuery(termsList);
+//    }
+
+    return termQueries;
   }
 }

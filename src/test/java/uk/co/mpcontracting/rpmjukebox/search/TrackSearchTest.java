@@ -22,7 +22,7 @@ class TrackSearchTest {
 
     assertThat(trackSearch.getKeywords()).isEqualTo(keywords);
     assertThat(trackSearch.getTrackSort()).isEqualTo(DEFAULT_SORT);
-    assertThat(trackFilter.getFilter()).isNull();
+    assertThat(trackFilter.getTermQueries()).isEmpty();
   }
 
   @Test
@@ -33,7 +33,7 @@ class TrackSearchTest {
 
     assertThat(trackSearch.getKeywords()).isEqualTo(keywords);
     assertThat(trackSearch.getTrackSort()).isEqualTo(DEFAULT_SORT);
-    assertThat(trackFilter.getFilter()).isNotNull();
+    assertThat(trackFilter.getTermQueries()).isNotEmpty();
   }
 
   @Test
@@ -44,7 +44,7 @@ class TrackSearchTest {
 
     assertThat(trackSearch.getKeywords()).isEqualTo(keywords);
     assertThat(trackSearch.getTrackSort()).isEqualTo(ALBUM_SORT);
-    assertThat(trackFilter.getFilter()).isNull();
+    assertThat(trackFilter.getTermQueries()).isEmpty();
   }
 
   @Test
@@ -55,6 +55,6 @@ class TrackSearchTest {
 
     assertThat(trackSearch.getKeywords()).isEqualTo(keywords);
     assertThat(trackSearch.getTrackSort()).isEqualTo(ALBUM_SORT);
-    assertThat(trackFilter.getFilter()).isNotNull();
+    assertThat(trackFilter.getTermQueries()).isNotEmpty();
   }
 }
