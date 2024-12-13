@@ -2,6 +2,8 @@ package uk.co.mpcontracting.rpmjukebox.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.shuffle;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -283,7 +285,7 @@ public class SearchService extends EventAwareObject {
 
     long startTime = System.currentTimeMillis();
 
-    if (trackManager == null) {
+    if (isNull(trackManager)) {
       throw new RuntimeException("Cannot search before track index is initialised");
     }
 
@@ -298,11 +300,11 @@ public class SearchService extends EventAwareObject {
         try (LeafReader leafReader = context.reader()) {
           Terms terms = leafReader.terms(trackField.name());
 
-          if (terms != null) {
+          if (nonNull(terms)) {
             TermsEnum termsEnum = terms.iterator();
             BytesRef bytesRef;
 
-            while ((bytesRef = termsEnum.next()) != null) {
+            while (nonNull(bytesRef = termsEnum.next())) {
               fieldValues.add(bytesRef.utf8ToString());
             }
           }
@@ -337,11 +339,11 @@ public class SearchService extends EventAwareObject {
 
     long startTime = System.currentTimeMillis();
 
-    if (trackManager == null) {
+    if (isNull(trackManager)) {
       throw new RuntimeException("Cannot search before track index is initialised");
     }
 
-    if (trackSearch == null || trackSearch.getKeywords() == null || trackSearch.getKeywords().trim().isEmpty()) {
+    if (isNull(trackSearch) || isNull(trackSearch.getKeywords()) || trackSearch.getKeywords().trim().isEmpty()) {
       return emptyList();
     }
 
@@ -378,7 +380,7 @@ public class SearchService extends EventAwareObject {
 
     long startTime = System.currentTimeMillis();
 
-    if (trackManager == null) {
+    if (isNull(trackManager)) {
       throw new RuntimeException("Cannot search before track index is initialised");
     }
 
@@ -394,9 +396,8 @@ public class SearchService extends EventAwareObject {
 
       Query query;
 
-      if (yearFilter != null) {
-        query = new BooleanQuery.Builder()
-            .add(new TermQuery(new Term(TrackField.YEAR.name(), yearFilter)), BooleanClause.Occur.MUST).build();
+      if (nonNull(yearFilter)) {
+        query = new BooleanQuery.Builder().add(new TermQuery(new Term(TrackField.YEAR.name(), yearFilter)), BooleanClause.Occur.MUST).build();
       } else {
         query = new MatchAllDocsQuery();
       }
@@ -468,7 +469,7 @@ public class SearchService extends EventAwareObject {
 
   @Synchronized
   public Optional<Track> getTrackById(String trackId) {
-    if (trackManager == null) {
+    if (isNull(trackManager)) {
       throw new RuntimeException("Cannot search before track index is initialised");
     }
 
@@ -498,7 +499,7 @@ public class SearchService extends EventAwareObject {
 
   @Synchronized
   Optional<List<Track>> getAlbumById(String albumId) {
-    if (trackManager == null) {
+    if (isNull(trackManager)) {
       throw new RuntimeException("Cannot search before track index is initialised");
     }
 
@@ -582,7 +583,7 @@ public class SearchService extends EventAwareObject {
   }
 
   protected String prepareKeywords(String keywords) {
-    if (keywords == null) {
+    if (isNull(keywords)) {
       return "";
     }
 
@@ -607,7 +608,7 @@ public class SearchService extends EventAwareObject {
   }
 
   protected String nullSafeTrim(String string) {
-    if (string == null) {
+    if (isNull(string)) {
       return ("");
     }
 
@@ -615,7 +616,7 @@ public class SearchService extends EventAwareObject {
   }
 
   private String nullIsBlank(String string) {
-    if (string == null) {
+    if (isNull(string)) {
       return "";
     }
 
@@ -623,7 +624,7 @@ public class SearchService extends EventAwareObject {
   }
 
   protected String stripWhitespace(String string, boolean keepSpaces) {
-    if (string == null) {
+    if (isNull(string)) {
       return ("");
     }
 

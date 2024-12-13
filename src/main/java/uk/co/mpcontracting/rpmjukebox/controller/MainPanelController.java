@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.controller;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.MEDIA_STOPPED;
@@ -474,8 +475,7 @@ public class MainPanelController extends EventAwareObject {
       playlistService.pauseCurrentTrack();
     } else if (mediaService.isPaused()) {
       playlistService.resumeCurrentTrack();
-    } else if (playlistService.getPlaylist(currentSelectedPlaylistId).filter(playlist -> !playlist.isEmpty()).isPresent() &&
-        playlistService.getSelectedTrack() == null) {
+    } else if (playlistService.getPlaylist(currentSelectedPlaylistId).filter(playlist -> !playlist.isEmpty()).isPresent() && isNull(playlistService.getSelectedTrack())) {
       playlistService.playPlaylist(currentSelectedPlaylistId);
     } else {
       playlistService.playCurrentTrack(true);
@@ -600,7 +600,7 @@ public class MainPanelController extends EventAwareObject {
         Duration mediaDuration = (Duration) payload[0];
         Duration bufferProgressTime = (Duration) payload[1];
 
-        if (mediaDuration != null && bufferProgressTime != null) {
+        if (nonNull(mediaDuration) && nonNull(bufferProgressTime)) {
           timeSlider.setProgressValue(bufferProgressTime.divide(mediaDuration.toMillis()).toMillis() * 100.0);
         }
       }

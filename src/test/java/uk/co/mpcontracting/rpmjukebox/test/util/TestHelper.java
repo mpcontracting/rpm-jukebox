@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.test.util;
 
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 import java.io.BufferedReader;
@@ -93,7 +94,7 @@ public final class TestHelper {
     do {
       fields.addAll(List.of(clazz.getDeclaredFields()));
       clazz = clazz.getSuperclass();
-    } while (clazz != null);
+    } while (nonNull(clazz));
 
     return fields;
   }

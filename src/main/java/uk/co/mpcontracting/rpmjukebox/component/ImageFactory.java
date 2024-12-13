@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import static java.util.Objects.isNull;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.IMAGE_NO_ARTWORK;
 
 import javafx.scene.image.Image;
@@ -20,7 +21,7 @@ public class ImageFactory {
 
   private Image getDefaultImage() {
     synchronized (this) {
-      if (defaultImage == null) {
+      if (isNull(defaultImage)) {
         defaultImage = new Image(IMAGE_NO_ARTWORK);
       }
 

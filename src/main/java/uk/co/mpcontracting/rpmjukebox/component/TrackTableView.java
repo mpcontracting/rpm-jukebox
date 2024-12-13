@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
 import javafx.scene.control.TableView;
@@ -17,7 +18,7 @@ public class TrackTableView extends TableView<TrackTableModel> {
           for (int i = 0; i < observableTracks.size(); i++) {
             TrackTableModel trackTableModel = observableTracks.get(i);
 
-            if (trackTableModel.getTrack() != null && trackTableModel.getTrack().equals(presentTrack)) {
+            if (nonNull(trackTableModel.getTrack()) && trackTableModel.getTrack().equals(presentTrack)) {
               getSelectionModel().select(i);
               getFocusModel().focus(i);
 

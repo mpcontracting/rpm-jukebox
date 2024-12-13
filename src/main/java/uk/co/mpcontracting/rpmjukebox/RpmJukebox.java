@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox;
 
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 
@@ -43,14 +44,14 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport {
   public void beforeInitialView(Stage stage, ConfigurableApplicationContext context) {
     this.context = context;
 
-    if (context != null) {
+    if (nonNull(context)) {
       context.getBean(ApplicationLifecycleService.class).start(stage);
     }
   }
 
   @Override
   public void stop() throws Exception {
-    if (context != null) {
+    if (nonNull(context)) {
       context.getBean(ApplicationLifecycleService.class).stop();
     }
 
@@ -111,7 +112,7 @@ public class RpmJukebox extends AbstractJavaFxApplicationSupport {
     File homeDir = new File(System.getProperty("user.home"));
 
     // See if we have a command line override
-    if (System.getProperty("directory.config") != null) {
+    if (nonNull(System.getProperty("directory.config"))) {
       configDirectory = new File(homeDir, System.getProperty("directory.config"));
     } else {
       configDirectory = new File(homeDir, ".rpmjukebox");

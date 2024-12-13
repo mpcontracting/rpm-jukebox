@@ -1,6 +1,7 @@
 package uk.co.mpcontracting.rpmjukebox.service;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static uk.co.mpcontracting.rpmjukebox.event.Event.PLAYLIST_CONTENT_UPDATED;
@@ -120,7 +121,7 @@ public class PlaylistService extends EventAwareObject {
 
     synchronized (playlistMap) {
       // Find the first ID available
-      while (playlistMap.get(playlistId) != null) {
+      while (nonNull(playlistMap.get(playlistId))) {
         playlistId++;
       }
 
@@ -143,7 +144,7 @@ public class PlaylistService extends EventAwareObject {
 
     synchronized (playlistMap) {
       // Find the first ID available
-      while (playlistMap.get(playlistId) != null) {
+      while (nonNull(playlistMap.get(playlistId))) {
         playlistId++;
       }
 
@@ -198,7 +199,7 @@ public class PlaylistService extends EventAwareObject {
 
       playlistMap.remove(playlistId);
 
-      if (playlistMap.get(selectedPlaylistId) == null) {
+      if (isNull(playlistMap.get(selectedPlaylistId))) {
         selectedPlaylistId = 0;
       }
     }
@@ -255,7 +256,7 @@ public class PlaylistService extends EventAwareObject {
   }
 
   public boolean isTrackInPlaylist(int playlistId, String trackId) {
-    if (trackId == null) {
+    if (isNull(trackId)) {
       return false;
     }
 
@@ -298,11 +299,11 @@ public class PlaylistService extends EventAwareObject {
     synchronized (playlistMap) {
       // If the playing playlist is null, initialise it from
       // the current playlist ID
-      if (playingPlaylist == null) {
+      if (isNull(playingPlaylist)) {
         playingPlaylist = playlistMap.get(currentPlaylistId).createClone();
       }
 
-      if (playingPlaylist != null && !playingPlaylist.isEmpty()) {
+      if (nonNull(playingPlaylist) && !playingPlaylist.isEmpty()) {
         if (shuffle && !overrideShuffle) {
           log.debug("Getting shuffled track - {}", currentPlaylistIndex);
           currentTrack = playingPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
@@ -336,12 +337,12 @@ public class PlaylistService extends EventAwareObject {
     // playlist then play that instead of resuming the current track
     Track selectedTrack = trackTableController.getSelectedTrack();
 
-    if (selectedTrack != null) {
+    if (nonNull(selectedTrack)) {
       log.debug("Playing playlist - {}, Track playlist - {}, Track - {}", playingPlaylist.getPlaylistId(),
           selectedTrack.getPlaylistId(), selectedTrack.getTrackName());
 
       if (playingPlaylist.getPlaylistId() != selectedTrack.getPlaylistId() ||
-          (currentTrack != null && !currentTrack.equals(selectedTrack))) {
+          (nonNull(currentTrack) && !currentTrack.equals(selectedTrack))) {
         playTrack(selectedTrack);
 
         return;
@@ -368,7 +369,7 @@ public class PlaylistService extends EventAwareObject {
     }
 
     // Still tracks in playlist
-    if (playingPlaylist != null) {
+    if (nonNull(playingPlaylist)) {
       if (currentPlaylistIndex > 0) {
         currentPlaylistIndex--;
 
@@ -405,7 +406,7 @@ public class PlaylistService extends EventAwareObject {
     }
 
     // Still tracks in playlist
-    if (playingPlaylist != null) {
+    if (nonNull(playingPlaylist)) {
       if (currentPlaylistIndex < (playingPlaylist.size() - 1)) {
         currentPlaylistIndex++;
 
@@ -431,7 +432,7 @@ public class PlaylistService extends EventAwareObject {
   }
 
   public Track getTrackAtPlayingPlaylistIndex() {
-    if (playingPlaylist != null && !playingPlaylist.isEmpty()) {
+    if (nonNull(playingPlaylist) && !playingPlaylist.isEmpty()) {
       if (shuffle) {
         log.debug("Getting shuffled track");
         return playingPlaylist.getShuffledTrackAtIndex(currentPlaylistIndex);
@@ -462,14 +463,14 @@ public class PlaylistService extends EventAwareObject {
 
         // If we're playing or pausing a track, make sure that track is
         // placed in the current position in the shuffled stack
-        if (currentTrack != null && (mediaService.isPlaying() || mediaService.isPaused())) {
+        if (nonNull(currentTrack) && (mediaService.isPlaying() || mediaService.isPaused())) {
           playlist.setTrackAtShuffledIndex(currentTrack, currentPlaylistIndex);
           playingPlaylist = playlist.createClone();
         }
       } else if (!shuffle && !ignorePlaylist) {
         // If we're playing or pausing a track, we need to reset our
         // position in the current playlist
-        if (currentTrack != null && (mediaService.isPlaying() || mediaService.isPaused())) {
+        if (nonNull(currentTrack) && (mediaService.isPlaying() || mediaService.isPaused())) {
           currentPlaylistIndex = currentTrack.getPlaylistIndex();
         }
       }

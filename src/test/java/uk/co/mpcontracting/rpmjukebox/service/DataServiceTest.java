@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.service;
 
+import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -64,14 +65,14 @@ class DataServiceTest {
     List<Track> tracks = trackCaptor.getAllValues();
 
     assertThat(tracks)
-        .allMatch(track -> track.getArtistId() != null)
+        .allMatch(track -> nonNull(track.getArtistId()))
         .allMatch(track -> track.getArtistName().startsWith("Test Artist ") && track.getArtistName().length() == 13)
-        .allMatch(track -> track.getAlbumId() != null)
+        .allMatch(track -> nonNull(track.getAlbumId()))
         .allMatch(track -> track.getAlbumName().startsWith("Test Album ") && track.getAlbumName().length() == 12)
         .allMatch(track -> track.getAlbumImage().equals("s3-bucket-url/image/album/" + track.getYear() + "/" +
             track.getArtistId() + "/" + track.getAlbumId()))
         .allMatch(track -> track.getYear() == 2000)
-        .allMatch(track -> track.getTrackId() != null && track.getTrackId().length() == 64)
+        .allMatch(track -> nonNull(track.getTrackId()) && track.getTrackId().length() == 64)
         .allMatch(track -> track.getTrackName().startsWith("Test Track Name ") && track.getTrackName().length() == 17)
         .allMatch(track -> track.getIndex() > 0)
         .allMatch(track -> track.getLocation().equals("s3-bucket-url/music/" + track.getYear() + "/" + track.getArtistId() +

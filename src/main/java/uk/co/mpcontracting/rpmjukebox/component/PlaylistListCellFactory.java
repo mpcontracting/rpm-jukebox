@@ -1,5 +1,6 @@
 package uk.co.mpcontracting.rpmjukebox.component;
 
+import static java.util.Objects.nonNull;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.DND_TRACK_DATA_FORMAT;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_PLAYLIST_CONTEXT_DELETE_PLAYLIST;
 import static uk.co.mpcontracting.rpmjukebox.util.Constants.MESSAGE_PLAYLIST_CONTEXT_NEW_PLAYLIST;
@@ -78,8 +79,8 @@ public class PlaylistListCellFactory implements Callback<ListView<Playlist>, Lis
     });
 
     listCell.setOnDragEntered(event -> {
-      if (event.getGestureSource() != listCell && listCell.getItem() != null &&
-          listCell.getItem().getPlaylistId() > -1 && event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT)) {
+      if (event.getGestureSource() != listCell && nonNull(listCell.getItem()) && listCell.getItem().getPlaylistId() > -1 &&
+          event.getDragboard().hasContent(DND_TRACK_DATA_FORMAT)) {
         listCell.setStyle("-fx-background-color: -jb-foreground-color; -fx-text-fill: -jb-background-color");
       }
 
