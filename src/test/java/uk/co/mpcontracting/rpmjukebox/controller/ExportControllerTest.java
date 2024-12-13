@@ -24,7 +24,6 @@ import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -145,7 +144,7 @@ class ExportControllerTest extends AbstractGuiTest {
     when(playlistService.getPlaylist(1)).thenReturn(of(playlists.get(3)));
     when(playlistService.getPlaylist(2)).thenReturn(of(playlists.get(4)));
 
-    Set<Integer> playlistsToExport = new HashSet<>(Arrays.asList(1, 2));
+    Set<Integer> playlistsToExport = new HashSet<>(List.of(1, 2));
     setField(underTest, "playlistsToExport", playlistsToExport);
 
     FileChooser mockFileChooser = mock(FileChooser.class);
@@ -181,7 +180,7 @@ class ExportControllerTest extends AbstractGuiTest {
     when(playlistService.getPlaylist(1)).thenReturn(of(playlists.get(3)));
     when(playlistService.getPlaylist(2)).thenReturn(of(playlists.get(4)));
 
-    Set<Integer> playlistsToExport = new HashSet<>(Arrays.asList(1, 2));
+    Set<Integer> playlistsToExport = new HashSet<>(List.of(1, 2));
     setField(underTest, "playlistsToExport", playlistsToExport);
 
     FileChooser mockFileChooser = mock(FileChooser.class);
@@ -206,7 +205,7 @@ class ExportControllerTest extends AbstractGuiTest {
 
   @Test
   void shouldClickOkButtonWithNullFileReturnedFromFileChooser() {
-    Set<Integer> playlistsToExport = new HashSet<>(Arrays.asList(1, 2));
+    Set<Integer> playlistsToExport = new HashSet<>(List.of(1, 2));
     setField(underTest, "playlistsToExport", playlistsToExport);
 
     FileChooser mockFileChooser = mock(FileChooser.class);

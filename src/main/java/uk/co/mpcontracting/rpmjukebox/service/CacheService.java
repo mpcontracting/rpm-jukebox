@@ -16,7 +16,6 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -146,7 +145,7 @@ public class CacheService {
 
     log.debug("Trimming the cache to {}Mb", cacheSizeMb);
 
-    List<File> files = new ArrayList<>(Arrays.asList(requireNonNull(cacheDirectory.listFiles())));
+    List<File> files = new ArrayList<>(List.of(requireNonNull(cacheDirectory.listFiles())));
 
     files.sort(timestampComparator);
 
